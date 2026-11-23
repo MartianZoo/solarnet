@@ -227,7 +227,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
         firstGlobalEvents = listOf("$DemocraticReform", "$MinimalImpactPolicy", "$RedResistance"),
     )
     kim.turn {
-      doTasks(*playCardTasks("$Mine"), "4 Pay<> FROM MC", "$Mine FROM ProjectCard", "PROD[Steel]")
+      doTasks(*playCardTasks("$Mine"), "4 Pay<> FROM MC", "PROD[Steel]")
     }
     stan.doTask("Pass")
     kim.doTask("Pass")

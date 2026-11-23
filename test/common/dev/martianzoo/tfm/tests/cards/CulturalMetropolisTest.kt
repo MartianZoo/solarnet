@@ -20,7 +20,6 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$CulturalMetropolis"),
             "20 Pay<> FROM MC",
-            "$CulturalMetropolis FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[3 MC]",
             "CityTile<Tharsis_4_2>",
@@ -58,7 +57,6 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CulturalMetropolis"),
           "20 Pay<> FROM MC",
-          "$CulturalMetropolis FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Tharsis_4_2>",
@@ -80,7 +78,6 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$CulturalMetropolis"),
               "20 Pay<> FROM MC",
-              "$CulturalMetropolis FROM ProjectCard",
               "PROD[-Energy]",
               "PROD[3 MC]",
               "CityTile<Tharsis_4_2>",
@@ -105,7 +102,6 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$CulturalMetropolis"),
             "20 Pay<> FROM MC",
-            "$CulturalMetropolis FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[3 MC]",
             "CityTile<Tharsis_4_2>",
@@ -130,7 +126,6 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$CulturalMetropolis"),
               "20 Pay<> FROM MC",
-              "$CulturalMetropolis FROM ProjectCard",
               "PROD[-Energy]",
               "PROD[3 MC]",
               "CityTile<Tharsis_4_2>",

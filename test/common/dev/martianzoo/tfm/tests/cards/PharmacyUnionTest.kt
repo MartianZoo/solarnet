@@ -16,7 +16,6 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
-          "$PharmacyUnion FROM CorporationCard",
           "SearchForCard<TagFilter<Class<ScienceTag>>>!",
           "54 MC",
           "Disease<$PharmacyUnion>",
@@ -38,7 +37,6 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
-              "$PharmacyUnion FROM CorporationCard",
               "SearchForCard<TagFilter<Class<ScienceTag>>>!",
               "54 MC",
               "Disease<$PharmacyUnion>",
@@ -58,7 +56,6 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
-          "$PharmacyUnion FROM CorporationCard",
       )
       shouldThrow<TaskException> { doTask("-4 MC") }
       doTask("Disease<$PharmacyUnion>")
@@ -74,7 +71,6 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$PhysicsComplex"),
               "12 Pay<> FROM MC",
-              "$PhysicsComplex FROM ProjectCard",
               "TerraformRating FROM Disease<$PharmacyUnion>",
           )
         }
@@ -91,7 +87,6 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Decomposers"),
               "5 Pay<> FROM MC",
-              "$Decomposers FROM ProjectCard",
               "Microbe<$Decomposers>*",
           )
           // The active player chooses when to hand this task to its owner.
@@ -112,7 +107,6 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Research"),
               "11 Pay<> FROM MC",
-              "$Research FROM ProjectCard",
               "TerraformRating FROM Disease<$PharmacyUnion>",
               "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
           )
@@ -134,7 +128,6 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
-          "$Research FROM ProjectCard",
           "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
           "Ok",
           "2 ProjectCard<Hand>",
@@ -153,7 +146,6 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$PhysicsComplex"),
           "12 Pay<> FROM MC",
-          "$PhysicsComplex FROM ProjectCard",
           "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
           "3 TerraformRating",
       )
@@ -172,7 +164,6 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$RegolithEaters"),
               "13 Pay<> FROM MC",
-              "$RegolithEaters FROM ProjectCard",
               "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
               "Ok",
               "-4 MC",

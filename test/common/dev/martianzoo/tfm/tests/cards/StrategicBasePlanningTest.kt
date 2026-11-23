@@ -19,7 +19,6 @@ internal class StrategicBasePlanningTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$StrategicBasePlanning>>",
-            "$StrategicBasePlanning FROM PreludeCard",
             "-3 MC",
             "CityTile<Cimmeria_3_3>",
             "CimmeriaPlacementBonus!",
@@ -38,7 +37,6 @@ internal class StrategicBasePlanningTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$StrategicBasePlanning>>",
-          "$StrategicBasePlanning FROM PreludeCard",
           "-3 MC",
           "CityTile<Cimmeria_3_4>",
           "Colony<Callisto>",

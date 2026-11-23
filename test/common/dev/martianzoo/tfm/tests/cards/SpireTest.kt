@@ -25,7 +25,6 @@ internal class SpireTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$BusinessContacts"),
               "7 Pay<> FROM MC",
-              "$BusinessContacts FROM ProjectCard",
               "4 ProjectCard<Selecting>",
               "2 ProjectCard<Hand FROM Selecting>",
               "Science<$Spire>",
@@ -37,7 +36,6 @@ internal class SpireTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$MineralDeposit"),
               "5 Pay<> FROM MC",
-              "$MineralDeposit FROM ProjectCard",
               "5 Steel",
           )
         }
@@ -60,7 +58,6 @@ internal class SpireTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Research"),
               "11 Pay<> FROM MC",
-              "$Research FROM ProjectCard",
               "2 ProjectCard<Hand>",
               "Science<$Spire>",
           )

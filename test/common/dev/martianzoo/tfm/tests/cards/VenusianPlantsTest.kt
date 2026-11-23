@@ -19,7 +19,6 @@ internal class VenusianPlantsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$VenusianPlants"),
               "13 Pay<> FROM MC",
-              "$VenusianPlants FROM ProjectCard",
               "VenusStep",
               "TerraformRating",
               "Ok",

@@ -549,7 +549,6 @@ public class GameArchiveExporter(
       } else zeroPayment?.let(::line)
       zeroPayment = null
     }
-    var card: String? = null
     var nestedCorrection: Int? = null
     for (step in combineAdjacentAmounts(steps, allSteps)) {
       if (nestedCorrection != null && nestedCorrection != step.correction) {
@@ -627,7 +626,7 @@ public class GameArchiveExporter(
           }
         }
         "PlayCard" -> {
-          card = gain.arguments[2].arguments.single().className.toString()
+          val card = gain.arguments[2].arguments.single().className.toString()
           val location = gain.arguments[3].toString()
           val name = "PlayCard($card${if (location == "Hand") "" else ", $location"})"
           action(name)
@@ -635,13 +634,6 @@ public class GameArchiveExporter(
         "Pass",
         "DoRequiredActions" -> if (block.name.isEmpty()) block.name = target else line(target)
         else -> {
-          if (
-              card != null &&
-                  gain?.className?.toString() == card &&
-                  loss != null &&
-                  isSubtype(loss, "CardBack")
-          )
-              continue
           val text = render(instruction, step.actor) + (step.context?.let { " VIA $it" } ?: "")
           line(if (step.actor == block.actor) text else "${step.actor}: $text")
         }

@@ -27,7 +27,6 @@ internal class MarsNomadsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MarsNomads"),
           "13 Pay<> FROM MC",
-          "$MarsNomads FROM ProjectCard",
       )
       shouldThrow<ExpressionException> { doTask("NomadsMarker<Tharsis_5_3>") }
       doTask("NomadsMarker<Tharsis_1_1>")
@@ -43,7 +42,6 @@ internal class MarsNomadsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$MarsNomads"),
               "13 Pay<> FROM MC",
-              "$MarsNomads FROM ProjectCard",
               "NomadsMarker<Tharsis_1_1>",
           )
         }
@@ -159,7 +157,6 @@ internal class MarsNomadsTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MiningRights"),
             "9 Pay<> FROM MC",
-            "$MiningRights FROM ProjectCard",
             "MiningRights_SpecialTile<Tharsis_1_1>",
         )
       }
@@ -179,7 +176,6 @@ internal class MarsNomadsTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$ArtificialLake"),
             "15 Pay<> FROM MC",
-            "$ArtificialLake FROM ProjectCard",
             "OceanTile<Tharsis_1_3>",
         )
       }
@@ -220,7 +216,6 @@ internal class MarsNomadsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LandClaim"),
               "1 Pay<> FROM MC",
-              "$LandClaim FROM ProjectCard",
               "Community<Tharsis_1_1>",
           )
         }
@@ -239,7 +234,6 @@ internal class MarsNomadsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LandClaim"),
               "1 Pay<> FROM MC",
-              "$LandClaim FROM ProjectCard",
               "Community<Tharsis_1_1>",
           )
         }

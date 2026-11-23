@@ -40,10 +40,8 @@ internal class TerraLabsTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "PlayCard<Class<CorporationCard>, Class<$Polyphemos>>",
-          "$Polyphemos FROM CorporationCard<Selecting>",
           "50 MC",
           "5 Titanium",
           "PROD[5 MC]",
@@ -52,12 +50,10 @@ internal class TerraLabsTest : TfmGameplayTest() {
     }
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-        "$Donation FROM PreludeCard",
         "21 MC",
     )
     stan.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$SupplyDrop>>",
-        "$SupplyDrop FROM PreludeCard",
         "3 Titanium",
         "8 Steel",
         "3 Plant",
@@ -65,7 +61,6 @@ internal class TerraLabsTest : TfmGameplayTest() {
 
     stan.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>",
-        "$PowerGeneration FROM PreludeCard",
         "PROD[3 Energy]",
     )
     kim.doTask("Pass")

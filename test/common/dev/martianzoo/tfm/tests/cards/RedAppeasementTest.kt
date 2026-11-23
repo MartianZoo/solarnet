@@ -31,7 +31,7 @@ internal class RedAppeasementTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     shouldThrow<RequirementException> {
-      kim.doTasks(*playCardTasks("$RedAppeasement"), "$RedAppeasement FROM ProjectCard")
+      kim.doTasks(*playCardTasks("$RedAppeasement"))
     }
   }
 
@@ -45,7 +45,6 @@ internal class RedAppeasementTest : TfmGameplayTest() {
 
     kim.doTasks(
         *playCardTasks("$RedAppeasement"),
-        "$RedAppeasement FROM ProjectCard",
         "PROD[2 MC]",
         "Pass",
     )
@@ -67,7 +66,6 @@ internal class RedAppeasementTest : TfmGameplayTest() {
     kim.doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
     kim.doTasks(
         *playCardTasks("$RedAppeasement"),
-        "$RedAppeasement FROM ProjectCard",
         "PROD[2 MC]",
         "Pass",
     )

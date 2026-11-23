@@ -21,7 +21,6 @@ internal class LandClaimTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$LandClaim"),
           "1 Pay<> FROM MC",
-          "$LandClaim FROM ProjectCard",
       )
       shouldThrow<ExpressionException> { doTask("Community<Tharsis_5_3>") }
       doTask("Community<Tharsis_1_1>")
@@ -35,7 +34,6 @@ internal class LandClaimTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$LandClaim"),
           "1 Pay<> FROM MC",
-          "$LandClaim FROM ProjectCard",
           "Community<Tharsis_1_1>",
       )
     }
@@ -80,7 +78,6 @@ internal class LandClaimTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$ArtificialLake"),
             "15 Pay<> FROM MC",
-            "$ArtificialLake FROM ProjectCard",
             "OceanTile<Tharsis_1_3>",
         )
       }
@@ -97,7 +94,6 @@ internal class LandClaimTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$ArtificialLake"),
               "15 Pay<> FROM MC",
-              "$ArtificialLake FROM ProjectCard",
               "OceanTile<Tharsis_1_3>",
               "TerraformRating",
           )
@@ -266,7 +262,6 @@ internal class LandClaimTest : TfmSandboxTest() {
 
         doTasks(
             "1 Pay<> FROM MC",
-            "$LandClaim FROM ProjectCard",
             "Community<Tharsis_1_1>",
         )
       }
@@ -284,7 +279,6 @@ internal class LandClaimTest : TfmSandboxTest() {
 
         doTasks(
             "1 Pay<> FROM MC",
-            "$LandClaim FROM ProjectCard",
             "Community<Tharsis_1_3>",
         )
       }

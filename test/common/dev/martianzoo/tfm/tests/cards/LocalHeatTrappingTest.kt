@@ -19,7 +19,6 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LocalHeatTrapping"),
               "1 Pay<> FROM MC",
-              "$LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
           )
           // Decline gaining plants by choosing animals when no animal holder exists.
@@ -39,7 +38,6 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
 
         doTasks(
             "1 Pay<> FROM MC",
-            "$LocalHeatTrapping FROM ProjectCard",
             "-5 Heat",
             "Ok",
         )

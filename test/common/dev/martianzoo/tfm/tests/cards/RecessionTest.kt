@@ -21,7 +21,6 @@ internal class RecessionTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$Recession>>",
-              "$Recession FROM PreludeCard",
               "10 MC",
           )
           // Expand the effect into separate losses for each other player.
@@ -42,7 +41,6 @@ internal class RecessionTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard",
           "4 Director<$BoardOfDirectors>",
       )
     }
@@ -60,7 +58,6 @@ internal class RecessionTest : TfmSandboxTest() {
         )
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$Recession>>",
-            "$Recession FROM PreludeCard",
             "10 MC",
         )
         // Expand the effect into separate losses for each other player.
@@ -87,7 +84,6 @@ internal class RecessionTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$Recession>>",
-            "$Recession FROM PreludeCard",
             "10 MC",
         )
         // Expand the effect into separate losses for each other player.

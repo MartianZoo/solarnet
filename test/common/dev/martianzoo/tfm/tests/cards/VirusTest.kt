@@ -22,7 +22,6 @@ internal class VirusTest : TfmSandboxTest() {
 
         doTasks(
             "1 Pay<> FROM MC",
-            "$Virus FROM ProjectCard",
             "-Animal<Stan, $Birds<Stan>>, -Animal<Stan, $Fish<Stan>>",
         )
       }

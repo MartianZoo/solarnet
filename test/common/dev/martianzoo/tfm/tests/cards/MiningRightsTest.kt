@@ -32,7 +32,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
-          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Amazonis_05_03>",
       )
 
@@ -52,7 +51,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
-          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
           "Titanium",
           "2 Steel",
@@ -64,7 +62,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$MiningRights>",
           "PROD[Titanium]",
       )
@@ -79,7 +76,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MiningRights"),
             "9 Pay<> FROM MC",
-            "$MiningRights FROM ProjectCard",
             "MiningRights_SpecialTile<Tharsis_2_1>",
         )
         // Resolve the production choice to check that this area supplies a metal bonus.
@@ -99,7 +95,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MiningRights"),
             "9 Pay<> FROM MC",
-            "$MiningRights FROM ProjectCard",
             "MiningRights_SpecialTile<Tharsis_1_1>",
             "2 Steel",
             "PROD[Titanium]",
@@ -117,7 +112,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
-          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
           "Titanium",
           "2 Steel",
@@ -134,7 +128,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
-          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
           "2 Steel",
           "Titanium",

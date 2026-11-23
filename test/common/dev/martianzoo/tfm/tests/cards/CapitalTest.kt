@@ -65,7 +65,6 @@ internal class CapitalTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Capital"),
           "26 Pay<> FROM MC",
-          "$Capital FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[5 MC]",
           "CapitalTile<Tharsis_3_3>",

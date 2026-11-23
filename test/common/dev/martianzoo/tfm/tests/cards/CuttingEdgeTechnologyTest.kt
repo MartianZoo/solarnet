@@ -13,8 +13,7 @@ internal class CuttingEdgeTechnologyTest : TfmSandboxTest() {
   internal fun `Discounts a card with a requirement`() {
     kim.exMachina("$CuttingEdgeTechnology")
 
-    kim.inTurn { doTasks(*playCardTasks("$DustSeals"), "$DustSeals FROM ProjectCard") }
-        .expect("0 MC")
+    kim.inTurn { doTasks(*playCardTasks("$DustSeals")) }.expect("0 MC")
   }
 
   @Test
@@ -25,7 +24,6 @@ internal class CuttingEdgeTechnologyTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Advertising"),
           "4 Pay<> FROM MC",
-          "$Advertising FROM ProjectCard",
       )
     }
   }

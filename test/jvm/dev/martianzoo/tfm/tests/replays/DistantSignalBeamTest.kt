@@ -105,7 +105,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
         IoSulphurResearch,
     )
     pink.doTask("PlayCard<Class<CorporationCard>, Class<$MorningStarInc>>")
-    pink.doTask("$MorningStarInc FROM CorporationCard")
     pink.doTasks("50 MC", "21 Pay<> FROM MC", "7 ProjectCard<Hand FROM Selecting>")
     purple.draw(
         RotatorImpacts,
@@ -120,14 +119,12 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
         NeutralizerFactory,
     )
     purple.doTask("PlayCard<Class<CorporationCard>, Class<$Aridor>>")
-    purple.doTask("$Aridor FROM CorporationCard")
     purple.doTasks("40 MC", "30 Pay<> FROM MC", "10 ProjectCard<Hand FROM Selecting>")
 
     with(pink) {
       draw(TitanShuttles, AtmoCollectors)
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AtmosphericEnhancers>>",
-          "$AtmosphericEnhancers FROM PreludeCard",
           "2 VenusStep",
           "2 TerraformRating",
           "2 SearchForCard<ReferenceFilter<Class<Floater>>>",
@@ -135,7 +132,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       draw(Cartel)
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$PolarIndustries>>",
-          "$PolarIndustries FROM PreludeCard",
           "OceanTile<Hellas_5_6>",
           "TerraformRating",
           "PROD[2 Heat]",
@@ -147,7 +143,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       purple.discard(PowerSupplyConsortium, AdaptationTechnology, BreathingFilters)
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ProjectEden>>",
-          "$ProjectEden FROM PreludeCard",
           "-3 ProjectCard",
           "PROD[MC]",
           "PROD[MC]",
@@ -166,7 +161,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       // Database save 4: Project Eden introduced Purple's first city and plant tags.
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
-          "$AlliedBank FROM PreludeCard",
           "3 MC",
           "PROD[MC]",
           "PROD[4 MC]",
@@ -180,7 +174,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$TitanShuttles"),
           "23 Pay<> FROM MC",
-          "$TitanShuttles FROM ProjectCard",
       )
     }
     purple.turn {
@@ -195,7 +188,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           *playCardTasks("$PeroxidePower"),
           "3 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$PeroxidePower FROM ProjectCard",
           "PROD[-MC]",
           "PROD[2 Energy]",
           "PROD[MC]",
@@ -207,14 +199,12 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$SulphurEatingBacteria"),
           "6 Pay<> FROM MC",
-          "$SulphurEatingBacteria FROM ProjectCard",
       )
     }
     purple.turn {
       doTasks(
           *playCardTasks("$Casinos"),
           "5 Pay<> FROM MC",
-          "$Casinos FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
       )
@@ -226,7 +216,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Tardigrades"),
           "4 Pay<> FROM MC",
-          "$Tardigrades FROM ProjectCard",
           "PROD[MC]",
       )
     }
@@ -237,7 +226,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$RotatorImpacts"),
           "6 Pay<> FROM MC",
-          "$RotatorImpacts FROM ProjectCard",
           "PROD[MC]",
       )
     }
@@ -307,7 +295,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           *playCardTasks("$LagrangeObservatory"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "$LagrangeObservatory FROM ProjectCard",
           "ProjectCard",
       )
     }
@@ -317,7 +304,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$BactoviralResearch"),
           "10 Pay<> FROM MC",
-          "$BactoviralResearch FROM ProjectCard",
           "ProjectCard",
           "Microbe<$Tardigrades>",
           "PROD[MC]",
@@ -329,13 +315,11 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$HousePrinting"),
           "10 Pay<> FROM MC",
-          "$HousePrinting FROM ProjectCard",
           "PROD[Steel]",
       )
       doTasks(
           *playCardTasks("$StaticHarvesting"),
           "5 Pay<> FROM MC",
-          "$StaticHarvesting FROM ProjectCard",
           "PROD[Energy]",
           "2 MC",
       )
@@ -345,7 +329,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$LocalShading"),
           "4 Pay<> FROM MC",
-          "$LocalShading FROM ProjectCard",
           "PROD[MC]",
       )
     }
@@ -355,7 +338,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MicroMills"),
           "3 Pay<> FROM MC",
-          "$MicroMills FROM ProjectCard",
           "PROD[Heat]",
       )
     }
@@ -393,7 +375,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$InterplanetaryTrade"),
           "27 Pay<> FROM MC",
-          "$InterplanetaryTrade FROM ProjectCard",
           "EACH",
           "PROD[9 MC]",
       )

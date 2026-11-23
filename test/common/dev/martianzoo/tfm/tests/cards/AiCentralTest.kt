@@ -24,7 +24,6 @@ internal class AiCentralTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$AiCentral"),
             "21 Pay<> FROM MC",
-            "$AiCentral FROM ProjectCard",
             "PROD[-Energy]",
         )
       }

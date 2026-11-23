@@ -80,7 +80,6 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SmallAsteroid"),
           "8 Pay<> FROM MC",
-          "$SmallAsteroid FROM ProjectCard",
           "TemperatureStep",
       )
       // Resolve the optional attack: no unprotected plant target is available.

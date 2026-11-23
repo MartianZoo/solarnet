@@ -13,7 +13,6 @@ internal class HighCirclesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$HighCircles>>",
-          "$HighCircles FROM PreludeCard",
           "TerraformRating",
           "SearchForCard<ReferenceFilter<Class<Ruling>>>!",
           "PartyLeader<Scientists>",
@@ -24,14 +23,12 @@ internal class HighCirclesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>",
-              "$ExcentricSponsor FROM PreludeCard",
               "PlayCard<Class<ProjectCard>, Class<$SupportedResearch>>",
           )
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-25* Owed")
           doTask("Ok") // The discount covers the full cost.
           doTasks(
-              "$SupportedResearch FROM ProjectCard",
               "2 ProjectCard<Hand>",
           )
         }
@@ -47,7 +44,6 @@ internal class HighCirclesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$HighCircles>>",
-          "$HighCircles FROM PreludeCard",
           "TerraformRating",
           "SearchForCard<ReferenceFilter<Class<Ruling>>>!",
           "PartyLeader<Scientists>",
@@ -58,7 +54,6 @@ internal class HighCirclesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
-              "$EcologyExperts FROM PreludeCard",
               "PROD[Plant]",
               "PlayCard<Class<ProjectCard>, Class<$SupportedResearch>>",
           )
@@ -66,7 +61,6 @@ internal class HighCirclesTest : TfmSandboxTest() {
           doTasks(
               "-Required* / Required",
               "3 Pay<> FROM MC",
-              "$SupportedResearch FROM ProjectCard",
               "2 ProjectCard<Hand>",
           )
         }

@@ -17,7 +17,6 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               *playCardTasks("$BannedDelegate"),
-              "$BannedDelegate FROM ProjectCard",
               "-PartyFollower<Scientists, Stan>",
               "ProjectCard",
           )
@@ -56,7 +55,6 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$CorridorsOfPower>>",
-          "$CorridorsOfPower FROM PreludeCard",
           "TerraformRating",
           "4 MC",
       )

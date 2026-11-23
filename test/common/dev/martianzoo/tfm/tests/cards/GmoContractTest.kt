@@ -15,7 +15,6 @@ internal class GmoContractTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AdvancedEcosystems"),
           "11 Pay<> FROM MC",
-          "$AdvancedEcosystems FROM ProjectCard",
           "2 MC",
           "Microbe<$Decomposers>*",
           "2 MC",

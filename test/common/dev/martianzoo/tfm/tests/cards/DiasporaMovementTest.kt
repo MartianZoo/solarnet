@@ -16,7 +16,6 @@ internal class DiasporaMovementTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$DiasporaMovement"),
               "7 Pay<> FROM MC",
-              "$DiasporaMovement FROM ProjectCard",
               "2 MC",
           )
         }

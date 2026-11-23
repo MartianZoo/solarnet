@@ -144,7 +144,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       draw(MarsNomads, AdvancedAlloys, Algae, ArtificialPhotosynthesis)
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Ecoline>>",
-          "$Ecoline FROM CorporationCard",
           "36 MC",
           "PROD[2 Plant]",
           "3 Plant",
@@ -156,7 +155,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       draw(ReleaseOfInertGases, MoholeArea, ProtectedValley, GhgImportFromVenus)
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$CrediCor>>",
-          "$CrediCor FROM CorporationCard",
           "57 MC",
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
@@ -173,7 +171,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$AstroDrill>>",
-          "$AstroDrill FROM CorporationCard",
           "35 MC",
           "3 Asteroid<$AstroDrill>",
           "18 Pay<> FROM MC",
@@ -192,7 +189,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$RobinsonIndustries>>",
-          "$RobinsonIndustries FROM CorporationCard",
           "47 MC",
           "21 Pay<> FROM MC",
           "7 ProjectCard<Hand FROM Selecting>",
@@ -201,20 +197,17 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
     with(p1) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
-          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
       )
       doTasks(
           "PlayCard<Class<$Algae>>",
           "-5 Required<Class<OceanTile>>",
           "10 Pay<> FROM MC",
-          "$Algae FROM ProjectCard",
           "PROD[2 Plant]",
           "Plant",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$HugeAsteroid>>",
-          "$HugeAsteroid FROM PreludeCard",
           "3 TemperatureStep",
           "3 TerraformRating",
           "PROD[Heat]",
@@ -226,7 +219,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       draw(Capital, PublicBaths)
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$GreatAquifer>>",
-          "$GreatAquifer FROM PreludeCard",
           "OceanTile<Amazonis_08_04>",
           "2 ProjectCard",
           "TerraformRating",
@@ -237,7 +229,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$SocietySupport>>",
-          "$SocietySupport FROM PreludeCard",
           "PROD[-MC]",
           "PROD[Plant]",
           "PROD[Energy]",
@@ -247,7 +238,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
     with(p3) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MetalRichAsteroid>>",
-          "$MetalRichAsteroid FROM PreludeCard",
           "4 Steel",
           "4 Titanium",
           "TemperatureStep",
@@ -256,7 +246,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MiningOperations>>",
-          "$MiningOperations FROM PreludeCard",
           "PROD[2 Steel]",
           "4 Steel",
       )
@@ -265,13 +254,11 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       draw(SpaceMirrors)
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
-          "$UnmiContractor FROM PreludeCard",
           "ProjectCard",
           "3 TerraformRating",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AntiDesertificationTechniques>>",
-          "$AntiDesertificationTechniques FROM PreludeCard",
           "PROD[Steel]",
           "PROD[Plant]",
           "3 MC",
@@ -327,7 +314,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MoholeArea"),
           "20 Pay<> FROM MC",
-          "$MoholeArea FROM ProjectCard",
           "PROD[4 Heat]",
           "4 MC",
           "MoholeArea_SpecialTile<Amazonis_09_04>",
@@ -339,20 +325,18 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
     p3.turn {
       doTasks(*playCardTasks("$HomeostasisBureau"), "8 Pay<Class<Steel>> FROM Steel")
       doTask("0 Pay<> FROM MC") // no MC paid
-      doTasks("$HomeostasisBureau FROM ProjectCard", "PROD[2 Heat]")
+      doTasks("PROD[2 Heat]")
     }
     purple.turn {
       doTasks(
           *playCardTasks("$FoodFactory"),
           "12 Pay<> FROM MC",
-          "$FoodFactory FROM ProjectCard",
           "PROD[4 MC]",
           "PROD[-Plant]",
       )
       doTasks(
           *playCardTasks("$ColonizerTrainingCamp"),
           "8 Pay<> FROM MC",
-          "$ColonizerTrainingCamp FROM ProjectCard",
       )
     }
     p2.turn {
@@ -360,7 +344,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$ProtectedValley"),
           "Pay<Class<Steel>> FROM Steel",
           "21 Pay<> FROM MC",
-          "$ProtectedValley FROM ProjectCard",
           "PROD[2 MC]",
           "4 MC",
           "GreeneryTile<Amazonis_02_07>",
@@ -384,7 +367,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$StaticHarvesting"),
           "5 Pay<> FROM MC",
-          "$StaticHarvesting FROM ProjectCard",
           "PROD[Energy]",
           "2 MC",
       )
@@ -444,7 +426,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ReleaseOfInertGases"),
           "14 Pay<> FROM MC",
-          "$ReleaseOfInertGases FROM ProjectCard",
           "2 TerraformRating",
       )
     }
@@ -454,7 +435,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
-          "$Research FROM ProjectCard",
           "2 ProjectCard",
       )
     }
@@ -462,7 +442,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ForcedPrecipitation"),
           "8 Pay<> FROM MC",
-          "$ForcedPrecipitation FROM ProjectCard",
       )
     }
     p1.turn {
@@ -482,14 +461,12 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$MercurianAlloys"),
           "Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // no MC paid
-          "$MercurianAlloys FROM ProjectCard",
       ) // no MC paid
     }
     purple.turn {
       doTasks(
           *playCardTasks("$Lichen"),
           "7 Pay<> FROM MC",
-          "$Lichen FROM ProjectCard",
           "PROD[Plant]",
       )
     }
@@ -497,7 +474,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MarsNomads"),
           "13 Pay<> FROM MC",
-          "$MarsNomads FROM ProjectCard",
           "NomadsMarker<Amazonis_11_11>",
       )
       doTasks(
@@ -522,7 +498,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$GeothermalPower"),
           "2 Pay<Class<Steel>> FROM Steel",
           "7 Pay<> FROM MC",
-          "$GeothermalPower FROM ProjectCard",
           "PROD[2 Energy]",
       )
     }
@@ -531,7 +506,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$AsteroidCard"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // no MC paid
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "TerraformRating",
           "2 Titanium",
@@ -545,14 +519,12 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$SpaceMirrors"),
           "Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // no MC paid
-          "$SpaceMirrors FROM ProjectCard",
       ) // no MC paid
     }
     p1.turn {
       doTasks(
           *playCardTasks("$FuelFactory"),
           "6 Pay<> FROM MC",
-          "$FuelFactory FROM ProjectCard",
           "PROD[MC]",
           "PROD[Titanium]",
           "PROD[-Energy]",
@@ -618,7 +590,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ArcticAlgae"),
           "12 Pay<> FROM MC",
-          "$ArcticAlgae FROM ProjectCard",
           "Plant",
       )
     }
@@ -642,7 +613,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$DirectedImpactors"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "$DirectedImpactors FROM ProjectCard",
       )
     }
     p3.turn {
@@ -653,7 +623,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$Comet"),
           "Pay<Class<Titanium>> FROM Titanium",
           "18 Pay<> FROM MC",
-          "$Comet FROM ProjectCard",
           "TemperatureStep",
           "TerraformRating",
           "OceanTile<Amazonis_06_05>",
@@ -668,7 +637,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$AdvancedAlloys"),
           "9 Pay<> FROM MC",
-          "$AdvancedAlloys FROM ProjectCard",
       )
     }
     p2.turn {
@@ -684,7 +652,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$FieldCappedCity"),
           "5 Pay<Class<Steel>> FROM Steel",
           "19 Pay<> FROM MC",
-          "$FieldCappedCity FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[Energy]",
           "3 Plant",
@@ -706,7 +673,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$BusinessNetwork"),
           "4 Pay<> FROM MC",
-          "$BusinessNetwork FROM ProjectCard",
           "PROD[-MC]",
       )
     }
@@ -715,18 +681,16 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$VestaShipyard"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "7 Pay<> FROM MC",
-          "$VestaShipyard FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
     p2.turn {
-      doTasks(*playCardTasks("$LocalShading"), "4 Pay<> FROM MC", "$LocalShading FROM ProjectCard")
+      doTasks(*playCardTasks("$LocalShading"), "4 Pay<> FROM MC")
     }
     p3.turn {
       doTasks(
           *playCardTasks("$IndustrialCenter"),
           "4 Pay<> FROM MC",
-          "$IndustrialCenter FROM ProjectCard",
           "IndustrialCenter_SpecialTile<Amazonis_08_03>",
           "Plant",
           "2 MC",
@@ -816,7 +780,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$BigAsteroid"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "19 Pay<> FROM MC",
-          "$BigAsteroid FROM ProjectCard",
           "2 TemperatureStep",
           "2 TerraformRating",
           "4 Titanium",
@@ -832,7 +795,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$GhgImportFromVenus"),
           "23 Pay<> FROM MC",
-          "$GhgImportFromVenus FROM ProjectCard",
           "PROD[3 Heat]",
           "VenusStep",
           "ProjectCard",
@@ -848,7 +810,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$NaturalPreserve"),
           "3 Pay<Class<Steel>> FROM Steel",
           "3 Pay<> FROM MC",
-          "$NaturalPreserve FROM ProjectCard",
           "PROD[MC]",
           "NaturalPreserve_SpecialTile<Amazonis_10_09>",
           "3 Plant",
@@ -878,7 +839,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$IoMiningIndustries"),
           "10 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$IoMiningIndustries FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Titanium]",
       )
@@ -889,7 +849,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$TransNeptuneProbe"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // no MC paid
-          "$TransNeptuneProbe FROM ProjectCard",
       ) // no MC paid
     }
     p1.turn {
@@ -917,7 +876,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ConvoyFromEuropa"),
           "15 Pay<> FROM MC",
-          "$ConvoyFromEuropa FROM ProjectCard",
           "ProjectCard",
           "OceanTile<Amazonis_06_06>",
           "2 Plant",
@@ -949,7 +907,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$NuclearPower"),
           "10 Pay<> FROM MC",
-          "$NuclearPower FROM ProjectCard",
           "PROD[-2 MC]",
           "PROD[3 Energy]",
       )
@@ -1014,14 +971,12 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$RegoPlastics"),
           "2 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
-          "$RegoPlastics FROM ProjectCard",
       )
     }
     p2.turn {
       doTasks(
               *playCardTasks("$Capital"),
               "26 Pay<> FROM MC",
-              "$Capital FROM ProjectCard",
               "PROD[5 MC]",
               "PROD[-2 Energy]",
               "4 MC",
@@ -1045,7 +1000,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$GiantIceAsteroid"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "28 Pay<> FROM MC",
-          "$GiantIceAsteroid FROM ProjectCard",
           "2 TemperatureStep",
           "2 TerraformRating",
           "6 MC",
@@ -1085,7 +1039,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$AsteroidDeflectionSystem"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$AsteroidDeflectionSystem FROM ProjectCard",
           "PROD[-Energy]",
       )
     }
@@ -1108,7 +1061,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$EosChasmaNationalPark"),
           "8 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // no MC paid
-          "$EosChasmaNationalPark FROM ProjectCard",
           "Ok", // no animal holder
           "3 Plant",
           "PROD[2 MC]",
@@ -1116,7 +1068,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ImportedNutrients"),
           "14 Pay<> FROM MC",
-          "$ImportedNutrients FROM ProjectCard",
           "4 Plant",
           "Ok", // no microbe holder
       ) // no microbe holder
@@ -1126,7 +1077,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Grass"),
           "11 Pay<> FROM MC",
-          "$Grass FROM ProjectCard",
           "PROD[Plant]",
           "3 Plant",
       )
@@ -1168,7 +1118,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$CeosFavoriteProject"),
           "1 Pay<> FROM MC",
-          "$CeosFavoriteProject FROM ProjectCard",
           "Floater<$ForcedPrecipitation>",
       )
     }
@@ -1176,7 +1125,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Bushes"),
           "10 Pay<> FROM MC",
-          "$Bushes FROM ProjectCard",
           "PROD[2 Plant]",
           "2 Plant",
       )
@@ -1187,7 +1135,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$FueledGenerators"),
           "Ok", // no steel paid
           "1 Pay<> FROM MC",
-          "$FueledGenerators FROM ProjectCard",
           "PROD[-MC]",
           "PROD[Energy]",
       )
@@ -1196,7 +1143,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Fish"),
           "9 Pay<> FROM MC",
-          "$Fish FROM ProjectCard",
           "PROD[-Plant<Blue>]",
       )
       doTasks(*cardActionTasks("$Fish"), "Animal<$Fish>")
@@ -1228,14 +1174,12 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$RobotPollinators"),
           "9 Pay<> FROM MC",
-          "$RobotPollinators FROM ProjectCard",
           "PROD[Plant]",
           "4 Plant",
       )
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "7 Pay<> FROM MC",
-          "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
       )
     }
@@ -1348,7 +1292,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$Shuttles"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "$Shuttles FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[-Energy]",
       )
@@ -1386,7 +1329,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$IceAsteroid"),
           "23 Pay<> FROM MC",
-          "$IceAsteroid FROM ProjectCard",
           "4 MC",
           "OceanTile<Amazonis_05_10>",
           "2 Plant",
@@ -1404,7 +1346,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$SolarLogistics"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "6 Pay<> FROM MC",
-          "$SolarLogistics FROM ProjectCard",
           "2 Titanium",
       )
       doTasks(
@@ -1455,13 +1396,12 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$PowerInfrastructure"),
           "2 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // no MC paid
-          "$PowerInfrastructure FROM ProjectCard",
       ) // no MC paid
       doTasks(*cardActionTasks("$PowerInfrastructure"), "-2 Energy", "2 MC")
     }
     purple.turn {
       doTasks(*cardActionTasks("$Fish"), "Animal<$Fish>")
-      doTasks(*playCardTasks("$RedShips"), "2 Pay<> FROM MC", "$RedShips FROM ProjectCard")
+      doTasks(*playCardTasks("$RedShips"), "2 Pay<> FROM MC")
     }
     p1.turn {
       doTasks(
@@ -1495,7 +1435,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ArtificialPhotosynthesis"),
           "12 Pay<> FROM MC",
-          "$ArtificialPhotosynthesis FROM ProjectCard",
           "PROD[2 Energy]",
       )
     }
@@ -1510,7 +1449,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$IshtarMining"),
           "5 Pay<> FROM MC",
-          "$IshtarMining FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -1611,13 +1549,11 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$LandClaim"),
           "1 Pay<> FROM MC",
-          "$LandClaim FROM ProjectCard",
           "Community<Amazonis_09_09>",
       )
       doTasks(
           *playCardTasks("$CarbonNanosystems"),
           "14 Pay<> FROM MC",
-          "$CarbonNanosystems FROM ProjectCard",
           "Graphene<$CarbonNanosystems>",
       )
     }
@@ -1648,7 +1584,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "8 Pay<> FROM MC",
-          "$MarsUniversity FROM ProjectCard",
           "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
           "ProjectCard",
@@ -1657,7 +1592,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$UrbanizedArea"),
           "2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "2 Pay<> FROM MC",
-          "$UrbanizedArea FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[-Energy]",
           "NormalCityTile<Amazonis_05_03>",
@@ -1669,7 +1603,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$KelpFarming"),
           "17 Pay<> FROM MC",
-          "$KelpFarming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[3 Plant]",
           "2 Plant",
@@ -1684,7 +1617,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$TerraformingContract"),
           "8 Pay<> FROM MC",
-          "$TerraformingContract FROM ProjectCard",
           "PROD[4 MC]",
       )
     }
@@ -1700,7 +1632,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       )
       doTasks(
           *playCardTasks("$ProjectInspection"),
-          "$ProjectInspection FROM ProjectCard",
           "UseAction<$MarsNomads, Action1>",
           "NomadsMarker<Amazonis_06_10 FROM Amazonis_07_10>",
           "Plant",
@@ -1714,7 +1645,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
-          "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
           "Graphene<$CarbonNanosystems>",
@@ -1726,7 +1656,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$CuttingEdgeTechnology"),
           "12 Pay<> FROM MC",
-          "$CuttingEdgeTechnology FROM ProjectCard",
           "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
           "ProjectCard",
@@ -1739,7 +1668,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$ImportedNitrogen"),
           "5 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // no MC paid
-          "$ImportedNitrogen FROM ProjectCard",
           "TerraformRating",
           "4 Plant",
           "ProjectCard",
@@ -1752,7 +1680,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$MartianLumberCorp"),
           "3 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // no MC paid
-          "$MartianLumberCorp FROM ProjectCard",
           "PROD[Plant]",
       ) // no MC paid
       doTasks(
@@ -1760,7 +1687,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "3 Pay<Class<Plant>> FROM Plant",
           "3 Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$SubCrustMeasurements FROM ProjectCard",
       )
     }
     p1.turn {
@@ -1807,7 +1733,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
               *playCardTasks("$PublicBaths"),
               "4 Pay<> FROM MC",
-              "$PublicBaths FROM ProjectCard",
               "6 MC",
           )
           .expect("2 MC") // discounted cost and card reward
@@ -1826,7 +1751,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Hackers"),
           "3 Pay<> FROM MC",
-          "$Hackers FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[-Energy]",
           "PROD[-2 MC<Green>]",
@@ -1844,7 +1768,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$StandardTechnology"),
           "6 Pay<> FROM MC",
-          "$StandardTechnology FROM ProjectCard",
           "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
           "ProjectCard",
@@ -1852,7 +1775,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$EnergyMarket"),
           "3 Pay<> FROM MC",
-          "$EnergyMarket FROM ProjectCard",
       )
       doTasks(*cardActionTasks("$EnergyMarket", "Action2"), "PROD[-Energy]", "8 MC")
     }
@@ -1938,7 +1860,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Pets"),
           "10 Pay<> FROM MC",
-          "$Pets FROM ProjectCard",
           "Animal<$Pets>",
       )
     }
@@ -1949,7 +1870,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$AqueductSystems"),
           "4 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$AqueductSystems FROM ProjectCard",
           "3 SearchForCard<TagFilter<Class<BuildingTag>>>",
       )
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
@@ -1959,7 +1879,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$CallistoPenalMines"),
           "8 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // no MC paid
-          "$CallistoPenalMines FROM ProjectCard",
           "PROD[3 MC]",
       ) // no MC paid
     }
@@ -1987,7 +1906,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$UndergroundCity"),
           "9 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // no MC paid
-          "$UndergroundCity FROM ProjectCard",
           "CityTile<Amazonis_03_07>",
           "4 MC",
           "PROD[2 Steel]",
@@ -2026,7 +1944,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$NeutralizerFactory"),
           "7 Pay<> FROM MC",
-          "$NeutralizerFactory FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
       )
@@ -2068,7 +1985,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$AdvancedEcosystems"),
           "11 Pay<> FROM MC",
-          "$AdvancedEcosystems FROM ProjectCard",
       )
     }
     p1.doTask("Pass")
@@ -2092,12 +2008,11 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Omnicourt"),
           "11 Pay<> FROM MC",
-          "$Omnicourt FROM ProjectCard",
           "2 TerraformRating",
       )
     }
     purple.turn {
-      doTasks(*playCardTasks("$Dirigibles"), "11 Pay<> FROM MC", "$Dirigibles FROM ProjectCard")
+      doTasks(*playCardTasks("$Dirigibles"), "11 Pay<> FROM MC")
       doTasks(*cardActionTasks("$Dirigibles"), "Floater<$ForcedPrecipitation>")
     }
     p2.turn {
@@ -2126,7 +2041,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           "PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "$SpaceStation FROM ProjectCard",
       )
     }
     p3.doTask("Pass")
@@ -2140,7 +2054,6 @@ internal class CosmicProtonTraceTest : CardTrackingFullGameTest() {
           *playCardTasks("$LavaTubeSettlement"),
           "2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "7 Pay<> FROM MC",
-          "$LavaTubeSettlement FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[-Energy]",
           "NormalCityTile<Amazonis_08_09>",

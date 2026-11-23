@@ -21,7 +21,6 @@ internal class AirRaidTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           *playCardTasks("$AirRaid"),
-          "$AirRaid FROM ProjectCard",
           "-Floater<$AtmoCollectors>",
           "5 MC<Kim FROM Rob>",
       )
@@ -38,7 +37,6 @@ internal class AirRaidTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             *playCardTasks("$AirRaid"),
-            "$AirRaid FROM ProjectCard",
             "-Floater",
             "5 MC<Kim FROM Kim>",
         )
@@ -57,7 +55,6 @@ internal class AirRaidTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             *playCardTasks("$AirRaid"),
-            "$AirRaid FROM ProjectCard",
             "-Floater",
             "5 MC<Kim FROM Stan>",
         )

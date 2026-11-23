@@ -26,6 +26,7 @@ import dev.martianzoo.tfm.canon.cardCost
 import dev.martianzoo.tfm.canon.soloTileAreas
 import dev.martianzoo.tfm.canon.soloTileSetup
 import dev.martianzoo.tfm.engine.TfmEngine
+import dev.martianzoo.tfm.engine.TfmRoutines
 import dev.martianzoo.tfm.script.Access.BlueMode
 import dev.martianzoo.tfm.script.Access.GreenMode
 import dev.martianzoo.tfm.script.Access.PurpleMode
@@ -55,14 +56,12 @@ import dev.martianzoo.tfm.script.commands.ModeCommand
 import dev.martianzoo.tfm.script.commands.NewGameCommand
 import dev.martianzoo.tfm.script.commands.PhaseCommand
 import dev.martianzoo.tfm.script.commands.RollbackCommand
+import dev.martianzoo.tfm.script.commands.RoutineCommand
 import dev.martianzoo.tfm.script.commands.StatusCommand
 import dev.martianzoo.tfm.script.commands.TaskCommand
 import dev.martianzoo.tfm.script.commands.TasksCommand
-import dev.martianzoo.tfm.script.commands.TfmActionCommand
 import dev.martianzoo.tfm.script.commands.TfmBoardCommand
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
-import dev.martianzoo.tfm.script.commands.TfmPayCommand
-import dev.martianzoo.tfm.script.commands.TfmPlayCommand
 import dev.martianzoo.tfm.script.commands.TurnCommand
 import dev.martianzoo.tfm.state.ApiUtils
 
@@ -312,11 +311,12 @@ public class ScriptSession(
               TaskCommand(this),
               TasksCommand(this),
               TurnCommand(this),
-              TfmActionCommand(this),
-              TfmPayCommand(this),
-              TfmPlayCommand(this),
-          ) + hostCommands(this))
-          .associateBy { it.name }
+          ) +
+              TfmRoutines.registered.map { (name, routine) ->
+                RoutineCommand(this, name, routine)
+              } +
+              hostCommands(this))
+          .associateBy { it.name.lowercase() }
 
   internal fun access(): Access = // TODO maybe don't do this "just-in-time"...
   when (mode) {
@@ -367,6 +367,11 @@ public class ScriptSession(
 
   public fun command(wholeCommand: String): List<String> {
     val stripped = wholeCommand.replace(Regex("//.*"), "")
+    val routineCall = Regex("""^\s*(\w+)\((.*)\)\s*$""").matchEntire(stripped)
+    if (routineCall != null) {
+      val command = commands[routineCall.groupValues[1].lowercase()]
+      if (command is RoutineCommand) return command(command, routineCall.groupValues[2])
+    }
     val groups = inputRegex.matchEntire(stripped)?.groupValues
     return if (groups == null) {
       emptyList()

@@ -19,7 +19,6 @@ internal class AtmoscoopTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Atmoscoop"),
               "22 Pay<> FROM MC",
-              "$Atmoscoop FROM ProjectCard",
               "2* Floater",
               "2 VenusStep",
           )

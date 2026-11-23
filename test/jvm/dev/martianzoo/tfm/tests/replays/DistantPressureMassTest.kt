@@ -107,7 +107,6 @@ internal class DistantPressureMassTest : FullGameTest() {
     with(keen) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$SagittaFrontierServices>>",
-          "$SagittaFrontierServices FROM CorporationCard",
           "31 MC",
           "PROD[Energy]",
           "PROD[2 MC]",
@@ -121,7 +120,6 @@ internal class DistantPressureMassTest : FullGameTest() {
     with(been) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Polyphemos>>",
-          "$Polyphemos FROM CorporationCard",
           "50 MC",
           "5 Titanium",
           "PROD[5 MC]",
@@ -133,7 +131,6 @@ internal class DistantPressureMassTest : FullGameTest() {
     with(keen) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
-          "$IndustrialComplex FROM PreludeCard",
           "-18 MC",
           "EACH",
           "MC",
@@ -144,7 +141,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AppliedScience>>",
-          "$AppliedScience FROM PreludeCard",
           "6 Science<$AppliedScience>",
           "4 MC",
       )
@@ -153,7 +149,6 @@ internal class DistantPressureMassTest : FullGameTest() {
     with(been) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$StrategicBasePlanning>>",
-          "$StrategicBasePlanning FROM PreludeCard",
           "-3 MC",
           "Colony<Ganymede>",
           "PROD[Plant]",
@@ -165,7 +160,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EarlySettlement>>",
-          "$EarlySettlement FROM PreludeCard",
           "PROD[Plant]",
           "CityTile<Hellas_2_6>",
           "Plant",
@@ -181,7 +175,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$LunarExports"),
           "5 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "$LunarExports FROM ProjectCard",
           "PROD[5 MC]",
       )
     }
@@ -192,7 +185,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Flooding"),
           "7 Pay<> FROM MC",
-          "$Flooding FROM ProjectCard",
           "OceanTile<Hellas_5_7>",
           "TerraformRating",
           "3 Heat",
@@ -228,7 +220,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ExtractorBalloons"),
           "21 Pay<> FROM MC",
-          "$ExtractorBalloons FROM ProjectCard",
           "3 Floater<$ExtractorBalloons>",
       )
     }
@@ -237,7 +228,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$CuttingEdgeTechnology"),
           "12 Pay<> FROM MC",
-          "$CuttingEdgeTechnology FROM ProjectCard",
           "MC",
       )
     }
@@ -252,7 +242,7 @@ internal class DistantPressureMassTest : FullGameTest() {
     }
 
     keen.turn {
-      doTasks(*playCardTasks("$DustSeals"), "$DustSeals FROM ProjectCard", "4 MC")
+      doTasks(*playCardTasks("$DustSeals"), "4 MC")
     }
 
     been.doTask("Pass")
@@ -261,20 +251,17 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$DirectedHeatUsage"),
           "1 Pay<> FROM MC",
-          "$DirectedHeatUsage FROM ProjectCard",
           "4 MC",
       )
       doTasks(
           *playCardTasks("$CommunityServices"),
           "13 Pay<> FROM MC",
-          "$CommunityServices FROM ProjectCard",
           "PROD[5 MC]",
           "4 MC",
       )
       doTasks(
           *playCardTasks("$BusinessNetwork"),
           "4 Pay<> FROM MC",
-          "$BusinessNetwork FROM ProjectCard",
           "PROD[-MC]",
           "MC",
       )
@@ -286,7 +273,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SearchForLife"),
           "1 Pay<> FROM MC",
-          "$SearchForLife FROM ProjectCard",
           "MC",
       )
       doTasks(
@@ -355,12 +341,10 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ForcedPrecipitation"),
           "8 Pay<> FROM MC",
-          "$ForcedPrecipitation FROM ProjectCard",
       )
       doTasks(
           *playCardTasks("$MiningColony"),
           "20 Pay<> FROM MC",
-          "$MiningColony FROM ProjectCard",
           "PROD[Titanium]",
           "Colony<Titan>",
           "3 Floater<$ForcedPrecipitation>",
@@ -372,7 +356,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$MarsUniversity"),
           "2 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
-          "$MarsUniversity FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
       )
@@ -492,7 +475,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
-          "$EarthCatapult FROM ProjectCard",
           "MC",
       )
     }
@@ -501,7 +483,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
-          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Hellas_6_2>",
           "Production<Class<Metal>(HAS PlacementBonus<LandArea(HAS MiningRights_SpecialTile)>)>",
           "Titanium",
@@ -512,7 +493,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ResearchCoordination"),
           "2 Pay<> FROM MC",
-          "$ResearchCoordination FROM ProjectCard",
           "4 MC",
       )
     }
@@ -579,7 +559,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$CorporateStronghold"),
           "11 Pay<> FROM MC",
-          "$CorporateStronghold FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Hellas_3_5>",
@@ -591,7 +570,6 @@ internal class DistantPressureMassTest : FullGameTest() {
     keen.turn {
       doTasks(
           *playCardTasks("$FueledGenerators"),
-          "$FueledGenerators FROM ProjectCard",
           "PROD[-MC]",
           "PROD[Energy]",
       )
@@ -619,7 +597,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$LunarMining"),
           "9 Pay<> FROM MC",
-          "$LunarMining FROM ProjectCard",
           "PROD[2 Titanium]",
           "MC",
       )
@@ -629,7 +606,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SisterPlanetSupport"),
           "7 Pay<> FROM MC",
-          "$SisterPlanetSupport FROM ProjectCard",
           "PROD[3 MC]",
       )
     }
@@ -639,7 +615,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$CupolaCity"),
           "6 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$CupolaCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Hellas_4_4>",
@@ -678,7 +653,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$MethaneFromTitan"),
           "5 Pay<Class<Titanium>> FROM Titanium",
           "9 Pay<> FROM MC",
-          "$MethaneFromTitan FROM ProjectCard",
           "PROD[2 Heat]",
           "PROD[2 Plant]",
       )
@@ -754,14 +728,13 @@ internal class DistantPressureMassTest : FullGameTest() {
     }
 
     been.turn {
-      doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
+      doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC")
     }
 
     keen.turn {
       doTasks(
           *playCardTasks("$RestrictedArea"),
           "9 Pay<> FROM MC",
-          "$RestrictedArea FROM ProjectCard",
           "MC",
           "RestrictedArea_SpecialTile<Hellas_3_6>",
           "2 Plant",
@@ -772,7 +745,7 @@ internal class DistantPressureMassTest : FullGameTest() {
     }
 
     been.turn {
-      doTasks(*playCardTasks("$LunaGovernor"), "$LunaGovernor FROM ProjectCard", "PROD[2 MC]")
+      doTasks(*playCardTasks("$LunaGovernor"), "PROD[2 MC]")
     }
 
     keen.turn {
@@ -784,7 +757,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$SolarReflectors"),
           "Ok", // Pay no titanium.
           "23 Pay<> FROM MC",
-          "$SolarReflectors FROM ProjectCard",
           "PROD[5 Heat]",
       )
     }
@@ -806,7 +778,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$SpaceMirrors"),
           "Ok", // Pay no titanium.
           "3 Pay<> FROM MC",
-          "$SpaceMirrors FROM ProjectCard",
       )
     }
 
@@ -822,7 +793,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$LightningHarvest"),
           "4 Pay<> FROM MC",
-          "$LightningHarvest FROM ProjectCard",
           "PROD[Energy]",
           "PROD[MC]",
           "MC",
@@ -836,7 +806,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$OptimalAerobraking"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "$OptimalAerobraking FROM ProjectCard",
           "MC",
       )
       doTasks(
@@ -881,7 +850,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$RadSuits"),
           "2 Pay<> FROM MC",
-          "$RadSuits FROM ProjectCard",
           "PROD[MC]",
           "4 MC",
       )
@@ -889,7 +857,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$WaterSplittingPlant"),
           "4 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$WaterSplittingPlant FROM ProjectCard",
           "MC",
       )
     }
@@ -898,13 +865,11 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$VenusianAnimals"),
           "15 Pay<> FROM MC",
-          "$VenusianAnimals FROM ProjectCard",
           "Animal<$VenusianAnimals>",
       )
       doTasks(
           *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
-          "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
           "Animal<$VenusianAnimals>",
@@ -916,7 +881,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$GiantIceAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "25 Pay<> FROM MC",
-          "$GiantIceAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "3 MC",
@@ -938,7 +902,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$BusinessContacts"),
           "4 Pay<> FROM MC",
-          "$BusinessContacts FROM ProjectCard",
           "4 ProjectCard<Selecting>",
           "2 ProjectCard<Hand FROM Selecting>",
       )
@@ -964,7 +927,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$CorroderSuits"),
           "8 Pay<> FROM MC",
-          "$CorroderSuits FROM ProjectCard",
           "PROD[2 MC]",
           "Animal<$VenusianAnimals>",
       )
@@ -988,7 +950,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$SterlingVents"),
           "1 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$SterlingVents FROM ProjectCard",
           "PROD[-2 Heat]",
           "PROD[2 Energy]",
       )
@@ -1016,7 +977,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$FloaterPrototypes"),
           "2 Pay<> FROM MC",
-          "$FloaterPrototypes FROM ProjectCard",
           "Animal<$VenusianAnimals>",
           "2 Floater<$ForcedPrecipitation>",
       )
@@ -1027,7 +987,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$RadChemFactory"),
           "3 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$RadChemFactory FROM ProjectCard",
           "PROD[-Energy]",
           "2 TerraformRating",
           "MC",
@@ -1163,7 +1122,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SubterraneanReservoir"),
           "11 Pay<> FROM MC",
-          "$SubterraneanReservoir FROM ProjectCard",
           "OceanTile<Hellas_5_8>",
           "TerraformRating",
           "4 MC",
@@ -1175,7 +1133,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$Atmoscoop"),
           "5 Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "$Atmoscoop FROM ProjectCard",
           "2 Floater",
           "2 VenusStep",
           "2 TerraformRating",
@@ -1198,14 +1155,13 @@ internal class DistantPressureMassTest : FullGameTest() {
     }
 
     keen.turn {
-      doTasks(*playCardTasks("$ProductiveOutpost"), "$ProductiveOutpost FROM ProjectCard", "4 MC")
+      doTasks(*playCardTasks("$ProductiveOutpost"), "4 MC")
     }
 
     been.turn {
       doTasks(
           *playCardTasks("$AstraMechanica"),
           "7 Pay<> FROM MC",
-          "$AstraMechanica FROM ProjectCard",
           "Animal<$VenusianAnimals>",
           "ProjectCard FROM PlayedEvent<Class<$InventionContest>>",
           "ProjectCard FROM PlayedEvent<Class<$Flooding>>",
@@ -1213,7 +1169,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Flooding"),
           "7 Pay<> FROM MC",
-          "$Flooding FROM ProjectCard",
           "OceanTile<Hellas_6_8>",
           "TerraformRating",
           "Steel",
@@ -1229,7 +1184,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
-          "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
           "Animal<$VenusianAnimals>",
@@ -1238,7 +1192,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$DeepWellHeating"),
           "2 Pay<Class<Steel>> FROM Steel",
           "9 Pay<> FROM MC",
-          "$DeepWellHeating FROM ProjectCard",
           "PROD[Energy]",
           "TemperatureStep",
           "TerraformRating",
@@ -1267,7 +1220,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MolecularPrinting"),
           "9 Pay<> FROM MC",
-          "$MolecularPrinting FROM ProjectCard",
           "7 MC",
           "-ProjectCard",
           "ProjectCard",
@@ -1282,7 +1234,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Hackers"),
           "1 Pay<> FROM MC",
-          "$Hackers FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
           "4 MC",
@@ -1291,7 +1242,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$BreathingFilters"),
           "7 Pay<> FROM MC",
-          "$BreathingFilters FROM ProjectCard",
           "MC",
           "-ProjectCard",
           "ProjectCard",
@@ -1299,7 +1249,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$KelpFarming"),
           "13 Pay<> FROM MC",
-          "$KelpFarming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[3 Plant]",
           "2 Plant",
@@ -1386,7 +1335,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$RimFreighters"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$RimFreighters FROM ProjectCard",
       )
       doTasks(
           "UseAction<TradeAction, Action3>",
@@ -1405,7 +1353,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$UndergroundCity"),
           "6 Pay<Class<Steel>> FROM Steel",
           "6 Pay<> FROM MC",
-          "$UndergroundCity FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[2 Steel]",
           "CityTile<Hellas_1_4>",
@@ -1424,7 +1371,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AdvancedAlloys"),
           "7 Pay<> FROM MC",
-          "$AdvancedAlloys FROM ProjectCard",
           "MC",
           "-ProjectCard",
           "ProjectCard",
@@ -1435,7 +1381,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$LunarBeam"),
           "10 Pay<> FROM MC",
-          "$LunarBeam FROM ProjectCard",
           "PROD[-2 MC]",
           "PROD[2 Heat]",
           "PROD[2 Energy]",
@@ -1448,7 +1393,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$SolarProbe"),
           "Ok", // Pay no titanium.
           "7 Pay<> FROM MC",
-          "$SolarProbe FROM ProjectCard",
           "3 ProjectCard",
           "3 MC",
           "3 Heat",
@@ -1461,7 +1405,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AerialMappers"),
           "11 Pay<> FROM MC",
-          "$AerialMappers FROM ProjectCard",
       )
     }
 
@@ -1470,7 +1413,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$AsteroidCard"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "3 MC",
@@ -1482,7 +1424,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$IceMoonColony"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "13 Pay<> FROM MC",
-          "$IceMoonColony FROM ProjectCard",
           "MC",
           "Colony<Ganymede>",
           "PROD[Plant]",
@@ -1496,14 +1437,13 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$UrbanDecomposers"),
           "6 Pay<> FROM MC",
-          "$UrbanDecomposers FROM ProjectCard",
           "PROD[Plant]",
           "Ok", // No card can receive microbes.
       )
     }
 
     keen.turn {
-      doTasks(*playCardTasks("$Harvest"), "$Harvest FROM ProjectCard", "12 MC")
+      doTasks(*playCardTasks("$Harvest"), "12 MC")
     }
 
     been.turn {
@@ -1514,7 +1454,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$VenusMagnetizer"),
           "3 Pay<> FROM MC",
-          "$VenusMagnetizer FROM ProjectCard",
           "MC",
       )
     }
@@ -1557,7 +1496,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SpecialDesign"),
           "2 Pay<> FROM MC",
-          "$SpecialDesign FROM ProjectCard",
           "SpecialDesign_NextCardEffect",
           "-ProjectCard",
           "ProjectCard",
@@ -1565,7 +1503,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Trees"),
           "9 Pay<> FROM MC",
-          "$Trees FROM ProjectCard",
           "PROD[3 Plant]",
           "Plant",
           "MC",
@@ -1573,14 +1510,12 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Algae"),
           "6 Pay<> FROM MC",
-          "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
           "MC",
       )
       doTasks(
           *playCardTasks("$LocalHeatTrapping"),
-          "$LocalHeatTrapping FROM ProjectCard",
           "-5 Heat",
           "MC",
           "4 Plant",
@@ -1641,7 +1576,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$FieldCappedCity"),
           "3 Pay<Class<Steel>> FROM Steel",
           "23 Pay<> FROM MC",
-          "$FieldCappedCity FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[Energy]",
           "3 Plant",
@@ -1651,7 +1585,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$UrbanizedArea"),
           "10 Pay<> FROM MC",
-          "$UrbanizedArea FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
           "CityTile<Hellas_3_4>",
@@ -1694,7 +1627,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$Capital"),
           "7 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$Capital FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[5 MC]",
           "CapitalTile<Hellas_6_6>",
@@ -1713,7 +1645,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$EcologyResearch"),
           "21 Pay<> FROM MC",
-          "$EcologyResearch FROM ProjectCard",
           "PROD[2 Plant]",
           "2 Microbe",
       )
@@ -1765,7 +1696,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Grass"),
           "7 Pay<> FROM MC",
-          "$Grass FROM ProjectCard",
           "PROD[Plant]",
           "3 Plant",
           "MC",
@@ -1794,7 +1724,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$PeroxidePower"),
           "1 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "$PeroxidePower FROM ProjectCard",
           "PROD[-MC]",
           "PROD[2 Energy]",
       )
@@ -1808,7 +1737,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$LuxuryFoods"),
           "4 Pay<> FROM MC",
-          "$LuxuryFoods FROM ProjectCard",
           "4 MC",
       )
       doTasks(
@@ -1855,7 +1783,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SubZeroSaltFish"),
           "1 Pay<> FROM MC",
-          "$SubZeroSaltFish FROM ProjectCard",
           "MC",
           "PROD[-Plant<Been>]",
       )
@@ -1935,7 +1862,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Plantation"),
           "15 Pay<> FROM MC",
-          "$Plantation FROM ProjectCard",
           "GreeneryTile<Hellas_1_2>",
           "OxygenStep",
           "2 Plant",
@@ -1970,7 +1896,6 @@ internal class DistantPressureMassTest : FullGameTest() {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "1 Pay<> FROM MC",
-          "$InvestmentLoan FROM ProjectCard",
           "PROD[-MC]",
           "10 MC",
       )
@@ -1993,7 +1918,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$Greenhouses"),
           "1 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$Greenhouses FROM ProjectCard",
           "12 Plant",
       )
       doTasks(
@@ -2013,7 +1937,6 @@ internal class DistantPressureMassTest : FullGameTest() {
           *playCardTasks("$NitrogenFromTitan"),
           "6 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$NitrogenFromTitan FROM ProjectCard",
           "2 TerraformRating",
           "Ok", // No Jovian card can receive floaters.
       )

@@ -17,7 +17,6 @@ internal class CorroderSuitsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$CorroderSuits"),
               "8 Pay<> FROM MC",
-              "$CorroderSuits FROM ProjectCard",
               "PROD[2 MC]",
           )
           // No resource task is created when neither kind of destination exists.
@@ -35,7 +34,6 @@ internal class CorroderSuitsTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$CorroderSuits"),
             "8 Pay<> FROM MC",
-            "$CorroderSuits FROM ProjectCard",
             "PROD[2 MC]",
             "Ok",
         )

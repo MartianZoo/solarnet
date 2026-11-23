@@ -21,7 +21,6 @@ internal class ImmigrantCityTest : TfmSandboxTest() {
       doTask("Ok") // Keep the steel.
       doTasks(
           "13 Pay<> FROM MC",
-          "$ImmigrantCity FROM ProjectCard",
           "PROD[-Energy]",
           "CityTile<Tharsis_7_4>",
           "PROD[MC]",

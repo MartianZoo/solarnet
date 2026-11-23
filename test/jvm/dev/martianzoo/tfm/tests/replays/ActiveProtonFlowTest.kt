@@ -193,7 +193,6 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     with(green) {
       doTasks(
           "PlayCard<Class<BeginnerCard>, Class<$BeginnerCorporation1>, Hand>",
-          "$BeginnerCorporation1 FROM BeginnerCard",
           "42 MC",
           "10 ProjectCard<Hand FROM Selecting>",
       )
@@ -208,7 +207,6 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     with(pink) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$MiningGuild>>",
-          "$MiningGuild FROM CorporationCard",
           "30 MC",
           "5 Steel",
           "PROD[Steel]",
@@ -218,13 +216,12 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     }
 
     green.turn {
-      doTasks(*playCardTasks("$SpaceMirrors"), "3 Pay<> FROM MC", "$SpaceMirrors FROM ProjectCard")
+      doTasks(*playCardTasks("$SpaceMirrors"), "3 Pay<> FROM MC")
     }
     pink.turn {
       doTasks(
           *playCardTasks("$ArcticAlgae"),
           "12 Pay<> FROM MC",
-          "$ArcticAlgae FROM ProjectCard",
           "Plant",
       )
     }
@@ -232,7 +229,6 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$OptimalAerobraking"),
           "7 Pay<> FROM MC",
-          "$OptimalAerobraking FROM ProjectCard",
       )
       draw(
           OreProcessor,
@@ -242,7 +238,6 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ConvoyFromEuropa"),
           "15 Pay<> FROM MC",
-          "$ConvoyFromEuropa FROM ProjectCard",
           "ProjectCard",
           "3 MC",
           "3 Heat",
@@ -258,7 +253,6 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
           *playCardTasks("$PowerPlant"),
           "2 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // no mc paid
-          "$PowerPlant FROM ProjectCard",
           "PROD[Energy]",
       )
     }
@@ -266,7 +260,6 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$GeothermalPower"),
           "11 Pay<> FROM MC",
-          "$GeothermalPower FROM ProjectCard",
           "PROD[2 Energy]",
       )
     }
@@ -303,7 +296,6 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$BlackPolarDust"),
           "15 Pay<> FROM MC",
-          "$BlackPolarDust FROM ProjectCard",
           "OceanTile<Tharsis_9_9>",
           "TerraformRating",
           "2 Plant",

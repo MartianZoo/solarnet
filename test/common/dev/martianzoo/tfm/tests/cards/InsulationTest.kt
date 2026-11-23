@@ -21,7 +21,6 @@ internal class InsulationTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Insulation"),
           "2 Pay<> FROM MC",
-          "$Insulation FROM ProjectCard",
           "PROD[2 MC FROM Heat]",
       )
     }
@@ -38,7 +37,6 @@ internal class InsulationTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$Insulation"),
             "2 Pay<> FROM MC",
-            "$Insulation FROM ProjectCard",
             "Ok",
         )
       }

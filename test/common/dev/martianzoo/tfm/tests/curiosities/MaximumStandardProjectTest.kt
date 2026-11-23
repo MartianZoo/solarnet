@@ -109,7 +109,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
     with(me) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Spire>>",
-          "$Spire FROM CorporationCard",
           "50 MC",
           "Science<$Spire>",
           "30 Pay<> FROM MC",
@@ -117,23 +116,19 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "PlayCard<Class<CorporationCard>, Class<$LakefrontResorts>>",
-          "$LakefrontResorts FROM CorporationCard<Selecting>",
           "54 MC",
           "-42 MC",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
-          "$NewPartner FROM PreludeCard",
           "PROD[MC]",
           "2 PreludeCard<Selecting>",
       )
 
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard<Selecting>",
           "4 Director<$BoardOfDirectors>",
       )
 
@@ -145,24 +140,20 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "-12 MC",
           "-Director<$BoardOfDirectors>",
           "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-          "$DoubleDown FROM PreludeCard",
           "CopyPrelude<$Merger>",
           "4 CorporationCard<Selecting>",
           "PlayCard<Class<CorporationCard>, Class<$CrediCor>>",
-          "$CrediCor FROM CorporationCard<Selecting>",
           "57 MC",
           "-42 MC",
       )
-      doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
+      doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC")
       doTasks(
           *playCardTasks("$OptimalAerobraking"),
           "7 Pay<> FROM MC",
-          "$OptimalAerobraking FROM ProjectCard",
       )
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "3 Pay<> FROM MC",
-          "$InvestmentLoan FROM ProjectCard",
           "PROD[-MC]",
           "10 MC",
           "Science<$Spire>",
@@ -171,7 +162,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
-          "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
           "Science<$Spire>",
@@ -180,7 +170,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$TechnologyDemonstration"),
           "5 Pay<> FROM MC",
-          "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
           "Science<$Spire>",
           "3 MC",
@@ -190,7 +179,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$BusinessContacts"),
           "7 Pay<> FROM MC",
-          "$BusinessContacts FROM ProjectCard",
           "4 ProjectCard<Selecting>",
           "2 ProjectCard<Hand FROM Selecting>",
           "Science<$Spire>",
@@ -199,7 +187,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Virus"),
           "1 Pay<> FROM MC",
-          "$Virus FROM ProjectCard",
           "Science<$Spire>",
           "3 MC",
           "-5 Plant<SoloOpponent>",
@@ -207,14 +194,12 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
-          "$Research FROM ProjectCard",
           "2 ProjectCard",
           "Science<$Spire>",
       )
       doTasks(
           *playCardTasks("$StandardTechnology"),
           "6 Pay<> FROM MC",
-          "$StandardTechnology FROM ProjectCard",
       )
       doTask("Pass")
       doTask("14 MC")
@@ -235,7 +220,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "14 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "Science<$Spire>",
@@ -245,12 +229,11 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "TerraformRating",
           "-3 Plant<SoloOpponent>",
       )
-      doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
+      doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC")
       doTasks(
           *playCardTasks("$SpaceHotels"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "$SpaceHotels FROM ProjectCard",
           "PROD[4 MC]",
           "Science<$Spire>",
       )
@@ -280,7 +263,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AcquiredCompany"),
           "7 Pay<> FROM MC",
-          "$AcquiredCompany FROM ProjectCard",
           "PROD[3 MC]",
       )
       doTask("Pass")
@@ -304,13 +286,11 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Sponsors"),
           "3 Pay<> FROM MC",
-          "$Sponsors FROM ProjectCard",
           "PROD[2 MC]",
       )
       doTasks(
           *playCardTasks("$MediaArchives"),
           "5 Pay<> FROM MC",
-          "$MediaArchives FROM ProjectCard",
           "6 MC",
       )
       doTask("Pass")
@@ -334,7 +314,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$HomeostasisBureau"),
           "16 Pay<> FROM MC",
-          "$HomeostasisBureau FROM ProjectCard",
           "PROD[2 Heat]",
       )
       doTask("Pass")
@@ -358,13 +337,11 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ArcticAlgae"),
           "12 Pay<> FROM MC",
-          "$ArcticAlgae FROM ProjectCard",
           "Plant",
       )
       doTasks(
           *playCardTasks("$ImportedGhg"),
           "4 Pay<> FROM MC",
-          "$ImportedGhg FROM ProjectCard",
           "PROD[Heat]",
           "3 Heat",
           "Science<$Spire>",
@@ -382,7 +359,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$LavaFlows"),
           "18 Pay<> FROM MC",
-          "$LavaFlows FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "3 MC",
@@ -428,7 +404,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$BigAsteroid"),
           "27 Pay<> FROM MC",
-          "$BigAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "4 Titanium",
@@ -447,7 +422,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           *playCardTasks("$GiantIceAsteroid"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "24 Pay<> FROM MC",
-          "$GiantIceAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "4 MC",
@@ -480,7 +454,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "-12 MC",
           "-Director<$BoardOfDirectors>",
           "PlayCard<Class<PreludeCard>, Class<$TerraformingDeal>>",
-          "$TerraformingDeal FROM PreludeCard",
       )
       doTask("Pass")
       doTasks("32 MC", "4 Heat")
@@ -513,7 +486,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$IceAsteroid"),
           "23 Pay<> FROM MC",
-          "$IceAsteroid FROM ProjectCard",
           "4 MC",
           "Science<$Spire>",
           "3 MC",
@@ -538,7 +510,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Comet"),
           "21 Pay<> FROM MC",
-          "$Comet FROM ProjectCard",
           "TemperatureStep",
           "4 MC",
           "Science<$Spire>",
@@ -560,7 +531,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$TowingAComet"),
           "23 Pay<> FROM MC",
-          "$TowingAComet FROM ProjectCard",
           "2 Plant",
           "OxygenStep",
           "4 MC",
@@ -612,7 +582,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "-12 MC",
           "-Director<$BoardOfDirectors>",
           "PlayCard<Class<PreludeCard>, Class<$SuitableInfrastructure>>",
-          "$SuitableInfrastructure FROM PreludeCard",
           "5 Steel",
       )
       expectChanges(
@@ -641,7 +610,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           *playCardTasks("$ProtectedValley"),
           "6 Pay<Class<Steel>> FROM Steel",
           "11 Pay<> FROM MC",
-          "$ProtectedValley FROM ProjectCard",
           "PROD[2 MC]",
           "4 MC",
           "Science<$Spire>",
@@ -656,7 +624,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Plantation"),
           "15 Pay<> FROM MC",
-          "$Plantation FROM ProjectCard",
           "GreeneryTile<Hellas_1_4>",
           "OxygenStep",
           "Plant",
@@ -668,7 +635,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Algae"),
           "10 Pay<> FROM MC",
-          "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
           "2 MC",
@@ -686,7 +652,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Heather"),
           "6 Pay<> FROM MC",
-          "$Heather FROM ProjectCard",
           "PROD[Plant]",
           "Plant",
           "2 MC",
@@ -695,7 +660,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           *playCardTasks("$ArtificialLake"),
           "1 Pay<Class<Steel>> FROM Steel",
           "13 Pay<> FROM MC",
-          "$ArtificialLake FROM ProjectCard",
           "OceanTile<Hellas_2_5>",
           "TerraformRating",
           "PROD[MC]",
@@ -748,11 +712,10 @@ internal class MaximumStandardProjectTest : FullGameTest() {
           "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
       )
-      doTasks(*playCardTasks("$MeatIndustry"), "5 Pay<> FROM MC", "$MeatIndustry FROM ProjectCard")
+      doTasks(*playCardTasks("$MeatIndustry"), "5 Pay<> FROM MC")
       doTasks(
           *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "$SpecialDesign FROM ProjectCard",
           "SpecialDesign_NextCardEffect",
           "Science<$Spire>",
           "3 MC",
@@ -760,7 +723,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Herbivores"),
           "12 Pay<> FROM MC",
-          "$Herbivores FROM ProjectCard",
           "Animal<$Herbivores>",
           "2 MC",
           "PROD[-Plant<SoloOpponent>]",
@@ -768,7 +730,6 @@ internal class MaximumStandardProjectTest : FullGameTest() {
       doTasks(
           *playCardTasks("$RestrictedArea"),
           "11 Pay<> FROM MC",
-          "$RestrictedArea FROM ProjectCard",
           "RestrictedArea_SpecialTile<Hellas_2_6>",
           "Plant",
           "1 MC",

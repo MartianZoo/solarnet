@@ -20,7 +20,6 @@ internal class HermeticOrderOfMarsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$HermeticOrderOfMars"),
               "10 Pay<> FROM MC",
-              "$HermeticOrderOfMars FROM ProjectCard",
               "PROD[2 MC]",
               "MC",
           )

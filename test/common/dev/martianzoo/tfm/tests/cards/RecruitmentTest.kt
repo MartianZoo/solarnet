@@ -21,7 +21,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
 
         doTasks(
             "2 Pay<> FROM MC",
-            "$Recruitment FROM ProjectCard",
             "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
         )
       }
@@ -41,7 +40,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -61,7 +59,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "$Recruitment FROM ProjectCard",
               "PartyLeader<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -81,7 +78,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -101,7 +97,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -120,7 +115,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -143,7 +137,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -162,7 +155,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }
@@ -177,7 +169,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$Recruitment"),
             "2 Pay<> FROM MC",
-            "$Recruitment FROM ProjectCard",
             "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>",
         )
       }
@@ -195,7 +186,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$Recruitment"),
             "2 Pay<> FROM MC",
-            "$Recruitment FROM ProjectCard",
             "PartyLeader<Scientists> FROM PartyFollower<MarsFirst, Neutral>",
         )
       }
@@ -216,7 +206,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
 
         doTasks(
             "2 Pay<> FROM MC",
-            "$Recruitment FROM ProjectCard",
             "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
         )
       }

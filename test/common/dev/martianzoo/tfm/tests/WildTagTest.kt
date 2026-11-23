@@ -19,7 +19,6 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ResearchNetwork>>",
-          "$ResearchNetwork FROM PreludeCard",
           "PROD[MC]",
           "3 ProjectCard",
       )
@@ -27,7 +26,6 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AppliedScience>>",
-          "$AppliedScience FROM PreludeCard",
           "6 Science<$AppliedScience>",
       )
     }
@@ -40,19 +38,18 @@ internal class WildTagTest : TfmSandboxTest() {
       kim.count("PlantTag<WildTagElection<WildTag<$AppliedScience>>>") shouldBe 1
       kim.count("MicrobeTag<WildTagElection<WildTag<$ResearchNetwork>>>") shouldBe 1
       kim.count("AnimalTag<WildTagElection<WildTag<$SeptemTribus>>>") shouldBe 1
-      doTasks("11 Pay<> FROM MC", "$AdvancedEcosystems FROM ProjectCard")
+      doTasks("11 Pay<> FROM MC")
     }
     kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0
     kim.count("Tag<$AdvancedEcosystems>") shouldBe 3
     kim.runOperation("UseAction<PlayCardAction, Action1>") {
       doTask("PlayCard<Class<ProjectCard>, Class<$ResearchCoordination>, Hand>")
 
-      doTasks("4 Pay<> FROM MC", "$ResearchCoordination FROM ProjectCard")
+      doTasks("4 Pay<> FROM MC")
     }
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$NobelPrize>, Hand>",
-          "$NobelPrize FROM PreludeCard",
           "5 MC",
           "2 SearchForCard<RequirementFilter>",
       )
@@ -81,10 +78,10 @@ internal class WildTagTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(*playCardTasks("$MassConverter"))
       cards.forEach { kim.count("ScienceTag<WildTagElection<WildTag<$it>>>") shouldBe 1 }
-      doTasks("8 Pay<> FROM MC", "$MassConverter FROM ProjectCard", "PROD[6 Energy]")
+      doTasks("8 Pay<> FROM MC", "PROD[6 Energy]")
     }
     kim.inTurn {
-      doTasks(*playCardTasks("$Cartel"), "8 Pay<> FROM MC", "$Cartel FROM ProjectCard")
+      doTasks(*playCardTasks("$Cartel"), "8 Pay<> FROM MC")
       cards.forEach { kim.count("EarthTag<WildTagElection<WildTag<$it>>>") shouldBe 1 }
       doTask("PROD[6 MC]")
     }
@@ -104,7 +101,6 @@ internal class WildTagTest : TfmSandboxTest() {
       kim.count("Tag<WildTagElection<WildTag>>") shouldBe 1
       doTasks(
           "8 Pay<> FROM MC",
-          "$MassConverter FROM ProjectCard",
           "PROD[6 Energy]",
       )
     }
@@ -122,7 +118,7 @@ internal class WildTagTest : TfmSandboxTest() {
               "MicrobeTag<WildTagElection<WildTag<$ResearchCoordination>>>, AnimalTag<WildTagElection<WildTag<$ResearchNetwork>>>"
           )
       kim.count("Tag<WildTagElection<WildTag>>") shouldBe 2
-      doTasks("11 Pay<> FROM MC", "$AdvancedEcosystems FROM ProjectCard")
+      doTasks("11 Pay<> FROM MC")
     }
     stan.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
@@ -142,20 +138,18 @@ internal class WildTagTest : TfmSandboxTest() {
     newTestGame("$ResearchCoordination, $ResearchNetwork, $PointLuna")
     kim.exMachina("$ResearchNetwork, $PointLuna")
     kim.inTurn {
-      doTasks(*playCardTasks("$ResearchCoordination"), "4 Pay<> FROM MC")
-      kim.doTasks("$ResearchCoordination FROM ProjectCard").expect("WildTag<$ResearchCoordination>")
+      kim.doTasks(*playCardTasks("$ResearchCoordination"), "4 Pay<> FROM MC")
+          .expect("WildTag<$ResearchCoordination>")
     }
     kim.inTurn {
-      doTasks(*playCardTasks("$Cartel"), "8 Pay<> FROM MC")
-      kim.doTasks("$Cartel FROM ProjectCard")
+      kim.doTasks(*playCardTasks("$Cartel"), "8 Pay<> FROM MC")
           .expect(
               "EarthTag<WildTagElection<WildTag<$ResearchCoordination>>>, EarthTag<WildTagElection<WildTag<$ResearchNetwork>>>"
           )
       doTasks("ProjectCard", "PROD[4 MC]")
     }
     kim.inTurn {
-      doTasks(*playCardTasks("$Satellites"), "10 Pay<> FROM MC")
-      kim.doTasks("$Satellites FROM ProjectCard")
+      kim.doTasks(*playCardTasks("$Satellites"), "10 Pay<> FROM MC")
           .expect(
               "SpaceTag<WildTagElection<WildTag<$ResearchCoordination>>>, SpaceTag<WildTagElection<WildTag<$ResearchNetwork>>>"
           )
@@ -168,8 +162,7 @@ internal class WildTagTest : TfmSandboxTest() {
     newTestGame("$ResearchCoordination")
     kim.exMachina("$ResearchCoordination, PROD[2 Energy]")
     kim.inTurn {
-      doTasks(*playCardTasks("$Gyropolis"), "20 Pay<> FROM MC")
-      kim.doTasks("$Gyropolis FROM ProjectCard")
+      kim.doTasks(*playCardTasks("$Gyropolis"), "20 Pay<> FROM MC")
           .expect("EarthTag<WildTagElection<WildTag<$ResearchCoordination>>>")
       doTasks("PROD[-2 Energy]", "PROD[0 MC]", "PROD[1 MC]", "CityTile<Tharsis_1_1>", "2 Steel")
     }
@@ -187,7 +180,6 @@ internal class WildTagTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Cartel"),
           "8 Pay<> FROM MC",
-          "$Cartel FROM ProjectCard",
           "PROD[2 MC]",
       )
     }
@@ -203,7 +195,6 @@ internal class WildTagTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$TerraformingGanymede"),
           "33 Pay<> FROM MC",
-          "$TerraformingGanymede FROM ProjectCard",
       )
       giveTask(kim, "PROD[1 MC]")
       doTask("2 TerraformRating")
@@ -218,7 +209,6 @@ internal class WildTagTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CloudTourism"),
           "11 Pay<> FROM MC",
-          "$CloudTourism FROM ProjectCard",
           "EarthTag<WildTagElection<WildTag<$ResearchCoordination>>>",
           "VenusTag<WildTagElection<WildTag<$ResearchNetwork>>>",
           "PROD[2 MC]",
@@ -234,7 +224,6 @@ internal class WildTagTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CloudTourism"),
           "11 Pay<> FROM MC",
-          "$CloudTourism FROM ProjectCard",
           "EarthTag<WildTagElection<WildTag<$ResearchCoordination>>>",
       )
       kim.count("Tag<WildTagElection<WildTag<$ResearchNetwork>>>") shouldBe 0
@@ -250,7 +239,6 @@ internal class WildTagTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$InterplanetaryTrade"),
           "27 Pay<> FROM MC",
-          "$InterplanetaryTrade FROM ProjectCard",
           "EACH @WildTagElection { Tag<@WildTagElection>? }",
           "EventTag<WildTagElection<WildTag<$ResearchCoordination>>>",
           "0 EarthTag<WildTagElection<WildTag<$ResearchNetwork>>>",
@@ -267,7 +255,6 @@ internal class WildTagTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$InterplanetaryTrade"),
           "27 Pay<> FROM MC",
-          "$InterplanetaryTrade FROM ProjectCard",
           "PROD[1 MC]",
           "EACH @WildTagElection { Tag<@WildTagElection>? }",
           "EventTag<WildTagElection<WildTag<$ResearchCoordination>>>",

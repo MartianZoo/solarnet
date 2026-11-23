@@ -87,7 +87,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       // "So I pay 21. I have 17 money remaining."
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$PointLuna>>",
-          "$PointLuna FROM CorporationCard",
           "38 MC",
           "PROD[Titanium]",
           "ProjectCard",
@@ -100,7 +99,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       // "I have Valley Trust. I'm keeping five cards... I have 22 money."
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$ValleyTrust>>",
-          "$ValleyTrust FROM CorporationCard",
           "37 MC",
           "15 Pay<> FROM MC",
           "5 ProjectCard<Hand FROM Selecting>",
@@ -111,7 +109,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       // "I play Biofuels... two plants, a plant production, and an energy production."
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Biofuels>>",
-          "$Biofuels FROM PreludeCard",
           "PROD[Plant]",
           "PROD[Energy]",
           "2 Plant",
@@ -119,7 +116,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       // "And then I play Donation and get 21 money."
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
     }
@@ -128,14 +124,12 @@ internal class OtbGame20260818Test : FullGameTest() {
       // "Supplier... four steel, and two energy production."
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
-          "$Supplier FROM PreludeCard",
           "PROD[2 Energy]",
           "4 Steel",
       )
       // "Martian Industries... six money, one steel production, and one energy production."
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>",
-          "$MartianIndustries FROM PreludeCard",
           "PROD[Energy]",
           "PROD[Steel]",
           "6 MC",
@@ -147,7 +141,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
               *playCardTasks("$Pets"),
               "10 Pay<> FROM MC",
-              "$Pets FROM ProjectCard",
               "Animal<$Pets>",
               "ProjectCard",
           )
@@ -159,7 +152,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks("DoRequiredActions", "3 PreludeCard<Selecting>")
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-          "$DoubleDown FROM PreludeCard<Selecting>",
           "CopyPrelude<$MartianIndustries>",
           "PROD[Energy]",
           "PROD[Steel]",
@@ -169,7 +161,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
               *playCardTasks("$Psychrophiles"),
               "2 Pay<> FROM MC",
-              "$Psychrophiles FROM ProjectCard",
           )
           .expect("Enceladus")
     }
@@ -179,7 +170,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$AerialMappers"),
           "11 Pay<> FROM MC",
-          "$AerialMappers FROM ProjectCard",
       )
     }
 
@@ -188,7 +178,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$ForcedPrecipitation"),
           "8 Pay<> FROM MC",
-          "$ForcedPrecipitation FROM ProjectCard",
       )
     }
 
@@ -202,7 +191,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$ExtractorBalloons"),
           "21 Pay<> FROM MC",
-          "$ExtractorBalloons FROM ProjectCard",
           "3 Floater<$ExtractorBalloons>",
       )
     }
@@ -275,7 +263,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$MiningRights"),
           "4 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Utopia_3_6>",
           "PROD[Titanium]",
           "2 ProjectCard",
@@ -285,7 +272,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Green>]",
       )
@@ -296,7 +282,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$CeosFavoriteProject"),
           "1 Pay<> FROM MC",
-          "$CeosFavoriteProject FROM ProjectCard",
           "Floater<$AerialMappers>",
       )
     }
@@ -339,7 +324,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$SixteenPsyche"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "28 Pay<> FROM MC",
-          "$SixteenPsyche FROM ProjectCard",
           "PROD[2 Titanium]",
           "3 Titanium",
       )
@@ -390,7 +374,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$ImportedHydrogen"),
           "5 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$ImportedHydrogen FROM ProjectCard",
           "ProjectCard",
           "2 Animal<$Pets>",
           "OceanTile<Utopia_4_1>",
@@ -423,7 +406,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Cartel"),
           "8 Pay<> FROM MC",
-          "$Cartel FROM ProjectCard",
           "PROD[3 MC]",
           "ProjectCard",
       )
@@ -435,7 +417,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$ColonizerTrainingCamp"),
           "4 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No M€ needed after paying with steel.
-          "$ColonizerTrainingCamp FROM ProjectCard",
       )
     }
 
@@ -450,7 +431,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$BeamFromAThoriumAsteroid"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "26 Pay<> FROM MC",
-          "$BeamFromAThoriumAsteroid FROM ProjectCard",
           "PROD[3 Heat]",
           "PROD[3 Energy]",
       )
@@ -461,7 +441,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$ResearchCoordination"),
           "4 Pay<> FROM MC",
-          "$ResearchCoordination FROM ProjectCard",
       )
     }
 
@@ -475,7 +454,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$VenusGovernor"),
           "4 Pay<> FROM MC",
-          "$VenusGovernor FROM ProjectCard",
           "PROD[2 MC]",
       )
     }
@@ -538,7 +516,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "8 Pay<> FROM MC",
-          "$MarsUniversity FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
       )
@@ -549,7 +526,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Flooding"),
           "7 Pay<> FROM MC",
-          "$Flooding FROM ProjectCard",
           "OceanTile<Utopia_3_1>",
           "TerraformRating",
           "3 Plant",
@@ -561,7 +537,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$Potatoes"),
           "PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "0 Pay<> FROM MC", // No M€ needed after paying with Psychrophiles microbes.
-          "$Potatoes FROM ProjectCard",
           "-2 Plant",
           "PROD[2 MC]",
       )
@@ -573,7 +548,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$MercurianAlloys"),
           "Ok", // No titanium paid.
           "3 Pay<> FROM MC",
-          "$MercurianAlloys FROM ProjectCard",
       )
     }
 
@@ -588,7 +562,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$AsteroidRights"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "$AsteroidRights FROM ProjectCard",
           "2 Asteroid<$AsteroidRights>",
           "ProjectCard",
       )
@@ -600,7 +573,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$Mine"),
           "2 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No M€ needed after paying with steel.
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }
@@ -625,7 +597,7 @@ internal class OtbGame20260818Test : FullGameTest() {
 
     green.turn {
       // "I pay five for Floating Habs."
-      doTasks(*playCardTasks("$FloatingHabs"), "5 Pay<> FROM MC", "$FloatingHabs FROM ProjectCard")
+      doTasks(*playCardTasks("$FloatingHabs"), "5 Pay<> FROM MC")
     }
 
     yellow.turn {
@@ -634,7 +606,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$NitriteReducingBacteria"),
           "11 Pay<> FROM MC",
-          "$NitriteReducingBacteria FROM ProjectCard",
           "3 Microbe<$NitriteReducingBacteria>",
       )
     }
@@ -709,7 +680,7 @@ internal class OtbGame20260818Test : FullGameTest() {
 
     green.turn {
       // Point Luna tableau in board-13-46-12.jpg: "Energy Market. Cost me three."
-      doTasks(*playCardTasks("$EnergyMarket"), "3 Pay<> FROM MC", "$EnergyMarket FROM ProjectCard")
+      doTasks(*playCardTasks("$EnergyMarket"), "3 Pay<> FROM MC")
     }
 
     yellow.turn {
@@ -719,7 +690,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$HydrogenToVenus"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "5 Pay<> FROM MC",
-          "$HydrogenToVenus FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
           "2 Floater<$ForcedPrecipitation>",
@@ -729,7 +699,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$HermeticOrderOfMars"),
           "10 Pay<> FROM MC",
-          "$HermeticOrderOfMars FROM ProjectCard",
           "PROD[2 MC]",
           "6 MC",
       )
@@ -753,7 +722,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$StratosphericBirds"),
           "12 Pay<> FROM MC",
-          "$StratosphericBirds FROM ProjectCard",
           "-Floater<$ForcedPrecipitation>",
       )
       // "I spend three energy to trade with Miranda. Three animals on Stratospheric Birds."
@@ -772,7 +740,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$BigAsteroid"),
           "7 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
-          "$BigAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "4 Titanium",
@@ -804,7 +771,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$LunarMining"),
           "11 Pay<> FROM MC",
-          "$LunarMining FROM ProjectCard",
           "PROD[3 Titanium]",
           "ProjectCard",
       )
@@ -837,7 +803,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$LunaMetropolis"),
           "5 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$LunaMetropolis FROM ProjectCard",
           "PROD[7 MC]",
           "CityTile<LunaMetropolis_RemoteArea>",
           "ProjectCard",
@@ -920,7 +885,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$IndustrialMicrobes"),
           "12 Pay<> FROM MC",
-          "$IndustrialMicrobes FROM ProjectCard",
           "PROD[Energy]",
           "PROD[Steel]",
       )
@@ -953,7 +917,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$ImportOfAdvancedGhg"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$ImportOfAdvancedGhg FROM ProjectCard",
           "PROD[2 Heat]",
           "ProjectCard",
       )
@@ -985,7 +948,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$HiredRaiders"),
           "1 Pay<> FROM MC",
-          "$HiredRaiders FROM ProjectCard",
           "3 MC FROM MC<Yellow>",
       )
     }
@@ -1036,7 +998,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$NoctisCity"),
           "6 Pay<Class<Steel>> FROM Steel",
           "6 Pay<> FROM MC",
-          "$NoctisCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Utopia_3_2>",
@@ -1153,7 +1114,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MarketManipulation"),
           "1 Pay<> FROM MC",
-          "$MarketManipulation FROM ProjectCard",
           "ColonyProduction<Pluto> FROM ColonyProduction<Io>",
       )
       // Yellow: "Then I will spend three energy to trade with Pluto, which now gives me three
@@ -1173,7 +1133,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$MartianZoo"),
           "Ok", // No steel paid.
           "12 Pay<> FROM MC",
-          "$MartianZoo FROM ProjectCard",
       )
     }
 
@@ -1183,7 +1142,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$IoSulphurResearch"),
           "15 Pay<> FROM MC",
-          "$IoSulphurResearch FROM ProjectCard",
           "3 ProjectCard",
       )
 
@@ -1198,7 +1156,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$NuclearPower"),
           "Ok", // No steel paid.
           "10 Pay<> FROM MC",
-          "$NuclearPower FROM ProjectCard",
           "PROD[-2 MC]",
           "PROD[3 Energy]",
       )
@@ -1210,7 +1167,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$AirScrappingExpedition"),
           "13 Pay<> FROM MC",
-          "$AirScrappingExpedition FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
           "3 Floater<$ForcedPrecipitation>",
@@ -1225,7 +1181,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$MirandaResort"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
-          "$MirandaResort FROM ProjectCard",
           "PROD[7 MC]",
       )
     }
@@ -1268,7 +1223,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$BusinessContacts"),
           "7 Pay<> FROM MC",
-          "$BusinessContacts FROM ProjectCard",
           "4 ProjectCard<Selecting>",
           "2 ProjectCard<Hand FROM Selecting>",
           "ProjectCard",
@@ -1288,7 +1242,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$ImportedNitrogen"),
           "6 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
-          "$ImportedNitrogen FROM ProjectCard",
           "TerraformRating",
           "4 Plant",
           "3 Microbe",
@@ -1344,7 +1297,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$NeutralizerFactory"),
           "7 Pay<> FROM MC",
-          "$NeutralizerFactory FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
       )
@@ -1355,7 +1307,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$VenusianInsects"),
           "5 Pay<> FROM MC",
-          "$VenusianInsects FROM ProjectCard",
       )
     }
     yellow.doTask("Pass")
@@ -1373,7 +1324,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$NitrophilicMoss"),
           "8 Pay<> FROM MC",
-          "$NitrophilicMoss FROM ProjectCard",
           "PROD[2 Plant]",
           "-2 Plant",
       )
@@ -1439,7 +1389,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$IceMoonColony"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "17 Pay<> FROM MC",
-          "$IceMoonColony FROM ProjectCard",
           "Colony<Miranda>",
           "Animal<$StratosphericBirds>",
           "OceanTile<Utopia_8_7>",
@@ -1470,7 +1419,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$DiversitySupport"),
           "1 Pay<> FROM MC",
-          "$DiversitySupport FROM ProjectCard",
           "TerraformRating",
       )
     }
@@ -1483,7 +1431,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Plantation"),
           "15 Pay<> FROM MC",
-          "$Plantation FROM ProjectCard",
           "GreeneryTile<Utopia_5_3>",
           "OxygenStep",
           "2 MC",
@@ -1494,7 +1441,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$KaguyaTech"),
           "10 Pay<> FROM MC",
-          "$KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
           "ProjectCard",
           "CityTile<Utopia_5_3> FROM GreeneryTile<Utopia_5_3>",
@@ -1513,7 +1459,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$VenusianAnimals"),
           "13 Pay<> FROM MC",
-          "$VenusianAnimals FROM ProjectCard",
           "Animal<$VenusianAnimals>",
       )
     }
@@ -1528,7 +1473,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$NitrogenRichAsteroid"),
           "7 Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "$NitrogenRichAsteroid FROM ProjectCard",
           "2 TerraformRating",
           "TemperatureStep",
           "TerraformRating",
@@ -1563,7 +1507,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$BusinessNetwork"),
           "4 Pay<> FROM MC",
-          "$BusinessNetwork FROM ProjectCard",
           "PROD[-MC]",
           "ProjectCard",
           "Animal<$MartianZoo>",
@@ -1596,7 +1539,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$HeatTrappers"),
           "2 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "$HeatTrappers FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-2 Heat<Yellow>]",
       )
@@ -1608,7 +1550,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$PowerSupplyConsortium"),
           "5 Pay<> FROM MC",
-          "$PowerSupplyConsortium FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Green>]",
       )
@@ -1637,7 +1578,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$ImportedGhg"),
           "Ok", // No titanium paid.
           "7 Pay<> FROM MC",
-          "$ImportedGhg FROM ProjectCard",
           "PROD[Heat]",
           "3 Heat",
           "ProjectCard",
@@ -1652,7 +1592,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$ImportedNutrients"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "11 Pay<> FROM MC",
-          "$ImportedNutrients FROM ProjectCard",
           "4 Plant",
           "4 Microbe<$NitriteReducingBacteria>",
       )
@@ -1801,7 +1740,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$SponsoredAcademies"),
           "7 Pay<> FROM MC",
-          "$SponsoredAcademies FROM ProjectCard",
           "-ProjectCard",
           "EACH",
           "Animal<$VenusianAnimals>",
@@ -1813,7 +1751,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$LagrangeObservatory"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "$LagrangeObservatory FROM ProjectCard",
           "ProjectCard",
           "Animal<$VenusianAnimals>",
       )
@@ -1834,7 +1771,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$AquiferPumping"),
           "9 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No M€ needed after paying with steel.
-          "$AquiferPumping FROM ProjectCard",
       )
     }
 
@@ -1843,7 +1779,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$AdvancedAlloys"),
           "9 Pay<> FROM MC",
-          "$AdvancedAlloys FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
       )
@@ -1853,7 +1788,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$SolarLogistics"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
-          "$SolarLogistics FROM ProjectCard",
           "2 Titanium",
           "ProjectCard",
           "Animal<$MartianZoo>",
@@ -1882,7 +1816,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$IceAsteroid"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "$IceAsteroid FROM ProjectCard",
           "ProjectCard",
           "OceanTile<Utopia_7_5>",
           "TerraformRating",
@@ -1909,13 +1842,11 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Conscription"),
           "5 Pay<> FROM MC",
-          "$Conscription FROM ProjectCard",
           "Conscription_NextCardEffect",
       )
       doTasks(
           *playCardTasks("$Capital"),
           "10 Pay<> FROM MC",
-          "$Capital FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[5 MC]",
           "CapitalTile<Utopia_6_5>",
@@ -1931,7 +1862,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$TectonicStressPower"),
           "3 Pay<Class<Steel>> FROM Steel",
           "9 Pay<> FROM MC",
-          "$TectonicStressPower FROM ProjectCard",
           "PROD[3 Energy]",
       )
     }
@@ -2019,7 +1949,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$LunarExports"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "$LunarExports FROM ProjectCard",
           "ProjectCard",
           "Animal<$MartianZoo>",
           "PROD[5 MC]",
@@ -2028,14 +1957,12 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Solarnet"),
           "7 Pay<> FROM MC",
-          "$Solarnet FROM ProjectCard",
           "2 ProjectCard",
       )
       // "Let's play Algae for ten money." "I get two plant production and one plant."
       doTasks(
           *playCardTasks("$Algae"),
           "10 Pay<> FROM MC",
-          "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
       )
@@ -2048,7 +1975,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Insects"),
           "9 Pay<> FROM MC",
-          "$Insects FROM ProjectCard",
           "PROD[5 Plant]",
       )
     }
@@ -2162,7 +2088,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$EcologicalZone"),
           "12 Pay<> FROM MC",
-          "$EcologicalZone FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "Animal<$EcologicalZone>",
           "EcologicalZone_SpecialTile<Utopia_2_2>",
@@ -2176,7 +2101,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$CryoSleep"),
           "8 Pay<> FROM MC",
-          "$CryoSleep FROM ProjectCard",
           "Animal<$VenusianAnimals>",
       )
       // "And I spend two energy to trade with Miranda for two animals and a card."
@@ -2211,7 +2135,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
               *playCardTasks("$BactoviralResearch"),
               "8 Pay<> FROM MC",
-              "$BactoviralResearch FROM ProjectCard",
               "ProjectCard",
               "Animal<$VenusianAnimals>",
               "6 Microbe<$NitriteReducingBacteria>",
@@ -2226,7 +2149,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
               *playCardTasks("$Herbivores"),
               "12 Pay<> FROM MC",
-              "$Herbivores FROM ProjectCard",
               "Animal<$Herbivores>",
               "PROD[-Plant]",
               "Animal<$EcologicalZone>",
@@ -2241,7 +2163,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$JovianLanterns"),
           "20 Pay<> FROM MC",
-          "$JovianLanterns FROM ProjectCard",
           "TerraformRating",
           "2 Floater<$JovianLanterns>",
       )
@@ -2289,7 +2210,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$LavaFlows"),
           "18 Pay<> FROM MC",
-          "$LavaFlows FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "2 TerraformRating",
@@ -2320,7 +2240,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$FoodFactory"),
           "3 Pay<Class<Steel>> FROM Steel",
           "3 Pay<> FROM MC",
-          "$FoodFactory FROM ProjectCard",
           "PROD[-Plant]",
           "PROD[4 MC]",
       )
@@ -2352,7 +2271,6 @@ internal class OtbGame20260818Test : FullGameTest() {
               "3 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
               "Ok", // No steel paid.
               "0 Pay<> FROM MC", // No M€ needed after paying with Psychrophiles microbes.
-              "$Greenhouses FROM ProjectCard",
               "5 Plant",
           )
           .expect("0 Animal<Green, $EcologicalZone<Green>>")
@@ -2392,7 +2310,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "$RoboticWorkforce FROM ProjectCard",
       )
       // Name the context because matching EACH against Mars University's pending THEN task
       // otherwise throws a syntax error; see the task-matching TODO.
@@ -2412,7 +2329,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$DawnCity"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
-          "$DawnCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[Titanium]",
           "NormalCityTile<DawnCity_RemoteArea>",
@@ -2569,7 +2485,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       // card."
       doTasks(
           *playCardTasks("$ProductiveOutpost"),
-          "$ProductiveOutpost FROM ProjectCard",
           "ProjectCard",
       )
     }
@@ -2581,7 +2496,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Sabotage"),
           "1 Pay<> FROM MC",
-          "$Sabotage FROM ProjectCard",
           "-7 MC<Yellow>",
       )
     }
@@ -2593,7 +2507,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$PioneerSettlement"),
           "Ok", // No titanium paid.
           "13 Pay<> FROM MC",
-          "$PioneerSettlement FROM ProjectCard",
           "PROD[-2 MC]",
           "Colony<Pluto>",
           "2 ProjectCard",
@@ -2627,7 +2540,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$ImmigrantCity"),
           "2 Pay<Class<Steel>> FROM Steel",
           "7 Pay<> FROM MC",
-          "$ImmigrantCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[-2 MC]",
           "CityTile<Utopia_5_6>",
@@ -2664,7 +2576,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$CommercialDistrict"),
           "16 Pay<> FROM MC",
-          "$CommercialDistrict FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
           "CommercialDistrict_SpecialTile<Utopia_3_3>",
@@ -2685,7 +2596,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$RobotPollinators"),
           "9 Pay<> FROM MC",
-          "$RobotPollinators FROM ProjectCard",
           "PROD[Plant]",
           "6 Plant",
       )
@@ -2718,7 +2628,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$MethaneFromTitan"),
           "6 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
-          "$MethaneFromTitan FROM ProjectCard",
           "PROD[2 Heat]",
           "PROD[2 Plant]",
       )
@@ -2740,7 +2649,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$LocalHeatTrapping"),
           "1 Pay<> FROM MC",
-          "$LocalHeatTrapping FROM ProjectCard",
           "-5 Heat",
           "2 Animal<$VenusianAnimals>",
       )
@@ -2753,7 +2661,6 @@ internal class OtbGame20260818Test : FullGameTest() {
               *playCardTasks("$TradingColony"),
               "4 Pay<Class<Titanium>> FROM Titanium",
               "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
-              "$TradingColony FROM ProjectCard",
               "Colony<Enceladus>",
               "3 Microbe<$VenusianInsects>",
           )
@@ -2766,7 +2673,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Airliners"),
           "11 Pay<> FROM MC",
-          "$Airliners FROM ProjectCard",
           "PROD[2 MC]",
           "2 Floater<$JovianLanterns>",
       )
@@ -2792,7 +2698,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$KelpFarming"),
           "7 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "3 Pay<> FROM MC",
-          "$KelpFarming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[3 Plant]",
           "2 Plant",
@@ -2805,7 +2710,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$LandClaim"),
           "1 Pay<> FROM MC",
-          "$LandClaim FROM ProjectCard",
           "Community<Utopia_1_1>",
       )
     }
@@ -2832,7 +2736,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$LightningHarvest"),
           "8 Pay<> FROM MC",
-          "$LightningHarvest FROM ProjectCard",
           "PROD[Energy]",
           "PROD[MC]",
       )
@@ -2848,7 +2751,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MediaArchives"),
           "8 Pay<> FROM MC",
-          "$MediaArchives FROM ProjectCard",
           "21 MC",
       )
     }
@@ -2867,7 +2769,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$WaterImportFromEuropa"),
           "25 Pay<> FROM MC",
-          "$WaterImportFromEuropa FROM ProjectCard",
       )
     }
 
@@ -2882,7 +2783,6 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$SubZeroSaltFish"),
           "5 Pay<> FROM MC",
-          "$SubZeroSaltFish FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "PROD[-Plant<Yellow>]",
       )
@@ -2893,7 +2793,7 @@ internal class OtbGame20260818Test : FullGameTest() {
     yellow.turn {
       // "But, well, still, for the means, I can play Predators."
       // "Well, I guess you're going to take my Ecomal, then."
-      doTasks(*playCardTasks("$Predators"), "14 Pay<> FROM MC", "$Predators FROM ProjectCard")
+      doTasks(*playCardTasks("$Predators"), "14 Pay<> FROM MC")
           .expect("0 Animal<Green, $EcologicalZone<Green>>")
       doTasks(
           *cardActionTasks("$Predators"),
@@ -2914,7 +2814,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           *playCardTasks("$ArtificialLake"),
           "6 Pay<Class<Steel>> FROM Steel",
           "3 Pay<> FROM MC",
-          "$ArtificialLake FROM ProjectCard",
           "0 OceanTile<LandArea>", // All nine oceans are already placed.
       )
     }

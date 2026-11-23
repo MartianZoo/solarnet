@@ -16,7 +16,6 @@ internal class OldMiningColonyTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$OldMiningColony>>",
-            "$OldMiningColony FROM PreludeCard",
             "PROD[Titanium]",
         )
 
@@ -34,7 +33,6 @@ internal class OldMiningColonyTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$OldMiningColony>>",
-              "$OldMiningColony FROM PreludeCard",
               "PROD[Titanium]",
               "Colony<Pluto>",
               "2 ProjectCard<Hand>",

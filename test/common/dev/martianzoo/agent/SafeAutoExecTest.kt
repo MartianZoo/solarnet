@@ -42,6 +42,7 @@ internal class SafeAutoExecTest {
     val admin = agents[ADMIN]
     shouldThrow<IllegalArgumentException> { admin.autoExecPolicy = NONE }
     shouldThrow<IllegalArgumentException> { admin.autoExecNow(NONE) }
+    shouldThrow<IllegalArgumentException> { admin.doWithAutoExecPolicy(NONE) {} }
     admin.addTasks("Token")
     admin.count("Token") shouldBe 1
   }

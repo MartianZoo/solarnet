@@ -48,7 +48,6 @@ internal class CrediCorTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "19 Pay<> FROM MC",
-          "$EarthCatapult FROM ProjectCard",
           "4 MC",
       )
     }

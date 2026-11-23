@@ -71,7 +71,6 @@ internal class ParadigmBreakdownTest : TfmGameplayTest() {
     players.forEachIndexed { index, player ->
       player.doTasks(
           "PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation${index + 1}>, Hand>",
-          "BeginnerCorporation${index + 1} FROM BeginnerCard",
           "42 MC",
           "10 ProjectCard<Hand FROM Selecting>",
       )

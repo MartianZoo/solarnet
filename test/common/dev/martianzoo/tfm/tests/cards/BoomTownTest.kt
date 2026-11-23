@@ -17,7 +17,6 @@ internal class BoomTownTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$BoomTown>>",
-            "$BoomTown FROM PreludeCard",
             "PROD[2 Titanium]",
             "CityTile<Tharsis_4_2>",
         )
@@ -28,7 +27,6 @@ internal class BoomTownTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$BoomTown>>",
-            "$BoomTown FROM PreludeCard",
             "PROD[2 Titanium]",
             "CityTile<Tharsis_1_1>",
         )
@@ -37,7 +35,6 @@ internal class BoomTownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoomTown>>",
-          "$BoomTown FROM PreludeCard",
           "PROD[2 Titanium]",
           "CityTile<Tharsis_8_9>",
           "Titanium",
@@ -56,7 +53,6 @@ internal class BoomTownTest : TfmSandboxTest() {
           *playCardTasks("$SmallAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "$SmallAsteroid FROM ProjectCard",
           "TemperatureStep",
       )
       // Resolve the optional attack: no unprotected plant target is available.
@@ -70,7 +66,6 @@ internal class BoomTownTest : TfmSandboxTest() {
           *playCardTasks("$SpaceStation"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "7 Pay<> FROM MC",
-          "$SpaceStation FROM ProjectCard",
       )
     }
   }
@@ -81,7 +76,6 @@ internal class BoomTownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoomTown>>",
-          "$BoomTown FROM PreludeCard",
           "PROD[2 Titanium]",
           "CityTile<Tharsis_1_1>",
           "2 Steel",
@@ -90,7 +84,6 @@ internal class BoomTownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-          "$DoubleDown FROM PreludeCard",
           "CopyPrelude<$BoomTown>",
           "PROD[2 Titanium]",
           "CityTile<Tharsis_8_9>",
@@ -106,7 +99,6 @@ internal class BoomTownTest : TfmSandboxTest() {
           *playCardTasks("$SmallAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "$SmallAsteroid FROM ProjectCard",
           "TemperatureStep",
       )
       // Resolve the optional attack: no unprotected plant target is available.

@@ -19,7 +19,6 @@ internal class MangroveTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Mangrove"),
           "12 Pay<> FROM MC",
-          "$Mangrove FROM ProjectCard",
           "GreeneryTile<Tharsis_1_2>",
           "OxygenStep",
           "2 Steel",

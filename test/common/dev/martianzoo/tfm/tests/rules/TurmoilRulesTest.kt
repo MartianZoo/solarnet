@@ -217,7 +217,6 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
         .inTurn {
           doTasks(
               *playCardTasks("$BannedDelegate"),
-              "$BannedDelegate FROM ProjectCard",
               "-PartyFollower<Scientists, Kim>",
           )
         }

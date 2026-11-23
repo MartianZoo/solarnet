@@ -43,14 +43,12 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$RegolithEaters"),
           "13 Pay<> FROM MC",
-          "$RegolithEaters FROM ProjectCard",
       )
     }
     kim.inTurn {
       doTasks(
           *playCardTasks("$NitriteReducingBacteria"),
           "11 Pay<> FROM MC",
-          "$NitriteReducingBacteria FROM ProjectCard",
           "3 Microbe<$NitriteReducingBacteria>",
       )
     }
@@ -137,7 +135,6 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$ResearchColony"),
           "20 Pay<> FROM MC",
-          "$ResearchColony FROM ProjectCard",
           "2 ProjectCard<Hand>",
           "Colony<Pluto>",
           "2 ProjectCard<Hand>",
@@ -217,7 +214,6 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$RegolithEaters"),
           "13 Pay<> FROM MC",
-          "$RegolithEaters FROM ProjectCard",
       )
     }
 
@@ -245,14 +241,12 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$ForcedPrecipitation"),
           "8 Pay<> FROM MC",
-          "$ForcedPrecipitation FROM ProjectCard",
       )
     }
     kim.inTurn {
       doTasks(
           *playCardTasks("$ExtractorBalloons"),
           "21 Pay<> FROM MC",
-          "$ExtractorBalloons FROM ProjectCard",
           "3 Floater<$ExtractorBalloons>",
       )
     }
@@ -268,7 +262,6 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$ResearchColony"),
           "20 Pay<> FROM MC",
-          "$ResearchColony FROM ProjectCard",
           "2 ProjectCard<Hand>",
           "Colony<Titan>",
           "3* Floater<$ExtractorBalloons>",
@@ -278,7 +271,6 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Dirigibles"),
           "11 Pay<> FROM MC",
-          "$Dirigibles FROM ProjectCard",
       )
     }
 

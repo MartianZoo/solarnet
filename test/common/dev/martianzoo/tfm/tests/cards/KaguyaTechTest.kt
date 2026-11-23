@@ -19,7 +19,6 @@ internal class KaguyaTechTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$KaguyaTech"),
           "10 Pay<> FROM MC",
-          "$KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
           "ProjectCard<Hand>",
           "CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>",
@@ -37,7 +36,6 @@ internal class KaguyaTechTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$KaguyaTech"),
             "10 Pay<> FROM MC",
-            "$KaguyaTech FROM ProjectCard",
             "PROD[2 MC]",
             "ProjectCard<Hand>",
             "CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>",
@@ -54,7 +52,6 @@ internal class KaguyaTechTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$KaguyaTech"),
           "10 Pay<> FROM MC",
-          "$KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
           "ProjectCard<Hand>",
           "CityTile<Tharsis_1_2> FROM GreeneryTile<Tharsis_1_2>",

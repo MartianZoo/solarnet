@@ -17,7 +17,6 @@ internal class PreludeRulesTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$DomeFarming>>",
-          "$DomeFarming FROM PreludeCard",
           "PROD[Plant]",
           "PROD[2 MC]",
       )
@@ -36,26 +35,22 @@ internal class PreludeRulesTest : TfmGameplayTest() {
 
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-        "$Donation FROM PreludeCard",
         "21 MC",
     )
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$DomeFarming>>",
-        "$DomeFarming FROM PreludeCard",
         "PROD[Plant]",
         "PROD[2 MC]",
     )
 
     stan.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
-        "$Supplier FROM PreludeCard",
         "PROD[2 Energy]",
         "4 Steel",
     )
 
     stan.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
-        "$MetalsCompany FROM PreludeCard",
         "PROD[MC]",
         "PROD[Steel]",
         "PROD[Titanium]",

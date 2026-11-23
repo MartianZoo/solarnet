@@ -20,7 +20,6 @@ internal class DirigiblesTest : TfmSandboxTest() {
           *playCardTasks("$AerialMappers"),
           "2 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>",
           "5 Pay<> FROM MC",
-          "$AerialMappers FROM ProjectCard",
       )
     }
   }
@@ -35,7 +34,6 @@ internal class DirigiblesTest : TfmSandboxTest() {
           *playCardTasks("$VenusGovernor"),
           "PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>",
           "Pay<> FROM MC",
-          "$VenusGovernor FROM ProjectCard",
           "PROD[2 MC]",
       )
     }
@@ -53,7 +51,6 @@ internal class DirigiblesTest : TfmSandboxTest() {
               *playCardTasks("$StratosphericBirds"),
               "3 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>",
               "3 Pay<> FROM MC",
-              "$StratosphericBirds FROM ProjectCard",
               "-Floater",
           )
         }

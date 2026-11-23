@@ -18,7 +18,6 @@ internal class CommunityServicesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CommunityServices"),
           "13 Pay<> FROM MC",
-          "$CommunityServices FROM ProjectCard",
           "PROD[2 MC]",
       )
     }

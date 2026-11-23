@@ -19,7 +19,6 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
-          "$EstablishedMethods FROM PreludeCard",
           "30 MC",
       )
 
@@ -55,7 +54,6 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
-            "$EstablishedMethods FROM PreludeCard",
             "30 MC",
         )
         doTasks(
@@ -87,7 +85,6 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
-          "$EstablishedMethods FROM PreludeCard",
           "30 MC",
       )
 
@@ -117,7 +114,6 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EstablishedMethods>>",
-          "$EstablishedMethods FROM PreludeCard",
           "30 MC",
       )
 

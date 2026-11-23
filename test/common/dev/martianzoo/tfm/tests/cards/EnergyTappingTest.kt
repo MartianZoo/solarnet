@@ -20,7 +20,6 @@ internal class EnergyTappingTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "Energy", // Manutech gains the resource even though production is then lost.
           "PROD[-Energy]",

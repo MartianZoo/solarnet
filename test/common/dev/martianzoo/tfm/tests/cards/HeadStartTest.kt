@@ -21,7 +21,6 @@ internal class HeadStartTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
-          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
           "20 MC",
       )
@@ -43,7 +42,6 @@ internal class HeadStartTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
-          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
           "10 MC",
       )
@@ -54,7 +52,6 @@ internal class HeadStartTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>",
-          "$MartianIndustries FROM PreludeCard<Selecting>",
       )
       doTasks(
           "PROD[Energy]",
@@ -85,7 +82,6 @@ internal class HeadStartTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
-          "$FakeHeadStart FROM PreludeCard",
       )
       shouldThrow<TaskException> { doTask("Steel") }
       doTasks(
@@ -121,7 +117,6 @@ internal class HeadStartTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
-          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
           "20 MC",
       )
@@ -163,7 +158,6 @@ internal class HeadStartTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
-          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
           "0 MC",
       )
@@ -203,7 +197,6 @@ internal class HeadStartTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
-          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
           "0 MC",
       )
@@ -215,13 +208,11 @@ internal class HeadStartTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "-42 MC",
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$SagittaFrontierServices>>",
-          "$SagittaFrontierServices FROM CorporationCard<Selecting>",
           "31 MC",
           "PROD[Energy]",
           "PROD[2 MC]",
@@ -244,7 +235,6 @@ internal class HeadStartTest : TfmSandboxTest() {
       expectChanges("2 Steel<Kim>, 20 MC<Kim>") {
         kim.doTasks(
             "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
-            "$FakeHeadStart FROM PreludeCard",
             "2 Steel",
             "20 MC",
         )
@@ -269,19 +259,16 @@ internal class HeadStartTest : TfmSandboxTest() {
 
       kim.doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
       stan.completeOperation {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>",
-            "$PowerGeneration FROM PreludeCard",
             "PROD[3 Energy]",
         )
 
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
-            "$AlliedBank FROM PreludeCard",
             "PROD[4 MC]",
             "3 MC",
         )
@@ -351,7 +338,6 @@ internal class HeadStartTest : TfmSandboxTest() {
         )
         kim.doTasks(
             "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
-            "$FakeHeadStart FROM PreludeCard",
             "2 Steel",
             "20 MC",
         )

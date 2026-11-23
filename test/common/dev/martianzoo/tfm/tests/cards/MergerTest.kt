@@ -19,12 +19,10 @@ internal class MergerTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Celestic>>",
-          "$Celestic FROM CorporationCard<Selecting>!",
           "42 MC",
           "-42 MC",
       )
@@ -39,7 +37,6 @@ internal class MergerTest : TfmSandboxTest() {
           )
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$SocietySupport>>",
-              "$SocietySupport FROM PreludeCard<Selecting>",
               "PROD[-MC]",
               "PROD[Plant]",
               "PROD[Energy]",
@@ -56,19 +53,16 @@ internal class MergerTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
-              "$NewPartner FROM PreludeCard",
               "PROD[MC]",
               "2 PreludeCard<Selecting>",
           )
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-              "$Merger FROM PreludeCard<Selecting>",
               "4 CorporationCard<Selecting>",
               "-42 MC",
           )
           doTasks(
               "PlayCard<Class<CorporationCard>, Class<$Celestic>>",
-              "$Celestic FROM CorporationCard<Selecting>!",
               "42 MC",
           )
         }
@@ -83,12 +77,10 @@ internal class MergerTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-              "$Merger FROM PreludeCard",
               "4 CorporationCard<Selecting>",
           )
           doTasks(
               "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
-              "$PharmacyUnion FROM CorporationCard<Selecting>!",
               "54 MC",
               "-42 MC",
               "SearchForCard<TagFilter<Class<ScienceTag>>>!",
@@ -110,7 +102,6 @@ internal class MergerTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard",
           "4 Director<$BoardOfDirectors>",
       )
     }
@@ -127,13 +118,11 @@ internal class MergerTest : TfmSandboxTest() {
         )
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-            "$Merger FROM PreludeCard",
             "4 CorporationCard<Selecting>",
         )
 
         doTasks(
             "PlayCard<Class<CorporationCard>, Class<$Recyclon>>",
-            "$Recyclon FROM CorporationCard<Selecting>",
             "38 MC",
             "Disease<$PharmacyUnion>",
             "-4* MC",
@@ -185,12 +174,10 @@ internal class MergerTest : TfmSandboxTest() {
         )
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-            "$Merger FROM PreludeCard",
             "4 CorporationCard<Selecting>",
         )
         doTasks(
             "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
-            "$TharsisRepublic FROM CorporationCard<Selecting>",
             "40 MC",
             "-42 MC",
         )

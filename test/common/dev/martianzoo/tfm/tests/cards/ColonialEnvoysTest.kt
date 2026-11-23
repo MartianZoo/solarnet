@@ -16,7 +16,6 @@ internal class ColonialEnvoysTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$ColonialEnvoys"),
               "4 Pay<> FROM MC",
-              "$ColonialEnvoys FROM ProjectCard",
           )
           // Expand the per-colony reward into separate delegate choices.
           doTasks(

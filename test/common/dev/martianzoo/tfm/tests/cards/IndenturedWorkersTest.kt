@@ -16,7 +16,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           *playCardTasks("$IndenturedWorkers"),
-          "$IndenturedWorkers FROM ProjectCard",
           "IndenturedWorkers_NextCardEffect",
       )
     }
@@ -24,7 +23,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Soletta"),
           "27 Pay<> FROM MC",
-          "$Soletta FROM ProjectCard",
           "PROD[7 Heat]",
       )
     }
@@ -39,7 +37,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           *playCardTasks("$IndenturedWorkers"),
-          "$IndenturedWorkers FROM ProjectCard",
           "IndenturedWorkers_NextCardEffect",
       )
     }
@@ -66,7 +63,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Soletta"),
           "27 Pay<> FROM MC",
-          "$Soletta FROM ProjectCard",
           "PROD[7 Heat]",
       )
     }
@@ -80,7 +76,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           *playCardTasks("$IndenturedWorkers"),
-          "$IndenturedWorkers FROM ProjectCard",
           "IndenturedWorkers_NextCardEffect",
       )
     }
@@ -88,7 +83,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Soletta"),
           "27 Pay<> FROM MC",
-          "$Soletta FROM ProjectCard",
           "PROD[7 Heat]",
       )
     }
@@ -96,7 +90,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AdvancedAlloys"),
           "9 Pay<> FROM MC",
-          "$AdvancedAlloys FROM ProjectCard",
       )
     }
   }
@@ -108,7 +101,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           *playCardTasks("$IndenturedWorkers"),
-          "$IndenturedWorkers FROM ProjectCard",
           "IndenturedWorkers_NextCardEffect",
       )
     }
@@ -119,7 +111,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Soletta"),
           "35 Pay<> FROM MC",
-          "$Soletta FROM ProjectCard",
           "PROD[7 Heat]",
       )
     }
@@ -136,7 +127,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           *playCardTasks("$IndenturedWorkers"),
-          "$IndenturedWorkers FROM ProjectCard",
           "IndenturedWorkers_NextCardEffect",
       )
     }
@@ -149,7 +139,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
     }
@@ -158,7 +147,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Soletta"),
           "27 Pay<> FROM MC",
-          "$Soletta FROM ProjectCard",
           "PROD[7 Heat]",
       )
     }

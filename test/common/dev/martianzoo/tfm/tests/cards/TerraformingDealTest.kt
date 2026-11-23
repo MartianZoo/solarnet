@@ -12,23 +12,19 @@ internal class TerraformingDealTest : TfmGameplayTest() {
     newTestGame("PreludeExpansion, $TerraformingDeal", playerCount = 2)
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$TerraformingDeal>>",
-        "$TerraformingDeal FROM PreludeCard",
     )
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-        "$Donation FROM PreludeCard",
         "21 MC",
     )
     stan.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
-        "$Supplier FROM PreludeCard",
         "PROD[2 Energy]",
         "4 Steel",
     )
 
     stan.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
-        "$MetalsCompany FROM PreludeCard",
         "PROD[MC]",
         "PROD[Steel]",
         "PROD[Titanium]",
@@ -38,7 +34,6 @@ internal class TerraformingDealTest : TfmGameplayTest() {
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "7 Pay<> FROM MC",
-          "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
           "4 MC",
       )
@@ -53,12 +48,10 @@ internal class TerraformingDealTest : TfmGameplayTest() {
     )
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$TerraformingDeal>>",
-        "$TerraformingDeal FROM PreludeCard",
     )
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$HighCircles>>",
-          "$HighCircles FROM PreludeCard",
           "TerraformRating",
           "2 MC",
           "SearchForCard<ReferenceFilter<Class<Ruling>>>!",
@@ -68,14 +61,12 @@ internal class TerraformingDealTest : TfmGameplayTest() {
     }
     stan.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
-        "$Supplier FROM PreludeCard",
         "PROD[2 Energy]",
         "4 Steel",
     )
 
     stan.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
-        "$MetalsCompany FROM PreludeCard",
         "PROD[MC]",
         "PROD[Steel]",
         "PROD[Titanium]",

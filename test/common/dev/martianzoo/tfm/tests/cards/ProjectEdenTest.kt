@@ -28,7 +28,6 @@ internal class ProjectEdenTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$ProjectEden>>",
-            "$ProjectEden FROM PreludeCard",
             "-3 ProjectCard<Hand>",
             "GreeneryTile<Tharsis_8_8>",
             "OxygenStep",
@@ -44,7 +43,6 @@ internal class ProjectEdenTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$ProjectEden>>",
-              "$ProjectEden FROM PreludeCard",
               "-3 ProjectCard<Hand>",
               "CityTile<Tharsis_8_8>",
               "GreeneryTile<Tharsis_3_3>",

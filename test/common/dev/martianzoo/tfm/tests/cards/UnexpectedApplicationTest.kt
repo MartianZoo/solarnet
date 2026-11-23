@@ -23,7 +23,6 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
 
         doTasks(
             "4 Pay<> FROM MC",
-            "$UnexpectedApplication FROM ProjectCard",
             "-ProjectCard<Hand>",
         )
       }
@@ -35,7 +34,6 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$UnexpectedApplication"),
           "4 Pay<> FROM MC",
-          "$UnexpectedApplication FROM ProjectCard",
           "-ProjectCard<Hand>",
           "VenusStep",
           "TerraformRating",

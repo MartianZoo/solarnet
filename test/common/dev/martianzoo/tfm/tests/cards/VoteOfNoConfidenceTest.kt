@@ -18,7 +18,6 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$VoteOfNoConfidence"),
               "5 Pay<> FROM MC",
-              "$VoteOfNoConfidence FROM ProjectCard",
           )
           // Execute the chairmanship transfer, including the political-state changes.
           doTasks(
@@ -39,7 +38,6 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$VoteOfNoConfidence"),
             "5 Pay<> FROM MC",
-            "$VoteOfNoConfidence FROM ProjectCard",
             "TerraformRating",
         )
         // Execute the chairmanship transfer, including the political-state changes.
@@ -62,7 +60,6 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$VoteOfNoConfidence"),
             "5 Pay<> FROM MC",
-            "$VoteOfNoConfidence FROM ProjectCard",
             "TerraformRating",
         )
         // Execute the chairmanship transfer, including the political-state changes.

@@ -20,7 +20,6 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CeosFavoriteProject"),
           "1 Pay<> FROM MC",
-          "$CeosFavoriteProject FROM ProjectCard",
           "Science<$SearchForLife>",
       )
     }
@@ -35,7 +34,6 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$CeosFavoriteProject"),
               "1 Pay<> FROM MC",
-              "$CeosFavoriteProject FROM ProjectCard",
           )
           // Resolve the resource offer: no eligible card already holds a resource.
           doTask("CardResource<ResourceHolder(HAS CardResource)>*")
@@ -52,7 +50,6 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$CeosFavoriteProject"),
             "1 Pay<> FROM MC",
-            "$CeosFavoriteProject FROM ProjectCard",
         )
         // Select the resource offer before testing whether a required gain can be declined.
         selectTask("CardResource<ResourceHolder(HAS CardResource)>*")

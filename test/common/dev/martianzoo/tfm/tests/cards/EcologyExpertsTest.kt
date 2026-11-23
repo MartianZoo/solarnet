@@ -33,7 +33,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
-          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<$EcologicalZone>>",
       )
@@ -41,7 +40,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       doTasks(
           "-Required* / Required",
           "12 Pay<> FROM MC",
-          "$EcologicalZone FROM ProjectCard",
           "Animal<$EcologicalZone>*",
           "Animal<$EcologicalZone>*",
           "EcologicalZone_SpecialTile<Tharsis_4_5>",
@@ -59,7 +57,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
-            "$EcologyExperts FROM PreludeCard",
             "PROD[Plant]",
         )
         doTask("PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>")
@@ -77,7 +74,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
-          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<$Decomposers>>",
       )
@@ -85,10 +81,84 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       doTasks(
           "-Required* / Required",
           "5 Pay<> FROM MC",
-          "$Decomposers FROM ProjectCard",
           "Microbe<$Decomposers>*",
       )
     }
+  }
+
+  @Test
+  internal fun freeAlgaeWaitsForTheEcologyExpertsRequirementWaiver() {
+    newTestGame(
+        addOptions =
+            "PreludeExpansion, $EcologyExperts, -$ViralEnhancers, -$Decomposers, -$EcologicalZone",
+    )
+    kim.exMachina("$EarthCatapult, IndenturedWorkers_NextCardEffect")
+    kim.setToExMachina(0, "MC")
+
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+          "PROD[Plant]",
+          "PlayCard<Class<ProjectCard>, Class<$Algae>>",
+      )
+      kim.count("$Algae") shouldBe 0
+      kim.count("Required") shouldBe 5
+      doTask("-Required* / Required")
+      kim.count("$Algae") shouldBe 1
+      doTasks("Plant", "PROD[2 Plant]")
+    }
+
+    kim.count("MC") shouldBe 0
+    kim.count("Owed") shouldBe 0
+  }
+
+  @Test
+  internal fun cardResourcesCanBePaidBeforeTheEcologyExpertsRequirementWaiver() {
+    newTestGame(
+        addOptions =
+            "PreludeExpansion, $EcologyExperts, $Psychrophiles, -$ViralEnhancers, -$Decomposers, -$EcologicalZone",
+    )
+    kim.exMachina("$Psychrophiles, 5 Microbe<$Psychrophiles>")
+    kim.setToExMachina(0, "MC")
+
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+          "PROD[Plant]",
+          "PlayCard<Class<ProjectCard>, Class<$Algae>>",
+          "5 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
+      )
+      kim.count("$Algae") shouldBe 0
+      doTask("-Required* / Required")
+      kim.count("$Algae") shouldBe 0
+      doTask("Ok") // acknowledge the zero MC remainder
+      kim.count("$Algae") shouldBe 1
+      doTasks("Plant", "PROD[2 Plant]")
+    }
+
+    kim.count("Microbe<$Psychrophiles>") shouldBe 0
+    kim.count("Owed") shouldBe 0
+  }
+
+  @Test
+  internal fun discountedEcologyExpertsPlayStillWaivesTheRequirement() {
+    newTestGame(addOptions = "PreludeExpansion, $EcologyExperts, Unsafe")
+    kim.exMachina("$EarthCatapult, $AntiGravityTechnology, $ResearchOutpost")
+    val cashBefore = kim.count("MC")
+
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
+          "PROD[Plant]",
+          "PlayCard<Class<ProjectCard>, Class<$Decomposers>>",
+          "-Required* / Required",
+          "Microbe<$Decomposers>*",
+      )
+    }
+
+    kim.count("$Decomposers") shouldBe 1
+    kim.count("Owed") shouldBe 0
+    kim.count("MC") shouldBe cashBefore
   }
 
   @Test
@@ -101,7 +171,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
-          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
       )
       // The active player chooses when to hand this task to its owner.
@@ -111,7 +180,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       doTasks(
           "-Required* / Required",
           "5 Pay<> FROM MC",
-          "$Decomposers FROM ProjectCard",
       )
       // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
       selectTask("Microbe<$Decomposers>*")
@@ -132,7 +200,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
-          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<$DustSeals>>",
       )
@@ -140,7 +207,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       doTasks(
           "-Required* / Required",
           "2 Pay<> FROM MC",
-          "$DustSeals FROM ProjectCard",
       )
     }
   }
@@ -152,7 +218,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
-          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<$DustSeals>>",
       )
@@ -160,11 +225,10 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       doTasks(
           "-Required* / Required",
           "2 Pay<> FROM MC",
-          "$DustSeals FROM ProjectCard",
       )
     }
     kim.inTurn {
-      doTasks("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>", "$DoubleDown FROM PreludeCard")
+      doTasks("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>")
       doTasks(
           "CopyPrelude<$EcologyExperts>",
           "PROD[Plant]",
@@ -174,7 +238,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       doTasks(
           "-Required* / Required",
           "5 Pay<> FROM MC",
-          "$Decomposers FROM ProjectCard",
           "Microbe<$Decomposers>*",
       )
     }
@@ -188,7 +251,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
-            "$EcologyExperts FROM PreludeCard",
             "PROD[Plant]",
         )
         doTask("PlayCard<Class<ProjectCard>, Class<$SupportedResearch>>")
@@ -214,7 +276,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
-          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<$ViralEnhancers>>",
       )
@@ -222,7 +283,6 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
       doTasks(
           "-Required* / Required",
           "9 Pay<> FROM MC",
-          "$ViralEnhancers FROM ProjectCard",
           "Plant",
       )
     }

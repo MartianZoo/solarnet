@@ -17,7 +17,6 @@ internal class AdvertisingTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$LunarExports"),
           "19 Pay<> FROM MC",
-          "$LunarExports FROM ProjectCard",
           "PROD[5 MC]",
       )
     }
@@ -31,7 +30,6 @@ internal class AdvertisingTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$GanymedeColony"),
           "20 Pay<> FROM MC",
-          "$GanymedeColony FROM ProjectCard",
           "CityTile<GanymedeColony_RemoteArea>",
           "PROD[MC]",
       )

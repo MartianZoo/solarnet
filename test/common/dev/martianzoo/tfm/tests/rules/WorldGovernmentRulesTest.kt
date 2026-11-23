@@ -229,7 +229,6 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$HomeostasisBureau"),
             "16 Pay<> FROM MC",
-            "$HomeostasisBureau FROM ProjectCard",
             "PROD[2 Heat]",
         )
       }

@@ -16,7 +16,6 @@ internal class SpecialPermitTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$SpecialPermit"),
               "5 Pay<> FROM MC",
-              "$SpecialPermit FROM ProjectCard",
               "4 Plant<Kim FROM Stan>",
           )
         }

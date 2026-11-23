@@ -19,7 +19,6 @@ internal class ResearchColonyTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$ResearchColony"),
           "20 Pay<> FROM MC",
-          "$ResearchColony FROM ProjectCard",
           "2 ProjectCard<Hand>",
       )
 
@@ -36,7 +35,6 @@ internal class ResearchColonyTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$ResearchColony"),
             "20 Pay<> FROM MC",
-            "$ResearchColony FROM ProjectCard",
             "Colony<Luna>",
         )
       }

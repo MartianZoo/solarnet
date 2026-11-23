@@ -18,7 +18,6 @@ internal class FrontierTownTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$FrontierTown"),
           "11 Pay<> FROM MC",
-          "$FrontierTown FROM ProjectCard",
           "FrontierTownBonus!",
           "PROD[-Energy]",
           "CityTile<Amazonis_02_02>",
@@ -43,7 +42,6 @@ internal class FrontierTownTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$FrontierTown"),
           "11 Pay<> FROM MC",
-          "$FrontierTown FROM ProjectCard",
           "FrontierTownBonus!",
           "PROD[-Energy]",
           "CityTile<Hellas_9_7>",
@@ -78,7 +76,6 @@ internal class FrontierTownTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$FrontierTown"),
           "11 Pay<> FROM MC",
-          "$FrontierTown FROM ProjectCard",
           "FrontierTownBonus!",
           "PROD[-Energy]",
           "CityTile<Cimmeria_3_3>",
@@ -115,7 +112,6 @@ internal class FrontierTownTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$FrontierTown"),
             "11 Pay<> FROM MC",
-            "$FrontierTown FROM ProjectCard",
             "FrontierTownBonus!",
             "PROD[-Energy]",
             "CityTile<Cimmeria_3_3>",
@@ -158,7 +154,6 @@ internal class FrontierTownTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$FrontierTown"),
           "11 Pay<> FROM MC",
-          "$FrontierTown FROM ProjectCard",
           "FrontierTownBonus!",
           "PROD[-Energy]",
           "CityTile<Tharsis_4_5>",

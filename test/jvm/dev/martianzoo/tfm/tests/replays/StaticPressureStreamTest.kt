@@ -362,7 +362,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
 
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Ecoline>>",
-          "$Ecoline FROM CorporationCard",
           "36 MC",
           "3 Plant",
           "PROD[2 Plant]",
@@ -375,7 +374,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       draw(FuelFactory, CarbonateProcessing, OptimalAerobraking, CloudTourism)
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$CheungShingMars>>",
-          "$CheungShingMars FROM CorporationCard",
           "44 MC",
           "PROD[3 MC]",
           "12 Pay<> FROM MC",
@@ -386,14 +384,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     with(nor) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AlbedoPlants>>",
-          "$AlbedoPlants FROM PreludeCard",
           "PROD[Plant]",
           "Plant",
           "3 Heat",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ProjectEden>>",
-          "$ProjectEden FROM PreludeCard",
           "3 Heat",
           "OceanTile<Tharsis_2_6>",
           "TerraformRating",
@@ -418,14 +414,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     with(vin) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
-          "$Supplier FROM PreludeCard",
           "PROD[2 Energy]",
           "4 Steel",
       )
       draw(ProtectedHabitats, SisterPlanetSupport, PhysicsComplex)
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ResearchNetwork>>",
-          "$ResearchNetwork FROM PreludeCard",
           "PROD[MC]",
           "3 ProjectCard",
       )
@@ -438,7 +432,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("$FuelFactory"),
           "2 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // no MC remainder
-          "$FuelFactory FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[Titanium]",
           "PROD[MC]",
@@ -447,7 +440,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("$CarbonateProcessing"),
           "2 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // no MC remainder
-          "$CarbonateProcessing FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 Heat]",
       )
@@ -491,7 +483,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$CloudTourism"),
           "11 Pay<> FROM MC",
-          "$CloudTourism FROM ProjectCard",
           "EarthTag<WildTagElection<WildTag<$ResearchNetwork>>>",
           "PROD[MC]",
       )
@@ -510,7 +501,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("$AquiferPumping"),
           "1 Pay<Class<Steel>> FROM Steel",
           "16 Pay<> FROM MC",
-          "$AquiferPumping FROM ProjectCard",
       )
     }
 
@@ -519,7 +509,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$SisterPlanetSupport"),
           "7 Pay<> FROM MC",
-          "$SisterPlanetSupport FROM ProjectCard",
           "PROD[3 MC]",
       )
     }
@@ -538,7 +527,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Omnicourt"),
           "9 Pay<> FROM MC",
-          "$Omnicourt FROM ProjectCard",
           "2 TerraformRating",
       )
     }
@@ -550,7 +538,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$VenusShuttles"),
           "9 Pay<> FROM MC",
-          "$VenusShuttles FROM ProjectCard",
           "2 Floater<$CloudTourism>",
       )
       doTasks(*cardActionTasks("$VenusShuttles"), "8 Pay<> FROM MC", "VenusStep", "TerraformRating")
@@ -601,7 +588,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$StaticHarvesting"),
           "5 Pay<> FROM MC",
-          "$StaticHarvesting FROM ProjectCard",
           "PROD[Energy]",
           "MC",
       )
@@ -611,7 +597,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "$RoboticWorkforce FROM ProjectCard",
           "EACH",
           "0 BuildingTag<WildTagElection<WildTag<$ResearchNetwork>>>",
           "CopyProductionBox<$CheungShingMars>",
@@ -624,7 +609,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$AerialMappers"),
           "11 Pay<> FROM MC",
-          "$AerialMappers FROM ProjectCard",
       )
     }
 
@@ -633,7 +617,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     }
 
     nor.turn {
-      doTasks(*playCardTasks("$LocalShading"), "4 Pay<> FROM MC", "$LocalShading FROM ProjectCard")
+      doTasks(*playCardTasks("$LocalShading"), "4 Pay<> FROM MC")
     }
 
     vin.doTask("Pass")
@@ -677,7 +661,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("$OptimalAerobraking"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$OptimalAerobraking FROM ProjectCard",
       )
       doTasks(
           *playCardTasks("$SpinInducingAsteroid"),
@@ -686,7 +669,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
       draw(EnergyTapping)
       doTasks(
-          "$SpinInducingAsteroid FROM ProjectCard",
           "VenusStep",
           "VenusStep",
           "3 MC",
@@ -719,7 +701,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$NuclearZone"),
           "10 Pay<> FROM MC",
-          "$NuclearZone FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "2 TerraformRating",
@@ -737,7 +718,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$DesignedMicroorganisms"),
           "16 Pay<> FROM MC",
-          "$DesignedMicroorganisms FROM ProjectCard",
           "PROD[2 Plant]",
       )
     }
@@ -750,7 +730,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$EcologicalZone"),
           "12 Pay<> FROM MC",
-          "$EcologicalZone FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "Animal<$EcologicalZone>",
           "3 Heat",
@@ -779,7 +758,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "-Production<Nor, Class<Energy>>",
           "PROD[Energy]",
       )
@@ -885,7 +863,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Cartel"),
           "8 Pay<> FROM MC",
-          "$Cartel FROM ProjectCard",
           "PROD[4 MC]",
       )
     }
@@ -906,7 +883,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$SmallAnimals"),
           "6 Pay<> FROM MC",
-          "$SmallAnimals FROM ProjectCard",
           "-Production<Nor, Class<Plant>>",
       )
     }
@@ -918,7 +894,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ProtectedHabitats"),
           "5 Pay<> FROM MC",
-          "$ProtectedHabitats FROM ProjectCard",
       )
     }
     vin.doTask("Pass")
@@ -959,7 +934,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Sabotage"),
           "1 Pay<> FROM MC",
-          "$Sabotage FROM ProjectCard",
           "-7 MC<Nor>",
       )
     }
@@ -968,7 +942,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ResearchCoordination"),
           "4 Pay<> FROM MC",
-          "$ResearchCoordination FROM ProjectCard",
       )
     }
 
@@ -986,7 +959,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Plantation"),
           "15 Pay<> FROM MC",
-          "$Plantation FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "3 Heat",
           "GreeneryTile<Tharsis_4_5>",
@@ -1027,7 +999,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("$SolarLogistics"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "14 Pay<> FROM MC",
-          "$SolarLogistics FROM ProjectCard",
           "2 Titanium",
       )
     }
@@ -1044,7 +1015,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$IshtarMining"),
           "5 Pay<> FROM MC",
-          "$IshtarMining FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -1127,7 +1097,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("$MethaneFromTitan"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "19 Pay<> FROM MC",
-          "$MethaneFromTitan FROM ProjectCard",
           "PROD[2 Heat]",
           "PROD[2 Plant]",
       )
@@ -1149,7 +1118,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("$InterplanetaryTrade"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "24 Pay<> FROM MC",
-          "$InterplanetaryTrade FROM ProjectCard",
           "EACH",
           "JovianTag<WildTagElection<WildTag<$ResearchCoordination>>>",
           "PROD[10 MC]",
@@ -1157,7 +1125,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     }
 
     vin.turn {
-      doTasks(*playCardTasks("$Thermophiles"), "9 Pay<> FROM MC", "$Thermophiles FROM ProjectCard")
+      doTasks(*playCardTasks("$Thermophiles"), "9 Pay<> FROM MC")
     }
 
     nor.turn {
@@ -1194,13 +1162,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       )
       doTasks(*playCardTasks("$MarsUniversity"), "6 Pay<> FROM MC")
       discard(PhysicsComplex)
-      doTasks("$MarsUniversity FROM ProjectCard", "-ProjectCard")
+      doTasks("-ProjectCard")
       draw(VenusGovernor)
       doTask("ProjectCard")
       doTasks(
           *playCardTasks("$VenusGovernor"),
           "4 Pay<> FROM MC",
-          "$VenusGovernor FROM ProjectCard",
           "PROD[2 MC]",
       )
     }
@@ -1272,12 +1239,10 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$RoverConstruction"),
           "8 Pay<> FROM MC",
-          "$RoverConstruction FROM ProjectCard",
       )
       doTasks(
           *playCardTasks("$ResearchOutpost"),
           "18 Pay<> FROM MC",
-          "$ResearchOutpost FROM ProjectCard",
           "CityTile<Tharsis_4_2>",
           "2 MC",
           "Plant",
@@ -1288,7 +1253,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Bushes"),
           "10 Pay<> FROM MC",
-          "$Bushes FROM ProjectCard",
           "PROD[2 Plant]",
           "2 Plant",
       )
@@ -1318,7 +1282,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.turn {
       doTasks(*playCardTasks("$Research"), "10 Pay<> FROM MC")
       draw(StanfordTorus, PowerPlant)
-      doTasks("$Research FROM ProjectCard", "2 ProjectCard")
+      doTasks("2 ProjectCard")
     }
 
     vin.turn {
@@ -1329,7 +1293,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Supermarkets"),
           "8 Pay<> FROM MC",
-          "$Supermarkets FROM ProjectCard",
           "PROD[2 MC]",
       )
     }
@@ -1342,7 +1305,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$PowerPlant"),
           "3 Pay<> FROM MC",
-          "$PowerPlant FROM ProjectCard",
           "PROD[Energy]",
       )
     }
@@ -1448,7 +1410,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("$DuskLaserMining"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$DuskLaserMining FROM ProjectCard",
           "-Production<Nor, Class<Energy>>",
           "PROD[Titanium]",
           "4 Titanium",
@@ -1483,7 +1444,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Greenhouses"),
           "5 Pay<> FROM MC",
-          "$Greenhouses FROM ProjectCard",
           "5 Plant",
           "Animal<$EcologicalZone>",
           "3 Heat",
@@ -1520,7 +1480,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Trees"),
           "12 Pay<> FROM MC",
-          "$Trees FROM ProjectCard",
           "PROD[3 Plant]",
           "Plant",
           "Animal<$EcologicalZone>",
@@ -1542,7 +1501,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$RobotPollinators"),
           "8 Pay<> FROM MC",
-          "$RobotPollinators FROM ProjectCard",
           "PROD[Plant]",
           "8 Plant",
       )
@@ -1576,14 +1534,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.turn {
       doTasks(
           *playCardTasks("$IndenturedWorkers"),
-          "$IndenturedWorkers FROM ProjectCard",
           "IndenturedWorkers_NextCardEffect",
       )
       doTasks(
           *playCardTasks("$GiantSolarShade"),
           "5 Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "$GiantSolarShade FROM ProjectCard",
           "VenusStep",
           "VenusStep",
           "VenusStep",
@@ -1690,7 +1646,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     }
 
     nor.turn {
-      doTasks(*playCardTasks("$LandClaim"), "$LandClaim FROM ProjectCard", "Community<Tharsis_2_2>")
+      doTasks(*playCardTasks("$LandClaim"), "Community<Tharsis_2_2>")
     }
 
     vin.turn {
@@ -1698,7 +1654,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       discard(CloudSeeding)
       draw(Gyropolis)
       doTasks(
-          "$VenusianAnimals FROM ProjectCard",
           "Animal<$VenusianAnimals>",
           "-ProjectCard",
           "ProjectCard",
@@ -1709,7 +1664,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$FakeFloydContinuum"),
           "3 Pay<> FROM MC",
-          "$FakeFloydContinuum FROM ProjectCard",
       )
     }
 
@@ -1719,7 +1673,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       draw(WaterSplittingPlant, Algae)
       discard(WaterSplittingPlant)
       doTasks(
-          "$AtalantaPlanitiaLab FROM ProjectCard",
           "Animal<$VenusianAnimals>",
           "2 ProjectCard",
           "-ProjectCard",
@@ -1748,7 +1701,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$DeepWellHeating"),
           "12 Pay<> FROM MC",
-          "$DeepWellHeating FROM ProjectCard",
           "PROD[Energy]",
           "TemperatureStep",
           "TerraformRating",
@@ -1768,7 +1720,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Algae"),
           "10 Pay<> FROM MC",
-          "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
       )
@@ -1792,7 +1743,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$RadSuits"),
           "5 Pay<> FROM MC",
-          "$RadSuits FROM ProjectCard",
           "PROD[MC]",
       )
     }
@@ -1858,7 +1808,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$OlympusConference"),
           "9 Pay<> FROM MC",
-          "$OlympusConference FROM ProjectCard",
           "Science<$OlympusConference>",
       )
     }
@@ -1873,7 +1822,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(*playCardTasks("$IshtarExpedition"), "6 Pay<> FROM MC")
       draw(FreyjaBiodomes, GhgImportFromVenus)
       doTasks(
-          "$IshtarExpedition FROM ProjectCard",
           "3 Titanium",
           "2 SearchForCard<Vin, TagFilter<Class<VenusTag>>>",
       )
@@ -1882,11 +1830,10 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.turn {
       doTasks(*playCardTasks("$GhgProducingBacteria"), "7 Pay<> FROM MC")
       draw(MoholeLake)
-      doTasks("$GhgProducingBacteria FROM ProjectCard", "ProjectCard FROM Science")
+      doTasks("ProjectCard FROM Science")
       doTasks(
           *playCardTasks("$MoholeLake"),
           "30 Pay<> FROM MC",
-          "$MoholeLake FROM ProjectCard",
           "OceanTile<WaterArea(HAS MAX 0 Tile)>",
           "TemperatureStep",
           "3 Plant",
@@ -1927,7 +1874,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.turn {
       doTasks(*playCardTasks("$WeatherBalloons"), "10 Pay<> FROM MC")
       draw(GiantIceAsteroid)
-      doTasks("$WeatherBalloons FROM ProjectCard", "Science<$OlympusConference>", "ProjectCard")
+      doTasks("Science<$OlympusConference>", "ProjectCard")
     }
 
     vin.turn {
@@ -1965,7 +1912,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$FreyjaBiodomes"),
           "14 Pay<> FROM MC",
-          "$FreyjaBiodomes FROM ProjectCard",
           "-Production<Vin, Class<Energy>>",
           "PROD[2 MC]",
           "2* Animal<$VenusianAnimals>",
@@ -1984,7 +1930,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "1 Pay<> FROM MC",
       )
       draw(RestrictedArea)
-      doTasks("$InterstellarColonyShip FROM ProjectCard", "3 MC", "3 Heat", "ProjectCard")
+      doTasks("3 MC", "3 Heat", "ProjectCard")
     }
 
     nor.turn {
@@ -2000,7 +1946,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           *playCardTasks("$StanfordTorus"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // no MC remainder
-          "$StanfordTorus FROM ProjectCard",
           "NormalCityTile<StanfordTorus_RemoteArea>",
           "2 MC",
       )
@@ -2010,7 +1955,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$NoctisCity"),
           "16 Pay<> FROM MC",
-          "$NoctisCity FROM ProjectCard",
           "-Production<Vin, Class<Energy>>",
           "PROD[3 MC]",
           "NormalCityTile<Tharsis_5_3>",
@@ -2053,7 +1997,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       discard(TundraFarming)
       draw(CorporateStronghold)
       doTasks(
-          "$RestrictedArea FROM ProjectCard",
           "Animal<$VenusianAnimals>",
           "RestrictedArea_SpecialTile<Tharsis_7_8>",
           "Plant",
@@ -2082,7 +2025,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       discard(MagneticFieldDome)
       draw(Teslaract)
       doTasks(
-          "$GeneRepair FROM ProjectCard",
           "PROD[2 MC]",
           "Animal<$VenusianAnimals>",
           "-ProjectCard",

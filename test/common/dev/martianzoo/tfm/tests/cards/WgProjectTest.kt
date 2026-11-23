@@ -19,12 +19,10 @@ internal class WgProjectTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$WgProject"),
               "9 Pay<> FROM MC",
-              "$WgProject FROM ProjectCard",
               "3 PreludeCard<Selecting>",
           )
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$HighCircles>>",
-              "$HighCircles FROM PreludeCard<Selecting>",
               "TerraformRating",
               "SearchForCard<ReferenceFilter<Class<Ruling>>>!",
               "PartyLeader<Unity>",
@@ -46,12 +44,10 @@ internal class WgProjectTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$WgProject"),
             "9 Pay<> FROM MC",
-            "$WgProject FROM ProjectCard",
             "3 PreludeCard<Selecting>",
         )
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
-            "$IndustrialComplex FROM PreludeCard<Selecting>",
             "-18 MC",
         )
       }
@@ -60,7 +56,6 @@ internal class WgProjectTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$WgProject"),
               "9 Pay<> FROM MC",
-              "$WgProject FROM ProjectCard",
               "3 PreludeCard<Selecting>",
               "-PreludeCard<Selecting>",
           )
@@ -87,12 +82,10 @@ internal class WgProjectTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$WgProject"),
           "9 Pay<> FROM MC",
-          "$WgProject FROM ProjectCard",
           "3 PreludeCard<Selecting>",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard<Selecting>!",
           "21 MC",
       )
     }

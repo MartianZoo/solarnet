@@ -30,7 +30,6 @@ internal class VitorTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<CorporationCard>, Class<$Vitor>>",
-              "$Vitor FROM CorporationCard",
               "45 MC",
               "3 MC",
               "15 Pay<> FROM MC",
@@ -54,7 +53,6 @@ internal class VitorTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$SearchForLife"),
               "3 Pay<> FROM MC",
-              "$SearchForLife FROM ProjectCard",
               "3 MC",
           )
         }
@@ -75,7 +73,6 @@ internal class VitorTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Mine"),
           "4 Pay<> FROM MC",
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }
@@ -95,7 +92,6 @@ internal class VitorTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "7 Pay<> FROM MC",
-          "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
       )
     }
@@ -108,7 +104,6 @@ internal class VitorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard",
           "4 Director<$BoardOfDirectors>",
       )
     }
@@ -143,12 +138,10 @@ internal class VitorTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Vitor>>",
-          "$Vitor FROM CorporationCard<Selecting>!",
           "45 MC",
           "-42 MC",
           "3 MC",

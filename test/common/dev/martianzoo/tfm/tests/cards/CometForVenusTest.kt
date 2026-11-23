@@ -19,7 +19,6 @@ internal class CometForVenusTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CometForVenus"),
           "11 Pay<> FROM MC",
-          "$CometForVenus FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
           "-4 MC<Stan>",

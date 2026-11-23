@@ -103,7 +103,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
 
       doTasks(
           "2 Pay<> FROM MC",
-          "$Mine FROM ProjectCard<StagedProject<Class<$Mine>>>",
           "PROD[Steel]",
       )
     }
@@ -145,7 +144,6 @@ internal class CardTrackingTest : TfmSandboxTest() {
         doTasks(
             "PlayCard<Class<ProjectCard>, Class<$Mine>, Hand>",
             "2 Pay<> FROM MC",
-            "$Mine FROM ProjectCard",
             "PROD[Steel]",
         )
       }

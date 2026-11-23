@@ -15,7 +15,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$SagittaFrontierServices>>",
-          "$SagittaFrontierServices FROM CorporationCard",
           "31 MC",
           "PROD[Energy]",
           "PROD[2 MC]",
@@ -36,7 +35,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AtmoCollectors"),
           "15 Pay<> FROM MC",
-          "$AtmoCollectors FROM ProjectCard",
           "4 MC",
           "2* Floater<$AtmoCollectors>",
       )
@@ -52,7 +50,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Sabotage"),
               "1 Pay<> FROM MC",
-              "$Sabotage FROM ProjectCard",
               "MC",
               "-7 MC<Stan>",
           )
@@ -72,7 +69,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SmallAsteroid"),
           "10 Pay<> FROM MC",
-          "$SmallAsteroid FROM ProjectCard",
           "TemperatureStep",
       )
       // Resolve the optional attack: no unprotected plant target is available.
@@ -91,7 +87,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Mine"),
           "4 Pay<> FROM MC",
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
           "MC",
       )
@@ -107,7 +102,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
-          "$Research FROM ProjectCard",
           "2 ProjectCard<Hand>",
       )
     }
@@ -122,7 +116,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Mine"),
               "4 Pay<> FROM MC",
-              "$Mine FROM ProjectCard",
               "PROD[Steel]",
           )
         }
@@ -147,13 +140,11 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "-42 MC",
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$SagittaFrontierServices>>",
-          "$SagittaFrontierServices FROM CorporationCard<Selecting>!",
           "31 MC",
           "PROD[Energy]",
           "PROD[2 MC]",
@@ -173,7 +164,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$ResearchCoordination"),
               "4 Pay<> FROM MC",
-              "$ResearchCoordination FROM ProjectCard",
               "4 MC",
           )
         }

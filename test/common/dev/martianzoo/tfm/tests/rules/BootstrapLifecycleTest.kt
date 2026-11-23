@@ -159,7 +159,6 @@ internal class BootstrapLifecycleTest {
     admin.count("CorporationPhase") shouldBe 1
     p1.doTasks(
         "PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>",
-        "$InterplanetaryCinematics FROM CorporationCard",
         "30 MC",
         "20 Steel",
         "21 Pay<> FROM MC",

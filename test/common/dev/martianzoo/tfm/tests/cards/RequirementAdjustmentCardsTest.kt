@@ -1,11 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
@@ -26,7 +28,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Algae"),
           "10 Pay<> FROM MC",
-          "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
       )
@@ -48,7 +49,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Algae"),
           "10 Pay<> FROM MC",
-          "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
       )
@@ -72,7 +72,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$DustSeals"),
           "2 Pay<> FROM MC",
-          "$DustSeals FROM ProjectCard",
       )
     }
   }
@@ -93,7 +92,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "$SpecialDesign FROM ProjectCard",
           "SpecialDesign_NextCardEffect",
       )
     }
@@ -102,7 +100,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Farming"),
           "16 Pay<> FROM MC",
-          "$Farming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Plant]",
           "2 Plant",
@@ -118,7 +115,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "$SpecialDesign FROM ProjectCard",
           "SpecialDesign_NextCardEffect",
       )
     }
@@ -128,7 +124,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Farming"),
           "16 Pay<> FROM MC",
-          "$Farming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Plant]",
           "2 Plant",
@@ -136,17 +131,19 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     }
 
     // Fish needs 16 steps: it would also be playable if Special Design had survived.
-    shouldThrow<RequirementException> {
-      kim.inTurn {
-        doTasks(
-            *playCardTasks("$Fish"),
-            "9 Pay<> FROM MC",
-        )
-        // Select the guarded transfer to check that the requirement itself rejects the card.
-        selectTask("MAX 0 Barrier: $Fish FROM ProjectCard!")
-        doTask("PROD[-Plant]")
-      }
-    }
+    val cashBefore = kim.count("MC")
+    val failure =
+        shouldThrow<DeadEndException> {
+          kim.inTurn {
+            doTasks(
+                *playCardTasks("$Fish"),
+                "9 Pay<> FROM MC",
+            )
+          }
+        }
+    failure.message shouldContain "Required"
+    kim.count("$Fish") shouldBe 0
+    kim.count("MC") shouldBe cashBefore
   }
 
   @Test
@@ -164,7 +161,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$RotatorImpacts"),
           "6 Pay<> FROM MC",
-          "$RotatorImpacts FROM ProjectCard",
       )
     }
   }
@@ -180,16 +176,19 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     }
     kim.setToExMachina(9, "VenusStep")
 
-    shouldThrow<RequirementException> {
-      kim.inTurn {
-        doTasks(
-            *playCardTasks("$Algae"),
-            "10 Pay<> FROM MC",
-        )
-        // Resolve the pending play to evaluate the card requirement before transferring it.
-        selectTask("$Algae FROM ProjectCard")
-      }
-    }
+    val cashBefore = kim.count("MC")
+    val failure =
+        shouldThrow<DeadEndException> {
+          kim.inTurn {
+            doTasks(
+                *playCardTasks("$Algae"),
+                "10 Pay<> FROM MC",
+            )
+          }
+        }
+    failure.message shouldContain "Required"
+    kim.count("$Algae") shouldBe 0
+    kim.count("MC") shouldBe cashBefore
   }
 
   @Test
@@ -200,7 +199,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "$SpecialDesign FROM ProjectCard",
           "SpecialDesign_NextCardEffect",
       )
     }
@@ -208,21 +206,23 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Mine"),
           "4 Pay<> FROM MC",
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }
 
-    shouldThrow<RequirementException> {
-      kim.inTurn {
-        doTasks(
-            *playCardTasks("$ArcticAlgae"),
-            "12 Pay<> FROM MC",
-        )
-        // Resolve the pending play to evaluate the card requirement before transferring it.
-        selectTask("$ArcticAlgae FROM ProjectCard")
-      }
-    }
+    val cashBefore = kim.count("MC")
+    val failure =
+        shouldThrow<DeadEndException> {
+          kim.inTurn {
+            doTasks(
+                *playCardTasks("$ArcticAlgae"),
+                "12 Pay<> FROM MC",
+            )
+          }
+        }
+    failure.message shouldContain "Required"
+    kim.count("$ArcticAlgae") shouldBe 0
+    kim.count("MC") shouldBe cashBefore
   }
 
   @Test
@@ -233,7 +233,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "$SpecialDesign FROM ProjectCard",
           "SpecialDesign_NextCardEffect",
       )
     }
@@ -241,20 +240,22 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$DustSeals"),
           "2 Pay<> FROM MC",
-          "$DustSeals FROM ProjectCard",
       )
     }
 
-    shouldThrow<RequirementException> {
-      kim.inTurn {
-        doTasks(
-            *playCardTasks("$ArcticAlgae"),
-            "12 Pay<> FROM MC",
-        )
-        // Resolve the pending play to evaluate the card requirement before transferring it.
-        selectTask("$ArcticAlgae FROM ProjectCard")
-      }
-    }
+    val cashBefore = kim.count("MC")
+    val failure =
+        shouldThrow<DeadEndException> {
+          kim.inTurn {
+            doTasks(
+                *playCardTasks("$ArcticAlgae"),
+                "12 Pay<> FROM MC",
+            )
+          }
+        }
+    failure.message shouldContain "Required"
+    kim.count("$ArcticAlgae") shouldBe 0
+    kim.count("MC") shouldBe cashBefore
   }
 
   // Unresolved adjudication (question 11, 2026-10-14); this records current behavior.
@@ -269,7 +270,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SpecialDesign"),
           "4 Pay<> FROM MC",
-          "$SpecialDesign FROM ProjectCard",
           "SpecialDesign_NextCardEffect",
       )
     }
@@ -282,7 +282,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
     }
@@ -291,7 +290,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Farming"),
           "16 Pay<> FROM MC",
-          "$Farming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Plant]",
           "2 Plant",

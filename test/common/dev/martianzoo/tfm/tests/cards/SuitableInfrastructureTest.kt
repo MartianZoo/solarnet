@@ -15,14 +15,12 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
     newTestGame("PreludeExpansion, $SuitableInfrastructure", playerCount = 2)
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$SuitableInfrastructure>>",
-        "$SuitableInfrastructure FROM PreludeCard",
         "5 Steel",
     )
 
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$DomeFarming>>",
-          "$DomeFarming FROM PreludeCard",
       )
       kim.doTask("PROD[2 MC]").expect("0 MC")
       kim.doTask("PROD[Plant]").expect("0 MC")
@@ -93,7 +91,6 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
               "DoRequiredActions",
               "3 PreludeCard<Selecting>",
               "PlayCard<Class<PreludeCard>, Class<$DomeFarming>>",
-              "$DomeFarming FROM PreludeCard<Selecting>",
           )
           kim.doTask("PROD[2 MC]").expect("0 MC")
           kim.doTask("PROD[Plant]").expect("0 MC")
@@ -111,17 +108,14 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
     newTestGame("PreludeExpansion, $SuitableInfrastructure", playerCount = 2)
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$SuitableInfrastructure>>",
-        "$SuitableInfrastructure FROM PreludeCard",
         "5 Steel",
     )
 
     kim.completeOperation {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-              "$Merger FROM PreludeCard",
               "4 CorporationCard<Selecting>",
               "PlayCard<Class<CorporationCard>, Class<$Manutech>>",
-              "$Manutech FROM CorporationCard<Selecting>",
               "35 MC",
               "-42 MC",
           )

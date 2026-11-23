@@ -18,7 +18,6 @@ internal class TollStationTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$TollStation"),
           "12 Pay<> FROM MC",
-          "$TollStation FROM ProjectCard",
           "PROD[3 MC]",
       )
     }

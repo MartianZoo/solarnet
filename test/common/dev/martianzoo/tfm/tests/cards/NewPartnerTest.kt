@@ -19,7 +19,6 @@ internal class NewPartnerTest : TfmGameplayTest() {
       kim.completeOperation {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
-            "$NewPartner FROM PreludeCard",
             "PROD[MC]",
             "2 PreludeCard<Selecting>",
         )
@@ -31,13 +30,11 @@ internal class NewPartnerTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
-          "$NewPartner FROM PreludeCard",
           "PROD[MC]",
           "2 PreludeCard<Selecting>",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard<Selecting>!",
           "21 MC",
       )
     }
@@ -46,7 +43,6 @@ internal class NewPartnerTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>",
-          "$PowerGeneration FROM PreludeCard",
           "PROD[3 Energy]",
       )
     }
@@ -62,13 +58,11 @@ internal class NewPartnerTest : TfmGameplayTest() {
         kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
-              "$NewPartner FROM PreludeCard",
               "PROD[MC]",
               "2 PreludeCard<Selecting>",
           )
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
-              "$IndustrialComplex FROM PreludeCard<Selecting>",
               "-18 MC",
           )
         }
@@ -77,7 +71,6 @@ internal class NewPartnerTest : TfmGameplayTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
-            "$NewPartner FROM PreludeCard",
             "PROD[MC]",
             "2 PreludeCard<Selecting>",
             "-PreludeCard<Selecting>",

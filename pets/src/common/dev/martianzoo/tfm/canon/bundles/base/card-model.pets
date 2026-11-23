@@ -93,7 +93,14 @@ CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Playe
           THEN CheckRequirement<Class<@CardFront>> / \
             (GpRequirementShortfall<Class<@CardFront>, @Class> MAX 1) \
       })
-  This: Owed<> / @CardFront.cost THEN PaymentScope<Class<@CardFront>, Class<MC>, Class<PlayCard>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
+  This: Owed<> / @CardFront.cost THEN PaymentScope<Class<@CardFront>, Class<MC>, Class<PlayCard>> \
+    THEN PendingCardPlay<Class<@CardBack>, Class<@CardFront>, @CardLocation>
+}
+
+"Retains the chosen face and source until payment and requirement preparation have finished"
+CLASS PendingCardPlay<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, MustCleanUp, System {
+  This IF MAX 0 Barrier:: -This THEN @CardFront FROM @CardBack<@CardLocation>
+  -X Barrier BY Anyone IF MAX 0 Barrier:: -This THEN @CardFront FROM @CardBack<@CardLocation>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"

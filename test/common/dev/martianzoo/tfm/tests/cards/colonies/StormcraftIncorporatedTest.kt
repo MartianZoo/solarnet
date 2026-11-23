@@ -63,7 +63,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LocalHeatTrapping"),
               "1 Pay<> FROM MC",
-              "$LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
               "4 Plant",
               "Ok",
@@ -80,7 +79,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LocalHeatTrapping"),
               "1 Pay<> FROM MC",
-              "$LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
               "4 Plant",
               "-2 Floater",
@@ -98,7 +96,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LocalHeatTrapping"),
               "1 Pay<> FROM MC",
-              "$LocalHeatTrapping FROM ProjectCard",
               "-3 Floater",
               "5 Heat",
               "-5 Heat",

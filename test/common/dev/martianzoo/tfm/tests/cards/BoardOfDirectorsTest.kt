@@ -16,7 +16,6 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard",
           "4 Director<$BoardOfDirectors>",
       )
     }
@@ -31,7 +30,6 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           )
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-              "$Donation FROM PreludeCard",
               "21 MC",
           )
         }
@@ -44,7 +42,6 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard",
           "4 Director<$BoardOfDirectors>",
       )
     }
@@ -61,7 +58,6 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
         )
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
-            "$IndustrialComplex FROM PreludeCard",
             "-18 MC",
         )
       }
@@ -89,7 +85,6 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard",
           "4 Director<$BoardOfDirectors>",
       )
     }
@@ -104,12 +99,10 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           )
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-              "$Merger FROM PreludeCard",
               "4 CorporationCard<Selecting>",
           )
           doTasks(
               "PlayCard<Class<CorporationCard>, Class<$Inventrix>>",
-              "$Inventrix FROM CorporationCard<Selecting>!",
               "45 MC",
               "-42 MC",
           )
@@ -137,7 +130,6 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard",
           "4 Director<$BoardOfDirectors>",
       )
     }
@@ -154,7 +146,6 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>",
-          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<$DustSeals>>",
       )
@@ -162,7 +153,6 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
       doTasks(
           "-Required* / Required",
           "1 Pay<> FROM MC",
-          "$DustSeals FROM ProjectCard",
       )
     }
   }

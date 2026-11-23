@@ -11,7 +11,6 @@ internal class NobelPrizeTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$NobelPrize>>",
-              "$NobelPrize FROM PreludeCard",
               "5 MC",
               "2 SearchForCard<RequirementFilter>",
           )

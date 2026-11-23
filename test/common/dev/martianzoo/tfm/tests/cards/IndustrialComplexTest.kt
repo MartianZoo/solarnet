@@ -15,7 +15,6 @@ internal class IndustrialComplexTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
-              "$IndustrialComplex FROM PreludeCard",
               "-18 MC",
           )
           // Expand the production box into its separate resource increases.
@@ -40,7 +39,6 @@ internal class IndustrialComplexTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
-              "$IndustrialComplex FROM PreludeCard",
               "-18 MC",
           )
           // Expand the production box into its separate resource increases.

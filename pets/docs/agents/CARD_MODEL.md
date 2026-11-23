@@ -41,8 +41,12 @@ Fixed-size project-card purchase offers enter `Selecting` first. Searches intent
 selection pool: the matching card enters the hand, and skipped cards have no relevant
 count or movement.
 There is no deck or discard Component, hidden face, physical-copy identity, shuffle state, or
-dealer policy. Playing a card consumes one generic back from its stated location and creates the
-concrete face supplied by the caller. Solarnet trusts that declaration.
+dealer policy. The caller declares the chosen face and source location; Solarnet trusts that
+declaration. After requirement and price preparation, `PendingCardPlay` retains both until all payment
+and requirement barriers have cleared. Its immediate effect consumes the pending play and moves
+the generic back into the concrete face.
+The placement is attributed to the Player even with Player automatic execution disabled;
+ordinary card effects remain queued.
 
 That trust is deliberate calculator behavior, not an unfinished authentication feature. A named
 play through FooPlayer's Agent is FooPlayer's declaration for the calculation. Whether the player
@@ -101,8 +105,8 @@ corporation's `CardFront` triggers `BuySelectedCards`, so its purchase modifiers
 when Admin starts the purchase. This inventory-triggered continuation is a sequencing workaround;
 the intended workflow should explicitly continue after corporation play. A direct
 `PlayCard THEN BuySelectedCards` experiment billed two starting cards at 6 M€ while TerraLabs was
-still unplayed, before its discount could make the bill 2 M€. `PlayCard` completes its signal task
-before the queued card-play work; `THEN` does not wait for those reactions. See
+still unplayed, before its discount could make the bill 2 M€. `PlayCard` completes its invocation task
+before the queued payment work; `THEN` does not wait for those reactions. See
 [sequencing](../../../docs/agents/SEQUENCING.md#what-then-does) and
 `GameFlowTest.startingPurchasesUseTheCorporationAlreadyInPlay`. The replacement remains deferred
 until actual card-play completion can be expressed cleanly.

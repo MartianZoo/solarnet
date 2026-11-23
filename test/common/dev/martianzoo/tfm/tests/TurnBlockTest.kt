@@ -76,7 +76,6 @@ internal class TurnBlockTest : TfmGameplayTest() {
       doTasks(*standardProjectTasks("SellPatentsProject"), "MC FROM ProjectCard")
       doTasks(
           *playCardTasks("$RedAppeasement"),
-          "$RedAppeasement FROM ProjectCard",
           "PROD[2 MC]",
           "Pass",
       )
@@ -105,7 +104,6 @@ internal class TurnBlockTest : TfmGameplayTest() {
       doTasks(
           *playCardTasks("$ConvoyFromEuropa"),
           "15 Pay<> FROM MC",
-          "$ConvoyFromEuropa FROM ProjectCard",
           "ProjectCard",
           "OceanTile<Tharsis_2_6>",
           "TerraformRating",
@@ -127,7 +125,6 @@ internal class TurnBlockTest : TfmGameplayTest() {
             doTasks(
                 *playCardTasks("$ConvoyFromEuropa"),
                 "15 Pay<> FROM MC",
-                "$ConvoyFromEuropa FROM ProjectCard",
                 "ProjectCard",
                 "OceanTile<Tharsis_2_6>",
                 "TerraformRating",

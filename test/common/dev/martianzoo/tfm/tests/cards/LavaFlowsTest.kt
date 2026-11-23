@@ -18,7 +18,6 @@ internal class LavaFlowsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$LavaFlows"),
           "18 Pay<> FROM MC",
-          "$LavaFlows FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "TerraformRating",
@@ -38,7 +37,6 @@ internal class LavaFlowsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$LavaFlows"),
           "18 Pay<> FROM MC",
-          "$LavaFlows FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "TerraformRating",
@@ -65,7 +63,6 @@ internal class LavaFlowsTest : TfmSandboxTest() {
 
         doTasks(
             "18 Pay<> FROM MC",
-            "$LavaFlows FROM ProjectCard",
             "TemperatureStep",
             "TemperatureStep",
             "TerraformRating",

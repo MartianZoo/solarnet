@@ -19,7 +19,6 @@ internal class MarsUniversityTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Research"),
               "11 Pay<> FROM MC",
-              "$Research FROM ProjectCard",
               "2 ProjectCard<Hand>",
               "-ProjectCard",
               "-ProjectCard",
@@ -39,7 +38,6 @@ internal class MarsUniversityTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "8 Pay<> FROM MC",
-          "$MarsUniversity FROM ProjectCard",
       )
       // Resolve the exchange offer: the empty hand leaves no card to discard.
       doTask("Ok")
@@ -56,7 +54,6 @@ internal class MarsUniversityTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SearchForLife"),
           "3 Pay<> FROM MC",
-          "$SearchForLife FROM ProjectCard",
           "Ok",
       )
     }

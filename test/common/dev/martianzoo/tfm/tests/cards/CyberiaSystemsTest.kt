@@ -21,7 +21,6 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
     doTasks(
         *playCardTasks("$CyberiaSystems"),
         "16 Pay<> FROM MC",
-        "$CyberiaSystems FROM ProjectCard",
         "PROD[Steel]",
         "CopyProductionBox<$Mine>",
         "PROD[Steel]",
@@ -41,7 +40,6 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$CyberiaSystems"),
               "16 Pay<> FROM MC",
-              "$CyberiaSystems FROM ProjectCard",
               "PROD[Steel]",
               "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
               "BuildingTag<WildTagElection<WildTag<$ResearchNetwork>>>",
@@ -64,7 +62,6 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$CyberiaSystems"),
               "16 Pay<> FROM MC",
-              "$CyberiaSystems FROM ProjectCard",
               "PROD[Steel]",
               "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
               "EarthTag<WildTagElection<WildTag<$ResearchCoordination>>>",
@@ -91,7 +88,6 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CyberiaSystems"),
           "16 Pay<> FROM MC",
-          "$CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
           "CopyProductionBox<$Mine>",
           "PROD[Steel]",
@@ -110,7 +106,6 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$CyberiaSystems"),
             "16 Pay<> FROM MC",
-            "$CyberiaSystems FROM ProjectCard",
             "PROD[Steel]",
             "CopyProductionBox<$Mine>",
             "PROD[Steel]",
@@ -128,7 +123,6 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$CyberiaSystems"),
             "16 Pay<> FROM MC",
-            "$CyberiaSystems FROM ProjectCard",
             "PROD[Steel]",
             "CopyProductionBox<$CyberiaSystems>",
         )
@@ -148,7 +142,6 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CyberiaSystems"),
           "16 Pay<> FROM MC",
-          "$CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
           "Steel",
           "CopyProductionBox<$MagneticFieldGeneratorsPromo>",

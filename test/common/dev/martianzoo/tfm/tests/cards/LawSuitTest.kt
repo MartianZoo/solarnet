@@ -20,7 +20,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -30,7 +29,6 @@ internal class LawSuitTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "$LawSuit FROM ProjectCard",
               "3 MC<Kim FROM Stan>",
           )
         }
@@ -43,7 +41,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -53,7 +50,6 @@ internal class LawSuitTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "$LawSuit FROM ProjectCard",
               "3 MC<Kim FROM Stan>",
           )
         }
@@ -67,7 +63,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "14 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "TerraformRating",
@@ -79,7 +74,6 @@ internal class LawSuitTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "$LawSuit FROM ProjectCard",
               "3 MC<Kim FROM Stan>",
           )
         }
@@ -92,7 +86,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -103,7 +96,6 @@ internal class LawSuitTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "$LawSuit FROM ProjectCard",
               "3 MC<Kim FROM Stan>",
           )
         }
@@ -117,7 +109,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -127,7 +118,6 @@ internal class LawSuitTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "$LawSuit FROM ProjectCard",
               "3 MC",
               "3 MC<Kim FROM Stan>",
           )
@@ -142,7 +132,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -152,7 +141,6 @@ internal class LawSuitTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "$LawSuit FROM ProjectCard",
               "3 MC<Kim FROM Stan>",
           )
         }
@@ -166,7 +154,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$HeatTrappers"),
           "6 Pay<> FROM MC",
-          "$HeatTrappers FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-2 Heat]",
       )
@@ -178,7 +165,6 @@ internal class LawSuitTest : TfmSandboxTest() {
 
         doTasks(
             "2 Pay<> FROM MC",
-            "$LawSuit FROM ProjectCard",
             "3 MC<Kim FROM Stan>",
         )
       }
@@ -192,7 +178,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -206,7 +191,6 @@ internal class LawSuitTest : TfmSandboxTest() {
 
         doTasks(
             "2 Pay<> FROM MC",
-            "$LawSuit FROM ProjectCard",
             "3 MC<Kim FROM Stan>",
         )
       }
@@ -221,7 +205,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "14 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "TerraformRating",
@@ -232,7 +215,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SmallAsteroid"),
           "10 Pay<> FROM MC",
-          "$SmallAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TerraformRating",
           "-Plant<Kim>",
@@ -247,7 +229,6 @@ internal class LawSuitTest : TfmSandboxTest() {
 
         doTasks(
             "2 Pay<> FROM MC",
-            "$LawSuit FROM ProjectCard",
             "3 MC<Kim FROM Stan>",
         )
       }
@@ -264,7 +245,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "14 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "TerraformRating",
@@ -275,7 +255,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SmallAsteroid"),
           "10 Pay<> FROM MC",
-          "$SmallAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TerraformRating",
           "-Plant<Kim>",
@@ -286,7 +265,6 @@ internal class LawSuitTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$LawSuit"),
               "2 Pay<> FROM MC",
-              "$LawSuit FROM ProjectCard",
               "3 MC<Kim FROM Stan>",
           )
         }
@@ -299,7 +277,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -310,7 +287,6 @@ internal class LawSuitTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$LawSuit"),
             "2 Pay<> FROM MC",
-            "$LawSuit FROM ProjectCard",
         )
         // Stan attacked, but the omitted gate must still reject charging uninvolved Rob.
         doTask("3 MC<Kim FROM Rob>")
@@ -327,7 +303,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Kim>]",
       )
@@ -336,7 +311,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$LawSuit"),
           "2 Pay<> FROM MC",
-          "$LawSuit FROM ProjectCard",
           "3 MC<Kim FROM Stan>",
       )
     }

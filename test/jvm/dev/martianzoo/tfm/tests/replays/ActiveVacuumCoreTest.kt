@@ -139,7 +139,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     with(blue) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$AstroDrill>>",
-          "$AstroDrill FROM CorporationCard",
           "35 MC",
           "3 Asteroid<$AstroDrill>",
           "15 Pay<> FROM MC",
@@ -150,7 +149,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     with(pink) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Vitor>>",
-          "$Vitor FROM CorporationCard",
           "48 MC",
           "18 Pay<> FROM MC",
           "6 ProjectCard<Hand FROM Selecting>",
@@ -160,7 +158,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     with(green) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
-          "$PharmacyUnion FROM CorporationCard",
           "SearchForCard<TagFilter<Class<ScienceTag>>>",
           "54 MC",
           "21 Pay<> FROM MC",
@@ -175,7 +172,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     with(purple) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Inventrix>>",
-          "$Inventrix FROM CorporationCard",
           "45 MC",
           "9 Pay<> FROM MC",
           "3 ProjectCard<Hand FROM Selecting>",
@@ -185,7 +181,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     with(blue) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$VenusL1Shade>>",
-          "$VenusL1Shade FROM PreludeCard",
           "VenusStep",
           "VenusStep",
           "VenusStep",
@@ -193,7 +188,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AntiDesertificationTechniques>>",
-          "$AntiDesertificationTechniques FROM PreludeCard",
           "3 MC",
           "PROD[Plant]",
           "PROD[Steel]",
@@ -205,17 +199,14 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     with(pink) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BusinessEmpire>>",
-          "$BusinessEmpire FROM PreludeCard",
           "PROD[6 MC]",
           "-6 MC",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>",
-          "$ExcentricSponsor FROM PreludeCard",
           "PlayCard<Class<ProjectCard>, Class<$ImmigrationShuttles>, CardLocation>",
           "-25 Owed",
           "6 Pay<> FROM MC",
-          "$ImmigrationShuttles FROM ProjectCard",
           "PROD[5 MC]",
           "3 MC",
       )
@@ -224,14 +215,12 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     with(green) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$IoResearchOutpost>>",
-          "$IoResearchOutpost FROM PreludeCard",
           "PROD[Titanium]",
           "ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AppliedScience>>",
-          "$AppliedScience FROM PreludeCard",
           "6 Science<$AppliedScience>",
       )
     }
@@ -239,14 +228,12 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     with(purple) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
-          "$MetalsCompany FROM PreludeCard",
           "PROD[MC]",
           "PROD[Steel]",
           "PROD[Titanium]",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$GiantSolarCollector>>",
-          "$GiantSolarCollector FROM PreludeCard",
           "PROD[2 Energy]",
           "VenusStep",
           "TerraformRating",
@@ -260,7 +247,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$CometAiming"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "14 Pay<> FROM MC",
-          "$CometAiming FROM ProjectCard",
       )
     }
 
@@ -269,7 +255,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$IndustrialMicrobes"),
           "12 Pay<> FROM MC",
-          "$IndustrialMicrobes FROM ProjectCard",
           "PROD[Energy]",
           "PROD[Steel]",
       )
@@ -286,7 +271,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "7 Pay<> FROM MC",
-          "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
       )
     }
@@ -305,7 +289,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$CuttingEdgeTechnology"),
           "12 Pay<> FROM MC",
-          "$CuttingEdgeTechnology FROM ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
       )
     }
@@ -314,14 +297,12 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$WaterToVenus"),
           "9 Pay<> FROM MC",
-          "$WaterToVenus FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
       )
       doTasks(
           *playCardTasks("$NeutralizerFactory"),
           "7 Pay<> FROM MC",
-          "$NeutralizerFactory FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
       )
@@ -333,7 +314,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SulphurEatingBacteria"),
           "4 Pay<> FROM MC",
-          "$SulphurEatingBacteria FROM ProjectCard",
           "Disease<$PharmacyUnion>",
           "-MC",
       )
@@ -413,7 +393,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Soletta"),
           "35 Pay<> FROM MC",
-          "$Soletta FROM ProjectCard",
           "PROD[7 Heat]",
       )
     }
@@ -422,7 +401,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Omnicourt"),
           "9 Pay<> FROM MC",
-          "$Omnicourt FROM ProjectCard",
           "2 TerraformRating",
       )
     }
@@ -432,7 +410,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$SolarPower"),
           "1 Pay<Class<Steel>> FROM Steel",
           "9 Pay<> FROM MC",
-          "$SolarPower FROM ProjectCard",
           "PROD[Energy]",
       )
     }
@@ -456,7 +433,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MagneticFieldDome"),
           "5 Pay<> FROM MC",
-          "$MagneticFieldDome FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[Plant]",
           "TerraformRating",
@@ -468,7 +444,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$IceAsteroid"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "17 Pay<> FROM MC",
-          "$IceAsteroid FROM ProjectCard",
           "OceanTile<Tharsis_5_4>",
           "TerraformRating",
           "2 Plant",
@@ -495,13 +470,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ArcticAlgae"),
           "12 Pay<> FROM MC",
-          "$ArcticAlgae FROM ProjectCard",
           "Plant",
       )
       doTasks(
           *playCardTasks("$Psychrophiles"),
           "2 Pay<> FROM MC",
-          "$Psychrophiles FROM ProjectCard",
       )
       giveTask(green, "Disease<$PharmacyUnion>")
       giveTask(green, "-4 MC")
@@ -582,7 +555,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$LightningHarvest"),
           "6 Pay<> FROM MC",
-          "$LightningHarvest FROM ProjectCard",
           "PROD[Energy]",
           "PROD[MC]",
       )
@@ -593,7 +565,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$DeimosDownPromo"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "25 Pay<> FROM MC",
-          "$DeimosDownPromo FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "TemperatureStep",
@@ -622,7 +593,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$DirectedImpactors"),
           "8 Pay<> FROM MC",
-          "$DirectedImpactors FROM ProjectCard",
       )
     }
 
@@ -631,7 +601,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Moss"),
           "2 Pay<> FROM MC",
-          "$Moss FROM ProjectCard",
           "PROD[Plant]",
           "-Plant",
       )
@@ -641,7 +610,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$PowerSupplyConsortium"),
           "5 Pay<> FROM MC",
-          "$PowerSupplyConsortium FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Pink>]",
       )
@@ -669,7 +637,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$Teslaract"),
           "5 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
-          "$Teslaract FROM ProjectCard",
           "TerraformRating",
       )
     }
@@ -678,7 +645,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MiningExpedition"),
           "12 Pay<> FROM MC",
-          "$MiningExpedition FROM ProjectCard",
           "OxygenStep",
           "2 Steel",
           "TerraformRating",
@@ -700,7 +666,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$WeatherBalloons"),
           "11 Pay<> FROM MC",
-          "$WeatherBalloons FROM ProjectCard",
           "ProjectCard",
       )
     }
@@ -789,7 +754,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$DeepWellHeating"),
           "1 Pay<Class<Steel>> FROM Steel",
           "11 Pay<> FROM MC",
-          "$DeepWellHeating FROM ProjectCard",
           "PROD[Energy]",
           "TemperatureStep",
           "TerraformRating",
@@ -812,7 +776,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
-          "$EarthCatapult FROM ProjectCard",
           "3 MC",
       )
     }
@@ -836,7 +799,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$HomeostasisBureau"),
           "3 Pay<Class<Steel>> FROM Steel",
           "8 Pay<> FROM MC",
-          "$HomeostasisBureau FROM ProjectCard",
           "PROD[2 Heat]",
       )
     }
@@ -845,7 +807,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$VenusianPlants"),
           "11 Pay<> FROM MC",
-          "$VenusianPlants FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
           "Microbe<$SulphurEatingBacteria>",
@@ -858,7 +819,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "5 Pay<Class<Steel>> FROM Steel",
           "Ok", // No Psychrophiles microbes paid.
           "0 Pay<> FROM MC", // No M€ needed after paying with steel.
-          "$NoctisFarming FROM ProjectCard",
           "PROD[MC]",
           "2 Plant",
       )
@@ -888,7 +848,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$TransNeptuneProbe"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No M€ needed after paying with titanium.
-          "$TransNeptuneProbe FROM ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
       )
     }
@@ -898,7 +857,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$MethaneFromTitan"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "16 Pay<> FROM MC",
-          "$MethaneFromTitan FROM ProjectCard",
           "PROD[2 Heat]",
           "PROD[2 Plant]",
       )
@@ -926,7 +884,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$TerraformingContract"),
           "8 Pay<> FROM MC",
-          "$TerraformingContract FROM ProjectCard",
           "PROD[4 MC]",
       )
     }
@@ -945,7 +902,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Solarnet"),
           "5 Pay<> FROM MC",
-          "$Solarnet FROM ProjectCard",
           "2 ProjectCard",
       )
     }
@@ -967,7 +923,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SnowAlgae"),
           "10 Pay<> FROM MC",
-          "$SnowAlgae FROM ProjectCard",
           "PROD[Plant]",
           "PROD[Heat]",
       )
@@ -1057,7 +1012,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$SterlingVents"),
           "1 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$SterlingVents FROM ProjectCard",
           "PROD[-2 Heat]",
           "PROD[2 Energy]",
           "3 MC",
@@ -1065,7 +1019,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ImmigrantCity"),
           "11 Pay<> FROM MC",
-          "$ImmigrantCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[-2 MC]",
           "CityTile<Tharsis_6_5>",
@@ -1079,7 +1032,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
-          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Tharsis_8_4>",
           "Production<Class<Metal>(HAS PlacementBonus<LandArea(HAS MiningRights_SpecialTile)>)>",
           "2 Steel",
@@ -1123,7 +1075,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$Comet"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "15 Pay<> FROM MC",
-          "$Comet FROM ProjectCard",
           "TemperatureStep",
           "TerraformRating",
           "OceanTile<Tharsis_2_6>",
@@ -1137,13 +1088,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ResearchCoordination"),
           "4 Pay<> FROM MC",
-          "$ResearchCoordination FROM ProjectCard",
       )
       doTasks(
           *playCardTasks("$Satellites"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "$Satellites FROM ProjectCard",
           "PROD[6 MC]",
       )
     }
@@ -1188,7 +1137,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$PowerGrid"),
           "18 Pay<> FROM MC",
-          "$PowerGrid FROM ProjectCard",
           "PROD[6 Energy]",
       )
     }
@@ -1197,7 +1145,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$WavePower"),
           "8 Pay<> FROM MC",
-          "$WavePower FROM ProjectCard",
           "PROD[Energy]",
       )
     }
@@ -1206,7 +1153,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$FieldCappedCity"),
           "27 Pay<> FROM MC",
-          "$FieldCappedCity FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[Energy]",
           "3 Plant",
@@ -1220,7 +1166,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$NitrogenRichAsteroid"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "19 Pay<> FROM MC",
-          "$NitrogenRichAsteroid FROM ProjectCard",
           "2 TerraformRating",
           "TemperatureStep",
           "TerraformRating",
@@ -1241,7 +1186,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$MiningArea"),
           "2 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No M€ needed after paying with steel.
-          "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Tharsis_9_5>",
           "Production<Class<Metal>(HAS PlacementBonus<LandArea(HAS MiningArea_SpecialTile)>)>",
           "Steel",
@@ -1357,7 +1301,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$VenusianAnimals"),
           "13 Pay<> FROM MC",
-          "$VenusianAnimals FROM ProjectCard",
           "3 MC",
           "Animal<$VenusianAnimals>",
       )
@@ -1378,7 +1321,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$BusinessContacts"),
           "7 Pay<> FROM MC",
-          "$BusinessContacts FROM ProjectCard",
           "4 ProjectCard<Selecting>",
           "2 ProjectCard<Hand FROM Selecting>",
       )
@@ -1389,7 +1331,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$SpaceElevator"),
           "1 Pay<Class<Steel>> FROM Steel",
           "25 Pay<> FROM MC",
-          "$SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
       )
       doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
@@ -1398,7 +1339,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     pink.turn {
       doTasks(
           *playCardTasks("$CeosFavoriteProject"),
-          "$CeosFavoriteProject FROM ProjectCard",
           "Asteroid<$DirectedImpactors>",
       )
     }
@@ -1408,7 +1348,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$RegoPlastics"),
           "1 Pay<Class<Steel>> FROM Steel",
           "8 Pay<> FROM MC",
-          "$RegoPlastics FROM ProjectCard",
       )
     }
 
@@ -1417,7 +1356,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$FuelFactory"),
           "2 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "$FuelFactory FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[Titanium]",
           "PROD[MC]",
@@ -1443,7 +1381,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$CarbonNanosystems"),
           "4 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "$CarbonNanosystems FROM ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
           "Graphene<$CarbonNanosystems>",
       )
@@ -1454,7 +1391,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$GiantSpaceMirror"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "14 Pay<> FROM MC",
-          "$GiantSpaceMirror FROM ProjectCard",
           "PROD[3 Energy]",
       )
     }
@@ -1488,7 +1424,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ArtificialPhotosynthesis"),
           "12 Pay<> FROM MC",
-          "$ArtificialPhotosynthesis FROM ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
           "Graphene<$CarbonNanosystems>",
           "PROD[2 Energy]",
@@ -1499,7 +1434,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SmallAsteroid"),
           "10 Pay<> FROM MC",
-          "$SmallAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TerraformRating",
           "-2 Plant<Blue>",
@@ -1522,7 +1456,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$DevelopmentCenter"),
           "3 Pay<Class<Steel>> FROM Steel",
           "3 Pay<> FROM MC",
-          "$DevelopmentCenter FROM ProjectCard",
           "Animal<$VenusianAnimals>",
       )
       doTasks(
@@ -1548,7 +1481,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$JovianEmbassy"),
           "12 Pay<> FROM MC",
-          "$JovianEmbassy FROM ProjectCard",
           "TerraformRating",
           "3 MC",
       )
@@ -1561,7 +1493,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "2 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No M€ needed after paying with graphene and titanium.
-          "$OrbitalCleanup FROM ProjectCard",
           "PROD[-2 MC]",
       )
     }
@@ -1607,7 +1538,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$SecurityFleet"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "9 Pay<> FROM MC",
-          "$SecurityFleet FROM ProjectCard",
       )
     }
 
@@ -1621,7 +1551,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AdaptedLichen"),
           "9 Pay<> FROM MC",
-          "$AdaptedLichen FROM ProjectCard",
           "PROD[Plant]",
       )
     }
@@ -1723,7 +1652,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SubterraneanReservoir"),
           "11 Pay<> FROM MC",
-          "$SubterraneanReservoir FROM ProjectCard",
           "OceanTile<Tharsis_9_9>",
           "TerraformRating",
       )
@@ -1759,7 +1687,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$KaguyaTech"),
           "5 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "0 Pay<> FROM MC", // No M€ needed after paying with Psychrophiles microbes.
-          "$KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
           "ProjectCard",
           "CityTile<Tharsis_6_4> FROM GreeneryTile<Tharsis_6_4>",
@@ -1784,7 +1711,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$SolarWindPower"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "$SolarWindPower FROM ProjectCard",
           "PROD[Energy]",
           "2 Titanium",
           "TerraformRating FROM Disease<$PharmacyUnion>",
@@ -1797,7 +1723,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$PhysicsComplex"),
           "1 Pay<Class<Steel>> FROM Steel",
           "10 Pay<> FROM MC",
-          "$PhysicsComplex FROM ProjectCard",
       )
       doTasks(
           *cardActionTasks("$PhysicsComplex"),
@@ -1814,7 +1739,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Trees"),
           "11 Pay<> FROM MC",
-          "$Trees FROM ProjectCard",
           "PROD[3 Plant]",
           "Plant",
           "3 MC",
@@ -1822,7 +1746,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AdvancedEcosystems"),
           "9 Pay<> FROM MC",
-          "$AdvancedEcosystems FROM ProjectCard",
           "3 MC",
       )
       giveTask(green, "Disease<$PharmacyUnion>")
@@ -1857,7 +1780,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$MercurianAlloys"),
           "Ok", // No titanium paid.
           "3 Pay<> FROM MC",
-          "$MercurianAlloys FROM ProjectCard",
       )
       doTasks(
           *standardProjectTasks("CityProject"),
@@ -1877,7 +1799,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       )
       doTasks(
           *playCardTasks("$HiredRaiders"),
-          "$HiredRaiders FROM ProjectCard",
           "3 MC FROM MC<Blue>",
       )
     }
@@ -1886,13 +1807,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SisterPlanetSupport"),
           "5 Pay<> FROM MC",
-          "$SisterPlanetSupport FROM ProjectCard",
           "PROD[3 MC]",
       )
       doTasks(
           *playCardTasks("$Insects"),
           "7 Pay<> FROM MC",
-          "$Insects FROM ProjectCard",
           "PROD[5 Plant]",
           "Disease<$PharmacyUnion>",
           "-0 MC",
@@ -1924,7 +1843,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SponsoredAcademies"),
           "7 Pay<> FROM MC",
-          "$SponsoredAcademies FROM ProjectCard",
           "-ProjectCard",
           "EACH",
           "3 MC",
@@ -1945,7 +1863,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Worms"),
           "6 Pay<> FROM MC",
-          "$Worms FROM ProjectCard",
           "PROD[3 Plant]",
           "Disease<$PharmacyUnion>",
           "-0 MC",
@@ -1956,7 +1873,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ProtectedGrowth"),
           "2 Pay<> FROM MC",
-          "$ProtectedGrowth FROM ProjectCard",
           "7 Plant",
       )
       doTasks(
@@ -1978,7 +1894,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$SoilFactory"),
           "1 Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$SoilFactory FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[Plant]",
           "3 MC",
@@ -1991,7 +1906,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Lichen"),
           "7 Pay<> FROM MC",
-          "$Lichen FROM ProjectCard",
           "PROD[Plant]",
       )
     }
@@ -2004,7 +1918,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$CorroderSuits"),
           "6 Pay<> FROM MC",
-          "$CorroderSuits FROM ProjectCard",
           "PROD[2 MC]",
           "Animal<$VenusianAnimals>",
       )
@@ -2030,7 +1943,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$NoctisCity"),
           "1 Pay<Class<Steel>> FROM Steel",
           "16 Pay<> FROM MC",
-          "$NoctisCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "NormalCityTile<Tharsis_5_3>",
@@ -2050,7 +1962,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$Mangrove"),
           "PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "10 Pay<> FROM MC",
-          "$Mangrove FROM ProjectCard",
           "GreeneryTile<Tharsis_4_8>",
           "OxygenStep",
           "2 Plant",
@@ -2208,7 +2119,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           "PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "4 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "$UndergroundCity FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[2 Steel]",
           "CityTile<Tharsis_4_1>",
@@ -2249,7 +2159,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$StratosphericExpedition"),
           "10 Pay<> FROM MC",
-          "$StratosphericExpedition FROM ProjectCard",
           // Pink has no card that can hold floaters, so this placement adds none.
           "2 Floater",
           "2 SearchForCard<TagFilter<Class<VenusTag>>>",
@@ -2325,7 +2234,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$CallistoPenalMines"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "12 Pay<> FROM MC",
-          "$CallistoPenalMines FROM ProjectCard",
           "PROD[3 MC]",
       )
     }
@@ -2348,13 +2256,12 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Research"),
           "9 Pay<> FROM MC",
-          "$Research FROM ProjectCard",
           "2 ProjectCard",
           "3 MC",
           "Animal<$VenusianAnimals>",
           "Animal<$VenusianAnimals>",
       )
-      doTasks(*playCardTasks("$Sabotage"), "$Sabotage FROM ProjectCard", "-3 Titanium<Blue>")
+      doTasks(*playCardTasks("$Sabotage"), "-3 Titanium<Blue>")
     }
 
     green.turn {
@@ -2376,14 +2283,12 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$Grass"),
           "PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "9 Pay<> FROM MC",
-          "$Grass FROM ProjectCard",
           "PROD[Plant]",
           "3 Plant",
       )
       doTasks(
           *playCardTasks("$CityParks"),
           "7 Pay<> FROM MC",
-          "$CityParks FROM ProjectCard",
           "2 Plant",
       )
     }
@@ -2392,7 +2297,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$FreyjaBiodomes"),
           "12 Pay<> FROM MC",
-          "$FreyjaBiodomes FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
           "3 MC",
@@ -2404,7 +2308,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SaturnSurfing"),
           "13 Pay<> FROM MC",
-          "$SaturnSurfing FROM ProjectCard",
           "4 Floater<$SaturnSurfing>",
       )
     }
@@ -2426,12 +2329,11 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AstraMechanica"),
           "5 Pay<> FROM MC",
-          "$AstraMechanica FROM ProjectCard",
           "Animal<$VenusianAnimals>",
           "ProjectCard FROM PlayedEvent<Class<$CeosFavoriteProject>>",
           "ProjectCard FROM PlayedEvent<Class<$Sabotage>>",
       )
-      doTasks(*playCardTasks("$Sabotage"), "$Sabotage FROM ProjectCard", "-7 MC<Blue>")
+      doTasks(*playCardTasks("$Sabotage"), "-7 MC<Blue>")
     }
 
     green.turn {
@@ -2439,7 +2341,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$TopsoilContract"),
           "8 Pay<> FROM MC",
-          "$TopsoilContract FROM ProjectCard",
           "3 Plant",
           "Disease<$PharmacyUnion>",
           "-0 MC",
@@ -2452,7 +2353,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
           *playCardTasks("$AsteroidMining"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "26 Pay<> FROM MC",
-          "$AsteroidMining FROM ProjectCard",
           "PROD[2 Titanium]",
       )
     }
@@ -2460,7 +2360,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
     pink.turn {
       doTasks(
           *playCardTasks("$CeosFavoriteProject"),
-          "$CeosFavoriteProject FROM ProjectCard",
           "Animal<$VenusianAnimals>",
       )
     }
@@ -2495,7 +2394,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SoilEnrichment"),
           "6 Pay<> FROM MC",
-          "$SoilEnrichment FROM ProjectCard",
           "-Microbe<$SulphurEatingBacteria>",
           "5 Plant",
           "Disease<$PharmacyUnion>",
@@ -2532,7 +2430,6 @@ internal class ActiveVacuumCoreTest : FullGameTest() {
       doTasks(
           *playCardTasks("$CometForVenus"),
           "9 Pay<> FROM MC",
-          "$CometForVenus FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
           "-4 MC<Purple>",
