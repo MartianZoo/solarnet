@@ -84,6 +84,12 @@ Delete entries when they are done.
   `_local/replay-selected-task-instructions.txt`; the comparison is `_local/replay-task-english.txt`.
   Do not treat bracket-free counts as UI readiness.
 
+- Cross-game sharing of compiled existence conditions is deferred. It saved about three additional
+  cumulative worker-seconds in the November 23 comparison, but did not establish a whole-suite gain
+  worth the local-class extension machinery. Keep the simpler plan compiled once per frozen
+  universe. Measurements and review: Solarnet
+  `_local/performance/gradle-timing-2026-11-23/compiled-existence/README.md`.
+
 - If view construction remains expensive after the selection worklist change, measure the remaining
   unresolved-condition passes before adding more machinery. They still reconsider every pending
   constructive reference after each inclusion frontier; selectively waking only affected conditions
