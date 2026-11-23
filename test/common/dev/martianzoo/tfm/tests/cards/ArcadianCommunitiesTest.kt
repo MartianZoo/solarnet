@@ -138,7 +138,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$LandClaim"),
           "1 Pay<> FROM MC",
-          "$LandClaim FROM ProjectCard",
           "Community<Tharsis_1_1>",
       )
     }
@@ -175,7 +174,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$ArtificialLake"),
             "15 Pay<> FROM MC",
-            "$ArtificialLake FROM ProjectCard",
             "OceanTile<Tharsis_1_3>",
         )
       }
@@ -186,7 +184,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
           doTask("Ok") // Keep the steel.
           doTasks(
               "15 Pay<> FROM MC",
-              "$ArtificialLake FROM ProjectCard",
               "OceanTile<Tharsis_1_3>",
               "3 MC",
               "TerraformRating",

@@ -16,7 +16,6 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$ImportedHydrogen"),
           "16 Pay<> FROM MC",
-          "$ImportedHydrogen FROM ProjectCard",
           "3 Plant",
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
@@ -28,7 +27,6 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$InterplanetaryTrade"),
           "27 Pay<> FROM MC",
-          "$InterplanetaryTrade FROM ProjectCard",
           "EACH @WildTagElection { Tag<@WildTagElection>? }",
           "PROD[4 MC]",
       )
@@ -56,7 +54,6 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$InterplanetaryTrade"),
           "27 Pay<> FROM MC",
-          "$InterplanetaryTrade FROM ProjectCard",
           "EACH",
           "EventTag<WildTagElection<WildTag<$ResearchNetwork>>>",
           "PROD[${if (venus) 12 else 11} MC]",

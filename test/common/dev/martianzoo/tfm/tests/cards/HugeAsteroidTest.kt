@@ -14,7 +14,6 @@ internal class HugeAsteroidTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$HugeAsteroid>>",
-              "$HugeAsteroid FROM PreludeCard",
               "TemperatureStep",
               "TemperatureStep",
               "TemperatureStep",

@@ -22,7 +22,6 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$ImportedNitrogen"),
               "23 Pay<> FROM MC",
-              "$ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
               "4 Plant",
               "3* Microbe",
@@ -46,7 +45,6 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$ImportedNitrogen"),
               "23 Pay<> FROM MC",
-              "$ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
               "4 Plant",
               "3* Microbe<$Tardigrades>",
@@ -71,7 +69,6 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$ImportedNitrogen"),
             "23 Pay<> FROM MC",
-            "$ImportedNitrogen FROM ProjectCard",
             "TerraformRating",
             "4 Plant",
             "2* Animal",

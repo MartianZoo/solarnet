@@ -41,7 +41,6 @@ internal class FirstPartialGameTest : FullGameTest() {
     with(p1) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$LakefrontResorts>>",
-          "$LakefrontResorts FROM CorporationCard",
           "54 MC",
           "9 Pay<> FROM MC",
           "3 ProjectCard<Hand FROM Selecting>",
@@ -50,7 +49,6 @@ internal class FirstPartialGameTest : FullGameTest() {
     with(p2) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>",
-          "$InterplanetaryCinematics FROM CorporationCard",
           "30 MC",
           "20 Steel",
           "24 Pay<> FROM MC",
@@ -61,14 +59,12 @@ internal class FirstPartialGameTest : FullGameTest() {
     with(p1) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>",
-          "$MartianIndustries FROM PreludeCard",
           "PROD[Energy]",
           "PROD[Steel]",
           "6 MC",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$GalileanMining>>",
-          "$GalileanMining FROM PreludeCard",
           "PROD[2 Titanium]",
           "-5 MC",
       )
@@ -76,13 +72,11 @@ internal class FirstPartialGameTest : FullGameTest() {
     with(p2) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MiningOperations>>",
-          "$MiningOperations FROM PreludeCard",
           "PROD[2 Steel]",
           "4 Steel",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
-          "$UnmiContractor FROM PreludeCard",
           "3 TerraformRating",
           "ProjectCard",
       )
@@ -93,7 +87,6 @@ internal class FirstPartialGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AsteroidMining"),
           "30 Pay<> FROM MC",
-          "$AsteroidMining FROM ProjectCard",
           "PROD[2 Titanium]",
       )
     }
@@ -102,7 +95,6 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$NaturalPreserve"),
           "4 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$NaturalPreserve FROM ProjectCard",
           "PROD[MC]",
           "NaturalPreserve_SpecialTile<Elysium_3_7>",
           "3 ProjectCard",
@@ -114,14 +106,12 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$SpaceElevator"),
           "13 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
       )
       doTasks(*cardActionTasks("$SpaceElevator"), "1 Pay<Class<Steel>> FROM Steel", "5 MC")
       doTasks(
           *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
-          "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
           "2 MC",
@@ -129,7 +119,6 @@ internal class FirstPartialGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$GreatEscarpmentConsortium"),
           "6 Pay<> FROM MC",
-          "$GreatEscarpmentConsortium FROM ProjectCard",
           "PROD[Steel]",
           "PROD[-Steel<Player1>]",
       )
@@ -157,7 +146,6 @@ internal class FirstPartialGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
-          "$EarthCatapult FROM ProjectCard",
       )
     }
 
@@ -165,13 +153,11 @@ internal class FirstPartialGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$TitaniumMine"),
           "7 Pay<> FROM MC",
-          "$TitaniumMine FROM ProjectCard",
           "PROD[Titanium]",
       )
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$MartianIndustries>",
           "PROD[Energy]",
           "PROD[Steel]",
@@ -183,7 +169,6 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$IndustrialMicrobes"),
           "5 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // no MC paid
-          "$IndustrialMicrobes FROM ProjectCard",
           "PROD[Energy]",
           "PROD[Steel]",
       )
@@ -191,7 +176,6 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$TechnologyDemonstration"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // no MC paid
-          "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
           "2 MC",
       )
@@ -201,7 +185,6 @@ internal class FirstPartialGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Sponsors"),
           "6 Pay<> FROM MC",
-          "$Sponsors FROM ProjectCard",
           "PROD[2 MC]",
       )
     }
@@ -210,7 +193,6 @@ internal class FirstPartialGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "1 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Player1>]",
       )
@@ -218,7 +200,6 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$BuildingIndustries"),
           "2 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // no MC paid
-          "$BuildingIndustries FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 Steel]",
       )
@@ -248,7 +229,6 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$Mine"),
           "1 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }
@@ -259,7 +239,6 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$ElectroCatapult"),
           "5 Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$ElectroCatapult FROM ProjectCard",
           "PROD[-Energy]",
       )
     }
@@ -276,27 +255,23 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$SpaceHotels"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "7 Pay<> FROM MC",
-          "$SpaceHotels FROM ProjectCard",
           "PROD[4 MC]",
       )
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "6 Pay<> FROM MC",
-          "$MarsUniversity FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
       )
       doTasks(
           *playCardTasks("$ArtificialPhotosynthesis"),
           "10 Pay<> FROM MC",
-          "$ArtificialPhotosynthesis FROM ProjectCard",
           "PROD[2 Energy]",
           "Ok", // decline Mars University's optional discard and draw
       )
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "5 Pay<> FROM MC",
-          "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
           "2 MC",
       )
@@ -334,7 +309,6 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$ResearchOutpost"),
           "2 Pay<Class<Steel>> FROM Steel",
           "14 Pay<> FROM MC",
-          "$ResearchOutpost FROM ProjectCard",
           "CityTile<Elysium_5_6>",
           "3 Plant",
           "0 MC", // Lakefront Resorts: no neighboring oceans
@@ -343,7 +317,6 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$IoMiningIndustries"),
           "13 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$IoMiningIndustries FROM ProjectCard",
           "PROD[2 Titanium]",
           "PROD[2 MC]",
       )
@@ -354,13 +327,11 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$TransNeptuneProbe"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$TransNeptuneProbe FROM ProjectCard",
           "Ok", // decline Mars University's optional discard and draw
       )
       doTasks(
           *playCardTasks("$Hackers"),
           "1 Pay<> FROM MC",
-          "$Hackers FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
           "PROD[-2 MC<Player1>]",
@@ -376,7 +347,6 @@ internal class FirstPartialGameTest : FullGameTest() {
           *playCardTasks("$SolarPower"),
           "4 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$SolarPower FROM ProjectCard",
           "PROD[Energy]",
       )
       doTasks(

@@ -25,7 +25,6 @@ internal class TfmPayCommandTest {
     assertEquals(2, repl.agent.count("Microbe<Psychrophiles>"))
     assertEquals(NONE, repl.agent.autoExecPolicy)
     assertTrue(output.any { "Pay" in it }, output.joinToString("\n"))
-    repl.agent.doTask("ProtectedValley FROM ProjectCard")
     assertEquals(1, repl.agent.count("ProtectedValley"))
   }
 
@@ -43,7 +42,6 @@ internal class TfmPayCommandTest {
     assertEquals(1, repl.agent.count("Steel"))
     assertEquals(10, repl.agent.count("MC"))
     assertEquals(NONE, repl.agent.autoExecPolicy)
-    repl.agent.doTask("Mine FROM ProjectCard")
     assertEquals(1, repl.agent.count("Mine"))
   }
 

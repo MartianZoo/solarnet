@@ -15,7 +15,6 @@ internal class CommercialDistrictTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CommercialDistrict"),
           "16 Pay<> FROM MC",
-          "$CommercialDistrict FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
           "CommercialDistrict_SpecialTile<Tharsis_3_3>",

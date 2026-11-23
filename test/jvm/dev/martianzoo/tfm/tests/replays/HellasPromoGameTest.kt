@@ -44,7 +44,6 @@ internal class HellasPromoGameTest : FullGameTest() {
     with(p1) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>",
-          "$InterplanetaryCinematics FROM CorporationCard",
           "30 MC",
           "20 Steel",
           "21 Pay<> FROM MC",
@@ -54,7 +53,6 @@ internal class HellasPromoGameTest : FullGameTest() {
     with(p2) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
-          "$PharmacyUnion FROM CorporationCard",
           "SearchForCard<TagFilter<Class<ScienceTag>>>",
           "54 MC",
           "15 Pay<> FROM MC",
@@ -68,13 +66,11 @@ internal class HellasPromoGameTest : FullGameTest() {
     with(p1) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
-          "$UnmiContractor FROM PreludeCard",
           "3 TerraformRating",
           "ProjectCard",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$CorporateArchives>>",
-          "$CorporateArchives FROM PreludeCard",
           "13 MC",
           "7 ProjectCard<Selecting>",
           "2 ProjectCard<Hand FROM Selecting>",
@@ -83,13 +79,11 @@ internal class HellasPromoGameTest : FullGameTest() {
     with(p2) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BiosphereSupport>>",
-          "$BiosphereSupport FROM PreludeCard",
           "PROD[-MC]",
           "PROD[2 Plant]",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$SocietySupport>>",
-          "$SocietySupport FROM PreludeCard",
           "PROD[-MC]",
           "PROD[Plant]",
           "PROD[Energy]",
@@ -100,11 +94,10 @@ internal class HellasPromoGameTest : FullGameTest() {
     // Generation 1 (Player1 first)
 
     p1.turn {
-      doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
+      doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC")
       doTasks(
           *playCardTasks("$Sabotage"),
           "1 Pay<> FROM MC",
-          "$Sabotage FROM ProjectCard",
           "5 MC",
           "-7 MC<Player2>",
       )
@@ -113,7 +106,6 @@ internal class HellasPromoGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
-          "$Research FROM ProjectCard",
           "2 ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
           "TerraformRating FROM Disease<$PharmacyUnion>",
@@ -121,7 +113,6 @@ internal class HellasPromoGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MartianSurvey"),
           "9 Pay<> FROM MC",
-          "$MartianSurvey FROM ProjectCard",
           "2 ProjectCard",
           "Ok", // decline Pharmacy Union's optional flip
       )
@@ -131,7 +122,6 @@ internal class HellasPromoGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SearchForLife"),
           "3 Pay<> FROM MC",
-          "$SearchForLife FROM ProjectCard",
           "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
           "3 TerraformRating",
       )
@@ -167,7 +157,6 @@ internal class HellasPromoGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$VestaShipyard"),
           "15 Pay<> FROM MC",
-          "$VestaShipyard FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -175,13 +164,11 @@ internal class HellasPromoGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
-          "$EarthCatapult FROM ProjectCard",
       )
       doTasks(
           *playCardTasks("$OlympusConference"),
           "4 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // no MC paid
-          "$OlympusConference FROM ProjectCard",
           "Science<$OlympusConference>",
       )
     }
@@ -192,26 +179,22 @@ internal class HellasPromoGameTest : FullGameTest() {
           *playCardTasks("$DevelopmentCenter"),
           "4 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$DevelopmentCenter FROM ProjectCard",
           "ProjectCard FROM Science",
       )
       doTasks(
           *playCardTasks("$GeothermalPower"),
           "4 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$GeothermalPower FROM ProjectCard",
           "PROD[2 Energy]",
       )
       doTasks(
           *playCardTasks("$MirandaResort"),
           "10 Pay<> FROM MC",
-          "$MirandaResort FROM ProjectCard",
           "PROD[4 MC]",
       )
       doTasks(
           *playCardTasks("$Hackers"),
           "1 Pay<> FROM MC",
-          "$Hackers FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
           "PROD[-2 MC<Player2>]",
@@ -219,7 +202,6 @@ internal class HellasPromoGameTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MicroMills"),
           "1 Pay<> FROM MC",
-          "$MicroMills FROM ProjectCard",
           "PROD[Heat]",
       )
     }
@@ -252,7 +234,6 @@ internal class HellasPromoGameTest : FullGameTest() {
           *playCardTasks("$ImmigrantCity"),
           "5 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$ImmigrantCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[-2 MC]",
           "CityTile<Hellas_9_7>",

@@ -21,7 +21,6 @@ internal class AirScrappingExpeditionTest : TfmSandboxTest() {
 
         doTasks(
             "13 Pay<> FROM MC",
-            "$AirScrappingExpedition FROM ProjectCard",
             "VenusStep",
             "TerraformRating",
             "3* Floater<$AtmoCollectors>",

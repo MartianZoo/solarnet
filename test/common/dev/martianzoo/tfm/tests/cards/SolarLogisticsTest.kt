@@ -18,7 +18,6 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$ImportedGhg"),
               "5 Pay<> FROM MC",
-              "$ImportedGhg FROM ProjectCard",
               "PROD[Heat]",
               "3 Heat",
               "ProjectCard<Hand>",
@@ -35,7 +34,6 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$TechnologyDemonstration"),
           "5 Pay<> FROM MC",
-          "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
       )
       // Stan hands the reaction to Solar Logistics' owner.

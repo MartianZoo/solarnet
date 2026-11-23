@@ -113,8 +113,6 @@ public class GameArchiveImporter(
     cardNames?.finish(agents)
   }
 
-  private var placePendingCard: (() -> Unit)? = null
-
   private fun execute(entry: Entry, inherited: Agent?, topLevel: Boolean) {
     try {
       if (entry.text in players) {
@@ -234,7 +232,6 @@ public class GameArchiveImporter(
       }
       when (name) {
         "PlayCard" -> {
-          check(placePendingCard == null) { "Previous card play is unfinished" }
           val card = args[0]
           val back = cardBack(agents.world.reader.tfmCatalog.card(cn(card)))!!.className
           val location = args.getOrElse(1) { "Hand" }
@@ -246,13 +243,6 @@ public class GameArchiveImporter(
                   }
           if (!granted) agent.doTask("UseAction<PlayCardAction, Action1>")
           agent.doTask("PlayCard<Class<$back>, Class<$card>, $location>")
-          // Only the named card's FROM step is inferred. Payment may follow an inline PlayCard.
-          placePendingCard = {
-            if (agent.has("MAX 0 Barrier")) {
-              agent.doTask("$card FROM $back<$location>")
-              placePendingCard = null
-            }
-          }
         }
         "SelectTask" -> agent.selectTask(args.single())
         "Pay" -> pay(agent, args)
@@ -308,10 +298,8 @@ public class GameArchiveImporter(
         "DoRequiredActions" -> agent.doTask(name)
         else -> if (context == null) agent.doTask(text) else agent.doTask(text, context)
       }
-      placePendingCard?.invoke()
       entry.body.orEmpty().forEach { execute(it, agent, false) }
       if (topLevel && name in actions) {
-        check(placePendingCard == null) { "Card play is unfinished" }
         check(agent.has("MAX 0 ActionScope")) { "Action effects are unfinished" }
       }
       check(agent.autoExecPolicy == NONE)

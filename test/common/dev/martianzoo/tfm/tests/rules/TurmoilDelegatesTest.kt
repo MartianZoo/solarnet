@@ -80,7 +80,6 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Recruitment"),
               "2 Pay<> FROM MC",
-              "$Recruitment FROM ProjectCard",
               "PartyFollower<MarsFirst> FROM PartyFollower<MarsFirst, Neutral>",
           )
         }

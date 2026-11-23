@@ -20,7 +20,6 @@ internal class FreyjaBiodomesTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$FreyjaBiodomes"),
               "14 Pay<> FROM MC",
-              "$FreyjaBiodomes FROM ProjectCard",
               "PROD[-Energy]",
               "PROD[2 MC]",
               "Ok",

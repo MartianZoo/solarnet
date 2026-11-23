@@ -21,7 +21,6 @@ internal class HiredRaidersTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$HiredRaiders"),
               "1 Pay<> FROM MC",
-              "$HiredRaiders FROM ProjectCard",
               "3 MC<Kim FROM Stan>",
           )
         }
@@ -41,7 +40,6 @@ internal class HiredRaidersTest : TfmSandboxTest() {
 
         doTasks(
             "1 Pay<> FROM MC",
-            "$HiredRaiders FROM ProjectCard",
             "Ok",
         )
       }
@@ -58,7 +56,6 @@ internal class HiredRaidersTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$HiredRaiders"),
               "1 Pay<> FROM MC",
-              "$HiredRaiders FROM ProjectCard",
               "Steel<Kim FROM Rob>",
           )
         }

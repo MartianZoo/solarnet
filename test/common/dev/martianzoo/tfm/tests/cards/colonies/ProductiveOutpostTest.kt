@@ -12,7 +12,7 @@ internal class ProductiveOutpostTest : TfmSandboxTest() {
   @Test
   internal fun `Pays no bonuses without colonies`() {
     kim.inTurn {
-          doTasks(*playCardTasks("$ProductiveOutpost"), "$ProductiveOutpost FROM ProjectCard")
+          doTasks(*playCardTasks("$ProductiveOutpost"))
         }
         .expect("0 MC")
   }
@@ -24,7 +24,6 @@ internal class ProductiveOutpostTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           *playCardTasks("$ProductiveOutpost"),
-          "$ProductiveOutpost FROM ProjectCard",
           "2 Heat",
           "2 MC",
           "Titanium",
@@ -39,7 +38,6 @@ internal class ProductiveOutpostTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           *playCardTasks("$ProductiveOutpost"),
-          "$ProductiveOutpost FROM ProjectCard",
           "4 MC",
       )
     }

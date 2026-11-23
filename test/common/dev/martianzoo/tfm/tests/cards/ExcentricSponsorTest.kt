@@ -19,14 +19,12 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>",
-              "$ExcentricSponsor FROM PreludeCard",
               "PlayCard<Class<ProjectCard>, Class<$NitrogenRichAsteroid>>",
           )
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-25* Owed")
           doTasks(
               "6 Pay<> FROM MC",
-              "$NitrogenRichAsteroid FROM ProjectCard",
               "2 TerraformRating",
               "TemperatureStep",
               "PROD[Plant]",
@@ -42,14 +40,12 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>",
-          "$ExcentricSponsor FROM PreludeCard",
           "PlayCard<Class<ProjectCard>, Class<$GhgImportFromVenus>>",
       )
       // Hand the discount to Admin before the remaining payment is offered.
       selectTask("-25* Owed")
       doTask("Ok") // The discount covers the full cost.
       doTasks(
-          "$GhgImportFromVenus FROM ProjectCard",
           "VenusStep",
           "PROD[3 Heat]",
           "TerraformRating",
@@ -64,24 +60,21 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>",
-          "$ExcentricSponsor FROM PreludeCard",
           "PlayCard<Class<ProjectCard>, Class<$DustSeals>>",
       )
       // Hand the discount to Admin before the remaining payment is offered.
       selectTask("-25* Owed")
       doTask("Ok") // The discount covers the full cost.
-      doTask("$DustSeals FROM ProjectCard")
     }
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-              "$DoubleDown FROM PreludeCard",
           )
           doTasks("CopyPrelude<$ExcentricSponsor>", "PlayCard<Class<ProjectCard>, Class<$Mine>>")
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-25* Owed")
           doTask("Ok") // The discount covers the full cost.
-          doTasks("$Mine FROM ProjectCard", "PROD[Steel]")
+          doTasks("PROD[Steel]")
         }
         .expect("0 MC")
   }
@@ -93,7 +86,6 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>",
-            "$ExcentricSponsor FROM PreludeCard",
             "PlayCard<Class<ProjectCard>, Class<$FloatingHabs>>",
         )
       }
@@ -102,13 +94,12 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>",
-              "$ExcentricSponsor FROM PreludeCard",
               "PlayCard<Class<ProjectCard>, Class<$FloatingHabs>>",
           )
           kim.count("ScienceTag<WildTagElection<WildTag<$ResearchNetwork>>>") shouldBe 1
           // Hand the discount to Admin before resolving the covered bill.
           selectTask("-25* Owed")
-          doTasks("Ok", "$FloatingHabs FROM ProjectCard")
+          doTasks("Ok")
         }
         .expect("0 MC")
     kim.count("Tag<WildTagElection<WildTag>>") shouldBe 0

@@ -18,7 +18,6 @@ internal class PsychrophilesTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$AdaptedLichen"),
               "9 Pay<> FROM MC",
-              "$AdaptedLichen FROM ProjectCard",
               "PROD[Plant]",
           )
         }
@@ -35,7 +34,6 @@ internal class PsychrophilesTest : TfmSandboxTest() {
               *playCardTasks("$AdaptedLichen"),
               "Ok", // Keep the microbes.
               "9 Pay<> FROM MC",
-              "$AdaptedLichen FROM ProjectCard",
               "PROD[Plant]",
           )
         }
@@ -54,7 +52,6 @@ internal class PsychrophilesTest : TfmSandboxTest() {
       doTasks(
           "5 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "Ok", // Nothing remains to pay in MC.
-          "$AdaptedLichen FROM ProjectCard",
           "PROD[Plant]",
       )
     }

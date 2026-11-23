@@ -19,7 +19,6 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$SponsoredAcademies"),
               "9 Pay<> FROM MC",
-              "$SponsoredAcademies FROM ProjectCard",
           )
           // Expand the reward into separate tasks for each other player.
           doTasks(
@@ -45,7 +44,6 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$SponsoredAcademies"),
             "9 Pay<> FROM MC",
-            "$SponsoredAcademies FROM ProjectCard",
         )
         // Expand the reward into separate tasks for each other player.
         doTasks(

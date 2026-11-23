@@ -268,7 +268,6 @@ internal abstract class TfmSandboxTest {
         player.inTurn {
           doTasks(
               "PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation${index + 1}>, Hand>",
-              "BeginnerCorporation${index + 1} FROM BeginnerCard",
               "42 MC",
               "10 ProjectCard<Hand FROM Selecting>",
           )

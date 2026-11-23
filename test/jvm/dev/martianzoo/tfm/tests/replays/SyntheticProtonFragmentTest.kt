@@ -123,7 +123,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     with(purple) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Recyclon>>",
-          "$Recyclon FROM CorporationCard",
           "38 MC",
           "PROD[Steel]",
           "12 Pay<> FROM MC",
@@ -135,7 +134,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     with(pink) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$RobinsonIndustries>>",
-          "$RobinsonIndustries FROM CorporationCard",
           "47 MC",
           "15 Pay<> FROM MC",
           "5 ProjectCard<Hand FROM Selecting>",
@@ -145,7 +143,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     with(green) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$SpliceTacticalGenomics>>",
-          "$SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
       doTask("2 MC", SpliceTacticalGenomics)
@@ -155,14 +152,12 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     with(purple) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AlbedoPlants>>",
-          "$AlbedoPlants FROM PreludeCard",
           "PROD[Plant]",
           "Plant",
           "3 Heat",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$SocietySupport>>",
-          "$SocietySupport FROM PreludeCard",
           "PROD[-MC]",
           "PROD[Plant]",
           "PROD[Energy]",
@@ -173,14 +168,12 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     with(pink) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
-          "$MetalsCompany FROM PreludeCard",
           "PROD[MC]",
           "PROD[Steel]",
           "PROD[Titanium]",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Biolab>>",
-          "$Biolab FROM PreludeCard",
           "PROD[Plant]",
           "3 ProjectCard",
       )
@@ -189,16 +182,13 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     with(green) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "PlayCard<Class<CorporationCard>, Class<$Inventrix>>",
-          "$Inventrix FROM CorporationCard<Selecting>",
           "45 MC",
           "-42 MC",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MoholeExcavation>>",
-          "$MoholeExcavation FROM PreludeCard",
           "PROD[Steel]",
           "PROD[2 Heat]",
           "2 Heat",
@@ -209,7 +199,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$DeepWellHeating"),
           "13 Pay<> FROM MC",
-          "$DeepWellHeating FROM ProjectCard",
           "PROD[Energy]",
           "TemperatureStep",
           "Microbe<$Recyclon>",
@@ -221,7 +210,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
-          "$EarthCatapult FROM ProjectCard",
       )
       doTasks(
           *cardActionTasks("$RobinsonIndustries"),
@@ -239,7 +227,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Lichen"),
           "7 Pay<> FROM MC",
-          "$Lichen FROM ProjectCard",
           "PROD[Plant]",
       )
     }
@@ -253,7 +240,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SolarLogistics"),
           "20 Pay<> FROM MC",
-          "$SolarLogistics FROM ProjectCard",
           "2 Titanium",
       )
     }
@@ -294,8 +280,8 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     )
 
     pink.turn {
-      doTasks(*playCardTasks("$MediaGroup"), "4 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
-      doTasks(*playCardTasks("$Sabotage"), "$Sabotage FROM ProjectCard", "3 MC", "-7 MC<Player1>")
+      doTasks(*playCardTasks("$MediaGroup"), "4 Pay<> FROM MC")
+      doTasks(*playCardTasks("$Sabotage"), "3 MC", "-7 MC<Player1>")
     }
 
     green.turn {
@@ -303,7 +289,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$AsteroidRights"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "$AsteroidRights FROM ProjectCard",
           "2 Asteroid<$AsteroidRights>",
       )
       doTasks(
@@ -317,14 +302,12 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ReleaseOfInertGases"),
           "14 Pay<> FROM MC",
-          "$ReleaseOfInertGases FROM ProjectCard",
           "2 TerraformRating",
       )
       doTasks(
           *playCardTasks("$MagneticFieldDome"),
           "1 Pay<Class<Steel>> FROM Steel",
           "3 Pay<> FROM MC",
-          "$MagneticFieldDome FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[Plant]",
           "TerraformRating",
@@ -338,13 +321,11 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$SolarWindPower"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "6 Pay<> FROM MC",
-          "$SolarWindPower FROM ProjectCard",
           "PROD[Energy]",
           "2 Titanium",
       )
       doTasks(
           *playCardTasks("$HiredRaiders"),
-          "$HiredRaiders FROM ProjectCard",
           "3 MC",
           "3 MC FROM MC<Player3>",
       )
@@ -354,7 +335,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Archaebacteria"),
           "6 Pay<> FROM MC",
-          "$Archaebacteria FROM ProjectCard",
           "PROD[Plant]",
       )
       doTask("2 MC", SpliceTacticalGenomics)
@@ -368,7 +348,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$LagrangeObservatory"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$LagrangeObservatory FROM ProjectCard",
           "ProjectCard",
       )
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Titanium]")
@@ -382,7 +361,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$MiningRights"),
           "1 Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Hellas_8_8>",
           "PROD[Titanium]",
           "Titanium",
@@ -391,7 +369,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$DirectedImpactors"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "$DirectedImpactors FROM ProjectCard",
       )
       doTasks(
           *cardActionTasks("$DirectedImpactors"),
@@ -440,7 +417,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$FueledGenerators"),
           "Ok", // Pay no steel.
           "1 Pay<> FROM MC",
-          "$FueledGenerators FROM ProjectCard",
           "PROD[-MC]",
           "PROD[Energy]",
       )
@@ -456,7 +432,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$PeroxidePower"),
           "1 Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$PeroxidePower FROM ProjectCard",
           "PROD[-MC]",
           "PROD[2 Energy]",
           "Microbe<$Recyclon>",
@@ -464,7 +439,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Hospitals"),
           "8 Pay<> FROM MC",
-          "$Hospitals FROM ProjectCard",
           "PROD[-Energy]",
           "Microbe<$Recyclon>",
       )
@@ -476,7 +450,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$GhgFactories"),
           "1 Pay<Class<Steel>> FROM Steel",
           "7 Pay<> FROM MC",
-          "$GhgFactories FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 Heat]",
       )
@@ -487,7 +460,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$CorporateStronghold"),
           "2 Pay<Class<Steel>> FROM Steel",
           "7 Pay<> FROM MC",
-          "$CorporateStronghold FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Hellas_2_4>",
@@ -502,7 +474,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$IndustrialCenter"),
           "4 Pay<> FROM MC",
-          "$IndustrialCenter FROM ProjectCard",
           "IndustrialCenter_SpecialTile<Hellas_2_3>",
           "Plant",
           "-2 Microbe<$Recyclon>",
@@ -534,7 +505,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$EcologicalZone"),
           "12 Pay<> FROM MC",
-          "$EcologicalZone FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "Animal<$EcologicalZone>",
           "3 Heat",
@@ -618,7 +588,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$PublicPlans"),
           "5 Pay<> FROM MC",
-          "$PublicPlans FROM ProjectCard",
           "3 MC",
           "6 ProjectCard<Revealed FROM Hand>",
           "6 ProjectCard<Hand FROM Revealed>",
@@ -631,14 +600,12 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$HeatTrappers"),
           "2 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "$HeatTrappers FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-2 Heat<Player2>]",
       )
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$HeatTrappers>",
           "PROD[Energy]",
           "PROD[-2 Heat<Player2>]",
@@ -650,7 +617,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$NaturalPreserve"),
           "2 Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$NaturalPreserve FROM ProjectCard",
           "PROD[MC]",
           "Microbe<$Recyclon>",
           "NaturalPreserve_SpecialTile<Hellas_3_7>",
@@ -663,7 +629,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     pink.turn {
       doTasks(
           *playCardTasks("$ProtectedGrowth"),
-          "$ProtectedGrowth FROM ProjectCard",
           "Plant",
           "3 MC",
       )
@@ -671,7 +636,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$Soletta"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "21 Pay<> FROM MC",
-          "$Soletta FROM ProjectCard",
           "PROD[7 Heat]",
       )
     }
@@ -684,7 +648,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$MercurianAlloys"),
           "Ok", // Pay no titanium.
           "3 Pay<> FROM MC",
-          "$MercurianAlloys FROM ProjectCard",
       )
     }
 
@@ -693,7 +656,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Psychrophiles"),
           "2 Pay<> FROM MC",
-          "$Psychrophiles FROM ProjectCard",
       )
       giveTask(green, "2 MC")
       doTask("Microbe<$Psychrophiles>")
@@ -704,7 +666,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$Mine"),
           "1 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }
@@ -758,7 +719,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$HermeticOrderOfMars"),
           "8 Pay<> FROM MC",
-          "$HermeticOrderOfMars FROM ProjectCard",
           "PROD[2 MC]",
           "6 MC",
       )
@@ -766,7 +726,7 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
     }
 
     green.turn {
-      doTasks(*playCardTasks("$Ants"), "9 Pay<> FROM MC", "$Ants FROM ProjectCard")
+      doTasks(*playCardTasks("$Ants"), "9 Pay<> FROM MC")
       doTask("2 MC", SpliceTacticalGenomics)
       doTask("2 MC")
       doTasks(*cardActionTasks("$Ants"), "-Microbe<Player1, $Recyclon<Player1>>", "Microbe<$Ants>")
@@ -797,7 +757,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$WeatherBalloons"),
           "11 Pay<> FROM MC",
-          "$WeatherBalloons FROM ProjectCard",
           "ProjectCard",
       )
       doTasks(*cardActionTasks("$WeatherBalloons"), "Floater<$WeatherBalloons>")
@@ -807,7 +766,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$TollStation"),
           "12 Pay<> FROM MC",
-          "$TollStation FROM ProjectCard",
           "PROD[7 MC]",
       )
       doTasks(
@@ -824,7 +782,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "5 Pay<> FROM MC",
-          "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
           "3 MC",
       )
@@ -835,7 +792,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$DiversitySupport"),
           "1 Pay<> FROM MC",
-          "$DiversitySupport FROM ProjectCard",
           "TerraformRating",
       )
       doTasks(
@@ -858,7 +814,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$CallistoPenalMines"),
           "6 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$CallistoPenalMines FROM ProjectCard",
           "PROD[3 MC]",
       )
       doTasks(
@@ -927,7 +882,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$CupolaCity"),
           "3 Pay<Class<Steel>> FROM Steel",
           "10 Pay<> FROM MC",
-          "$CupolaCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "CityTile<Hellas_4_3>",
@@ -948,7 +902,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           "2 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "5 Pay<Class<Steel>> FROM Steel",
           "9 Pay<> FROM MC",
-          "$ProtectedValley FROM ProjectCard",
           "PROD[2 MC]",
           "Animal<$EcologicalZone>",
           "3 Heat",
@@ -965,7 +918,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$LavaFlows"),
           "16 Pay<> FROM MC",
-          "$LavaFlows FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "3 MC",
@@ -989,7 +941,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Hackers"),
           "3 Pay<> FROM MC",
-          "$Hackers FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
           "PROD[-2 MC<Player2>]",
@@ -1027,7 +978,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ViralEnhancers"),
           "9 Pay<> FROM MC",
-          "$ViralEnhancers FROM ProjectCard",
       )
       doTask("2 MC", SpliceTacticalGenomics)
       doTasks("Plant", "2 MC")
@@ -1058,7 +1008,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$RadChemFactory"),
           "3 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$RadChemFactory FROM ProjectCard",
           "PROD[-Energy]",
           "2 TerraformRating",
       )
@@ -1131,7 +1080,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$DuskLaserMining"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$DuskLaserMining FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[Titanium]",
           "4 Titanium",
@@ -1153,7 +1101,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$BioPrintingFacility"),
           "3 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$BioPrintingFacility FROM ProjectCard",
           "Microbe<$Recyclon>",
       )
     }
@@ -1164,7 +1111,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$AsteroidCard"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
       )
@@ -1200,7 +1146,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ImportedNutrients"),
           "14 Pay<> FROM MC",
-          "$ImportedNutrients FROM ProjectCard",
           "4 Plant",
       )
       giveTask(green, "ProjectCard")
@@ -1227,11 +1172,10 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$SterlingVents"),
           "2 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$SterlingVents FROM ProjectCard",
           "PROD[-2 Heat]",
           "PROD[2 Energy]",
       )
-      doTasks(*playCardTasks("$Algae"), "10 Pay<> FROM MC", "$Algae FROM ProjectCard")
+      doTasks(*playCardTasks("$Algae"), "10 Pay<> FROM MC")
       doTask("Plant", Algae)
       doTasks("PROD[2 Plant]", "Plant")
     }
@@ -1240,7 +1184,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Supercapacitors"),
           "4 Pay<> FROM MC",
-          "$Supercapacitors FROM ProjectCard",
           "PROD[MC]",
           "-2 Microbe<$Recyclon>",
           "PROD[Plant]",
@@ -1253,7 +1196,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$IoMiningIndustries"),
           "9 Pay<Class<Titanium>> FROM Titanium",
           "12 Pay<> FROM MC",
-          "$IoMiningIndustries FROM ProjectCard",
           "PROD[2 Titanium]",
           "PROD[2 MC]",
       )
@@ -1269,7 +1211,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Grass"),
           "11 Pay<> FROM MC",
-          "$Grass FROM ProjectCard",
           "PROD[Plant]",
           "3 Plant",
           "Plant", // choose Viral Enhancers' plant
@@ -1371,7 +1312,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$LakeMarineris"),
           "16 Pay<> FROM MC",
-          "$LakeMarineris FROM ProjectCard",
           "OceanTile<Hellas_4_6>",
           "TerraformRating",
           "Plant",
@@ -1384,7 +1324,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MiningExpedition"),
           "10 Pay<> FROM MC",
-          "$MiningExpedition FROM ProjectCard",
           "OxygenStep",
           "2 Steel",
           "3 MC",
@@ -1398,7 +1337,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$IceAsteroid"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "15 Pay<> FROM MC",
-          "$IceAsteroid FROM ProjectCard",
           "ProjectCard",
           "OceanTile<Hellas_7_3>",
           "TerraformRating",
@@ -1421,7 +1359,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$FieldCappedCity"),
           "2 Pay<Class<Steel>> FROM Steel",
           "25 Pay<> FROM MC",
-          "$FieldCappedCity FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[Energy]",
           "3 Plant",
@@ -1437,7 +1374,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$ConvoyFromEuropa"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$ConvoyFromEuropa FROM ProjectCard",
           "ProjectCard",
       )
       giveTask(green, "ProjectCard")
@@ -1446,7 +1382,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$VestaShipyard"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "7 Pay<> FROM MC",
-          "$VestaShipyard FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -1466,7 +1401,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SaturnSurfing"),
           "11 Pay<> FROM MC",
-          "$SaturnSurfing FROM ProjectCard",
           "3 Floater<$SaturnSurfing>",
       )
     }
@@ -1475,7 +1409,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$RobotPollinators"),
           "9 Pay<> FROM MC",
-          "$RobotPollinators FROM ProjectCard",
           "PROD[Plant]",
           "3 Plant",
       )
@@ -1494,13 +1427,11 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
-          "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
       )
       doTasks(
           *playCardTasks("$ProjectInspection"),
-          "$ProjectInspection FROM ProjectCard",
           "UseAction<$Hospitals, Action1>",
           "-Disease<$Hospitals>",
           "4 MC",
@@ -1517,7 +1448,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$EquatorialMagnetizer"),
           "1 Pay<Class<Steel>> FROM Steel",
           "9 Pay<> FROM MC",
-          "$EquatorialMagnetizer FROM ProjectCard",
       )
     }
 
@@ -1525,7 +1455,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "3 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Player3>]",
       )
@@ -1609,7 +1538,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
       doTasks(
           *playCardTasks("$ProtectedHabitats"),
           "5 Pay<> FROM MC",
-          "$ProtectedHabitats FROM ProjectCard",
       )
     }
 
@@ -1625,7 +1553,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$HousePrinting"),
           "4 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$HousePrinting FROM ProjectCard",
           "PROD[Steel]",
       )
     }
@@ -1635,7 +1562,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$TechnologyDemonstration"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
           "ProjectCard",
       )
@@ -1647,7 +1573,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$AdaptedLichen"),
           "3 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>",
           "3 Pay<> FROM MC",
-          "$AdaptedLichen FROM ProjectCard",
           "PROD[Plant]",
           "Animal<$EcologicalZone>",
           "3 Heat",
@@ -1666,7 +1591,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$BeamFromAThoriumAsteroid"),
           "7 Pay<Class<Titanium>> FROM Titanium",
           "9 Pay<> FROM MC",
-          "$BeamFromAThoriumAsteroid FROM ProjectCard",
           "PROD[3 Heat]",
           "PROD[3 Energy]",
       )
@@ -1677,13 +1601,11 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$Windmills"),
           "1 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
-          "$Windmills FROM ProjectCard",
           "PROD[Energy]",
       )
       doTasks(
           *playCardTasks("$BactoviralResearch"),
           "10 Pay<> FROM MC",
-          "$BactoviralResearch FROM ProjectCard",
           "ProjectCard",
       )
       doTask("2 MC", SpliceTacticalGenomics)
@@ -1700,7 +1622,6 @@ internal class SyntheticProtonFragmentTest : FullGameTest() {
           *playCardTasks("$MagneticFieldGeneratorsPromo"),
           "10 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$MagneticFieldGeneratorsPromo FROM ProjectCard",
           "PROD[-4 Energy]",
           "PROD[2 Plant]",
           "3 TerraformRating",

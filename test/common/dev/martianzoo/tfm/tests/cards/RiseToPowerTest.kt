@@ -11,7 +11,6 @@ internal class RiseToPowerTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$CorridorsOfPower>>",
-          "$CorridorsOfPower FROM PreludeCard",
           "TerraformRating",
           "4 MC",
       )
@@ -20,7 +19,6 @@ internal class RiseToPowerTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$RiseToPower>>",
-              "$RiseToPower FROM PreludeCard",
               "PROD[3 MC]",
               "PartyLeader<Scientists>",
               "ProjectCard<Hand>",

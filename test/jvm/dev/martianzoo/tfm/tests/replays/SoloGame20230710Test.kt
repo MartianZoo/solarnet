@@ -64,7 +64,6 @@ internal class SoloGame20230710Test : FullGameTest() {
     with(me) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
-          "$PharmacyUnion FROM CorporationCard",
           "SearchForCard<TagFilter<Class<ScienceTag>>>",
           "54 MC",
           "30 Pay<> FROM MC",
@@ -76,10 +75,8 @@ internal class SoloGame20230710Test : FullGameTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "PlayCard<Class<CorporationCard>, Class<$Manutech>>",
-          "$Manutech FROM CorporationCard<Selecting>",
           "35 MC",
           "-42 MC",
           "PROD[Steel]",
@@ -87,7 +84,6 @@ internal class SoloGame20230710Test : FullGameTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
-          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
           "22 MC",
       )
@@ -96,14 +92,12 @@ internal class SoloGame20230710Test : FullGameTest() {
           *playCardTasks("$OlympusConference"),
           "3 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
-          "$OlympusConference FROM ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
           "Science<$OlympusConference>",
       )
       doTasks(
           *playCardTasks("$StandardTechnology"),
           "6 Pay<> FROM MC",
-          "$StandardTechnology FROM ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
           "ProjectCard FROM Science",
       )
@@ -111,7 +105,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$AdvancedAlloys"),
             "9 Pay<> FROM MC",
-            "$AdvancedAlloys FROM ProjectCard",
             "Science<$OlympusConference>",
             "PlayedEvent FROM $PharmacyUnion",
             "3 TerraformRating",
@@ -119,7 +112,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$IndustrialMicrobes"),
             "12 Pay<> FROM MC",
-            "$IndustrialMicrobes FROM ProjectCard",
             "PROD[Energy]",
             "PROD[Steel]",
             "Energy",
@@ -161,7 +153,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$CarbonateProcessing"),
             "2 Pay<Class<Steel>> FROM Steel",
             "0 Pay<> FROM MC", // no MC remainder
-            "$CarbonateProcessing FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[3 Heat]",
             "3 Heat",
@@ -199,7 +190,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$DeepWellHeating"),
             "3 Pay<Class<Steel>> FROM Steel",
             "4 Pay<> FROM MC",
-            "$DeepWellHeating FROM ProjectCard",
             "PROD[Energy]",
             "TemperatureStep",
             "Energy",
@@ -214,7 +204,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$NoctisCity"),
             "18 Pay<> FROM MC",
-            "$NoctisCity FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[3 MC]",
             "CityTile<Tharsis_5_3>",
@@ -224,7 +213,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$FueledGenerators"),
             "1 Pay<> FROM MC",
-            "$FueledGenerators FROM ProjectCard",
             "PROD[-MC]",
             "PROD[Energy]",
             "Energy",
@@ -255,7 +243,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$EnergySaving"),
             "15 Pay<> FROM MC",
-            "$EnergySaving FROM ProjectCard",
             "PROD[3 Energy]",
             "3 Energy",
         )
@@ -326,7 +313,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$GiantSolarShade"),
             "27 Pay<> FROM MC",
-            "$GiantSolarShade FROM ProjectCard",
             "VenusStep",
             "VenusStep",
             "VenusStep",
@@ -338,7 +324,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$GeothermalPower"),
             "3 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$GeothermalPower FROM ProjectCard",
             "PROD[2 Energy]",
             "2 Energy",
         )
@@ -390,14 +375,12 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$MineralDeposit"),
             "5 Pay<> FROM MC",
-            "$MineralDeposit FROM ProjectCard",
             "5 Steel",
         )
         doTasks(
             *playCardTasks("$FieldCappedCity"),
             "8 Pay<Class<Steel>> FROM Steel",
             "5 Pay<> FROM MC",
-            "$FieldCappedCity FROM ProjectCard",
             "PROD[2 MC]",
             "PROD[Energy]",
             "3 Plant",
@@ -438,7 +421,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$AsteroidRights"),
             "10 Pay<> FROM MC",
-            "$AsteroidRights FROM ProjectCard",
             "2 Asteroid<$AsteroidRights>",
         )
         doTasks(
@@ -455,14 +437,12 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$ViralEnhancers"),
             "9 Pay<> FROM MC",
-            "$ViralEnhancers FROM ProjectCard",
             "Plant",
             "ProjectCard FROM Science",
         )
         doTasks(
             *playCardTasks("$QuantumExtractor"),
             "13 Pay<> FROM MC",
-            "$QuantumExtractor FROM ProjectCard",
             "PROD[4 Energy]",
             "Science<$OlympusConference>",
             "4 Energy",
@@ -471,7 +451,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$SoilFactory"),
             "2 Pay<Class<Steel>> FROM Steel",
             "3 Pay<> FROM MC",
-            "$SoilFactory FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[Plant]",
             "Plant",
@@ -527,7 +506,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$GiantIceAsteroid"),
             "4 Pay<Class<Titanium>> FROM Titanium",
             "18 Pay<> FROM MC",
-            "$GiantIceAsteroid FROM ProjectCard",
             "TemperatureStep",
             "TemperatureStep",
             "2 TerraformRating",
@@ -553,7 +531,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$MagneticShield"),
             "22 Pay<> FROM MC",
-            "$MagneticShield FROM ProjectCard",
             "4 TerraformRating",
         )
       }
@@ -597,7 +574,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$ResearchOutpost"),
             "4 Pay<Class<Steel>> FROM Steel",
             "6 Pay<> FROM MC",
-            "$ResearchOutpost FROM ProjectCard",
             "ProjectCard FROM Science",
             "CityTile<Tharsis_8_6>",
             "ProjectCard",
@@ -605,7 +581,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$IceMoonColony"),
             "20 Pay<> FROM MC",
-            "$IceMoonColony FROM ProjectCard",
             "Colony<Ganymede>",
             "PROD[Plant]",
             "Plant",
@@ -639,7 +614,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$PermafrostExtraction"),
             "7 Pay<> FROM MC",
-            "$PermafrostExtraction FROM ProjectCard",
             "OceanTile<Tharsis_9_9>",
             "TerraformRating",
             "2 Titanium",
@@ -671,7 +645,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$MiningExpedition"),
             "11 Pay<> FROM MC",
-            "$MiningExpedition FROM ProjectCard",
             "OxygenStep",
             "2 Steel",
             "TerraformRating",
@@ -693,7 +666,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$StripMine"),
             "4 Pay<Class<Steel>> FROM Steel",
             "12 Pay<> FROM MC",
-            "$StripMine FROM ProjectCard",
             "PROD[-2 Energy]",
             "PROD[2 Steel]",
             "PROD[Titanium]",
@@ -709,7 +681,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$SubZeroSaltFish"),
             "4 Pay<> FROM MC",
-            "$SubZeroSaltFish FROM ProjectCard",
             "PROD[-Plant<SoloOpponent>]",
             "Animal<$SubZeroSaltFish>", // Viral Enhancers
         )
@@ -722,7 +693,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$GhgProducingBacteria"),
             "7 Pay<> FROM MC",
-            "$GhgProducingBacteria FROM ProjectCard",
             "Science<$OlympusConference>",
             "Plant",
         )
@@ -730,7 +700,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$ImportedNitrogen"),
             "5 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$ImportedNitrogen FROM ProjectCard",
             "TerraformRating",
             "4 Plant",
             "3 Microbe<$GhgProducingBacteria>",
@@ -749,7 +718,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$ArtificialLake"),
             "4 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$ArtificialLake FROM ProjectCard",
             "OceanTile<Tharsis_6_6>",
             "TerraformRating",
             "Plant",
@@ -766,7 +734,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$RefugeeCamps"),
             "9 Pay<> FROM MC",
-            "$RefugeeCamps FROM ProjectCard",
         )
         doTasks(*cardActionTasks("$RefugeeCamps"), "PROD[-MC]", "Camp<$RefugeeCamps>")
         doTasks(
@@ -823,7 +790,6 @@ internal class SoloGame20230710Test : FullGameTest() {
         doTasks(
             *playCardTasks("$IceCapMelting"),
             "4 Pay<> FROM MC",
-            "$IceCapMelting FROM ProjectCard",
             "OceanTile<Tharsis_1_4>",
             "TerraformRating",
             "ProjectCard",
@@ -838,7 +804,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$TransNeptuneProbe"),
             "Ok", // no titanium paid
             "3 Pay<> FROM MC",
-            "$TransNeptuneProbe FROM ProjectCard",
             "ProjectCard FROM Science",
         )
         doTasks(
@@ -854,7 +819,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$UrbanizedArea"),
             "3 Pay<Class<Steel>> FROM Steel",
             "0 Pay<> FROM MC", // no MC remainder
-            "$UrbanizedArea FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[2 MC]",
             "2 MC",
@@ -883,7 +847,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$JovianEmbassy"),
             "3 Pay<Class<Steel>> FROM Steel",
             "4 Pay<> FROM MC",
-            "$JovianEmbassy FROM ProjectCard",
             "TerraformRating",
         )
         doTasks(
@@ -897,7 +860,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$DawnCity"),
             "1 Pay<Class<Titanium>> FROM Titanium",
             "8 Pay<> FROM MC",
-            "$DawnCity FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[Titanium]",
             "CityTile<DawnCity_RemoteArea>",
@@ -962,7 +924,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$MagneticFieldDome"),
             "1 Pay<Class<Steel>> FROM Steel",
             "1 Pay<> FROM MC",
-            "$MagneticFieldDome FROM ProjectCard",
             "PROD[-2 Energy]",
             "PROD[Plant]",
             "TerraformRating",
@@ -981,7 +942,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$InterstellarColonyShip"),
             "5 Pay<Class<Titanium>> FROM Titanium",
             "1 Pay<> FROM MC",
-            "$InterstellarColonyShip FROM ProjectCard",
         )
         doTasks(
             "UseAction<TradeAction, Action2>",
@@ -1001,7 +961,6 @@ internal class SoloGame20230710Test : FullGameTest() {
             *playCardTasks("$SpacePort"),
             "6 Pay<Class<Steel>> FROM Steel",
             "3 Pay<> FROM MC",
-            "$SpacePort FROM ProjectCard",
             "TradeFleet",
             "PROD[-Energy]",
             "PROD[4 MC]",

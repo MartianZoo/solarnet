@@ -17,7 +17,6 @@ internal class NitrogenRichAsteroidTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$NitrogenRichAsteroid"),
           "31 Pay<> FROM MC",
-          "$NitrogenRichAsteroid FROM ProjectCard",
           "2 TerraformRating",
           "TemperatureStep",
           "TerraformRating",

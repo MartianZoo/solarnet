@@ -38,7 +38,6 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$GiantIceAsteroid"),
           "36 Pay<> FROM MC",
-          "$GiantIceAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "TerraformRating",
@@ -71,7 +70,6 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$GiantIceAsteroid"),
           "36 Pay<> FROM MC",
-          "$GiantIceAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "TerraformRating",

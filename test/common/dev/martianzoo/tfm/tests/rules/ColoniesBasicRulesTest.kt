@@ -63,7 +63,6 @@ internal class ColoniesBasicRulesTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Pets"),
               "10 Pay<> FROM MC",
-              "$Pets FROM ProjectCard",
               "Animal<$Pets>",
           )
         }
@@ -127,7 +126,6 @@ internal class ColoniesBasicRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Pets"),
           "10 Pay<> FROM MC",
-          "$Pets FROM ProjectCard",
           "Animal<$Pets>",
       )
     }

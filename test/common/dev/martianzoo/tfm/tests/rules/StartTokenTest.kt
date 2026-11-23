@@ -117,7 +117,6 @@ internal class StartTokenTest : TfmGameplayTest() {
       p2.completeOperation {
         doTasks(
             "PlayCard<Class<CorporationCard>, Class<$CrediCor>>",
-            "$CrediCor FROM CorporationCard",
             "57 MC",
             "15 Pay<> FROM MC",
             "5 ProjectCard<Hand FROM Selecting>",
@@ -126,7 +125,6 @@ internal class StartTokenTest : TfmGameplayTest() {
       p1.completeOperation {
         doTasks(
             "PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>",
-            "$InterplanetaryCinematics FROM CorporationCard",
             "30 MC",
             "20 Steel",
             "21 Pay<> FROM MC",

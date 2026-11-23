@@ -54,31 +54,26 @@ internal class UnmiTest : TfmSandboxTest() {
       newTestGame(addOptions = "PreludeExpansion", playerCount = 2, kimCorporation = CrediCor)
       kim.doTasks(
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
-          "$UnmiContractor FROM PreludeCard",
           "3 TerraformRating",
           "ProjectCard",
       )
       kim.completeOperation {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-            "$Merger FROM PreludeCard",
             "4 CorporationCard<Selecting>",
             "PlayCard<Class<CorporationCard>, Class<$UnitedNationsMarsInitiative>>",
-            "$UnitedNationsMarsInitiative FROM CorporationCard<Selecting>",
             "40 MC",
             "-42 MC",
         )
       }
       stan.doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
-          "$Supplier FROM PreludeCard",
           "PROD[2 Energy]",
           "4 Steel",
       )
 
       stan.doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
-          "$MetalsCompany FROM PreludeCard",
           "PROD[MC]",
           "PROD[Steel]",
           "PROD[Titanium]",
@@ -100,25 +95,21 @@ internal class UnmiTest : TfmSandboxTest() {
       )
       kim.doTasks(
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
-          "$UnmiContractor FROM PreludeCard",
           "3 TerraformRating",
           "ProjectCard",
       )
       kim.doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
       stan.doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
-          "$Supplier FROM PreludeCard",
           "PROD[2 Energy]",
           "4 Steel",
       )
 
       stan.doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
-          "$MetalsCompany FROM PreludeCard",
           "PROD[MC]",
           "PROD[Steel]",
           "PROD[Titanium]",

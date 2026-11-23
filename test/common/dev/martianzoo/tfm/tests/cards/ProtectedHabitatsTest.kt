@@ -66,7 +66,6 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$AsteroidCard"),
             "14 Pay<> FROM MC",
-            "$AsteroidCard FROM ProjectCard",
             "TemperatureStep",
             "2 Titanium",
             "TerraformRating",

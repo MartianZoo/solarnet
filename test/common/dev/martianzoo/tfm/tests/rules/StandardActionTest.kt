@@ -23,12 +23,20 @@ internal class StandardActionTest : TfmSandboxTest() {
         doTask("PlayCard<Class<ProjectCard>, Class<$Mine>, Revealed>")
       }
       kim.count("MC") shouldBe 20
-      doTasks(
-          "PlayCard<Class<ProjectCard>, Class<$Mine>, Hand>",
-          "4 Pay<> FROM MC",
-          "$Mine FROM ProjectCard",
-          "PROD[Steel]",
-      )
+      doTask("PlayCard<Class<ProjectCard>, Class<$Mine>, Hand>")
+      kim.count("$Mine") shouldBe 0
+      val productionBefore = kim.count("PROD[Steel]")
+      val paymentStart = game.events.nextOrdinal
+      doTask("4 Pay<> FROM MC")
+      kim.count("$Mine") shouldBe 1
+      kim.count("PROD[Steel]") shouldBe productionBefore
+      game.events
+          .changesSince(paymentStart)
+          .single {
+            it.change.gaining?.expression?.className == Mine
+          }
+          .actor shouldBe kim.actor
+      doTask("PROD[Steel]")
     }
     game.isIdle() shouldBe true
   }

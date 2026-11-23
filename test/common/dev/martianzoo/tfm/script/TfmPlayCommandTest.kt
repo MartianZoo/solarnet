@@ -21,10 +21,8 @@ internal class TfmPlayCommandTest {
     repl.agent.runOperation("ProjectCard, 4 MC")
     repl.command("phase Action")
     repl.command("turn")
-    repl.agent.doTasks(
-        "UseAction<PlayCardAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<Mine>, Hand>",
-    )
+    repl.agent.doTask("UseAction<PlayCardAction, Action1>")
+    assertEquals(0, repl.agent.count("Mine"))
 
     val result = repl.command("tfm_play Mine, 4 MC")
 
@@ -48,7 +46,6 @@ internal class TfmPlayCommandTest {
     repl.agent.autoExecPolicy = NONE
     repl.agent.doTasks(
         "PlayCard<Class<CorporationCard>, Class<SaturnSystems>>",
-        "SaturnSystems FROM CorporationCard",
         "42 MC",
         "PROD[Titanium]",
         "PROD[MC]",

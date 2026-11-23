@@ -66,7 +66,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
     p1.draw(EarthOffice, FloatingRefinery, AdaptedLichen, OptimalAerobraking, Lichen)
     p1.doTasks(
         "PlayCard<Class<CorporationCard>, Class<$CheungShingMars>>",
-        "$CheungShingMars FROM CorporationCard",
         "44 MC",
         "PROD[3 MC]",
         "15 Pay<> FROM MC",
@@ -76,13 +75,11 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       draw(CorroderSuits)
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$VenusContract>>",
-          "$VenusContract FROM PreludeCard",
           "SearchForCard<TagFilter<Class<VenusTag>>>",
           "TerraformRating",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AppliedScience>>",
-          "$AppliedScience FROM PreludeCard",
           "6 Science<$AppliedScience>",
       )
     }
@@ -158,18 +155,16 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
 
   private fun Agent.generation1() {
     turn {
-      doTasks(*playCardTasks("$EarthOffice"), "Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
+      doTasks(*playCardTasks("$EarthOffice"), "Pay<> FROM MC")
       doTasks(
           *playCardTasks("$CorroderSuits"),
           "8 Pay<> FROM MC",
-          "$CorroderSuits FROM ProjectCard",
           "PROD[2 MC]",
           "Science<$AppliedScience>",
       )
       doTasks(
           *playCardTasks("$FloatingRefinery"),
           "7 Pay<> FROM MC",
-          "$FloatingRefinery FROM ProjectCard",
           "4 Floater<$FloatingRefinery>",
       )
       doTasks(
@@ -182,14 +177,12 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$AdaptedLichen"),
           "9 Pay<> FROM MC",
-          "$AdaptedLichen FROM ProjectCard",
           "PROD[Plant]",
       )
       doTasks(
           *playCardTasks("$OptimalAerobraking"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "Pay<> FROM MC",
-          "$OptimalAerobraking FROM ProjectCard",
       )
     }
     doTask("Pass")
@@ -220,7 +213,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$FloaterTechnology"),
           "7 Pay<> FROM MC",
-          "$FloaterTechnology FROM ProjectCard",
       )
       doTasks(*cardActionTasks("$FloaterTechnology"), "Floater<$FloatingRefinery>")
       doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Titanium")
@@ -247,7 +239,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$BusinessNetwork"),
           "Pay<> FROM MC",
-          "$BusinessNetwork FROM ProjectCard",
           "PROD[-MC]",
       )
       draw(Capital)
@@ -270,20 +261,17 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MartianSurvey"),
           "9 Pay<> FROM MC",
-          "$MartianSurvey FROM ProjectCard",
           "2 ProjectCard",
       )
       doTasks(
           *playCardTasks("$SkyDocks"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "$SkyDocks FROM ProjectCard",
           "TradeFleet",
       )
       doTasks(
           *playCardTasks("$LunarMining"),
           "7 Pay<> FROM MC",
-          "$LunarMining FROM ProjectCard",
           "PROD[2 Titanium]",
       )
     }
@@ -320,7 +308,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Flooding"),
           "6 Pay<> FROM MC",
-          "$Flooding FROM ProjectCard",
           "OceanTile<Hellas_5_6>",
           "TerraformRating",
           "ProjectCard",
@@ -341,7 +328,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           *playCardTasks("$PioneerSettlement"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "3 Pay<> FROM MC",
-          "$PioneerSettlement FROM ProjectCard",
           "PROD[-2 MC]",
           "Colony<Triton>",
           "3 Titanium",
@@ -349,7 +335,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "3 Pay<> FROM MC",
-          "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
       )
     }
@@ -385,7 +370,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           *playCardTasks("$GhgImportFromVenus"),
           "6 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "$GhgImportFromVenus FROM ProjectCard",
           "VenusStep",
           "PROD[3 Heat]",
           "3 MC",
@@ -396,7 +380,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$SubCrustMeasurements"),
           "14 Pay<> FROM MC",
-          "$SubCrustMeasurements FROM ProjectCard",
       )
       draw(WaterSplittingPlant)
       doTasks(*cardActionTasks("$SubCrustMeasurements"), "ProjectCard")
@@ -432,7 +415,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       )
       doTasks(
           *playCardTasks("$AirRaid"),
-          "$AirRaid FROM ProjectCard",
           "-Floater<$FloatingRefinery>",
           "5 MC FROM MC<SoloOpponent>",
       )
@@ -457,7 +439,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$SulphurEatingBacteria"),
           "5 Pay<> FROM MC",
-          "$SulphurEatingBacteria FROM ProjectCard",
       )
       doTasks(*cardActionTasks("$SulphurEatingBacteria"), "Microbe<$SulphurEatingBacteria>")
       doTasks(
@@ -468,14 +449,12 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ArcticAlgae"),
           "11 Pay<> FROM MC",
-          "$ArcticAlgae FROM ProjectCard",
           "Plant",
       )
       doTasks(
           *playCardTasks("$TransNeptuneProbe"),
           "Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "$TransNeptuneProbe FROM ProjectCard",
       )
     }
     doTask("Pass")
@@ -524,7 +503,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           *playCardTasks("$MiningColony"),
           "5 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "$MiningColony FROM ProjectCard",
           "PROD[Titanium]",
           "Colony<Enceladus>",
           "3 Microbe<$SulphurEatingBacteria>",
@@ -543,7 +521,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Lichen"),
           "6 Pay<> FROM MC",
-          "$Lichen FROM ProjectCard",
           "PROD[Plant]",
       )
       // Test inference: the log gives the sale count, but omits the card identities.
@@ -552,7 +529,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$LavaFlows"),
           "17 Pay<> FROM MC",
-          "$LavaFlows FROM ProjectCard",
           "2 TemperatureStep",
           "2 TerraformRating",
           "PROD[Heat]",
@@ -595,12 +571,10 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ForcedPrecipitation"),
           "7 Pay<> FROM MC",
-          "$ForcedPrecipitation FROM ProjectCard",
       )
       doTasks(
           *playCardTasks("$FloaterPrototypes"),
           "Pay<> FROM MC",
-          "$FloaterPrototypes FROM ProjectCard",
           "2 Floater<$ForcedPrecipitation>",
       )
       draw(VenusSoils)
@@ -633,7 +607,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           *playCardTasks("$ImportOfAdvancedGhg"),
           "Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "$ImportOfAdvancedGhg FROM ProjectCard",
           "PROD[2 Heat]",
           "3 MC",
           "3 Heat",
@@ -696,7 +669,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           *playCardTasks("$ResearchColony"),
           "6 Pay<Class<Titanium>> FROM Titanium",
           "Pay<> FROM MC",
-          "$ResearchColony FROM ProjectCard",
           "2 ProjectCard",
           "Colony<Titan>",
           "3 Floater<$ForcedPrecipitation>",
@@ -704,7 +676,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ResearchOutpost"),
           "15 Pay<> FROM MC",
-          "$ResearchOutpost FROM ProjectCard",
           "NormalCityTile<Hellas_4_3>",
           "Steel",
       )
@@ -731,7 +702,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$TerraformingContract"),
           "3 Pay<> FROM MC",
-          "$TerraformingContract FROM ProjectCard",
           "PROD[4 MC]",
       )
     }
@@ -784,15 +754,13 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       )
       doTasks(
           *playCardTasks("$InvestmentLoan"),
-          "$InvestmentLoan FROM ProjectCard",
           "PROD[-MC]",
           "10 MC",
       )
-      doTasks(*playCardTasks("$Pets"), "5 Pay<> FROM MC", "$Pets FROM ProjectCard", "Animal<$Pets>")
+      doTasks(*playCardTasks("$Pets"), "5 Pay<> FROM MC", "Animal<$Pets>")
       doTasks(
           *playCardTasks("$VenusSoils"),
           "18 Pay<> FROM MC",
-          "$VenusSoils FROM ProjectCard",
           "VenusStep",
           "PROD[Plant]",
           "TerraformRating",
@@ -815,21 +783,18 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Grass"),
           "9 Pay<> FROM MC",
-          "$Grass FROM ProjectCard",
           "PROD[Plant]",
           "3 Plant",
       )
       doTasks(
           *playCardTasks("$Heather"),
           "4 Pay<> FROM MC",
-          "$Heather FROM ProjectCard",
           "PROD[Plant]",
           "Plant",
       )
       doTasks(
           *playCardTasks("$RobotPollinators"),
           "7 Pay<> FROM MC",
-          "$RobotPollinators FROM ProjectCard",
           "PROD[Plant]",
           "7 Plant",
       )
@@ -839,7 +804,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           *playCardTasks("$Gyropolis"),
           "5 Pay<Class<Steel>> FROM Steel",
           "6 Pay<> FROM MC",
-          "$Gyropolis FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[14 MC]",
           "NormalCityTile<Hellas_1_3>",
@@ -912,7 +876,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           *playCardTasks("$Comet"),
           "6 Pay<Class<Titanium>> FROM Titanium",
           "Pay<> FROM MC",
-          "$Comet FROM ProjectCard",
           "TemperatureStep",
           "3 MC",
           "3 Heat",
@@ -956,13 +919,11 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           *playCardTasks("$Greenhouses"),
           "Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "$Greenhouses FROM ProjectCard",
           "4 Plant",
       )
       doTasks(
           *playCardTasks("$SoilStudies"),
           "11 Pay<> FROM MC",
-          "$SoilStudies FROM ProjectCard",
           "18 Plant",
       )
       doTasks(*standardProjectTasks("PowerPlantProject"), "11 Pay<> FROM MC", "PROD[Energy]")
@@ -970,7 +931,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Capital"),
           "22 Pay<> FROM MC",
-          "$Capital FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[5 MC]",
           "CapitalTile<Hellas_2_2, $Capital>",
@@ -1032,7 +992,6 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MiningExpedition"),
           "10 Pay<> FROM MC",
-          "$MiningExpedition FROM ProjectCard",
           "OxygenStep",
           "2 Steel",
           "TerraformRating",
@@ -1088,14 +1047,12 @@ internal class KineticCarbonStateTest : CardTrackingFullGameTest() {
           *playCardTasks("$Teslaract"),
           "2 Pay<Class<Steel>> FROM Steel",
           "6 Pay<> FROM MC",
-          "$Teslaract FROM ProjectCard",
           "TerraformRating",
       )
       doTasks(
           *playCardTasks("$NitrogenRichAsteroid"),
           "Pay<Class<Titanium>> FROM Titanium",
           "26 Pay<> FROM MC",
-          "$NitrogenRichAsteroid FROM ProjectCard",
           "2 TerraformRating",
           "TemperatureStep",
           "3 MC",

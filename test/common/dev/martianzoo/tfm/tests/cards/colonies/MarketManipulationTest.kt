@@ -19,7 +19,6 @@ internal class MarketManipulationTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$MarketManipulation"),
               "1 Pay<> FROM MC",
-              "$MarketManipulation FROM ProjectCard",
           )
           // Hand the transfer to Admin, which updates both colony tracks.
           selectTask("ColonyProduction<Luna FROM Triton>!")
@@ -36,7 +35,6 @@ internal class MarketManipulationTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MarketManipulation"),
             "1 Pay<> FROM MC",
-            "$MarketManipulation FROM ProjectCard",
         )
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
@@ -54,7 +52,6 @@ internal class MarketManipulationTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MarketManipulation"),
             "1 Pay<> FROM MC",
-            "$MarketManipulation FROM ProjectCard",
         )
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
@@ -70,7 +67,6 @@ internal class MarketManipulationTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MarketManipulation"),
             "1 Pay<> FROM MC",
-            "$MarketManipulation FROM ProjectCard",
         )
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
@@ -86,7 +82,6 @@ internal class MarketManipulationTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MarketManipulation"),
             "1 Pay<> FROM MC",
-            "$MarketManipulation FROM ProjectCard",
         )
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
@@ -102,7 +97,6 @@ internal class MarketManipulationTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MarketManipulation"),
             "1 Pay<> FROM MC",
-            "$MarketManipulation FROM ProjectCard",
         )
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")

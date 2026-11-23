@@ -31,7 +31,6 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
           *playCardTasks("$Mine"),
           "Ok" /* No Steel payment. */,
           "4 Pay<> FROM MC",
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }
@@ -74,27 +73,23 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>",
-          "$ExcentricSponsor FROM PreludeCard",
           "PlayCard<Class<ProjectCard>, Class<$Soletta>>",
       )
       // Hand the discount to Admin before the remaining payment is offered.
       selectTask("-25* Owed")
-      doTasks("10 Pay<> FROM MC", "$Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks("10 Pay<> FROM MC", "PROD[7 Heat]")
     }
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-        "$Donation FROM PreludeCard",
         "21 MC",
     )
     stan.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$Biolab>>",
-        "$Biolab FROM PreludeCard",
         "PROD[Plant]",
         "3 ProjectCard",
     )
     stan.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$SupplyDrop>>",
-        "$SupplyDrop FROM PreludeCard",
         "3 Titanium",
         "8 Steel",
         "3 Plant",

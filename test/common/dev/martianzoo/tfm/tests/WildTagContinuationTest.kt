@@ -15,7 +15,6 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$CorroderSuits"),
               "8 Pay<> FROM MC",
-              "$CorroderSuits FROM ProjectCard",
               "PROD[2 MC]",
           )
           kim.count("VenusTag<WildTagElection<WildTag<$AppliedScience>>>") shouldBe 1
@@ -54,7 +53,7 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
       doTasks(*cardActionTasks("$OrbitalCleanup"), "MC")
     }
     kim.inTurn {
-      doTasks(*playCardTasks("$ProjectInspection"), "$ProjectInspection FROM ProjectCard")
+      doTasks(*playCardTasks("$ProjectInspection"))
       kim.doTasks("UseAction<$OrbitalCleanup, Action1>")
           .expect("ScienceTag<WildTagElection<WildTag<$ResearchCoordination>>>")
       kim.count("ScienceTag<WildTagElection<WildTag<$ResearchCoordination>>>") shouldBe 1
@@ -68,7 +67,7 @@ internal class WildTagContinuationTest : TfmSandboxTest() {
     newTestGame("$ResearchCoordination")
     kim.exMachina("$ResearchCoordination, $SearchForLife")
     kim.inTurn {
-      doTasks(*playCardTasks("$SolarProbe"), "9 Pay<> FROM MC", "$SolarProbe FROM ProjectCard")
+      doTasks(*playCardTasks("$SolarProbe"), "9 Pay<> FROM MC")
       kim.count("ScienceTag<WildTagElection<WildTag<$ResearchCoordination>>>") shouldBe 1
       shouldThrow<TaskException> { doTask("PlayedEvent<Class<$SolarProbe>> FROM $SolarProbe") }
       doTask("ProjectCard")

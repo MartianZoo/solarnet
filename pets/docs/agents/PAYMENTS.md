@@ -27,8 +27,11 @@ created; its creation announces card and printed-tag pricing and installs availa
 resources. Removing the scope ends acceptance and creates the purchased result for authored fixed-cost
 actions, award funding, and research purchases. The research-purchase completion rule belongs to
 the existing `Selecting` location, which remains present after the request signal disappears.
-Card play still queues its result behind `MAX 0 Barrier`; replacing that separate requirement and
-payment flow is deferred.
+After requirement and price preparation, `PendingCardPlay` retains the selected face and source.
+Once payment and requirement barriers have cleared, it immediately consumes itself and places
+that face. A free bill can close before a requirement waiver; the pending play then waits for
+that waiver. The card placement is Player-attributed; later ordinary card effects remain explicit
+unless a Player policy handles them.
 
 `Owed` is the amount still due, including during price adjustment. `PaymentScope` tracks payment
 through completion and carries a subject, denomination, and operation. Cards, printed actions, conversions,

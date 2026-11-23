@@ -18,7 +18,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BiosphereSupport>>",
-          "$BiosphereSupport FROM PreludeCard",
           "PROD[-MC]",
           "PROD[2 Plant]",
       )
@@ -27,7 +26,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-              "$DoubleDown FROM PreludeCard",
               "CopyPrelude<$BiosphereSupport>",
               "PROD[-MC]",
               "PROD[2 Plant]",
@@ -42,7 +40,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard",
           "4 Director<$BoardOfDirectors>",
       )
     }
@@ -50,7 +47,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-              "$DoubleDown FROM PreludeCard",
               "CopyPrelude<$BoardOfDirectors>",
           )
         }
@@ -63,7 +59,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$EarlyColonization>>",
-          "$EarlyColonization FROM PreludeCard",
           "3 Energy",
       )
       // Expand the increase into separate track changes for each active colony.
@@ -77,7 +72,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-              "$DoubleDown FROM PreludeCard",
               "CopyPrelude<$EarlyColonization>",
               "3 Energy",
           )
@@ -97,7 +91,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BiosphereSupport>>",
-          "$BiosphereSupport FROM PreludeCard",
           "PROD[-MC]",
           "PROD[2 Plant]",
       )
@@ -107,7 +100,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-            "$DoubleDown FROM PreludeCard",
             "CopyPrelude<$MartianIndustries>",
         )
       }
@@ -120,7 +112,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BiosphereSupport>>",
-          "$BiosphereSupport FROM PreludeCard",
           "PROD[-MC]",
           "PROD[2 Plant]",
       )
@@ -128,7 +119,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
-          "$UnmiContractor FROM PreludeCard",
           "3 TerraformRating",
           "ProjectCard<Hand>",
       )
@@ -138,7 +128,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-            "$DoubleDown FROM PreludeCard",
             "CopyPrelude<$UnmiContractor>",
         )
       }
@@ -151,7 +140,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BiosphereSupport>>",
-          "$BiosphereSupport FROM PreludeCard",
           "PROD[-MC]",
           "PROD[2 Plant]",
       )
@@ -161,7 +149,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-            "$DoubleDown FROM PreludeCard",
             "CopyPrelude<$CrediCor>",
         )
       }
@@ -177,7 +164,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-            "$DoubleDown FROM PreludeCard",
             "CopyPrelude<$DoubleDown>",
         )
       }
@@ -192,13 +178,11 @@ internal class DoubleDownTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-            "$Merger FROM PreludeCard",
             "4 CorporationCard<Selecting>",
         )
 
         doTasks(
             "PlayCard<Class<CorporationCard>, Class<$NirgalEnterprises>>",
-            "$NirgalEnterprises FROM CorporationCard<Selecting>!",
             "30 MC",
             "PROD[Energy]",
             "PROD[Plant]",
@@ -214,7 +198,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-            "$DoubleDown FROM PreludeCard",
             "CopyPrelude<$Merger>",
         )
       }
@@ -228,7 +211,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
-              "$AlliedBank FROM PreludeCard",
               "PROD[4 MC]",
               "3 MC",
               "ProjectCard<Hand>",
@@ -239,7 +221,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-              "$DoubleDown FROM PreludeCard",
               "CopyPrelude<$AlliedBank>",
               "PROD[4 MC]",
               "3 MC",
@@ -256,7 +237,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
-          "$IndustrialComplex FROM PreludeCard",
           "-18 MC",
       )
       // Expand the copied production box into its separate resource increases.
@@ -275,7 +255,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-              "$DoubleDown FROM PreludeCard",
               "CopyPrelude<$IndustrialComplex>",
               "-18 MC",
           )
@@ -299,14 +278,12 @@ internal class DoubleDownTest : TfmSandboxTest() {
                 "DoRequiredActions",
                 "3 PreludeCard<Selecting>",
                 "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
-                "$NewPartner FROM PreludeCard<Selecting>",
                 "PROD[MC]",
                 "2 PreludeCard<Selecting>",
             )
 
             doTasks(
                 "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-                "$DoubleDown FROM PreludeCard<Selecting>",
                 "CopyPrelude<$NewPartner>",
                 "PROD[MC]",
                 "2 PreludeCard<Selecting>",
@@ -314,7 +291,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
 
             doTasks(
                 "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-                "$Donation FROM PreludeCard<Selecting>",
                 "21 MC",
             )
           }
@@ -328,13 +304,11 @@ internal class DoubleDownTest : TfmSandboxTest() {
       kim.completeOperation {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
-            "$PreservationProgram FROM PreludeCard",
             "5 TerraformRating",
         )
 
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-            "$DoubleDown FROM PreludeCard",
             "CopyPrelude<$PreservationProgram>",
             "5 TerraformRating",
         )
@@ -342,14 +316,12 @@ internal class DoubleDownTest : TfmSandboxTest() {
       stan.completeOperation {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
-            "$Supplier FROM PreludeCard",
             "PROD[2 Energy]",
             "4 Steel",
         )
 
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
-            "$MetalsCompany FROM PreludeCard",
             "PROD[MC]",
             "PROD[Steel]",
             "PROD[Titanium]",
@@ -359,7 +331,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$Comet"),
             "21 Pay<> FROM MC",
-            "$Comet FROM ProjectCard",
             "TemperatureStep",
             "TerraformRating",
             "OceanTile<Tharsis_1_2>",

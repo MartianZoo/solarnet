@@ -18,7 +18,6 @@ internal class GhgShipmentTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$GhgShipment"),
           "3 Pay<> FROM MC",
-          "$GhgShipment FROM ProjectCard",
           "PROD[Heat]",
           "3 Heat",
       )

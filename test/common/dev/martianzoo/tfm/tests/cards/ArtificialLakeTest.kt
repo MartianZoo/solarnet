@@ -24,7 +24,6 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$ArtificialLake"),
             "15 Pay<> FROM MC",
-            "$ArtificialLake FROM ProjectCard",
             "OceanTile<Tharsis_2_3>",
         )
       }
@@ -43,7 +42,6 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$ArtificialLake"),
           "15 Pay<> FROM MC",
-          "$ArtificialLake FROM ProjectCard",
           "OceanTile<Tharsis_2_3>",
           "TerraformRating",
           "2 MC",
@@ -71,7 +69,6 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$ArtificialLake"),
               "15 Pay<> FROM MC",
-              "$ArtificialLake FROM ProjectCard",
           )
           // Resolve the placement offer: the full ocean track leaves no legal placement.
           doTask("0 OceanTile<LandArea>")
@@ -90,7 +87,6 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$ArtificialLake"),
             "15 Pay<> FROM MC",
-            "$ArtificialLake FROM ProjectCard",
             "Ok",
         )
       }

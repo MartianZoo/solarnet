@@ -21,7 +21,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     doTasks(
         *playCardTasks("$RoboticWorkforce"),
         "9 Pay<> FROM MC",
-        "$RoboticWorkforce FROM ProjectCard",
         "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
         "BuildingTag<WildTagElection<WildTag<$ResearchNetwork>>>",
         "CopyProductionBox<$ResearchNetwork>",
@@ -39,7 +38,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "$RoboticWorkforce FROM ProjectCard",
           "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
           "EarthTag<WildTagElection<WildTag<$ResearchCoordination>>>",
           "CopyProductionBox<$Gyropolis>",
@@ -59,7 +57,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "$RoboticWorkforce FROM ProjectCard",
           "EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }",
           "BuildingTag<WildTagElection<WildTag<$ResearchCoordination>>>",
           "CopyProductionBox<$MedicalLab>",
@@ -78,7 +75,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$StripMine>",
           "PROD[-2 Energy]",
           "PROD[2 Steel]",
@@ -97,7 +93,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$RoboticWorkforce"),
             "9 Pay<> FROM MC",
-            "$RoboticWorkforce FROM ProjectCard",
             "CopyProductionBox<$MassConverter>",
         )
       }
@@ -115,7 +110,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$RoboticWorkforce"),
             "9 Pay<> FROM MC",
-            "$RoboticWorkforce FROM ProjectCard",
             "CopyProductionBox<$Mine<Stan>>",
         )
       }
@@ -132,7 +126,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$RoboticWorkforce"),
             "9 Pay<> FROM MC",
-            "$RoboticWorkforce FROM ProjectCard",
             "CopyProductionBox<$Mine>",
         )
       }
@@ -154,7 +147,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$RoboticWorkforce"),
               "9 Pay<> FROM MC",
-              "$RoboticWorkforce FROM ProjectCard",
               "CopyProductionBox<$IndustrialComplex>",
           )
           // Expand the copied production box into its separate resource increases.
@@ -173,7 +165,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$MedicalLab"),
               "13 Pay<> FROM MC",
-              "$MedicalLab FROM ProjectCard",
               "PROD[0 MC]",
           )
         }
@@ -184,7 +175,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$MedicalLab>",
           "PROD[2 MC]",
       )
@@ -200,7 +190,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$HeatTrappers"),
           "6 Pay<> FROM MC",
-          "$HeatTrappers FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-2 Heat<Stan>]",
       )
@@ -211,7 +200,6 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$RoboticWorkforce"),
               "9 Pay<> FROM MC",
-              "$RoboticWorkforce FROM ProjectCard",
               "CopyProductionBox<$HeatTrappers>",
               "PROD[Energy]",
               "PROD[-2 Heat]",

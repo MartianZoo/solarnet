@@ -121,13 +121,11 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     newTestGame("$options, PreludeExpansion, -VenusNextExpansion", playerCount = 1)
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-        "$Donation FROM PreludeCard",
         "21 MC",
     )
 
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
-        "$AlliedBank FROM PreludeCard",
         "PROD[4 MC]",
         "3 MC",
     )
@@ -150,13 +148,11 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     )
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-        "$Donation FROM PreludeCard",
         "21 MC",
     )
 
     kim.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
-        "$AlliedBank FROM PreludeCard",
         "PROD[4 MC]",
         "3 MC",
     )
@@ -324,10 +320,8 @@ internal class EndgameRulesTest : TfmGameplayTest() {
           "-12 MC",
           "-Director<$BoardOfDirectors>",
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "PlayCard<Class<CorporationCard>, Class<$Pristar>>",
-          "$Pristar FROM CorporationCard<Selecting>",
           "53 MC",
           "-2 TerraformRating",
           "-42 MC",

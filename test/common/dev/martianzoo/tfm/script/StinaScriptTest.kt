@@ -25,7 +25,6 @@ internal class StinaScriptTest {
     repl.agent.autoExecPolicy = NONE
     repl.agent.doTasks(
         "PlayCard<Class<CorporationCard>, Class<SaturnSystems>>",
-        "SaturnSystems FROM CorporationCard",
         "42 MC",
         "PROD[Titanium]",
         "PROD[MC]",

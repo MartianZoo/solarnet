@@ -17,7 +17,6 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
           *playCardTasks("$AsteroidCard"),
           "2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "6 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
       )
@@ -39,7 +38,6 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
           *playCardTasks("$StanfordTorus"),
           "2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>",
           "4 Pay<> FROM MC",
-          "$StanfordTorus FROM ProjectCard",
           "NormalCityTile<StanfordTorus_RemoteArea>",
       )
     }

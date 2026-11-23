@@ -17,7 +17,6 @@ internal class IoSulphurResearchTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$IoSulphurResearch"),
               "17 Pay<> FROM MC",
-              "$IoSulphurResearch FROM ProjectCard",
               "ProjectCard",
           )
         }

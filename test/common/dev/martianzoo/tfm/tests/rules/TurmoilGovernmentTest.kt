@@ -204,15 +204,12 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
         doTasks(
             *playCardTasks("$GmoContract"),
             "3 Pay<> FROM MC",
-            "$GmoContract FROM ProjectCard",
             "2 MC",
         )
       }
       shouldThrow<RequirementException> {
         kim.inTurn {
           doTasks(*playCardTasks("$SupportedResearch"), "3 Pay<> FROM MC")
-          // Select the guarded transfer to check the party requirement before the card enters play.
-          selectTask("MAX 0 Barrier: $SupportedResearch FROM ProjectCard!")
         }
       }
       kim.inTurn {
@@ -221,8 +218,6 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
       shouldThrow<RequirementException> {
         kim.inTurn {
           doTasks(*playCardTasks("$SupportedResearch"), "3 Pay<> FROM MC")
-          // Select the guarded transfer to check the party requirement before the card enters play.
-          selectTask("MAX 0 Barrier: $SupportedResearch FROM ProjectCard!")
         }
       }
       kim.inTurn {
@@ -235,15 +230,12 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
       shouldThrow<RequirementException> {
         stan.inTurn {
           doTasks(*playCardTasks("$SupportedResearch"), "3 Pay<> FROM MC")
-          // Select the guarded transfer to check the party requirement before the card enters play.
-          selectTask("MAX 0 Barrier: $SupportedResearch FROM ProjectCard!")
         }
       }
       kim.inTurn {
         doTasks(
             *playCardTasks("$SupportedResearch"),
             "3 Pay<> FROM MC",
-            "$SupportedResearch FROM ProjectCard",
             "2 ProjectCard",
         )
       }

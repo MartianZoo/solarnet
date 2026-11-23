@@ -110,7 +110,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$CrediCor>>",
-          "$CrediCor FROM CorporationCard",
           "57 MC",
           "18 Pay<> FROM MC",
           "6 ProjectCard<Hand FROM Selecting>",
@@ -121,7 +120,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       draw(VestaShipyard, MiningRights, BuildingIndustries, Ants)
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Ecoline>>",
-          "$Ecoline FROM CorporationCard",
           "36 MC",
           "3 Plant",
           "PROD[2 Plant]",
@@ -133,7 +131,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     with(blue) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AlbedoPlants>>",
-          "$AlbedoPlants FROM PreludeCard",
           "PROD[Plant]",
           "Plant",
           "3 Heat",
@@ -141,7 +138,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       draw(Windmills, UndergroundCity, AerobrakedAmmoniaAsteroid)
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ResearchNetwork>>",
-          "$ResearchNetwork FROM PreludeCard",
           "PROD[MC]",
           "3 ProjectCard",
       )
@@ -150,14 +146,12 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     with(pink) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BiosphereSupport>>",
-          "$BiosphereSupport FROM PreludeCard",
           "PROD[-MC]",
           "PROD[2 Plant]",
       )
       draw(AstraMechanica, Moss, SymbioticFungus)
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Biolab>>",
-          "$Biolab FROM PreludeCard",
           "PROD[Plant]",
           "3 ProjectCard",
       )
@@ -167,7 +161,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$AerobrakedAmmoniaAsteroid"),
           "26 Pay<> FROM MC",
-          "$AerobrakedAmmoniaAsteroid FROM ProjectCard",
           "2 Microbe",
           "PROD[3 Heat]",
           "PROD[Plant]",
@@ -179,7 +172,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
-          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Hellas_4_4>",
           "PROD[Steel]",
           "2 Steel",
@@ -191,7 +183,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$VestaShipyard"),
           "15 Pay<> FROM MC",
-          "$VestaShipyard FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -239,7 +230,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Potatoes"),
           "2 Pay<> FROM MC",
-          "$Potatoes FROM ProjectCard",
           "-2 Plant",
           "PROD[2 MC]",
           "3 Heat",
@@ -262,7 +252,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$SmallAsteroid"),
           "10 Pay<> FROM MC",
-          "$SmallAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TerraformRating",
           "PROD[Heat]",
@@ -275,7 +264,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Lichen"),
           "7 Pay<> FROM MC",
-          "$Lichen FROM ProjectCard",
           "PROD[Plant]",
           "3 Heat",
       )
@@ -316,7 +304,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ResearchCoordination"),
           "4 Pay<> FROM MC",
-          "$ResearchCoordination FROM ProjectCard",
       )
     }
 
@@ -325,7 +312,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           *playCardTasks("$BigAsteroid"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "21 Pay<> FROM MC",
-          "$BigAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "4 Titanium",
@@ -340,7 +326,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$SpaceHotels"),
           "12 Pay<> FROM MC",
-          "$SpaceHotels FROM ProjectCard",
           "PROD[4 MC]",
       )
     }
@@ -387,7 +372,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$EarthOffice"),
           "1 Pay<> FROM MC",
-          "$EarthOffice FROM ProjectCard",
       )
     }
 
@@ -395,7 +379,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ResearchOutpost"),
           "18 Pay<> FROM MC",
-          "$ResearchOutpost FROM ProjectCard",
           "CityTile<Hellas_2_5>",
           "Plant",
       )
@@ -408,7 +391,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "18 Pay<> FROM MC",
       )
       draw(NoctisCity, MartianSurvey)
-      doTasks("$LargeConvoy FROM ProjectCard", "5 Plant", "2 ProjectCard")
+      doTasks("5 Plant", "2 ProjectCard")
       draw(Harvest)
       doTasks("OceanTile<Hellas_5_6>", "TerraformRating", "ProjectCard")
       doTasks(
@@ -425,7 +408,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$HermeticOrderOfMars"),
           "9 Pay<> FROM MC",
-          "$HermeticOrderOfMars FROM ProjectCard",
           "PROD[2 MC]",
           "6 MC",
       )
@@ -439,14 +421,13 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
       draw(Plantation)
       discard(NoctisCity)
-      doTasks("$MarsUniversity FROM ProjectCard", "-ProjectCard", "ProjectCard")
+      doTasks("-ProjectCard", "ProjectCard")
     }
 
     blue.turn {
       doTasks(
           *playCardTasks("$AdaptedLichen"),
           "8 Pay<> FROM MC",
-          "$AdaptedLichen FROM ProjectCard",
           "PROD[Plant]",
           "3 Heat",
       )
@@ -485,7 +466,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$NitrogenRichAsteroid"),
           "30 Pay<> FROM MC",
-          "$NitrogenRichAsteroid FROM ProjectCard",
           "2 TerraformRating",
           "TemperatureStep",
           "4 MC",
@@ -529,13 +509,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Harvest"),
           "4 Pay<> FROM MC",
-          "$Harvest FROM ProjectCard",
           "12 MC",
       )
       doTasks(
           *playCardTasks("$MarsNomads"),
           "13 Pay<> FROM MC",
-          "$MarsNomads FROM ProjectCard",
           "NomadsMarker<Hellas_8_7>",
       )
     }
@@ -573,7 +551,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Windmills"),
           "5 Pay<> FROM MC",
-          "$Windmills FROM ProjectCard",
           "PROD[Energy]",
       )
     }
@@ -626,7 +603,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           *playCardTasks("$LavaTubeSettlement"),
           "5 Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$LavaTubeSettlement FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
           "CityTile<Hellas_6_5>",
@@ -650,7 +626,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           *playCardTasks("$ImportedGhg"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<> FROM MC",
-          "$ImportedGhg FROM ProjectCard",
           "PROD[Heat]",
           "3 Heat",
       )
@@ -660,7 +635,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ExtractorBalloons"),
           "20 Pay<> FROM MC",
-          "$ExtractorBalloons FROM ProjectCard",
           "3 Floater<$ExtractorBalloons>",
           "4 MC",
       )
@@ -678,13 +652,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Insects"),
           "8 Pay<> FROM MC",
-          "$Insects FROM ProjectCard",
           "PROD[6 Plant]",
       )
       doTasks(
           *playCardTasks("$Worms"),
           "7 Pay<> FROM MC",
-          "$Worms FROM ProjectCard",
           "PROD[2 Plant]",
       )
     }
@@ -708,7 +680,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Moss"),
           "4 Pay<> FROM MC",
-          "$Moss FROM ProjectCard",
           "PROD[Plant]",
           "-Plant",
       )
@@ -769,7 +740,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$EcologicalZone"),
           "12 Pay<> FROM MC",
-          "$EcologicalZone FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "Animal<$EcologicalZone>",
           "EcologicalZone_SpecialTile<Hellas_2_3>",
@@ -790,14 +760,12 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$PowerGrid"),
           "17 Pay<> FROM MC",
-          "$PowerGrid FROM ProjectCard",
           "PROD[4 Energy]",
       )
       doTasks(
           *playCardTasks("$UndergroundCity"),
           "2 Pay<Class<Steel>> FROM Steel",
           "13 Pay<> FROM MC",
-          "$UndergroundCity FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[2 Steel]",
           "CityTile<Hellas_7_7>",
@@ -835,7 +803,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$BusinessNetwork"),
           "1 Pay<> FROM MC",
-          "$BusinessNetwork FROM ProjectCard",
           "PROD[-MC]",
       )
       draw(ImportOfAdvancedGhg)
@@ -862,7 +829,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           *playCardTasks("$ImportOfAdvancedGhg"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // no MC remainder
-          "$ImportOfAdvancedGhg FROM ProjectCard",
           "PROD[2 Heat]",
       )
       discard(Ants, ExtremeColdFungus)
@@ -877,7 +843,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$NitrophilicMoss"),
           "8 Pay<> FROM MC",
-          "$NitrophilicMoss FROM ProjectCard",
           "PROD[2 Plant]",
           "-2 Plant",
           "Animal<$EcologicalZone>",
@@ -957,7 +922,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Pets"),
           "7 Pay<> FROM MC",
-          "$Pets FROM ProjectCard",
           "Animal<$Pets>",
           "Animal<$EcologicalZone>",
       )
@@ -968,7 +932,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           *playCardTasks("$OlympusConference"),
           "2 Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$OlympusConference FROM ProjectCard",
           "Science<$OlympusConference>",
       )
       // Research Outpost and Olympus Conference supply the other two science tags.
@@ -978,7 +941,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
       draw(InterstellarColonyShip)
       doTasks(
-          "$AiCentral FROM ProjectCard",
           "PROD[-Energy]",
           "4 MC",
           "ProjectCard FROM Science",
@@ -1000,7 +962,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
       draw(UndergroundDetonations, HeatTrappers, MagneticFieldGeneratorsPromo)
       doTasks(
-          "$AqueductSystems FROM ProjectCard",
           "3 SearchForCard<TagFilter<Class<BuildingTag>>>",
       )
       draw(FloatingHabs, ArcticAlgae)
@@ -1045,7 +1006,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$FloatingHabs"),
           "4 Pay<> FROM MC",
-          "$FloatingHabs FROM ProjectCard",
       )
     }
 
@@ -1053,7 +1013,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$KelpFarming"),
           "17 Pay<> FROM MC",
-          "$KelpFarming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[3 Plant]",
           "2 Plant",
@@ -1140,7 +1099,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           *playCardTasks("$AsteroidCard"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "8 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "TerraformRating",
@@ -1150,7 +1108,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           *playCardTasks("$Comet"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "15 Pay<> FROM MC",
-          "$Comet FROM ProjectCard",
           "TemperatureStep",
           "TerraformRating",
           "OceanTile<Hellas_1_1>",
@@ -1171,7 +1128,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       )
       draw(MediaArchives)
       doTasks(
-          "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "Science<$OlympusConference>",
           "ProjectCard<Hand FROM Selecting>",
@@ -1182,7 +1138,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Virus"),
           "1 Pay<> FROM MC",
-          "$Virus FROM ProjectCard",
           "-5 Plant<Blue>",
       )
       doTasks(
@@ -1199,7 +1154,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$InterstellarColonyShip"),
           "23 Pay<> FROM MC",
-          "$InterstellarColonyShip FROM ProjectCard",
           "4 MC",
       )
     }
@@ -1221,7 +1175,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn {
       doTasks(
           *playCardTasks("$HiredRaiders"),
-          "$HiredRaiders FROM ProjectCard",
           "3 MC<Blue> FROM MC<Pink>",
       )
     }
@@ -1273,7 +1226,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       draw(EosChasmaNationalPark)
       discard(Plantation)
       doTasks(
-          "$CarbonNanosystems FROM ProjectCard",
           "Graphene<$CarbonNanosystems>",
           "-ProjectCard",
           "ProjectCard",
@@ -1372,7 +1324,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$AirScrappingExpedition"),
           "12 Pay<> FROM MC",
-          "$AirScrappingExpedition FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
           "3 Floater<$FloatingHabs>",
@@ -1382,7 +1333,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.turn {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
-          "$InvestmentLoan FROM ProjectCard",
           "PROD[-MC]",
           "10 MC",
       )
@@ -1393,7 +1343,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       draw(GreatDamPromo)
       discard(Decomposers)
       doTasks(
-          "$AstraMechanica FROM ProjectCard",
           "Graphene<$CarbonNanosystems>",
           "ProjectCard FROM PlayedEvent<Class<$InvestmentLoan>>",
           "ProjectCard FROM PlayedEvent<Class<$Harvest>>",
@@ -1414,7 +1363,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$Harvest"),
           "4 Pay<> FROM MC",
-          "$Harvest FROM ProjectCard",
           "12 MC",
           "Animal<$EcologicalZone>",
       )
@@ -1431,7 +1379,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           *playCardTasks("$NoctisFarming"),
           "4 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$NoctisFarming FROM ProjectCard",
           "PROD[MC]",
           "2 Plant",
           "3 Heat",
@@ -1448,7 +1395,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.turn {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
-          "$InvestmentLoan FROM ProjectCard",
           "PROD[-MC]",
           "10 MC",
       )
@@ -1492,7 +1438,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           *playCardTasks("$PublicBaths"),
           "2 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "$PublicBaths FROM ProjectCard",
           "6 MC",
       )
     }
@@ -1502,7 +1447,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           *playCardTasks("$Atmoscoop"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "15 Pay<> FROM MC",
-          "$Atmoscoop FROM ProjectCard",
           "4 MC",
           "2 VenusStep",
           "2 TerraformRating",
@@ -1523,7 +1467,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$ReleaseOfInertGases"),
           "14 Pay<> FROM MC",
-          "$ReleaseOfInertGases FROM ProjectCard",
           "2 TerraformRating",
       )
     }
@@ -1535,7 +1478,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$MediaArchives"),
           "7 Pay<> FROM MC",
-          "$MediaArchives FROM ProjectCard",
           "17 MC",
       )
     }
@@ -1545,7 +1487,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$TropicalResort"),
           "12 Pay<> FROM MC",
-          "$TropicalResort FROM ProjectCard",
           "PROD[-2 Heat]",
           "PROD[3 MC]",
       )
@@ -1568,7 +1509,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       doTasks(
           *playCardTasks("$NeutralizerFactory"),
           "6 Pay<> FROM MC",
-          "$NeutralizerFactory FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
       )

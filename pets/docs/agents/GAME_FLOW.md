@@ -256,7 +256,9 @@ helpers. `ActionScope` is not `MustCleanUp`: the current completion check runs b
 
 Components record what exists or is happening. `ActionScope` records the current accepted action;
 `Baton` records the current turn and `SecondAction` its remaining second-action allowance.
-Deferred tasks determine when those facts change. Do not add a component whose only meaning is
+A `PendingCardPlay` records an unfinished declared play, including its chosen face and
+source; it completes when payment and requirement preparation have cleared.
+Deferred tasks determine when the turn and action facts change. Do not add a component whose only meaning is
 an arbitrary continuation waiting to run.
 
 Event cards remain in play until their `LATER` flip; `Trade` uses deferred `FinishTrade`, Turmoil

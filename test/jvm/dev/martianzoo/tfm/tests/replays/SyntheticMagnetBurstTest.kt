@@ -114,7 +114,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       // Open City, and Energy Saving.
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
-          "$TharsisRepublic FROM CorporationCard",
           "40 MC",
           "21 Pay<> FROM MC",
           "7 ProjectCard<Hand FROM Selecting>",
@@ -127,7 +126,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       // Habitats.
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$NirgalEnterprises>>",
-          "$NirgalEnterprises FROM CorporationCard",
           "30 MC",
           "PROD[Energy]",
           "PROD[Plant]",
@@ -140,7 +138,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     with(pink) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Recession>>",
-          "$Recession FROM PreludeCard",
           "10 MC",
           "EACH",
           "-5 MC<Green>",
@@ -149,10 +146,8 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       // You drew Interplanetary Cinematics,Inventrix,Sagitta Frontier Services,Teractor
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "PlayCard<Class<CorporationCard>, Class<$SagittaFrontierServices>>",
-          "$SagittaFrontierServices FROM CorporationCard<Selecting>",
           "31 MC",
           "-42 MC",
           "PROD[Energy]",
@@ -168,14 +163,12 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     with(green) {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$NobelPrize>>",
-          "$NobelPrize FROM PreludeCard",
           "5 MC",
       )
       // Green drew Insects,Stratopolis
       doTask("2 SearchForCard<RequirementFilter>")
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$SuitableInfrastructure>>",
-          "$SuitableInfrastructure FROM PreludeCard",
           "5 Steel",
       )
     }
@@ -195,7 +188,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MicroMills"),
           "3 Pay<> FROM MC",
-          "$MicroMills FROM ProjectCard",
           "PROD[Heat]",
           "4 MC",
       )
@@ -205,7 +197,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
-          "$MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
     }
@@ -214,14 +205,12 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Mine"),
           "4 Pay<> FROM MC",
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
           "MC",
       )
       doTasks(
           *playCardTasks("$GreatEscarpmentConsortium"),
           "6 Pay<> FROM MC",
-          "$GreatEscarpmentConsortium FROM ProjectCard",
           "PROD[Steel]",
           "4 MC",
           "PROD[-Steel<Green>]",
@@ -234,7 +223,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$AquiferPumping"),
           "6 Pay<Class<Steel>> FROM Steel",
           "6 Pay<> FROM MC",
-          "$AquiferPumping FROM ProjectCard",
       )
     }
 
@@ -242,7 +230,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Sponsors"),
           "6 Pay<> FROM MC",
-          "$Sponsors FROM ProjectCard",
           "PROD[2 MC]",
           "MC",
       )
@@ -250,7 +237,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
               *playCardTasks("$RoboticWorkforce"),
               "9 Pay<> FROM MC",
-              "$RoboticWorkforce FROM ProjectCard",
               "MC",
               "CopyProductionBox<$Mine>",
               "PROD[Steel]",
@@ -308,14 +294,13 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     )
 
     green.turn {
-      doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
+      doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC")
     }
 
     pink.turn {
       doTasks(
           *playCardTasks("$DesignedMicroorganisms"),
           "16 Pay<> FROM MC",
-          "$DesignedMicroorganisms FROM ProjectCard",
           "PROD[2 Plant]",
       )
     }
@@ -326,7 +311,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$PowerSupplyConsortium"),
           "5 Pay<> FROM MC",
-          "$PowerSupplyConsortium FROM ProjectCard",
           "PROD[Energy]",
           "2 MC",
           "PROD[-Energy<Pink>]",
@@ -338,7 +322,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     green.turn {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
-          "$InvestmentLoan FROM ProjectCard",
           "PROD[-MC]",
           "10 MC",
       )
@@ -357,7 +340,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$RotatorImpacts"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$RotatorImpacts FROM ProjectCard",
       )
       doTasks(*cardActionTasks("$RotatorImpacts"), "6 Pay<> FROM MC", "Asteroid<$RotatorImpacts>")
     }
@@ -401,7 +383,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$InventionContest"),
           "2 Pay<> FROM MC",
-          "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -413,7 +394,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "8 Pay<> FROM MC",
-          "$MarsUniversity FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
       )
@@ -423,7 +403,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Archaebacteria"),
           "6 Pay<> FROM MC",
-          "$Archaebacteria FROM ProjectCard",
           "PROD[Plant]",
           "MC",
       )
@@ -478,7 +457,7 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     )
 
     green.turn {
-      doTasks(*playCardTasks("$MediaGroup"), "3 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
+      doTasks(*playCardTasks("$MediaGroup"), "3 Pay<> FROM MC")
     }
 
     pink.turn {
@@ -486,7 +465,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$OrbitalReflectors"),
           "26 Pay<> FROM MC",
-          "$OrbitalReflectors FROM ProjectCard",
           "VenusStep",
           "VenusStep",
           "PROD[2 Heat]",
@@ -496,7 +474,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$IshtarMining"),
           "5 Pay<> FROM MC",
-          "$IshtarMining FROM ProjectCard",
           "PROD[Titanium]",
           "MC",
       )
@@ -507,7 +484,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$MirandaResort"),
           "12 Pay<> FROM MC",
-          "$MirandaResort FROM ProjectCard",
           "PROD[3 MC]",
           "2 MC",
       )
@@ -523,7 +499,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$TitaniumMine"),
           "3 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$TitaniumMine FROM ProjectCard",
           "PROD[Titanium]",
           "MC",
       )
@@ -579,7 +554,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$GreatDam"),
           "12 Pay<> FROM MC",
-          "$GreatDam FROM ProjectCard",
           "PROD[2 Energy]",
           "2 MC",
       )
@@ -592,7 +566,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           "2 Pay<Class<Titanium>> FROM Titanium",
           "8 Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -618,7 +591,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$NuclearZone"),
           "10 Pay<> FROM MC",
-          "$NuclearZone FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "MC",
@@ -666,7 +638,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "14 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "3 MC",
@@ -681,13 +652,12 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
-          "$EarthCatapult FROM ProjectCard",
           "MC",
       )
     }
 
     green.turn {
-      doTasks(*playCardTasks("$Ironworks"), "11 Pay<> FROM MC", "$Ironworks FROM ProjectCard")
+      doTasks(*playCardTasks("$Ironworks"), "11 Pay<> FROM MC")
     }
 
     pink.turn {
@@ -695,7 +665,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$SolarWindPower"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$SolarWindPower FROM ProjectCard",
           "PROD[Energy]",
           "2 Titanium",
       )
@@ -716,7 +685,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Hackers"),
           "1 Pay<> FROM MC",
-          "$Hackers FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
           "4 MC",
@@ -738,7 +706,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Decomposers"),
           "3 Pay<> FROM MC",
-          "$Decomposers FROM ProjectCard",
           "MC",
           "Microbe<$Decomposers>",
       )
@@ -746,7 +713,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$EcologicalZone"),
           "10 Pay<> FROM MC",
-          "$EcologicalZone FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "Microbe<$Decomposers>",
           "Animal<$EcologicalZone>",
@@ -764,14 +730,12 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$FloatingHabs"),
           "3 Pay<> FROM MC",
-          "$FloatingHabs FROM ProjectCard",
           "MC",
       )
       doTasks(
           *playCardTasks("$ColonizerTrainingCamp"),
           "2 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "$ColonizerTrainingCamp FROM ProjectCard",
       )
     }
 
@@ -820,7 +784,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$DeimosDown"),
           "5 Pay<Class<Titanium>> FROM Titanium",
           "14 Pay<> FROM MC",
-          "$DeimosDown FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "TemperatureStep",
@@ -835,7 +798,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$TerraformingContract"),
           "5 Pay<> FROM MC",
-          "$TerraformingContract FROM ProjectCard",
           "PROD[4 MC]",
           "2 MC",
       )
@@ -859,7 +821,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$LagrangeObservatory"),
           "7 Pay<> FROM MC",
-          "$LagrangeObservatory FROM ProjectCard",
           "ProjectCard",
       )
     }
@@ -902,7 +863,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$TectonicStressPower"),
           "18 Pay<> FROM MC",
-          "$TectonicStressPower FROM ProjectCard",
           "PROD[3 Energy]",
           "2 MC",
       )
@@ -945,7 +905,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$IshtarExpedition"),
           "6 Pay<> FROM MC",
-          "$IshtarExpedition FROM ProjectCard",
           "3 Titanium",
           "2 SearchForCard<TagFilter<Class<VenusTag>>>",
           "3 MC",
@@ -954,7 +913,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$GiantIceAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "27 Pay<> FROM MC",
-          "$GiantIceAsteroid FROM ProjectCard",
           "TemperatureStep",
           "TemperatureStep",
           "3 MC",
@@ -975,7 +933,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$GeothermalPower"),
           "4 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$GeothermalPower FROM ProjectCard",
           "PROD[2 Energy]",
       )
       // The later Space Elevator action requires one of Pink's five steel to remain available.
@@ -983,7 +940,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$ImmigrantCity"),
           "4 Pay<Class<Steel>> FROM Steel",
           "3 Pay<> FROM MC",
-          "$ImmigrantCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[-2 MC]",
           "CityTile<Hellas_2_5>",
@@ -1009,7 +965,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$RadSuits"),
           "4 Pay<> FROM MC",
-          "$RadSuits FROM ProjectCard",
           "PROD[MC]",
           "4 MC",
       )
@@ -1019,7 +974,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$SponsoredAcademies"),
           "6 Pay<> FROM MC",
-          "$SponsoredAcademies FROM ProjectCard",
       )
       // Both cards offer a discard; identify Sponsored Academies explicitly.
       doTask("-ProjectCard", SponsoredAcademies)
@@ -1040,7 +994,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$GeneRepair"),
           "10 Pay<> FROM MC",
-          "$GeneRepair FROM ProjectCard",
           "PROD[2 MC]",
           "MC",
       )
@@ -1059,7 +1012,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$GhgProducingBacteria"),
           "6 Pay<> FROM MC",
-          "$GhgProducingBacteria FROM ProjectCard",
           "Microbe<$Decomposers>",
       )
     }
@@ -1069,7 +1021,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$RadChemFactory"),
           "2 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
-          "$RadChemFactory FROM ProjectCard",
           "PROD[-Energy]",
           "2 TerraformRating",
       )
@@ -1086,7 +1037,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$AerobrakedAmmoniaAsteroid"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "15 Pay<> FROM MC",
-          "$AerobrakedAmmoniaAsteroid FROM ProjectCard",
           "PROD[3 Heat]",
           "PROD[Plant]",
           "2 Microbe<$GhgProducingBacteria>",
@@ -1189,7 +1139,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$IndustrialCenter"),
           "1 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$IndustrialCenter FROM ProjectCard",
           "MC",
           "IndustrialCenter_SpecialTile<Hellas_9_8>",
           "2 Heat",
@@ -1212,7 +1161,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$NeutralizerFactory"),
           "7 Pay<> FROM MC",
-          "$NeutralizerFactory FROM ProjectCard",
           "VenusStep",
           "2 TerraformRating",
       )
@@ -1223,7 +1171,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$DawnCity"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "$DawnCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[Titanium]",
           "NormalCityTile<DawnCity_RemoteArea>",
@@ -1244,7 +1191,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "4 Pay<> FROM MC",
-          "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
           "3 MC",
       )
@@ -1258,7 +1204,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$CloudSeeding"),
           "11 Pay<> FROM MC",
-          "$CloudSeeding FROM ProjectCard",
           "PROD[-MC]",
           "PROD[2 Plant]",
           "2 MC",
@@ -1270,7 +1215,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Zeppelins"),
           "11 Pay<> FROM MC",
-          "$Zeppelins FROM ProjectCard",
           "PROD[2 MC]",
           "4 MC",
       )
@@ -1280,7 +1224,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$LandClaim"),
           "1 Pay<> FROM MC",
-          "$LandClaim FROM ProjectCard",
           "3 MC",
           "Community<Hellas_2_4>",
       )
@@ -1295,7 +1238,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Solarnet"),
           "7 Pay<> FROM MC",
-          "$Solarnet FROM ProjectCard",
           "2 ProjectCard",
       )
     }
@@ -1345,7 +1287,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$LavaTubeSettlement"),
           "2 Pay<Class<Steel>> FROM Steel",
           "11 Pay<> FROM MC",
-          "$LavaTubeSettlement FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
           "2 MC",
@@ -1361,7 +1302,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$FusionPower"),
           "4 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
-          "$FusionPower FROM ProjectCard",
           "PROD[3 Energy]",
       )
     }
@@ -1376,7 +1316,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$BusinessNetwork"),
           "1 Pay<> FROM MC",
-          "$BusinessNetwork FROM ProjectCard",
           "PROD[-MC]",
       )
     }
@@ -1385,7 +1324,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Herbivores"),
           "10 Pay<> FROM MC",
-          "$Herbivores FROM ProjectCard",
           "Animal<$Herbivores>",
           "MC",
           "Animal<$EcologicalZone>",
@@ -1395,7 +1333,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Gyropolis"),
           "18 Pay<> FROM MC",
-          "$Gyropolis FROM ProjectCard",
           "PROD[-2 Energy]",
           "PROD[6 MC]", // Three Earth tags and three Venus tags.
           "CityTile<Hellas_1_3>",
@@ -1415,7 +1352,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
-          "$Research FROM ProjectCard",
           "2 ProjectCard", // Energy Tapping and Ice Cap Melting.
           "-ProjectCard", // Mars University: discard Ice Cap Melting.
           "ProjectCard", // Venus Shuttles.
@@ -1429,7 +1365,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$ImportedHydrogen"),
           "4 Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "$ImportedHydrogen FROM ProjectCard",
           "OceanTile<WaterArea(HAS MAX 0 Tile)>", // All nine oceans are already placed.
           "3 Plant",
       )
@@ -1449,7 +1384,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$HousePrinting"),
           "10 Pay<> FROM MC",
-          "$HousePrinting FROM ProjectCard",
           "PROD[Steel]",
           "2 MC",
       )
@@ -1457,7 +1391,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Insects"),
           "9 Pay<> FROM MC",
-          "$Insects FROM ProjectCard",
           "PROD[2 Plant]",
           "2 MC",
       )
@@ -1472,7 +1405,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$WaterToVenus"),
           "9 Pay<> FROM MC",
-          "$WaterToVenus FROM ProjectCard",
           "VenusStep",
           "3 MC",
           "TerraformRating",
@@ -1565,7 +1497,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$TechnologyDemonstration"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC", // No MC remainder.
-          "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
       )
       doTasks("UseAction<FundAwardAction, Action1>", "20 Pay<> FROM MC", "Founder")
@@ -1582,7 +1513,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$CommercialDistrict"),
           "3 Pay<Class<Steel>> FROM Steel",
           "10 Pay<> FROM MC",
-          "$CommercialDistrict FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
           "2 MC",
@@ -1612,7 +1542,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$AdvancedEcosystems"),
           "9 Pay<> FROM MC",
-          "$AdvancedEcosystems FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "Microbe<$Decomposers>",
           "Microbe<$Decomposers>",
@@ -1625,7 +1554,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$GiantSolarShade"),
           "27 Pay<> FROM MC",
-          "$GiantSolarShade FROM ProjectCard",
           "VenusStep",
           "VenusStep",
           "VenusStep",
@@ -1655,7 +1583,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
           *playCardTasks("$NoctisCity"),
           "1 Pay<Class<Steel>> FROM Steel",
           "16 Pay<> FROM MC",
-          "$NoctisCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
           "2 MC",
@@ -1679,7 +1606,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Birds"),
           "8 Pay<> FROM MC",
-          "$Birds FROM ProjectCard",
           "MC",
           "Animal<$EcologicalZone>",
           "Microbe<$Decomposers>",
@@ -1693,7 +1619,6 @@ internal class SyntheticMagnetBurstTest : FullGameTest() {
     pink.turn {
       doTasks(
           *playCardTasks("$CeosFavoriteProject"),
-          "$CeosFavoriteProject FROM ProjectCard",
           "MC",
           "Animal<$Birds>",
       )

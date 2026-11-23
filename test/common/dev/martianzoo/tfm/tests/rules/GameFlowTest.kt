@@ -44,11 +44,6 @@ internal class GameFlowTest : TfmGameplayTest() {
       admin.count("CorporationPhase") shouldBe 1
 
       player.doTasks("PlayCard<Class<CorporationCard>, Class<$corporation>>")
-      player.count("$corporation") shouldBe 0
-      player.count("Owed") shouldBe 0
-      player.count("ProjectCard<Selecting>") shouldBe 2
-
-      player.doTasks("$corporation FROM CorporationCard")
       player.count("$corporation") shouldBe 1
       player.count("Owed") shouldBe cost
       player.count("ProjectCard<Selecting>") shouldBe 2
@@ -144,7 +139,6 @@ internal class GameFlowTest : TfmGameplayTest() {
     }
     p1.doTasks(
         "PlayCard<Class<BeginnerCard>, Class<$BeginnerCorporation1>, Hand>",
-        "$BeginnerCorporation1 FROM BeginnerCard<Hand>",
         "42 MC",
         "10 ProjectCard<Hand FROM Selecting>",
     )
@@ -161,7 +155,6 @@ internal class GameFlowTest : TfmGameplayTest() {
     }
     p2.doTasks(
         "PlayCard<Class<CorporationCard>, Class<$CrediCor>, Hand>",
-        "$CrediCor FROM CorporationCard<Hand>",
         "57 MC",
         "15 Pay<> FROM MC",
         "5 ProjectCard<Hand FROM Selecting>",
@@ -189,7 +182,6 @@ internal class GameFlowTest : TfmGameplayTest() {
 
     p1.doTasks(
         "PlayCard<Class<BeginnerCard>, Class<$BeginnerCorporation1>, Hand>",
-        "$BeginnerCorporation1 FROM BeginnerCard<Hand>",
         "42 MC",
         "10 ProjectCard<Hand FROM Selecting>",
     )
@@ -204,7 +196,6 @@ internal class GameFlowTest : TfmGameplayTest() {
 
     p2.doTasks(
         "PlayCard<Class<BeginnerCard>, Class<$BeginnerCorporation2>, Hand>",
-        "$BeginnerCorporation2 FROM BeginnerCard<Hand>",
         "42 MC",
         "10 ProjectCard<Hand FROM Selecting>",
     )
@@ -373,13 +364,11 @@ internal class GameFlowTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
 
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>",
-          "$MartianIndustries FROM PreludeCard",
           "PROD[Energy]",
           "PROD[Steel]",
           "6 MC",
@@ -387,21 +376,18 @@ internal class GameFlowTest : TfmGameplayTest() {
 
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>",
-          "$PowerGeneration FROM PreludeCard",
           "PROD[3 Energy]",
       )
     }
     stan.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$DomeFarming>>",
-          "$DomeFarming FROM PreludeCard",
           "PROD[Plant]",
           "PROD[2 MC]",
       )
 
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
-          "$Supplier FROM PreludeCard",
           "PROD[2 Energy]",
           "4 Steel",
       )

@@ -19,7 +19,6 @@ internal class MartianLumberCorporationTest : TfmSandboxTest() {
           *playCardTasks("$Mine"),
           "Pay<Class<Plant>> FROM Plant",
           "1 Pay<> FROM MC",
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }

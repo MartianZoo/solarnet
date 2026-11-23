@@ -93,14 +93,12 @@ internal class ThermalMatterWaveTest : FullGameTest() {
     with(me) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$CrediCor>>",
-          "$CrediCor FROM CorporationCard",
           "57 MC",
           "21 Pay<> FROM MC",
           "7 ProjectCard<Hand FROM Selecting>",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$SocietySupport>>",
-          "$SocietySupport FROM PreludeCard",
           "PROD[-MC]",
           "PROD[Plant]",
           "PROD[Energy]",
@@ -109,11 +107,9 @@ internal class ThermalMatterWaveTest : FullGameTest() {
       // CrediCor still pays its rebate when Excentric Sponsor pays the project cost.
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>",
-          "$ExcentricSponsor FROM PreludeCard",
           "PlayCard<Class<ProjectCard>, Class<$TitanShuttles>, CardLocation>",
           "-23 Owed", // Excentric Sponsor covers Titan Shuttles' full cost
           "0 Pay<> FROM MC", // no MC remainder
-          "$TitanShuttles FROM ProjectCard",
           "4 MC",
       )
       me.turn {
@@ -121,14 +117,12 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$IndustrialMicrobes"),
             "12 Pay<> FROM MC",
-            "$IndustrialMicrobes FROM ProjectCard",
             "PROD[Energy]",
             "PROD[Steel]",
         )
         doTasks(
             *playCardTasks("$SolarReflectors"),
             "23 Pay<> FROM MC",
-            "$SolarReflectors FROM ProjectCard",
             "PROD[5 Heat]",
             "4 MC",
         )
@@ -190,13 +184,11 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$AdvancedAlloys"),
             "9 Pay<> FROM MC",
-            "$AdvancedAlloys FROM ProjectCard",
         )
         doTasks(
             *playCardTasks("$HousePrinting"),
             "2 Pay<Class<Steel>> FROM Steel",
             "4 Pay<> FROM MC",
-            "$HousePrinting FROM ProjectCard",
             "PROD[Steel]",
         )
       }
@@ -229,7 +221,7 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             "TemperatureStep",
             "TerraformRating",
         )
-        doTasks(*playCardTasks("$CryoSleep"), "10 Pay<> FROM MC", "$CryoSleep FROM ProjectCard")
+        doTasks(*playCardTasks("$CryoSleep"), "10 Pay<> FROM MC")
         doTasks(
             "UseAction<TradeAction, Action2>",
             "2 Pay<Class<Energy>> FROM Energy",
@@ -240,7 +232,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$StripMine"),
             "8 Pay<Class<Steel>> FROM Steel",
             "1 Pay<> FROM MC",
-            "$StripMine FROM ProjectCard",
             "PROD[-2 Energy]",
             "PROD[2 Steel]",
             "PROD[Titanium]",
@@ -296,7 +287,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$SterlingVents"),
             "1 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$SterlingVents FROM ProjectCard",
             "PROD[-2 Heat]",
             "PROD[2 Energy]",
         )
@@ -304,14 +294,12 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$ElectroCatapult"),
             "3 Pay<Class<Steel>> FROM Steel",
             "8 Pay<> FROM MC",
-            "$ElectroCatapult FROM ProjectCard",
             "PROD[-Energy]",
         )
         doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
         doTasks(
             *playCardTasks("$CorroderSuits"),
             "8 Pay<> FROM MC",
-            "$CorroderSuits FROM ProjectCard",
             "PROD[2 MC]",
         )
       }
@@ -349,7 +337,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$TowingAComet"),
             "6 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$TowingAComet FROM ProjectCard",
             "2 Plant",
             "OxygenStep",
             "4 MC",
@@ -362,7 +349,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$SaturnSurfing"),
             "13 Pay<> FROM MC",
-            "$SaturnSurfing FROM ProjectCard",
             "Floater<$SaturnSurfing>",
         )
         doTasks(*cardActionTasks("$TitanShuttles"), "2 Floater<$SaturnSurfing>")
@@ -370,14 +356,12 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$DesignedMicroorganisms"),
             "16 Pay<> FROM MC",
-            "$DesignedMicroorganisms FROM ProjectCard",
             "PROD[2 Plant]",
         )
         doTasks(
             *playCardTasks("$RotatorImpacts"),
             "1 Pay<Class<Titanium>> FROM Titanium",
             "2 Pay<> FROM MC",
-            "$RotatorImpacts FROM ProjectCard",
         )
         doTasks(
             *cardActionTasks("$RotatorImpacts"),
@@ -415,7 +399,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$DevelopmentCenter"),
             "3 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$DevelopmentCenter FROM ProjectCard",
         )
         doTasks(
             *cardActionTasks("$DevelopmentCenter"),
@@ -426,7 +409,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$CorporateStronghold"),
             "3 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$CorporateStronghold FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[3 MC]",
             "CityTile<Tharsis_5_8>",
@@ -474,10 +456,9 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$SpinOffDepartment"),
             "2 Pay<Class<Steel>> FROM Steel",
             "4 Pay<> FROM MC",
-            "$SpinOffDepartment FROM ProjectCard",
             "PROD[2 MC]",
         )
-        doTasks(*playCardTasks("$Tardigrades"), "4 Pay<> FROM MC", "$Tardigrades FROM ProjectCard")
+        doTasks(*playCardTasks("$Tardigrades"), "4 Pay<> FROM MC")
         doTasks(*cardActionTasks("$Tardigrades"), "Microbe<$Tardigrades>")
         // Payment reconstruction: retain one titanium for Interplanetary Trade; that allocation is
         // required to reproduce the later archived balance without a state adjustment.
@@ -485,7 +466,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$DeimosDownPromo"),
             "2 Pay<Class<Titanium>> FROM Titanium",
             "23 Pay<> FROM MC",
-            "$DeimosDownPromo FROM ProjectCard",
             "TemperatureStep",
             "TemperatureStep",
             "TemperatureStep",
@@ -556,13 +536,11 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$BribedCommittee"),
             "7 Pay<> FROM MC",
-            "$BribedCommittee FROM ProjectCard",
             "2 TerraformRating",
         )
         doTasks(
             *playCardTasks("$ReleaseOfInertGases"),
             "14 Pay<> FROM MC",
-            "$ReleaseOfInertGases FROM ProjectCard",
             "2 TerraformRating",
         )
       }
@@ -617,7 +595,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$VenusSoils"),
             "20 Pay<> FROM MC",
-            "$VenusSoils FROM ProjectCard",
             "VenusStep",
             "PROD[Plant]",
             "4 MC",
@@ -631,7 +608,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$InterplanetaryTrade"),
             "2 Pay<Class<Titanium>> FROM Titanium",
             "19 Pay<> FROM MC",
-            "$InterplanetaryTrade FROM ProjectCard",
             "EACH",
             "PROD[10 MC]",
             "4 MC",
@@ -640,7 +616,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$ForcedPrecipitation"),
             "8 Pay<> FROM MC",
-            "$ForcedPrecipitation FROM ProjectCard",
         )
         doTasks(
             *cardActionTasks("$ForcedPrecipitation"),
@@ -686,7 +661,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$MarsUniversity"),
             "2 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$MarsUniversity FROM ProjectCard",
             "-ProjectCard",
             "ProjectCard",
         )
@@ -695,7 +669,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$Comet"),
             "5 Pay<Class<Titanium>> FROM Titanium",
             "1 Pay<> FROM MC",
-            "$Comet FROM ProjectCard",
             "TemperatureStep",
             "4 MC",
             "ProjectCard",
@@ -716,7 +689,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$IoMiningIndustries"),
             "41 Pay<> FROM MC",
-            "$IoMiningIndustries FROM ProjectCard",
             "PROD[2 Titanium]",
             "PROD[2 MC]",
             "4 MC",
@@ -726,14 +698,12 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$SolarPower"),
             "3 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$SolarPower FROM ProjectCard",
             "PROD[Energy]",
         )
         doTasks(
             *playCardTasks("$Gyropolis"),
             "6 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$Gyropolis FROM ProjectCard",
             "PROD[-2 Energy]",
             "PROD[3 MC]",
             "PROD[1 MC]",
@@ -748,7 +718,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$MedicalLab"),
             "4 Pay<Class<Steel>> FROM Steel",
             "1 Pay<> FROM MC",
-            "$MedicalLab FROM ProjectCard",
             "PROD[6 MC]",
             "-ProjectCard",
             "ProjectCard",
@@ -756,7 +725,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$AsteroidRights"),
             "10 Pay<> FROM MC",
-            "$AsteroidRights FROM ProjectCard",
             "2 Asteroid<$AsteroidRights>",
         )
         doTasks(
@@ -774,7 +742,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$PowerSupplyConsortium"),
             "5 Pay<> FROM MC",
-            "$PowerSupplyConsortium FROM ProjectCard",
             "-Production<Anyone, Class<Energy>>",
             "PROD[Energy]",
         )
@@ -815,7 +782,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$SearchForLife"),
             "3 Pay<> FROM MC",
-            "$SearchForLife FROM ProjectCard",
             "-ProjectCard",
             "ProjectCard",
         )
@@ -831,7 +797,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$SixteenPsyche"),
             "5 Pay<Class<Titanium>> FROM Titanium",
             "11 Pay<> FROM MC",
-            "$SixteenPsyche FROM ProjectCard",
             "PROD[2 Titanium]",
             "3 Titanium",
             "4 MC",
@@ -870,7 +835,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$MagneticShield"),
             "4 Pay<Class<Titanium>> FROM Titanium",
             "8 Pay<> FROM MC",
-            "$MagneticShield FROM ProjectCard",
             "4 TerraformRating",
             "4 MC",
             "ProjectCard",
@@ -878,7 +842,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$BeamFromAThoriumAsteroid"),
             "32 Pay<> FROM MC",
-            "$BeamFromAThoriumAsteroid FROM ProjectCard",
             "PROD[3 Heat]",
             "PROD[3 Energy]",
             "4 MC",
@@ -892,7 +855,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Thermophiles"),
             "9 Pay<> FROM MC",
-            "$Thermophiles FROM ProjectCard",
         )
         doTasks(
             "UseAction<ConvertPlantsAction, Action1>",
@@ -906,13 +868,11 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$OptimalAerobraking"),
             "1 Pay<Class<Titanium>> FROM Titanium",
             "3 Pay<> FROM MC",
-            "$OptimalAerobraking FROM ProjectCard",
         )
         doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")
         doTasks(
             *playCardTasks("$ImportedNutrients"),
             "14 Pay<> FROM MC",
-            "$ImportedNutrients FROM ProjectCard",
             "4 Plant",
             "3 MC",
             "3 Heat",
@@ -928,7 +888,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$EquatorialMagnetizer"),
             "3 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$EquatorialMagnetizer FROM ProjectCard",
         )
         doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
       }
@@ -963,7 +922,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Research"),
             "11 Pay<> FROM MC",
-            "$Research FROM ProjectCard",
             "2 ProjectCard",
             "-ProjectCard",
             "ProjectCard",
@@ -995,7 +953,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$Shuttles"),
             "2 Pay<Class<Titanium>> FROM Titanium",
             "2 Pay<> FROM MC",
-            "$Shuttles FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[2 MC]",
         )
@@ -1003,7 +960,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$PioneerSettlement"),
             "2 Pay<Class<Titanium>> FROM Titanium",
             "3 Pay<> FROM MC",
-            "$PioneerSettlement FROM ProjectCard",
             "PROD[-2 MC]",
             "Colony<Triton>",
             "3 Titanium",
@@ -1029,7 +985,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$TitanFloatingLaunchPad"),
             "18 Pay<> FROM MC",
-            "$TitanFloatingLaunchPad FROM ProjectCard",
             "2 Floater<$TitanShuttles>",
         )
         doTasks(*cardActionTasks("$TitanFloatingLaunchPad"), "Floater<$TitanShuttles>")
@@ -1046,7 +1001,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$Atmoscoop"),
             "3 Pay<Class<Titanium>> FROM Titanium",
             "8 Pay<> FROM MC",
-            "$Atmoscoop FROM ProjectCard",
             "4 MC",
             "ProjectCard",
             "2 VenusStep",
@@ -1056,7 +1010,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$FloaterPrototypes"),
             "2 Pay<> FROM MC",
-            "$FloaterPrototypes FROM ProjectCard",
             "-ProjectCard",
             "ProjectCard",
             "2 Floater<$TitanShuttles>",
@@ -1072,7 +1025,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$GanymedeColony"),
             "4 Pay<Class<Titanium>> FROM Titanium",
             "2 Pay<> FROM MC",
-            "$GanymedeColony FROM ProjectCard",
             "CityTile<GanymedeColony_RemoteArea>",
             "4 MC",
             "ProjectCard",
@@ -1081,7 +1033,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$ConvoyFromEuropa"),
             "4 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$ConvoyFromEuropa FROM ProjectCard",
             "ProjectCard",
             "3 MC",
             "3 Heat",
@@ -1095,7 +1046,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$TerraformingGanymede"),
             "6 Pay<Class<Titanium>> FROM Titanium",
             "7 Pay<> FROM MC",
-            "$TerraformingGanymede FROM ProjectCard",
             "8 TerraformRating",
             "4 MC",
             "ProjectCard",
@@ -1104,7 +1054,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$HiTechLab"),
             "4 Pay<Class<Steel>> FROM Steel",
             "5 Pay<> FROM MC",
-            "$HiTechLab FROM ProjectCard",
             "-ProjectCard",
             "ProjectCard",
         )
@@ -1112,7 +1061,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$AsteroidCard"),
             "12 Pay<> FROM MC",
-            "$AsteroidCard FROM ProjectCard",
             "TemperatureStep",
             "2 Titanium",
             "3 MC",
@@ -1130,7 +1078,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(*cardActionTasks("$EquatorialMagnetizer"), "PROD[-Energy]", "TerraformRating")
         doTasks(
             *playCardTasks("$ProjectInspection"),
-            "$ProjectInspection FROM ProjectCard",
             "UseAction<$ElectroCatapult, Action1>",
             "Pay<Class<Plant>> FROM Plant",
             "7 MC",
@@ -1138,7 +1085,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$MediaArchives"),
             "8 Pay<> FROM MC",
-            "$MediaArchives FROM ProjectCard",
             "10 MC",
         )
         doTasks(
@@ -1171,7 +1117,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
             *playCardTasks("$DawnCity"),
             "2 Pay<Class<Titanium>> FROM Titanium",
             "5 Pay<> FROM MC",
-            "$DawnCity FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[Titanium]",
             "NormalCityTile<DawnCity_RemoteArea>",
@@ -1187,7 +1132,6 @@ internal class ThermalMatterWaveTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Windmills"),
             "6 Pay<> FROM MC",
-            "$Windmills FROM ProjectCard",
             "PROD[Energy]",
         )
         doTasks(*standardProjectTasks("SellPatentsProject"), "1 MC FROM ProjectCard")

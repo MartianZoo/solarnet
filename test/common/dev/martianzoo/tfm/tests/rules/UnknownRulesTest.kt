@@ -24,12 +24,10 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
-          "$TharsisRepublic FROM CorporationCard<Selecting>!",
           "40 MC",
           "-42 MC",
       )
@@ -43,7 +41,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard<Selecting>!",
           "21 MC",
           "CityTile<Tharsis_3_3>",
           "PROD[MC]",
@@ -67,7 +64,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$FakeHeadStart>>",
-          "$FakeHeadStart FROM PreludeCard",
           "2 Steel",
           "20 MC",
       )
@@ -79,13 +75,11 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "-42 MC",
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
-          "$TharsisRepublic FROM CorporationCard<Selecting>!",
           "40 MC",
       )
       doTasks(
@@ -126,13 +120,11 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "-42 MC",
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Poseidon>>",
-          "$Poseidon FROM CorporationCard<Selecting>",
           "45 MC",
       )
     }
@@ -163,13 +155,11 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
-          "$NewPartner FROM PreludeCard",
           "2 PreludeCard<Selecting>",
           "PROD[MC]",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
-          "$IndustrialComplex FROM PreludeCard<Selecting>",
           "-18 MC",
       )
       // Expand the production box after New Partner has raised MC production to its target.
@@ -194,12 +184,10 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
-          "$NewPartner FROM PreludeCard",
           "2 PreludeCard<Selecting>",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
-          "$IndustrialComplex FROM PreludeCard<Selecting>",
           "-18 MC",
       )
       // Expand Industrial Complex's per-resource adjustment while New Partner remains pending.
@@ -229,7 +217,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CyberiaSystems"),
           "16 Pay<> FROM MC",
-          "$CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
           "CopyProductionBox<$GhgFactories>",
           "PROD[4 Heat]",
@@ -260,12 +247,10 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Recyclon>>",
-          "$Recyclon FROM CorporationCard<Selecting>",
           "38 MC",
           "-42 MC",
           "Disease<$PharmacyUnion>",
@@ -297,12 +282,10 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Poseidon>>",
-          "$Poseidon FROM CorporationCard<Selecting>",
           "45 MC",
           "-42 MC",
       )
@@ -324,12 +307,10 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$ThorGate>>",
-          "$ThorGate FROM CorporationCard<Selecting>",
           "48 MC",
           "-42 MC",
           "PROD[Energy]",
@@ -349,7 +330,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Conscription"),
           "5 Pay<> FROM MC",
-          "$Conscription FROM ProjectCard",
           "Conscription_NextCardEffect",
       )
     }
@@ -362,7 +342,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
     }
@@ -370,7 +349,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Soletta"),
           "19 Pay<> FROM MC",
-          "$Soletta FROM ProjectCard",
           "PROD[7 Heat]",
       )
     }
@@ -386,7 +364,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$IndustrialMicrobes"),
               "12 Pay<> FROM MC",
-              "$IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
               "PROD[Steel]",
           )
@@ -408,7 +385,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$HiredRaiders"),
             "1 Pay<> FROM MC",
-            "$HiredRaiders FROM ProjectCard",
             "Steel<Kim FROM Kim>",
         )
       }
@@ -447,7 +423,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Windmills"),
           "6 Pay<> FROM MC",
-          "$Windmills FROM ProjectCard",
           "PROD[Energy]",
       )
     }
@@ -476,7 +451,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Windmills"),
           "6 Pay<> FROM MC",
-          "$Windmills FROM ProjectCard",
           "PROD[Energy]",
       )
     }
@@ -503,7 +477,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Windmills"),
           "6 Pay<> FROM MC",
-          "$Windmills FROM ProjectCard",
           "PROD[Energy]",
           "3 MC",
       )
@@ -536,7 +509,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$RoboticWorkforce"),
             "9 Pay<> FROM MC",
-            "$RoboticWorkforce FROM ProjectCard",
             "CopyProductionBox<$card>",
         )
         // Resolve the metal filter, which does not recognize the wild placement bonus.
@@ -601,7 +573,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$HiredRaiders"),
             "1 Pay<> FROM MC",
-            "$HiredRaiders FROM ProjectCard",
             "0 MC<Kim FROM Stan>",
         )
       }

@@ -15,7 +15,6 @@ internal class CloudTourismTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CloudTourism"),
           "9 Pay<> FROM MC",
-          "$CloudTourism FROM ProjectCard",
           "PROD[2 MC]",
       )
     }
@@ -32,7 +31,6 @@ internal class CloudTourismTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CloudTourism"),
           "9 Pay<> FROM MC",
-          "$CloudTourism FROM ProjectCard",
           "PROD[2 MC]",
       )
     }

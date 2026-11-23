@@ -17,14 +17,12 @@ internal class TurnCompletionTest : TfmGameplayTest() {
       doTasks(
           *playCardTasks("$ResearchCoordination"),
           "4 Pay<> FROM MC",
-          "$ResearchCoordination FROM ProjectCard",
       )
     }
     kim.completeOperation {
       doTasks(
           *playCardTasks("$Cartel"),
           "8 Pay<> FROM MC",
-          "$Cartel FROM ProjectCard",
           "PROD[2 MC]",
       )
     }

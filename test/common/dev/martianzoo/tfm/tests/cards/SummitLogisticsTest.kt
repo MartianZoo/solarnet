@@ -31,7 +31,6 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$SummitLogistics"),
               "10 Pay<> FROM MC",
-              "$SummitLogistics FROM ProjectCard",
               "3 MC",
               "2 ProjectCard<Hand>",
           )
@@ -53,7 +52,6 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$SummitLogistics"),
               "10 Pay<> FROM MC",
-              "$SummitLogistics FROM ProjectCard",
               "0 MC",
               "2 ProjectCard<Hand>",
           )
@@ -73,7 +71,6 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$SummitLogistics"),
               "10 Pay<> FROM MC",
-              "$SummitLogistics FROM ProjectCard",
               "6 MC",
               "2 ProjectCard<Hand>",
           )

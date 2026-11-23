@@ -17,7 +17,6 @@ internal class TopsoilContractTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$TopsoilContract"),
           "8 Pay<> FROM MC",
-          "$TopsoilContract FROM ProjectCard",
           "3 Plant",
           "Microbe<$Decomposers>*",
           "MC",

@@ -92,7 +92,6 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
           *playCardTasks("$SolarWindPower"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "7 Pay<> FROM MC",
-          "$SolarWindPower FROM ProjectCard",
           "PROD[Energy]",
           "2 Titanium",
       )
@@ -102,7 +101,6 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
           *playCardTasks("$VestaShipyard"),
           "1 Pay<Class<Titanium>> FROM Titanium",
           "11 Pay<> FROM MC",
-          "$VestaShipyard FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -132,7 +130,6 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "7 Pay<> FROM MC",
-          "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
           "-6 MC",
       )

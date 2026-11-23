@@ -24,7 +24,6 @@ internal class IceAsteroidTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$IceAsteroid"),
             "23 Pay<> FROM MC",
-            "$IceAsteroid FROM ProjectCard",
             "OceanTile<Tharsis_1_2>",
         )
       }

@@ -18,7 +18,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
-          "$MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
     }
@@ -26,7 +25,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "3 Pay<> FROM MC",
-          "$InvestmentLoan FROM ProjectCard",
           "PROD[-MC]",
           "10 MC",
       )
@@ -36,7 +34,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$AstraMechanica"),
               "7 Pay<> FROM MC",
-              "$AstraMechanica FROM ProjectCard",
               "ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>",
               "ProjectCard FROM PlayedEvent<Class<$InvestmentLoan>>",
           )
@@ -51,7 +48,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$LavaFlows"),
           "18 Pay<> FROM MC",
-          "$LavaFlows FROM ProjectCard",
           "2 TemperatureStep",
           "2 TerraformRating",
           "LavaFlows_SpecialTile<Tharsis_2_2>",
@@ -62,7 +58,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
-          "$MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
     }
@@ -70,7 +65,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "3 Pay<> FROM MC",
-          "$InvestmentLoan FROM ProjectCard",
           "PROD[-MC]",
           "10 MC",
       )
@@ -82,7 +76,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$AstraMechanica FROM ProjectCard",
             "ProjectCard FROM PlayedEvent<Class<$LavaFlows>>",
         )
       }
@@ -96,7 +89,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
-          "$Research FROM ProjectCard",
           "2 ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
           "TerraformRating FROM Disease<$PharmacyUnion>",
@@ -106,7 +98,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$PhysicsComplex"),
           "12 Pay<> FROM MC",
-          "$PhysicsComplex FROM ProjectCard",
           "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
           "3 TerraformRating",
       )
@@ -115,7 +106,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
-          "$MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
     }
@@ -123,7 +113,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "3 Pay<> FROM MC",
-          "$InvestmentLoan FROM ProjectCard",
           "PROD[-MC]",
           "10 MC",
       )
@@ -135,7 +124,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$AstraMechanica FROM ProjectCard",
             "ProjectCard FROM PlayedEvent<Class<$PharmacyUnion>>",
         )
       }
@@ -149,7 +137,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
-          "$MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
     }
@@ -157,7 +144,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "3 Pay<> FROM MC",
-          "$InvestmentLoan FROM ProjectCard",
           "PROD[-MC]",
           "10 MC",
       )
@@ -166,7 +152,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$BribedCommittee"),
           "7 Pay<> FROM MC",
-          "$BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
       )
     }
@@ -177,7 +162,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$AstraMechanica FROM ProjectCard",
             "ProjectCard FROM PlayedEvent<Stan, Class<$MineralDeposit>>",
         )
       }
@@ -191,7 +175,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
-          "$MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
     }
@@ -201,7 +184,6 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$AstraMechanica"),
             "7 Pay<> FROM MC",
-            "$AstraMechanica FROM ProjectCard",
             "ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>",
             "ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>",
         )

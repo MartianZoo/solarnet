@@ -21,7 +21,6 @@ internal class HellasPromoWithoutPreludeTest : FullGameTest() {
     with(p1) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$InterplanetaryCinematics>>",
-          "$InterplanetaryCinematics FROM CorporationCard",
           "30 MC",
           "20 Steel",
           "21 Pay<> FROM MC",
@@ -31,7 +30,6 @@ internal class HellasPromoWithoutPreludeTest : FullGameTest() {
     with(p2) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
-          "$PharmacyUnion FROM CorporationCard",
           "54 MC",
           "SearchForCard<TagFilter<Class<ScienceTag>>>",
           "Disease<$PharmacyUnion>",
@@ -43,11 +41,10 @@ internal class HellasPromoWithoutPreludeTest : FullGameTest() {
     }
 
     p1.turn {
-      doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
+      doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC")
       doTasks(
           *playCardTasks("$Sabotage"),
           "1 Pay<> FROM MC",
-          "$Sabotage FROM ProjectCard",
           "-7 MC<Player2>",
           "5 MC",
       )
@@ -57,7 +54,6 @@ internal class HellasPromoWithoutPreludeTest : FullGameTest() {
       doTasks(
           *playCardTasks("$Research"),
           "11 Pay<> FROM MC",
-          "$Research FROM ProjectCard",
           "2 ProjectCard",
           "TerraformRating FROM Disease<$PharmacyUnion>",
           "TerraformRating FROM Disease<$PharmacyUnion>",

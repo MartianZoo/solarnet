@@ -52,7 +52,6 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$PoliticalAlliance"),
           "4 Pay<> FROM MC",
-          "$PoliticalAlliance FROM ProjectCard",
           "TerraformRating",
       )
     }

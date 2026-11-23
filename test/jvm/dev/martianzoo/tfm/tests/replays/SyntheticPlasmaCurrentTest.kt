@@ -115,7 +115,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
     with(me) {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$PhoboLog>>",
-          "$PhoboLog FROM CorporationCard",
           "23 MC",
           "10 Titanium",
           "15 Pay<> FROM MC",
@@ -123,13 +122,11 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$AcquiredSpaceAgency>>",
-          "$AcquiredSpaceAgency FROM PreludeCard",
           "6 Titanium",
           "2 SearchForCard<TagFilter<Class<SpaceTag>>>",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$CorridorsOfPower>>",
-          "$CorridorsOfPower FROM PreludeCard",
           "TerraformRating",
           "4 MC",
       )
@@ -138,7 +135,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$AsteroidMining"),
             "7 Pay<Class<Titanium>> FROM Titanium",
             "2 Pay<> FROM MC",
-            "$AsteroidMining FROM ProjectCard",
             "PROD[2 Titanium]",
         )
         doTasks(
@@ -156,7 +152,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$TowingAComet"),
             "5 Pay<Class<Titanium>> FROM Titanium",
             "3 Pay<> FROM MC",
-            "$TowingAComet FROM ProjectCard",
             "2 Plant",
             "OxygenStep",
             "TerraformRating",
@@ -202,13 +197,11 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$TitaniumMine"),
             "7 Pay<> FROM MC",
-            "$TitaniumMine FROM ProjectCard",
             "PROD[Titanium]",
         )
         doTasks(
             *playCardTasks("$LocalShading"),
             "4 Pay<> FROM MC",
-            "$LocalShading FROM ProjectCard",
         )
         doTasks(*cardActionTasks("$LocalShading"), "Floater<$LocalShading>")
         doTasks(
@@ -257,7 +250,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$AdvancedAlloys"),
             "9 Pay<> FROM MC",
-            "$AdvancedAlloys FROM ProjectCard",
         )
         doTasks(
             "UseAction<LobbyAction, Action1>",
@@ -268,13 +260,11 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$GiantSpaceMirror"),
             "3 Pay<Class<Titanium>> FROM Titanium",
             "2 Pay<> FROM MC",
-            "$GiantSpaceMirror FROM ProjectCard",
             "PROD[3 Energy]",
         )
         doTasks(
             *playCardTasks("$Moss"),
             "4 Pay<> FROM MC",
-            "$Moss FROM ProjectCard",
             "PROD[Plant]",
             "-Plant",
         )
@@ -324,14 +314,12 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$SolarLogistics"),
             "4 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$SolarLogistics FROM ProjectCard",
             "2 Titanium",
         )
         doTasks(
             *playCardTasks("$Comet"),
             "4 Pay<Class<Titanium>> FROM Titanium",
             "1 Pay<> FROM MC",
-            "$Comet FROM ProjectCard",
             "TemperatureStep",
             "ProjectCard",
             "TerraformRating",
@@ -346,13 +334,11 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$VestaShipyard"),
             "3 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$VestaShipyard FROM ProjectCard",
             "PROD[Titanium]",
         )
         doTasks(
             *playCardTasks("$BribedCommittee"),
             "5 Pay<> FROM MC",
-            "$BribedCommittee FROM ProjectCard",
             "2 TerraformRating",
         )
         doTasks(
@@ -410,7 +396,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$PublicPlans"),
             "7 Pay<> FROM MC",
-            "$PublicPlans FROM ProjectCard",
             "17 ProjectCard<Revealed FROM Hand>",
             "17 ProjectCard<Hand FROM Revealed>",
             "17 MC",
@@ -419,19 +404,16 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$Satellites"),
             "2 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$Satellites FROM ProjectCard",
             "PROD[6 MC]",
         )
         doTasks(
             *playCardTasks("$WavePower"),
             "8 Pay<> FROM MC",
-            "$WavePower FROM ProjectCard",
             "PROD[Energy]",
         )
         doTasks(
             *playCardTasks("$Algae"),
             "10 Pay<> FROM MC",
-            "$Algae FROM ProjectCard",
             "Plant",
             "PROD[2 Plant]",
         )
@@ -496,14 +478,12 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$MarsUniversity"),
             "8 Pay<> FROM MC",
-            "$MarsUniversity FROM ProjectCard",
             "-ProjectCard",
             "ProjectCard",
         )
         doTasks(
             *playCardTasks("$ResearchOutpost"),
             "18 Pay<> FROM MC",
-            "$ResearchOutpost FROM ProjectCard",
             "CityTile<Tharsis_8_6>",
             "ProjectCard",
             "-ProjectCard",
@@ -514,14 +494,12 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$MethaneFromTitan"),
             "5 Pay<Class<Titanium>> FROM Titanium",
             "2 Pay<> FROM MC",
-            "$MethaneFromTitan FROM ProjectCard",
             "PROD[2 Heat]",
             "PROD[2 Plant]",
         )
         doTasks(
             *playCardTasks("$EnergyTapping"),
             "2 Pay<> FROM MC",
-            "$EnergyTapping FROM ProjectCard",
             "PROD[Energy]",
             "PROD[-Energy<SoloOpponent>]",
         )
@@ -578,16 +556,14 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$AtalantaPlanitiaLab"),
             "9 Pay<> FROM MC",
-            "$AtalantaPlanitiaLab FROM ProjectCard",
             "2 ProjectCard",
             "-ProjectCard",
             "ProjectCard",
         )
-        doTasks(*playCardTasks("$RedTourismWave"), "$RedTourismWave FROM ProjectCard", "8 MC")
+        doTasks(*playCardTasks("$RedTourismWave"), "8 MC")
         doTasks(
             *playCardTasks("$ExtractorBalloons"),
             "20 Pay<> FROM MC",
-            "$ExtractorBalloons FROM ProjectCard",
             "3 Floater<$ExtractorBalloons>",
         )
         doTasks(*cardActionTasks("$ExtractorBalloons"), "Floater<$ExtractorBalloons>")
@@ -658,7 +634,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$CometForVenus"),
             "2 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$CometForVenus FROM ProjectCard",
             "VenusStep",
             "ProjectCard",
             "TerraformRating",
@@ -676,22 +651,19 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$CallistoPenalMines"),
             "4 Pay<Class<Titanium>> FROM Titanium",
             "3 Pay<> FROM MC",
-            "$CallistoPenalMines FROM ProjectCard",
             "PROD[3 MC]",
         )
         doTasks(
             *playCardTasks("$EnvoysFromVenus"),
-            "$EnvoysFromVenus FROM ProjectCard",
             "PartyFollower<Kelvinists>",
             "PartyLeader<Kelvinists>",
             "ProjectCard",
         )
         doTasks(
             *playCardTasks("$Sabotage"),
-            "$Sabotage FROM ProjectCard",
             "Ok", // decline Sabotage's optional resource attack
         )
-        doTasks(*playCardTasks("$Steelworks"), "14 Pay<> FROM MC", "$Steelworks FROM ProjectCard")
+        doTasks(*playCardTasks("$Steelworks"), "14 Pay<> FROM MC")
         doTasks(
             *cardActionTasks("$Steelworks"),
             "4 Pay<Class<Energy>> FROM Energy",
@@ -701,7 +673,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         )
         doTasks(
             *playCardTasks("$FueledGenerators"),
-            "$FueledGenerators FROM ProjectCard",
             "PROD[-MC]",
             "PROD[Energy]",
         )
@@ -710,7 +681,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$StripMine"),
             "2 Pay<Class<Steel>> FROM Steel",
             "18 Pay<> FROM MC",
-            "$StripMine FROM ProjectCard",
             "PROD[-2 Energy]",
             "PROD[2 Steel]",
             "PROD[Titanium]",
@@ -722,7 +692,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$SulphurExports"),
             "3 Pay<Class<Titanium>> FROM Titanium",
             "5 Pay<> FROM MC",
-            "$SulphurExports FROM ProjectCard",
             "VenusStep",
             "PROD[4 MC]",
             "TerraformRating",
@@ -830,12 +799,11 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             "OxygenStep",
             "TerraformRating",
         )
-        doTasks(*playCardTasks("$Tardigrades"), "3 Pay<> FROM MC", "$Tardigrades FROM ProjectCard")
+        doTasks(*playCardTasks("$Tardigrades"), "3 Pay<> FROM MC")
         doTasks(
             *playCardTasks("$InterplanetaryTrade"),
             "4 Pay<Class<Titanium>> FROM Titanium",
             "2 Pay<> FROM MC",
-            "$InterplanetaryTrade FROM ProjectCard",
             "EACH",
             "PROD[10 MC]",
         )
@@ -852,7 +820,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$IshtarExpedition"),
             "5 Pay<> FROM MC",
-            "$IshtarExpedition FROM ProjectCard",
             "3 Titanium",
             "2 SearchForCard<TagFilter<Class<VenusTag>>>",
         )
@@ -863,13 +830,11 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$GanymedeColony"),
             "3 Pay<Class<Titanium>> FROM Titanium",
             "1 Pay<> FROM MC",
-            "$GanymedeColony FROM ProjectCard",
             "NormalCityTile<GanymedeColony_RemoteArea>",
         )
         doTasks(
             *playCardTasks("$SubterraneanReservoir"),
             "10 Pay<> FROM MC",
-            "$SubterraneanReservoir FROM ProjectCard",
             "OceanTile<Tharsis_6_8>",
             "TerraformRating",
             "Plant",
@@ -878,7 +843,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$AirScrappingExpedition"),
             "12 Pay<> FROM MC",
-            "$AirScrappingExpedition FROM ProjectCard",
             "VenusStep",
             "TerraformRating",
             "3 Floater<$ExtractorBalloons>",
@@ -886,7 +850,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$AstraMechanica"),
             "6 Pay<> FROM MC",
-            "$AstraMechanica FROM ProjectCard",
             "ProjectCard FROM PlayedEvent<Class<$BribedCommittee>>",
             "ProjectCard FROM PlayedEvent<Class<$Comet>>",
             "-ProjectCard",
@@ -894,26 +857,22 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         )
         doTasks(
             *playCardTasks("$CeosFavoriteProject"),
-            "$CeosFavoriteProject FROM ProjectCard",
             "Floater<$ExtractorBalloons>",
         )
         doTasks(
             *playCardTasks("$SmallAnimals"),
             "5 Pay<> FROM MC",
-            "$SmallAnimals FROM ProjectCard",
             "PROD[-Plant<SoloOpponent>]",
         )
         doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
         doTasks(
             *playCardTasks("$BribedCommittee"),
             "4 Pay<> FROM MC",
-            "$BribedCommittee FROM ProjectCard",
             "2 TerraformRating",
         )
         doTasks(
             *playCardTasks("$SnowAlgae"),
             "11 Pay<> FROM MC",
-            "$SnowAlgae FROM ProjectCard",
             "PROD[Plant]",
             "PROD[Heat]",
         )
@@ -991,20 +950,17 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$RegoPlastics"),
             "Ok", // no steel paid
             "9 Pay<> FROM MC",
-            "$RegoPlastics FROM ProjectCard",
         )
         doTasks(
             *playCardTasks("$Omnicourt"),
             "2 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$Omnicourt FROM ProjectCard",
             "2 TerraformRating",
         )
         doTasks(
             *playCardTasks("$GhgFactories"),
             "2 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$GhgFactories FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[4 Heat]",
         )
@@ -1012,7 +968,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$AiCentral"),
             "4 Pay<Class<Steel>> FROM Steel",
             "4 Pay<> FROM MC",
-            "$AiCentral FROM ProjectCard",
             "PROD[-Energy]",
             "-ProjectCard",
             "ProjectCard",
@@ -1022,7 +977,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$OlympusConference"),
             "7 Pay<> FROM MC",
-            "$OlympusConference FROM ProjectCard",
             "Science<$OlympusConference>",
             "-ProjectCard",
             "ProjectCard",
@@ -1035,7 +989,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$NitriteReducingBacteria"),
             "10 Pay<> FROM MC",
-            "$NitriteReducingBacteria FROM ProjectCard",
             "3 Microbe<$NitriteReducingBacteria>",
         )
         doTasks(
@@ -1048,7 +1001,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$Comet"),
             "4 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$Comet FROM ProjectCard",
             "TemperatureStep",
             "ProjectCard",
             "TerraformRating",
@@ -1068,13 +1020,11 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Extremophiles"),
             "2 Pay<> FROM MC",
-            "$Extremophiles FROM ProjectCard",
         )
         doTasks(*cardActionTasks("$Extremophiles"), "Microbe<$NitriteReducingBacteria>")
         doTasks(
             *playCardTasks("$MiningArea"),
             "3 Pay<> FROM MC",
-            "$MiningArea FROM ProjectCard",
             "MiningArea_SpecialTile<Tharsis_9_6>",
             "Production<Class<Metal>(HAS PlacementBonus<LandArea(HAS MiningArea_SpecialTile)>)>",
             "2 Steel",
@@ -1082,7 +1032,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$FloatingHabs"),
             "4 Pay<> FROM MC",
-            "$FloatingHabs FROM ProjectCard",
         )
         doTasks(*cardActionTasks("$FloatingHabs"), "2 Pay<> FROM MC", "Floater<$ExtractorBalloons>")
       }
@@ -1158,7 +1107,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$AntiGravityTechnology"),
             "13 Pay<> FROM MC",
-            "$AntiGravityTechnology FROM ProjectCard",
             "ProjectCard FROM Science",
             "-ProjectCard",
             "ProjectCard",
@@ -1167,7 +1115,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$SpecialPermit"),
             "2 Pay<> FROM MC",
-            "$SpecialPermit FROM ProjectCard",
             "4 Plant FROM Plant<SoloOpponent>",
         )
         doTasks(
@@ -1184,7 +1131,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$OpenCity"),
             "5 Pay<Class<Steel>> FROM Steel",
             "0 Pay<> FROM MC", // no MC remainder
-            "$OpenCity FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[4 MC]",
             "2 Plant",
@@ -1195,7 +1141,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$AqueductSystems"),
             "1 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$AqueductSystems FROM ProjectCard",
             "3 SearchForCard<TagFilter<Class<BuildingTag>>>",
         )
         doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
@@ -1203,12 +1148,10 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$RoverConstruction"),
             "1 Pay<Class<Steel>> FROM Steel",
             "1 Pay<> FROM MC",
-            "$RoverConstruction FROM ProjectCard",
         )
         doTasks(
             *playCardTasks("$BactoviralResearch"),
             "7 Pay<> FROM MC",
-            "$BactoviralResearch FROM ProjectCard",
             "ProjectCard",
             "Science<$OlympusConference>",
             "-ProjectCard",
@@ -1226,7 +1169,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Heather"),
             "3 Pay<> FROM MC",
-            "$Heather FROM ProjectCard",
             "PROD[Plant]",
             "Plant",
         )
@@ -1234,7 +1176,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$LargeConvoy"),
             "6 Pay<Class<Titanium>> FROM Titanium",
             "1 Pay<> FROM MC",
-            "$LargeConvoy FROM ProjectCard",
             "2 ProjectCard",
             "ProjectCard",
             "OceanTile<Tharsis_5_4>",
@@ -1254,7 +1195,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$KelpFarming"),
             "14 Pay<> FROM MC",
-            "$KelpFarming FROM ProjectCard",
             "PROD[2 MC]",
             "PROD[3 Plant]",
             "2 Plant",
@@ -1263,7 +1203,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$AsteroidRights"),
             "1 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$AsteroidRights FROM ProjectCard",
             "2 Asteroid<$AsteroidRights>",
         )
         doTasks(
@@ -1274,14 +1213,12 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$PeroxidePower"),
             "4 Pay<> FROM MC",
-            "$PeroxidePower FROM ProjectCard",
             "PROD[-MC]",
             "PROD[2 Energy]",
         )
         doTasks(
             *playCardTasks("$VenusianPlants"),
             "10 Pay<> FROM MC",
-            "$VenusianPlants FROM ProjectCard",
             "VenusStep",
             "TerraformRating",
             "Microbe<$Extremophiles>",
@@ -1289,7 +1226,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$NoctisFarming"),
             "7 Pay<> FROM MC",
-            "$NoctisFarming FROM ProjectCard",
             "PROD[MC]",
             "2 Plant",
         )
@@ -1310,7 +1246,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$MagneticFieldGeneratorsPromo"),
             "19 Pay<> FROM MC",
-            "$MagneticFieldGeneratorsPromo FROM ProjectCard",
             "PROD[-4 Energy]",
             "PROD[2 Plant]",
             "3 TerraformRating",
@@ -1321,7 +1256,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Plantation"),
             "12 Pay<> FROM MC",
-            "$Plantation FROM ProjectCard",
             "GreeneryTile<Tharsis_8_5>",
             "OxygenStep",
             "4 MC",
@@ -1396,7 +1330,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$FrontierTown"),
             "2 Pay<Class<Steel>> FROM Steel",
             "0 Pay<> FROM MC", // no MC remainder
-            "$FrontierTown FROM ProjectCard",
             "FrontierTownBonus",
             "PROD[-Energy]",
             "CityTile<Tharsis_6_5>",
@@ -1440,7 +1373,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$BigAsteroid"),
             "5 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$BigAsteroid FROM ProjectCard",
             "TemperatureStep",
             "TemperatureStep",
             "4 Titanium",
@@ -1452,7 +1384,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$GiantIceAsteroid"),
             "7 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$GiantIceAsteroid FROM ProjectCard",
             "TemperatureStep",
             "TemperatureStep",
             "ProjectCard",
@@ -1473,14 +1404,12 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Bushes"),
             "7 Pay<> FROM MC",
-            "$Bushes FROM ProjectCard",
             "PROD[2 Plant]",
             "2 Plant",
         )
         // The archive recorded no payment for the one M€ remaining after card discounts.
         doTasks(
             *playCardTasks("$BusinessNetwork"),
-            "$BusinessNetwork FROM ProjectCard",
             "PROD[-MC]",
         )
         doTasks(
@@ -1491,7 +1420,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Fish"),
             "6 Pay<> FROM MC",
-            "$Fish FROM ProjectCard",
             "PROD[-Plant<SoloOpponent>]",
         )
         doTasks(*cardActionTasks("$Fish"), "Animal<$Fish>")
@@ -1499,7 +1427,6 @@ internal class SyntheticPlasmaCurrentTest : FullGameTest() {
             *playCardTasks("$MartianRails"),
             "3 Pay<Class<Steel>> FROM Steel",
             "0 Pay<> FROM MC", // no MC remainder
-            "$MartianRails FROM ProjectCard",
         )
         doTasks(*cardActionTasks("$MartianRails"), "Pay<Class<Energy>> FROM Energy", "5 MC")
         doTasks(*standardProjectTasks("SellPatentsProject"), "7 MC FROM ProjectCard")

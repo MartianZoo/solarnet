@@ -19,7 +19,6 @@ internal class OutdoorSportsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$OutdoorSports"),
           "8 Pay<> FROM MC",
-          "$OutdoorSports FROM ProjectCard",
           "PROD[2 MC]",
       )
     }

@@ -21,7 +21,6 @@ internal class MinorityRefugeTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MinorityRefuge"),
             "5 Pay<> FROM MC",
-            "$MinorityRefuge FROM ProjectCard",
         )
 
         doTasks(
@@ -42,7 +41,6 @@ internal class MinorityRefugeTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$MinorityRefuge"),
               "5 Pay<> FROM MC",
-              "$MinorityRefuge FROM ProjectCard",
               "Colony<Luna>",
               "PROD[2 MC]",
               "PROD[-2 MC]",

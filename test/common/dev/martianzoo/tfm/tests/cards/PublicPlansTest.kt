@@ -19,7 +19,6 @@ internal class PublicPlansTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$PublicPlans"),
           "7 Pay<> FROM MC",
-          "$PublicPlans FROM ProjectCard",
           "2 ProjectCard<Revealed FROM Hand>",
           "2 ProjectCard FROM ProjectCard<Revealed>",
           "2 MC",
@@ -35,7 +34,6 @@ internal class PublicPlansTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$PublicPlans"),
           "7 Pay<> FROM MC",
-          "$PublicPlans FROM ProjectCard",
           "ProjectCard<Revealed FROM Hand>",
           "ProjectCard FROM ProjectCard<Revealed>",
           "MC",
@@ -53,7 +51,6 @@ internal class PublicPlansTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$PublicPlans FROM ProjectCard",
             "ProjectCard<Revealed FROM Hand>",
         )
       }

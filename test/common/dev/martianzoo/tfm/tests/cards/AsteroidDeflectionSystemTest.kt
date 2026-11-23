@@ -41,7 +41,6 @@ internal class AsteroidDeflectionSystemTest : TfmSandboxTest() {
 
         doTasks(
             "1 Pay<> FROM MC",
-            "$Virus FROM ProjectCard",
             "-Plant<Kim>",
         )
       }

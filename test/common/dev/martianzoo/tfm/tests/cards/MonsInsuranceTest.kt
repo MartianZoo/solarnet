@@ -17,7 +17,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<CorporationCard>, Class<$MonsInsurance>>",
-              "$MonsInsurance FROM CorporationCard",
               "48 MC",
               "PROD[4 MC]",
               "EACH Other@Player(NOT Kim) { -2! Production<Other@Player, Class<MC>> BY Other@Player }",
@@ -40,7 +39,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<CorporationCard>, Class<$MonsInsurance>>",
-              "$MonsInsurance FROM CorporationCard",
               "48 MC",
               "PROD[4 MC]",
               "EACH Other@Player(NOT Kim) { -2! Production<Other@Player, Class<MC>> BY Other@Player }",
@@ -60,12 +58,10 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-              "$Merger FROM PreludeCard",
               "4 CorporationCard<Selecting>",
           )
           doTasks(
               "PlayCard<Class<CorporationCard>, Class<$MonsInsurance>>",
-              "$MonsInsurance FROM CorporationCard<Selecting>!",
               "48 MC",
               "-42 MC",
               "PROD[4 MC]",
@@ -95,7 +91,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$HiredRaiders"),
           "1 Pay<> FROM MC",
-          "$HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
       // The active player chooses when to hand this task to its owner.
@@ -112,14 +107,12 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>",
-              "$ExcentricSponsor FROM PreludeCard",
               "PlayCard<Class<ProjectCard>, Class<$AsteroidCard>>",
           )
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-25* Owed")
           doTask("Ok") // The discount covers the full cost.
           doTasks(
-              "$AsteroidCard FROM ProjectCard",
               "TemperatureStep",
               "2 Titanium",
               "TerraformRating",
@@ -141,7 +134,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Birds"),
               "10 Pay<> FROM MC",
-              "$Birds FROM ProjectCard",
               "PROD[-2 Plant<Stan>]",
               "3 MC<Stan> FROM MC",
           )
@@ -160,7 +152,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Moss"),
               "4 Pay<> FROM MC",
-              "$Moss FROM ProjectCard",
               "PROD[Plant]",
               "-Plant",
           )
@@ -179,7 +170,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$HiredRaiders"),
           "Pay<> FROM MC",
-          "$HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
       // The active player chooses when to hand this task to its owner.
@@ -197,7 +187,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$IndustrialMicrobes"),
               "12 Pay<> FROM MC",
-              "$IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
               "PROD[Steel]",
           )
@@ -219,7 +208,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$AsteroidCard"),
               "14 Pay<> FROM MC",
-              "$AsteroidCard FROM ProjectCard",
               "TemperatureStep",
               "2 Titanium",
               "TerraformRating",
@@ -238,7 +226,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$HiredRaiders"),
               "1 Pay<> FROM MC",
-              "$HiredRaiders FROM ProjectCard",
               "3 MC<Kim FROM SoloOpponent>",
               "3 MC<SoloOpponent> FROM MC",
           )
@@ -259,7 +246,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$AsteroidCard"),
               "14 Pay<> FROM MC",
-              "$AsteroidCard FROM ProjectCard",
               "TemperatureStep",
               "2 Titanium",
               "TerraformRating",
@@ -288,7 +274,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Recession>>",
-          "$Recession FROM PreludeCard",
           "10 MC",
       )
       // Expand Recession into separate losses before checking compensation order.
@@ -326,7 +311,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$SmallAsteroid"),
             "10 Pay<> FROM MC",
-            "$SmallAsteroid FROM ProjectCard",
             "-Plant<Stan>",
             "3* MC<Stan FROM Kim>",
             "TemperatureStep",
@@ -343,7 +327,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$SmallAsteroid"),
               "10 Pay<> FROM MC",
-              "$SmallAsteroid FROM ProjectCard",
               "-Plant<Stan>",
               "TemperatureStep",
               "TerraformRating",

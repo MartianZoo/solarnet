@@ -15,7 +15,6 @@ internal class FloatingRefineryTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$FloatingRefinery"),
               "7 Pay<> FROM MC",
-              "$FloatingRefinery FROM ProjectCard",
               "2 Floater<$FloatingRefinery>",
           )
         }

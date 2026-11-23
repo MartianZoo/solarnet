@@ -18,7 +18,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "14 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "TerraformRating",
@@ -30,7 +29,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CrashSiteCleanup"),
           "4 Pay<> FROM MC",
-          "$CrashSiteCleanup FROM ProjectCard",
           "Titanium",
       )
     }
@@ -43,7 +41,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "14 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "TerraformRating",
@@ -65,7 +62,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "14 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "TerraformRating",
@@ -87,7 +83,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "14 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "TerraformRating",
@@ -110,7 +105,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AsteroidCard"),
           "14 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard",
           "TemperatureStep",
           "2 Titanium",
           "TerraformRating",
@@ -132,7 +126,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$AsteroidCard"),
               "14 Pay<> FROM MC",
-              "$AsteroidCard FROM ProjectCard",
               "TemperatureStep",
               "2 Titanium",
               "TerraformRating",

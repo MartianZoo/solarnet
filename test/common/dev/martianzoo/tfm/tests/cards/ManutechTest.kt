@@ -12,7 +12,6 @@ internal class ManutechTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Manutech>>",
-          "$Manutech FROM CorporationCard",
           "35 MC",
           "PROD[Steel]",
           "Steel",
@@ -32,7 +31,6 @@ internal class ManutechTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$NitrophilicMoss"),
               "8 Pay<> FROM MC",
-              "$NitrophilicMoss FROM ProjectCard",
               "PROD[2 Plant]",
               "-2 Plant",
               "2 Plant",

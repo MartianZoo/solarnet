@@ -23,7 +23,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "$Flooding FROM ProjectCard",
           )
           // Preserve the linked attack choice while selecting the ocean.
           selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Rob>")
@@ -44,7 +43,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "$Flooding FROM ProjectCard",
               "OceanTile<Tharsis_5_4>",
               "TerraformRating",
               "2 Plant",
@@ -64,7 +62,6 @@ internal class FloodingTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$Flooding FROM ProjectCard",
         )
         // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
@@ -83,7 +80,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "$Flooding FROM ProjectCard",
           )
           // Preserve the linked attack choice while selecting the ocean.
           selectTask("OceanTile<Tharsis_5_4>! THEN -2! MC<Stan>")
@@ -106,7 +102,6 @@ internal class FloodingTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$Flooding FROM ProjectCard",
         )
         // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -5! MC<Stan>")
@@ -123,7 +118,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$Flooding"),
             "7 Pay<> FROM MC",
-            "$Flooding FROM ProjectCard",
         )
         // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
@@ -145,7 +139,6 @@ internal class FloodingTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Flooding"),
           "7 Pay<> FROM MC",
-          "$Flooding FROM ProjectCard",
           "OceanTile<Tharsis_5_4>",
           "TerraformRating",
           "2 Plant",
@@ -181,7 +174,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "$Flooding FROM ProjectCard",
           )
           // Preserve the linked attack choice while selecting the ocean.
           selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
@@ -218,7 +210,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "$Flooding FROM ProjectCard",
           )
           // The ordinary placement resolves to zero; the mandatory attack arm cannot finish.
           doTask("Ok")
@@ -238,7 +229,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "$Flooding FROM ProjectCard",
           )
           // Preserve the linked attack choice while selecting the ocean.
           selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
@@ -264,7 +254,7 @@ internal class FloodingTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks(*playCardTasks("$Flooding"), "7 Pay<> FROM MC", "$Flooding FROM ProjectCard")
+        doTasks(*playCardTasks("$Flooding"), "7 Pay<> FROM MC")
         // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
         doTask("OceanTile<Tharsis_5_4>!")
@@ -284,7 +274,6 @@ internal class FloodingTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$Flooding FROM ProjectCard",
         )
         // Select the linked placement and loss before testing a partial narrowing.
         selectOnlyTask()
@@ -302,7 +291,6 @@ internal class FloodingTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$Flooding FROM ProjectCard",
         )
         // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -4? MC<Stan>")
@@ -327,7 +315,6 @@ internal class FloodingTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$Flooding FROM ProjectCard",
             "Ok",
         )
       }
@@ -344,7 +331,6 @@ internal class FloodingTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$Flooding FROM ProjectCard",
         )
         // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_1_2>! THEN -4! MC<Maya>")
@@ -362,7 +348,6 @@ internal class FloodingTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$Flooding FROM ProjectCard",
         )
         // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Maya>")
@@ -380,7 +365,6 @@ internal class FloodingTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$Flooding FROM ProjectCard",
         )
         // Preserve the linked attack choice while selecting the ocean.
         selectTask("OceanTile<Tharsis_1_2>! THEN -4! MC<Stan>")
@@ -398,7 +382,6 @@ internal class FloodingTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$Flooding FROM ProjectCard",
         )
         // Select the linked placement and loss before testing a partial narrowing.
         selectOnlyTask()
@@ -416,7 +399,6 @@ internal class FloodingTest : TfmSandboxTest() {
 
         doTasks(
             "7 Pay<> FROM MC",
-            "$Flooding FROM ProjectCard",
         )
         // Select the linked placement and loss before testing a partial narrowing.
         selectOnlyTask()
@@ -435,7 +417,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "$Flooding FROM ProjectCard",
           )
           // Select the linked choice that explicitly declines the attack.
           selectTask("OceanTile<Tharsis_5_4>! THEN Ok")
@@ -451,7 +432,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "$Flooding FROM ProjectCard",
           )
           // Preserve the linked attack choice while selecting the ocean.
           selectTask("OceanTile<Tharsis_5_4>! THEN -2? MC<Stan>")
@@ -485,7 +465,6 @@ internal class FloodingTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Flooding"),
               "7 Pay<> FROM MC",
-              "$Flooding FROM ProjectCard",
           )
 
           // Preserve the linked attack choice while selecting the ocean.
@@ -518,7 +497,6 @@ internal class FloodingTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Flooding"),
           "7 Pay<> FROM MC",
-          "$Flooding FROM ProjectCard",
       )
 
       // Preserve the linked attack choice while selecting the ocean.
@@ -556,7 +534,6 @@ internal class FloodingTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Flooding"),
           "7 Pay<> FROM MC",
-          "$Flooding FROM ProjectCard",
       )
 
       // Preserve the linked attack choice while selecting the ocean.

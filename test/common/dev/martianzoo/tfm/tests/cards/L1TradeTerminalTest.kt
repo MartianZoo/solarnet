@@ -28,7 +28,6 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$L1TradeTerminal"),
             "25 Pay<> FROM MC",
-            "$L1TradeTerminal FROM ProjectCard",
         )
         // Expand the bonus into a separate resource choice for each eligible card.
         doTasks(
@@ -46,7 +45,6 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$L1TradeTerminal"),
             "25 Pay<> FROM MC",
-            "$L1TradeTerminal FROM ProjectCard",
         )
         // Expand the bonus into a separate resource choice for each eligible card.
         doTasks(
@@ -64,7 +62,6 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$L1TradeTerminal"),
               "25 Pay<> FROM MC",
-              "$L1TradeTerminal FROM ProjectCard",
           )
           // Expand the bonus into a separate resource choice for each eligible card.
           doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
@@ -92,7 +89,6 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$L1TradeTerminal"),
             "25 Pay<> FROM MC",
-            "$L1TradeTerminal FROM ProjectCard",
         )
         // Expand the bonus into a separate resource choice for each eligible card.
         doTasks(
@@ -106,7 +102,6 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$L1TradeTerminal"),
           "25 Pay<> FROM MC",
-          "$L1TradeTerminal FROM ProjectCard",
       )
       // Expand the bonus into a separate resource choice for each eligible card.
       doTasks(
@@ -130,7 +125,6 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$L1TradeTerminal"),
             "25 Pay<> FROM MC",
-            "$L1TradeTerminal FROM ProjectCard",
         )
         // Expand the bonus into a separate resource choice for each eligible card.
         doTasks(
@@ -146,7 +140,6 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$L1TradeTerminal"),
           "25 Pay<> FROM MC",
-          "$L1TradeTerminal FROM ProjectCard",
       )
       // Expand the bonus into a separate resource choice for each eligible card.
       doTasks(
@@ -172,7 +165,6 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$L1TradeTerminal"),
             "25 Pay<> FROM MC",
-            "$L1TradeTerminal FROM ProjectCard",
         )
         // Expand the bonus into a separate resource choice for each eligible card.
         doTasks(
@@ -189,7 +181,6 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$L1TradeTerminal"),
             "25 Pay<> FROM MC",
-            "$L1TradeTerminal FROM ProjectCard",
         )
         // Expand the bonus into a separate resource choice for each eligible card.
         doTasks(
@@ -204,7 +195,6 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$L1TradeTerminal"),
               "25 Pay<> FROM MC",
-              "$L1TradeTerminal FROM ProjectCard",
           )
           // Expand the bonus into a separate resource choice for each eligible card.
           doTasks(
@@ -225,7 +215,6 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$L1TradeTerminal"),
               "25 Pay<> FROM MC",
-              "$L1TradeTerminal FROM ProjectCard",
           )
           // Expand the bonus into a separate resource choice for each eligible card.
           doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")

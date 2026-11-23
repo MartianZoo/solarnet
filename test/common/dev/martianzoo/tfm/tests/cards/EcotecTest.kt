@@ -11,7 +11,6 @@ internal class EcotecTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Ecotec>>",
-          "$Ecotec FROM CorporationCard",
           "42 MC",
           "PROD[Plant]",
           "Plant",

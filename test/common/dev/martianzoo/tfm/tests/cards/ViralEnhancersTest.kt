@@ -19,7 +19,6 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$RegolithEaters"),
               "13 Pay<> FROM MC",
-              "$RegolithEaters FROM ProjectCard",
               "Ok",
           )
         }
@@ -33,7 +32,6 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$ViralEnhancers"),
           "9 Pay<> FROM MC",
-          "$ViralEnhancers FROM ProjectCard",
           "Plant",
       )
     }
@@ -50,7 +48,6 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AdvancedEcosystems"),
           "11 Pay<> FROM MC",
-          "$AdvancedEcosystems FROM ProjectCard",
           "Plant",
           "Plant",
           "Plant",
@@ -68,7 +65,6 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$EcologicalZone"),
               "12 Pay<> FROM MC",
-              "$EcologicalZone FROM ProjectCard",
           )
           // Resolve Ecological Zone's resource separately from Viral Enhancers' choice.
           selectTask("Animal<$EcologicalZone>*")
@@ -97,7 +93,6 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Moss"),
               "4 Pay<> FROM MC",
-              "$Moss FROM ProjectCard",
               "PROD[Plant]",
               "Plant",
               "-Plant",
@@ -114,7 +109,6 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$RegolithEaters"),
             "13 Pay<> FROM MC",
-            "$RegolithEaters FROM ProjectCard",
             "Microbe<$NitriteReducingBacteria>",
         )
       }
@@ -128,7 +122,6 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$RegolithEaters"),
           "13 Pay<> FROM MC",
-          "$RegolithEaters FROM ProjectCard",
           "Microbe<$RegolithEaters>!",
       )
     }
@@ -148,13 +141,11 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-              "$Merger FROM PreludeCard",
               "4 CorporationCard<Selecting>",
               "-42 MC",
           )
           doTasks(
               "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
-              "$PharmacyUnion FROM CorporationCard<Selecting>!",
               "54 MC",
               "SearchForCard<TagFilter<Class<ScienceTag>>>!",
               "Disease<$PharmacyUnion>",
@@ -179,14 +170,12 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-            "$Merger FROM PreludeCard",
             "4 CorporationCard<Selecting>",
             "-42 MC",
         )
 
         doTasks(
             "PlayCard<Class<CorporationCard>, Class<$PharmacyUnion>>",
-            "$PharmacyUnion FROM CorporationCard<Selecting>",
             "SearchForCard<TagFilter<Class<ScienceTag>>>!",
             "Disease<$PharmacyUnion>",
             "-4* MC",
@@ -206,7 +195,6 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$IndustrialMicrobes"),
           "12 Pay<> FROM MC",
-          "$IndustrialMicrobes FROM ProjectCard",
           "PROD[Energy]",
           "PROD[Steel]",
           "Plant",
@@ -225,7 +213,6 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$IndustrialMicrobes"),
               "12 Pay<> FROM MC",
-              "$IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
               "PROD[Steel]",
               "Ok",

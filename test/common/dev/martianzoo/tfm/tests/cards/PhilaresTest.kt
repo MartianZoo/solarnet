@@ -116,7 +116,6 @@ internal class PhilaresTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$KaguyaTech"),
               "10 Pay<> FROM MC",
-              "$KaguyaTech FROM ProjectCard",
               "PROD[2 MC]",
               "ProjectCard<Hand>",
               "CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_3>",

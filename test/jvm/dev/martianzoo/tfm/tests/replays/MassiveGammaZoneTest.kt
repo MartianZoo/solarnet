@@ -120,19 +120,16 @@ internal class MassiveGammaZoneTest : FullGameTest() {
       // The source selected PolderTECH Dutch, which Canon does not treat as a published promo.
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$FakePolderTechDutch>>",
-          "$FakePolderTechDutch FROM CorporationCard",
           "35 MC",
           "15 Pay<> FROM MC",
           "5 ProjectCard<Hand FROM Selecting>",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard",
           "4 Director<$BoardOfDirectors>",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$ProjectEden>>",
-          "$ProjectEden FROM PreludeCard",
           "-3 ProjectCard",
           "OceanTile<Tharsis_2_6>",
           "TerraformRating",
@@ -167,17 +164,15 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "-12 MC",
             "-Director<$BoardOfDirectors>",
             "PlayCard<Class<PreludeCard>, Class<$AppliedScience>>",
-            "$AppliedScience FROM PreludeCard",
             "6 Science<$AppliedScience>",
         )
         doTasks(
             *playCardTasks("$BribedCommittee"),
             "7 Pay<> FROM MC",
-            "$BribedCommittee FROM ProjectCard",
             "2 TerraformRating",
         )
         doTasks(*cardActionTasks("$AppliedScience"), "-Science<$AppliedScience>", "Plant")
-        doTasks(*playCardTasks("$Mine"), "4 Pay<> FROM MC", "$Mine FROM ProjectCard", "PROD[Steel]")
+        doTasks(*playCardTasks("$Mine"), "4 Pay<> FROM MC", "PROD[Steel]")
         doTasks("UseAction<LobbyAction, Action1>", "PartyLeader<Greens> FROM LobbyDelegate")
       }
       doTask("Pass")
@@ -202,7 +197,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "-12 MC",
             "-Director<$BoardOfDirectors>",
             "PlayCard<Class<PreludeCard>, Class<$CorporateArchives>>",
-            "$CorporateArchives FROM PreludeCard",
             "13 MC",
             "7 ProjectCard<Selecting>",
             "2 ProjectCard<Hand FROM Selecting>",
@@ -212,7 +206,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$TitaniumMine"),
             "2 Pay<Class<Steel>> FROM Steel",
             "3 Pay<> FROM MC",
-            "$TitaniumMine FROM ProjectCard",
             "PROD[Titanium]",
         )
         doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Reds> FROM LobbyDelegate")
@@ -248,7 +241,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "-12 MC",
             "-Director<$BoardOfDirectors>",
             "PlayCard<Class<PreludeCard>, Class<$RiseToPower>>",
-            "$RiseToPower FROM PreludeCard",
             "PROD[3 MC]",
             "PartyLeader<Reds>",
             "PartyLeader<Unity>",
@@ -257,7 +249,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$ArcticAlgae"),
             "12 Pay<> FROM MC",
-            "$ArcticAlgae FROM ProjectCard",
             "Plant",
         )
         doTasks(
@@ -276,7 +267,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$UndergroundDetonations"),
             "3 Pay<Class<Steel>> FROM Steel",
             "0 Pay<> FROM MC", // no MC remainder
-            "$UndergroundDetonations FROM ProjectCard",
         )
         doTasks(*cardActionTasks("$UndergroundDetonations"), "10 Pay<> FROM MC", "PROD[2 Heat]")
         doTasks("UseAction<LobbyAction, Action1>", "PartyFollower<Unity> FROM LobbyDelegate")
@@ -301,11 +291,10 @@ internal class MassiveGammaZoneTest : FullGameTest() {
           "2 ProjectCard<Hand FROM Selecting>",
       )
       me.turn {
-        doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
+        doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC")
         doTasks(
             *playCardTasks("$InventionContest"),
             "2 Pay<> FROM MC",
-            "$InventionContest FROM ProjectCard",
             "3 ProjectCard<Selecting>",
             "ProjectCard<Hand FROM Selecting>",
             "3 MC",
@@ -316,7 +305,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "-12 MC",
             "-Director<$BoardOfDirectors>",
             "PlayCard<Class<PreludeCard>, Class<$AntiDesertificationTechniques>>",
-            "$AntiDesertificationTechniques FROM PreludeCard",
             "3 MC",
             "PROD[Plant]",
             "PROD[Steel]",
@@ -358,13 +346,11 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$MercurianAlloys"),
             "Ok", // no titanium paid
             "3 Pay<> FROM MC",
-            "$MercurianAlloys FROM ProjectCard",
         )
         doTasks(
             *playCardTasks("$AsteroidCard"),
             "2 Pay<Class<Titanium>> FROM Titanium",
             "4 Pay<> FROM MC",
-            "$AsteroidCard FROM ProjectCard",
             "TemperatureStep",
             "2 Titanium",
             "3 MC",
@@ -375,7 +361,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$IceAsteroid"),
             "4 Pay<Class<Titanium>> FROM Titanium",
             "3 Pay<> FROM MC",
-            "$IceAsteroid FROM ProjectCard",
             "3 MC",
             "OceanTile<Tharsis_5_6>",
             "TerraformRating",
@@ -390,21 +375,18 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$PoliticalAlliance"),
             "4 Pay<> FROM MC",
-            "$PoliticalAlliance FROM ProjectCard",
             "TerraformRating",
             "3 MC",
         )
         doTasks(
             *playCardTasks("$SpecialDesign"),
             "4 Pay<> FROM MC",
-            "$SpecialDesign FROM ProjectCard",
             "SpecialDesign_NextCardEffect",
             "3 MC",
         )
         doTasks(
             *playCardTasks("$Algae"),
             "10 Pay<> FROM MC",
-            "$Algae FROM ProjectCard",
             "Plant",
             "PROD[2 Plant]",
         )
@@ -422,7 +404,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$RobotPollinators"),
             "9 Pay<> FROM MC",
-            "$RobotPollinators FROM ProjectCard",
             "PROD[Plant]",
             "5 Plant",
         )
@@ -430,21 +411,18 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$AstraMechanica"),
             "7 Pay<> FROM MC",
-            "$AstraMechanica FROM ProjectCard",
             "ProjectCard FROM PlayedEvent<Class<$BribedCommittee>>",
             "ProjectCard FROM PlayedEvent<Class<$PoliticalAlliance>>",
         )
         doTasks(
             *playCardTasks("$PoliticalAlliance"),
             "4 Pay<> FROM MC",
-            "$PoliticalAlliance FROM ProjectCard",
             "TerraformRating",
             "3 MC",
         )
         doTasks(
             *playCardTasks("$BribedCommittee"),
             "7 Pay<> FROM MC",
-            "$BribedCommittee FROM ProjectCard",
             "2 TerraformRating",
             "3 MC",
         )
@@ -477,10 +455,8 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "-12 MC",
             "-Director<$BoardOfDirectors>",
             "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-            "$Merger FROM PreludeCard",
             "4 CorporationCard<Selecting>",
             "PlayCard<Class<CorporationCard>, Class<$LakefrontResorts>>",
-            "$LakefrontResorts FROM CorporationCard<Selecting>",
             "54 MC",
             "-42 MC",
         )
@@ -504,7 +480,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$RestrictedArea"),
             "11 Pay<> FROM MC",
-            "$RestrictedArea FROM ProjectCard",
             "RestrictedArea_SpecialTile<Tharsis_6_6>",
             "Steel",
             "Plant",
@@ -564,7 +539,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "-12 MC",
             "-Director<$BoardOfDirectors>",
             "PlayCard<Class<PreludeCard>, Class<$TerraformingDeal>>",
-            "$TerraformingDeal FROM PreludeCard",
         )
         doTasks(
             "UseAction<ConvertPlantsAction, Action1>",
@@ -604,13 +578,11 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$RegoPlastics"),
             "Ok", // no steel paid
             "10 Pay<> FROM MC",
-            "$RegoPlastics FROM ProjectCard",
         )
         doTasks(
             *playCardTasks("$BiomassCombustors"),
             "1 Pay<Class<Steel>> FROM Steel",
             "1 Pay<> FROM MC",
-            "$BiomassCombustors FROM ProjectCard",
             "PROD[-Plant<SoloOpponent>]",
             "PROD[2 Energy]",
         )
@@ -619,7 +591,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$GhgFactories"),
             "4 Pay<Class<Steel>> FROM Steel",
             "0 Pay<> FROM MC", // no MC remainder
-            "$GhgFactories FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[4 Heat]",
         )
@@ -627,7 +598,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$HeatTrappers"),
             "2 Pay<Class<Steel>> FROM Steel",
             "0 Pay<> FROM MC", // no MC remainder
-            "$HeatTrappers FROM ProjectCard",
             "PROD[-2 Heat<SoloOpponent>]",
             "PROD[Energy]",
         )
@@ -647,7 +617,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$StJosephOfCupertinoMission"),
             "7 Pay<> FROM MC",
-            "$StJosephOfCupertinoMission FROM ProjectCard",
         )
         doTasks(
             *cardActionTasks("$StJosephOfCupertinoMission"),
@@ -724,7 +693,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$MineralDeposit"),
             "5 Pay<> FROM MC",
-            "$MineralDeposit FROM ProjectCard",
             "5 Steel",
             "3 MC",
         )
@@ -732,7 +700,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$CulturalMetropolis"),
             "6 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$CulturalMetropolis FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[3 MC]",
             "CityTile<Tharsis_7_5>",
@@ -756,7 +723,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "-12 MC",
             "-Director<$BoardOfDirectors>",
             "PlayCard<Class<PreludeCard>, Class<$FocusedOrganization>>",
-            "$FocusedOrganization FROM PreludeCard",
             "ProjectCard",
             "Titanium",
         )
@@ -782,14 +748,12 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "3 Pay<Class<Steel>> FROM Steel",
             "Ok", // no titanium paid
             "18 Pay<> FROM MC",
-            "$SpaceElevator FROM ProjectCard",
             "PROD[Titanium]",
         )
         doTasks(*cardActionTasks("$SpaceElevator"), "Pay<Class<Steel>> FROM Steel", "5 MC")
         doTasks(
             *playCardTasks("$Archaebacteria"),
             "6 Pay<> FROM MC",
-            "$Archaebacteria FROM ProjectCard",
             "PROD[Plant]",
         )
         doTasks(
@@ -839,7 +803,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$HomeostasisBureau"),
             "1 Pay<Class<Steel>> FROM Steel",
             "13 Pay<> FROM MC",
-            "$HomeostasisBureau FROM ProjectCard",
             "PROD[2 Heat]",
         )
         doTasks(
@@ -857,20 +820,18 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "TerraformRating",
             "5 MC",
         )
-        doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC", "$EarthOffice FROM ProjectCard")
+        doTasks(*playCardTasks("$EarthOffice"), "1 Pay<> FROM MC")
         // Payment reconstruction: database saves 113–114 spend 5 M€ and 3 titanium.
         doTasks(
             *playCardTasks("$SolarLogistics"),
             "3 Pay<Class<Titanium>> FROM Titanium",
             "5 Pay<> FROM MC",
-            "$SolarLogistics FROM ProjectCard",
             "2 Titanium",
         )
         doTasks(
             *playCardTasks("$GhgShipment"),
             "Ok", // no titanium paid
             "3 Pay<> FROM MC",
-            "$GhgShipment FROM ProjectCard",
             "PROD[Heat]",
             "0 Heat",
             "3 MC",
@@ -879,7 +840,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$KelpFarming"),
             "17 Pay<> FROM MC",
-            "$KelpFarming FROM ProjectCard",
             "PROD[2 MC]",
             "PROD[3 Plant]",
             "2 Plant",
@@ -939,7 +899,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$TechnologyDemonstration"),
             "1 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$TechnologyDemonstration FROM ProjectCard",
             "2 ProjectCard",
             "3 MC",
             "ProjectCard",
@@ -950,7 +909,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$GiantIceAsteroid"),
             "7 Pay<Class<Titanium>> FROM Titanium",
             "1 Pay<> FROM MC",
-            "$GiantIceAsteroid FROM ProjectCard",
             "TemperatureStep",
             "TemperatureStep",
             "3 MC",
@@ -979,7 +937,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$SterlingVents"),
             "1 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$SterlingVents FROM ProjectCard",
             "PROD[-2 Heat]",
             "PROD[2 Energy]",
         )
@@ -994,7 +951,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$SmallAsteroid"),
             "2 Pay<Class<Titanium>> FROM Titanium",
             "0 Pay<> FROM MC", // no MC remainder
-            "$SmallAsteroid FROM ProjectCard",
             "TemperatureStep",
             "3 MC",
             "ProjectCard",
@@ -1006,7 +962,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$SaturnSurfing"),
             "8 Pay<> FROM MC",
-            "$SaturnSurfing FROM ProjectCard",
             "8 Floater<$SaturnSurfing>",
         )
         doTasks(*cardActionTasks("$SaturnSurfing"), "-Floater<$SaturnSurfing>", "5 MC")
@@ -1027,7 +982,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$Capital"),
             "26 Pay<> FROM MC",
-            "$Capital FROM ProjectCard",
             "PROD[-2 Energy]",
             "PROD[5 MC]",
             "CapitalTile<Tharsis_2_5>",
@@ -1042,7 +996,7 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             "2 Pay<> FROM MC",
             "ProjectCard",
         )
-        doTasks(*playCardTasks("$RedShips"), "2 Pay<> FROM MC", "$RedShips FROM ProjectCard")
+        doTasks(*playCardTasks("$RedShips"), "2 Pay<> FROM MC")
         doTasks(
             *standardProjectTasks("CityProject"),
             "25 Pay<> FROM MC",
@@ -1054,7 +1008,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$NoctisCity"),
             "18 Pay<> FROM MC",
-            "$NoctisCity FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[3 MC]",
             "NormalCityTile<NoctisArea>",
@@ -1065,7 +1018,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$JovianEnvoys"),
             "2 Pay<> FROM MC",
-            "$JovianEnvoys FROM ProjectCard",
             "3 MC",
             "PartyFollower<Greens>",
             "PartyLeader<Greens>",
@@ -1075,12 +1027,10 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$CuttingEdgeTechnology"),
             "12 Pay<> FROM MC",
-            "$CuttingEdgeTechnology FROM ProjectCard",
         )
         doTasks(
             *playCardTasks("$CloudSeeding"),
             "9 Pay<> FROM MC",
-            "$CloudSeeding FROM ProjectCard",
             "PROD[-MC]",
             "PROD[-Heat<SoloOpponent>]",
             "PROD[2 Plant]",
@@ -1102,7 +1052,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         )
         doTasks(
             *playCardTasks("$InvestmentLoan"),
-            "$InvestmentLoan FROM ProjectCard",
             "PROD[-MC]",
             "13 MC",
         )
@@ -1132,7 +1081,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$ImportedNitrogen"),
             "3 Pay<Class<Titanium>> FROM Titanium",
             "3 Pay<> FROM MC",
-            "$ImportedNitrogen FROM ProjectCard",
             "TerraformRating",
             "4 Plant",
             "3 Microbe",
@@ -1179,11 +1127,9 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$EarthCatapult"),
             "18 Pay<> FROM MC",
-            "$EarthCatapult FROM ProjectCard",
         )
         doTasks(
             *playCardTasks("$BusinessContacts"),
-            "$BusinessContacts FROM ProjectCard",
             "4 ProjectCard<Selecting>",
             "2 ProjectCard<Hand FROM Selecting>",
             "3 MC",
@@ -1213,20 +1159,17 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$Meltworks"),
             "Ok", // no steel paid
             "2 Pay<> FROM MC",
-            "$Meltworks FROM ProjectCard",
         )
         doTasks(*cardActionTasks("$Meltworks"), "5 Pay<Class<Heat>> FROM Heat", "3 Steel")
         doTasks(
             *playCardTasks("$TectonicStressPower"),
             "4 Pay<Class<Steel>> FROM Steel",
             "2 Pay<> FROM MC",
-            "$TectonicStressPower FROM ProjectCard",
             "PROD[3 Energy]",
         )
         doTasks(
             *playCardTasks("$LavaTubeSettlement"),
             "13 Pay<> FROM MC",
-            "$LavaTubeSettlement FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[2 MC]",
             "NormalCityTile<Tharsis_3_1>",
@@ -1305,7 +1248,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$OpenCity"),
             "19 Pay<> FROM MC",
-            "$OpenCity FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[4 MC]",
             "2 Plant",
@@ -1316,13 +1258,11 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$ViralEnhancers"),
             "7 Pay<> FROM MC",
-            "$ViralEnhancers FROM ProjectCard",
             "Plant",
         )
         doTasks(
             *playCardTasks("$Farming"),
             "12 Pay<> FROM MC",
-            "$Farming FROM ProjectCard",
             "PROD[2 MC]",
             "PROD[2 Plant]",
             "2 Plant",
@@ -1331,7 +1271,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$TundraFarming"),
             "12 Pay<> FROM MC",
-            "$TundraFarming FROM ProjectCard",
             "PROD[Plant]",
             "PROD[2 MC]",
         )
@@ -1406,7 +1345,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         )
         doTasks(
             *playCardTasks("$Recruitment"),
-            "$Recruitment FROM ProjectCard",
             "3 MC",
             "PartyFollower<Reds> FROM PartyFollower<Reds, Neutral>",
         )
@@ -1420,13 +1358,11 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$EventAnalysts"),
             "1 Pay<> FROM MC",
-            "$EventAnalysts FROM ProjectCard",
         )
         // Applied Science's wild tag supplies the seventh science tag.
         doTasks(
             *playCardTasks("$AntiGravityTechnology"),
             "10 Pay<> FROM MC",
-            "$AntiGravityTechnology FROM ProjectCard",
         )
         doTasks(
             *cardActionTasks("$FocusedOrganization"),
@@ -1439,7 +1375,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$CommercialDistrict"),
             "4 Pay<Class<Steel>> FROM Steel",
             "0 Pay<> FROM MC", // no MC remainder
-            "$CommercialDistrict FROM ProjectCard",
             "PROD[-Energy]",
             "PROD[4 MC]",
             "CommercialDistrict_SpecialTile<Tharsis_2_1>",
@@ -1466,14 +1401,12 @@ internal class MassiveGammaZoneTest : FullGameTest() {
             *playCardTasks("$MedicalLab"),
             "3 Pay<Class<Steel>> FROM Steel",
             "0 Pay<> FROM MC", // no MC remainder
-            "$MedicalLab FROM ProjectCard",
             "PROD[10 MC]",
         )
         doTasks(
             *playCardTasks("$MethaneFromTitan"),
             "5 Pay<Class<Titanium>> FROM Titanium",
             "2 Pay<> FROM MC",
-            "$MethaneFromTitan FROM ProjectCard",
             "PROD[2 Heat]",
             "PROD[2 Plant]",
         )
@@ -1490,7 +1423,6 @@ internal class MassiveGammaZoneTest : FullGameTest() {
         doTasks(
             *playCardTasks("$StanfordTorus"),
             "8 Pay<> FROM MC",
-            "$StanfordTorus FROM ProjectCard",
             "NormalCityTile<StanfordTorus_RemoteArea>",
         )
         doTasks(

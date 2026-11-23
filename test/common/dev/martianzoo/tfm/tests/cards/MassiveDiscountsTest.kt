@@ -25,7 +25,6 @@ internal class MassiveDiscountsTest : TfmSandboxTest() {
           "1 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
-          "$SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -37,7 +36,7 @@ internal class MassiveDiscountsTest : TfmSandboxTest() {
     kim.exMachina("$EarthOffice, $AcquiredCompany, $MediaGroup")
 
     kim.inTurn {
-      doTasks(*playCardTasks("$LunaGovernor"), "$LunaGovernor FROM ProjectCard", "PROD[2 MC]")
+      doTasks(*playCardTasks("$LunaGovernor"), "PROD[2 MC]")
     }
   }
 }

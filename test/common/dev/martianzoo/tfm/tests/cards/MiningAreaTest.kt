@@ -19,7 +19,6 @@ internal class MiningAreaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MiningArea"),
           "4 Pay<> FROM MC",
-          "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Tharsis_8_9>",
           "Titanium",
           "PROD[Titanium]",
@@ -38,7 +37,6 @@ internal class MiningAreaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$MiningArea"),
           "4 Pay<> FROM MC",
-          "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Cimmeria_6_4>",
           "2 Steel",
           "Titanium",
@@ -50,7 +48,6 @@ internal class MiningAreaTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$MiningArea>",
           "PROD[Titanium]",
       )
@@ -67,7 +64,6 @@ internal class MiningAreaTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MiningArea"),
             "4 Pay<> FROM MC",
-            "$MiningArea FROM ProjectCard",
             "MiningArea_SpecialTile<Tharsis_3_2>",
         )
         // Resolve the production choice to check that this area supplies a metal bonus.
@@ -87,7 +83,6 @@ internal class MiningAreaTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MiningArea"),
             "4 Pay<> FROM MC",
-            "$MiningArea FROM ProjectCard",
             "MiningArea_SpecialTile<Tharsis_8_9>",
         )
       }
@@ -106,7 +101,6 @@ internal class MiningAreaTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$MiningArea"),
             "4 Pay<> FROM MC",
-            "$MiningArea FROM ProjectCard",
             "MiningArea_SpecialTile<Tharsis_8_9>",
             "Titanium",
             "PROD[Steel]",

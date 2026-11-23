@@ -23,7 +23,6 @@ internal class DiversitySupportTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$DiversitySupport"),
           "1 Pay<> FROM MC",
-          "$DiversitySupport FROM ProjectCard",
           "TerraformRating",
       )
     }

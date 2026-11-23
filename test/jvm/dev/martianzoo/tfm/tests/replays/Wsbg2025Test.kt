@@ -67,7 +67,6 @@ internal class Wsbg2025Test : FullGameTest() {
     with(blue) {
       doTasks(
           "PlayCard<Class<$CrediCor>>",
-          "$CrediCor FROM CorporationCard",
           "57 MC",
           "18 Pay<> FROM MC",
           "6 ProjectCard<Hand FROM Selecting>",
@@ -76,7 +75,6 @@ internal class Wsbg2025Test : FullGameTest() {
     with(red) {
       doTasks(
           "PlayCard<Class<$ValleyTrust>>",
-          "$ValleyTrust FROM CorporationCard",
           "37 MC",
           "21 Pay<> FROM MC",
           "7 ProjectCard<Hand FROM Selecting>",
@@ -85,7 +83,6 @@ internal class Wsbg2025Test : FullGameTest() {
     with(green) {
       doTasks(
           "PlayCard<Class<$RobinsonIndustries>>",
-          "$RobinsonIndustries FROM CorporationCard",
           "47 MC",
           "24 Pay<> FROM MC",
           "8 ProjectCard<Hand FROM Selecting>",
@@ -94,7 +91,6 @@ internal class Wsbg2025Test : FullGameTest() {
     with(black) {
       doTasks(
           "PlayCard<Class<$CheungShingMars>>",
-          "$CheungShingMars FROM CorporationCard",
           "44 MC",
           "PROD[3 MC]",
           "21 Pay<> FROM MC",
@@ -104,13 +100,11 @@ internal class Wsbg2025Test : FullGameTest() {
     with(blue) {
       doTasks(
           "PlayCard<Class<$UnmiContractor>>",
-          "$UnmiContractor FROM PreludeCard",
           "3 TerraformRating",
           "ProjectCard",
       )
       doTasks(
           "PlayCard<Class<$EarlySettlement>>",
-          "$EarlySettlement FROM PreludeCard",
           "PROD[Plant]",
           "CityTile<Elysium_3_7>",
           "3 ProjectCard",
@@ -120,14 +114,12 @@ internal class Wsbg2025Test : FullGameTest() {
     with(red) {
       doTasks(
           "PlayCard<Class<$Biofuels>>",
-          "$Biofuels FROM PreludeCard",
           "PROD[Plant]",
           "PROD[Energy]",
           "2 Plant",
       )
       doTasks(
           "PlayCard<Class<$ResearchNetwork>>",
-          "$ResearchNetwork FROM PreludeCard",
           "PROD[MC]",
           "3 ProjectCard",
       )
@@ -135,14 +127,12 @@ internal class Wsbg2025Test : FullGameTest() {
     with(green) {
       doTasks(
           "PlayCard<Class<$SelfSufficientSettlement>>",
-          "$SelfSufficientSettlement FROM PreludeCard",
           "PROD[2 MC]",
           "CityTile<Elysium_8_8>",
           "2 Steel",
       )
       doTasks(
           "PlayCard<Class<$EcologyExperts>>",
-          "$EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
           "PlayCard<Class<$Predators>>",
       )
@@ -150,19 +140,16 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           "-11 Required<Class<OxygenStep>>",
           "14 Pay<> FROM MC",
-          "$Predators FROM ProjectCard",
       )
     }
     with(black) {
       doTasks(
           "PlayCard<Class<$AlliedBank>>",
-          "$AlliedBank FROM PreludeCard",
           "PROD[4 MC]",
           "3 MC",
       )
       doTasks(
           "PlayCard<Class<$AquiferTurbines>>",
-          "$AquiferTurbines FROM PreludeCard",
           "PROD[2 Energy]",
           "-3 MC",
           "OceanTile<Elysium_5_4>",
@@ -174,13 +161,11 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$EarthCatapult"),
           "23 Pay<> FROM MC",
-          "$EarthCatapult FROM ProjectCard",
           "4 MC",
       )
       doTasks(
           *playCardTasks("$ArcticAlgae"),
           "10 Pay<> FROM MC",
-          "$ArcticAlgae FROM ProjectCard",
           "Plant",
       )
     }
@@ -189,7 +174,6 @@ internal class Wsbg2025Test : FullGameTest() {
           "DoRequiredActions",
           "3 PreludeCard<Selecting>",
           "PlayCard<Class<$MoholeExcavation>>",
-          "$MoholeExcavation FROM PreludeCard<Selecting>",
           "PROD[Steel]",
           "PROD[2 Heat]",
           "2 Heat",
@@ -197,7 +181,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$LandClaim"),
           "1 Pay<> FROM MC",
-          "$LandClaim FROM ProjectCard",
           "Community<Elysium_5_6>",
       )
     }
@@ -208,7 +191,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$GhgFactories"),
           "9 Pay<> FROM MC",
-          "$GhgFactories FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 Heat]",
       )
@@ -217,7 +199,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$EnergyTapping"),
           "1 Pay<> FROM MC",
-          "$EnergyTapping FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-Energy<Red>]",
       )
@@ -227,13 +208,11 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Sabotage"),
           "1 Pay<> FROM MC",
-          "$Sabotage FROM ProjectCard",
           "-7 MC<Blue>",
       )
       doTasks(
           *playCardTasks("$ResearchCoordination"),
           "4 Pay<> FROM MC",
-          "$ResearchCoordination FROM ProjectCard",
       )
     }
     green.doTask("Pass")
@@ -286,7 +265,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Archaebacteria"),
           "6 Pay<> FROM MC",
-          "$Archaebacteria FROM ProjectCard",
           "PROD[Plant]",
       )
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Ecologist")
@@ -296,7 +274,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$IndustrialCenter"),
           "Ok", // no steel paid; payment allocation is provisional
           "4 Pay<> FROM MC",
-          "$IndustrialCenter FROM ProjectCard",
           "IndustrialCenter_SpecialTile<Elysium_4_8>",
           "Plant",
           "Steel",
@@ -305,7 +282,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$IndustrialMicrobes"),
           "3 Pay<Class<Steel>> FROM Steel",
           "6 Pay<> FROM MC",
-          "$IndustrialMicrobes FROM ProjectCard",
           "PROD[Energy]",
           "PROD[Steel]",
       )
@@ -315,7 +291,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$TowingAComet"),
           "23 Pay<> FROM MC",
-          "$TowingAComet FROM ProjectCard",
           "2 Plant",
           "OxygenStep",
           "TerraformRating",
@@ -331,7 +306,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$ElectroCatapult"),
           "15 Pay<> FROM MC",
-          "$ElectroCatapult FROM ProjectCard",
           "PROD[-Energy]",
       )
       doTasks(*cardActionTasks("$ElectroCatapult"), "Pay<Class<Plant>> FROM Plant", "7 MC")
@@ -344,7 +318,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$DomedCrater"),
           "22 Pay<> FROM MC",
-          "$DomedCrater FROM ProjectCard",
           "3 Plant",
           "PROD[-Energy]",
           "PROD[3 MC]",
@@ -426,7 +399,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$OptimalAerobraking"),
           "5 Pay<> FROM MC",
-          "$OptimalAerobraking FROM ProjectCard",
       )
     }
     red.turn {
@@ -444,14 +416,12 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MartianSurvey"),
           "9 Pay<> FROM MC",
-          "$MartianSurvey FROM ProjectCard",
           "2 ProjectCard",
       )
       doTasks(
           *playCardTasks("$MiningArea"),
           "Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Elysium_5_9>",
           "PROD[Titanium]",
           "Plant",
@@ -463,7 +433,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$LunarBeam"),
           "13 Pay<> FROM MC",
-          "$LunarBeam FROM ProjectCard",
           "PROD[-2 MC]",
           "PROD[2 Heat]",
           "PROD[2 Energy]",
@@ -473,7 +442,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$ConvoyFromEuropa"),
           "13 Pay<> FROM MC",
-          "$ConvoyFromEuropa FROM ProjectCard",
           "ProjectCard",
           "3 MC",
           "3 Heat",
@@ -484,7 +452,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$ImportedHydrogen"),
           "14 Pay<> FROM MC",
-          "$ImportedHydrogen FROM ProjectCard",
           "3 MC",
           "3 Heat",
           "3 Plant",
@@ -510,7 +477,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$LagrangeObservatory"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC",
-          "$LagrangeObservatory FROM ProjectCard",
           "ProjectCard",
       )
     }
@@ -528,7 +494,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$NitrophilicMoss"),
           "6 Pay<> FROM MC",
-          "$NitrophilicMoss FROM ProjectCard",
           "PROD[2 Plant]",
           "-2 Plant",
       )
@@ -600,7 +565,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MarsUniversity"),
           "6 Pay<> FROM MC",
-          "$MarsUniversity FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
       )
@@ -619,12 +583,10 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$ProtectedHabitats"),
           "5 Pay<> FROM MC",
-          "$ProtectedHabitats FROM ProjectCard",
       )
       doTasks(
           *playCardTasks("$Decomposers"),
           "5 Pay<> FROM MC",
-          "$Decomposers FROM ProjectCard",
           "Microbe<$Decomposers>",
       )
     }
@@ -633,7 +595,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$ColonizerTrainingCamp"),
           "Pay<Class<Steel>> FROM Steel",
           "6 Pay<> FROM MC",
-          "$ColonizerTrainingCamp FROM ProjectCard",
       )
       doTasks(*cardActionTasks("$RobinsonIndustries"), "4 Pay<> FROM MC", "PROD[Steel]")
     }
@@ -642,7 +603,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$RoboticWorkforce"),
           "9 Pay<> FROM MC",
-          "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$CheungShingMars>",
           "PROD[3 MC]",
           "-ProjectCard",
@@ -660,7 +620,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$SubterraneanReservoir"),
           "11 Pay<> FROM MC",
-          "$SubterraneanReservoir FROM ProjectCard",
           "OceanTile<Elysium_3_5>",
           "TerraformRating",
           "Plant",
@@ -679,7 +638,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Algae"),
           "10 Pay<> FROM MC",
-          "$Algae FROM ProjectCard",
           "Plant",
           "PROD[2 Plant]",
       )
@@ -689,7 +647,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$GiantIceAsteroid"),
           "34 Pay<> FROM MC",
-          "$GiantIceAsteroid FROM ProjectCard",
           "7 MC",
           "3 Heat",
           "TemperatureStep",
@@ -723,7 +680,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$Greenhouses"),
           "3 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC", // steel allocation inferred from Mohole Excavation's production
-          "$Greenhouses FROM ProjectCard",
           "4 Plant",
           "Microbe<$Decomposers>",
       )
@@ -741,7 +697,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Sponsors"),
           "6 Pay<> FROM MC",
-          "$Sponsors FROM ProjectCard",
           "PROD[2 MC]",
       )
     }
@@ -751,7 +706,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$GeothermalPower"),
           "2 Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$GeothermalPower FROM ProjectCard",
           "PROD[2 Energy]",
       )
     }
@@ -759,7 +713,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$SmallAnimals"),
           "6 Pay<> FROM MC",
-          "$SmallAnimals FROM ProjectCard",
           "PROD[-Plant<Blue>]",
           "Microbe<$Decomposers>",
       )
@@ -770,7 +723,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$SearchForLife"),
           "3 Pay<> FROM MC",
-          "$SearchForLife FROM ProjectCard",
           "Ok", // provisionally decline the Mars University exchange
       )
       doTasks(
@@ -832,7 +784,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Capital"),
           "24 Pay<> FROM MC",
-          "$Capital FROM ProjectCard",
           "4 MC",
           "CapitalTile<Elysium_3_4>",
           "6 MC",
@@ -845,7 +796,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Worms"),
           "8 Pay<> FROM MC",
-          "$Worms FROM ProjectCard",
           "PROD[3 Plant]",
           "Microbe<$Decomposers>",
       )
@@ -856,7 +806,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$LargeConvoy"),
           "6 Pay<Class<Titanium>> FROM Titanium",
           "18 Pay<> FROM MC",
-          "$LargeConvoy FROM ProjectCard",
           "2 ProjectCard",
           "4 Animal<$Predators>",
           "OceanTile<Elysium_1_3>",
@@ -868,7 +817,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$NuclearZone"),
           "10 Pay<> FROM MC",
-          "$NuclearZone FROM ProjectCard",
           "NuclearZone_SpecialTile<Elysium_2_3>",
           "4 MC",
           "TemperatureStep",
@@ -881,7 +829,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$InventorsGuild"),
           "9 Pay<> FROM MC",
-          "$InventorsGuild FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
       )
@@ -897,7 +844,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$AsteroidMining"),
           "28 Pay<> FROM MC",
-          "$AsteroidMining FROM ProjectCard",
           "4 MC",
           "PROD[2 Titanium]",
       )
@@ -908,7 +854,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$RoverConstruction"),
           "Pay<Class<Steel>> FROM Steel",
           "6 Pay<> FROM MC",
-          "$RoverConstruction FROM ProjectCard",
       )
       doTasks(*cardActionTasks("$SmallAnimals"), "Animal<$SmallAnimals>")
     }
@@ -921,7 +866,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$DesignedMicroorganisms"),
           "16 Pay<> FROM MC",
-          "$DesignedMicroorganisms FROM ProjectCard",
           "PROD[2 Plant]",
           "-ProjectCard",
           "ProjectCard",
@@ -1005,7 +949,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Herbivores"),
           "12 Pay<> FROM MC",
-          "$Herbivores FROM ProjectCard",
           "Animal<$Herbivores>",
           "PROD[-Plant<Blue>]",
       )
@@ -1031,7 +974,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$DevelopmentCenter"),
           "9 Pay<> FROM MC",
-          "$DevelopmentCenter FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
       )
@@ -1040,13 +982,11 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$ArtificialPhotosynthesis"),
           "10 Pay<> FROM MC",
-          "$ArtificialPhotosynthesis FROM ProjectCard",
           "PROD[2 Energy]",
       )
       doTasks(
           *playCardTasks("$CupolaCity"),
           "14 Pay<> FROM MC",
-          "$CupolaCity FROM ProjectCard",
           "NormalCityTile<Elysium_6_5>",
           "Plant",
           "2 MC",
@@ -1066,7 +1006,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$HousePrinting"),
           "5 Pay<Class<Steel>> FROM Steel",
           "0 Pay<> FROM MC",
-          "$HousePrinting FROM ProjectCard",
           "PROD[Steel]",
       )
       assertCounts(1 to "Steel")
@@ -1082,7 +1021,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$KelpFarming"),
           "15 Pay<> FROM MC",
-          "$KelpFarming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[3 Plant]",
           "2 Plant",
@@ -1102,7 +1040,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$InvestmentLoan"),
           "3 Pay<> FROM MC",
-          "$InvestmentLoan FROM ProjectCard",
           "10 MC",
           "PROD[-MC]",
       )
@@ -1112,7 +1049,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$SfMemorial"),
           "Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$SfMemorial FROM ProjectCard",
           "ProjectCard",
       )
     }
@@ -1120,7 +1056,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MassConverter"),
           "8 Pay<> FROM MC",
-          "$MassConverter FROM ProjectCard",
           "PROD[6 Energy]",
           "-ProjectCard",
           "ProjectCard",
@@ -1131,7 +1066,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$Shuttles"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "$Shuttles FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 MC]",
       )
@@ -1143,7 +1077,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$NoctisFarming"),
           "Pay<Class<Steel>> FROM Steel",
           "8 Pay<> FROM MC",
-          "$NoctisFarming FROM ProjectCard",
           "PROD[MC]",
           "2 Plant",
           "Microbe<$Decomposers>",
@@ -1160,13 +1093,11 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Mine"),
           "2 Pay<> FROM MC",
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
       doTasks(
           *playCardTasks("$TitaniumMine"),
           "5 Pay<> FROM MC",
-          "$TitaniumMine FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -1174,7 +1105,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Satellites"),
           "6 Pay<> FROM MC",
-          "$Satellites FROM ProjectCard",
           "PROD[4 MC]",
       )
     }
@@ -1283,7 +1213,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MineralDeposit"),
           "5 Pay<> FROM MC",
-          "$MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
       assertCounts(9 to "MC", 8 to "Steel") // visual confirmation
@@ -1291,7 +1220,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$UndergroundCity"),
           "8 Pay<Class<Steel>> FROM Steel",
           "2 Pay<> FROM MC",
-          "$UndergroundCity FROM ProjectCard",
           "NormalCityTile<Elysium_6_8>",
           "Plant",
           "PROD[-2 Energy]",
@@ -1329,14 +1257,12 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$PeroxidePower"),
           "Pay<Class<Steel>> FROM Steel",
           "5 Pay<> FROM MC",
-          "$PeroxidePower FROM ProjectCard",
           "PROD[-MC]",
           "PROD[2 Energy]",
       )
       doTasks(
           *playCardTasks("$ImmigrantCity"),
           "13 Pay<> FROM MC",
-          "$ImmigrantCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[-2 MC]",
           "NormalCityTile<Elysium_7_4>",
@@ -1350,17 +1276,15 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MiningRights"),
           "9 Pay<> FROM MC",
-          "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Elysium_7_3>",
           "Titanium",
           "PROD[Titanium]",
       )
     }
     black.turn {
-      doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC", "$MediaGroup FROM ProjectCard")
+      doTasks(*playCardTasks("$MediaGroup"), "6 Pay<> FROM MC")
       doTasks(
           *playCardTasks("$IndenturedWorkers"),
-          "$IndenturedWorkers FROM ProjectCard",
           "IndenturedWorkers_NextCardEffect",
           "3 MC",
       )
@@ -1370,7 +1294,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$CallistoPenalMines"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "14 Pay<> FROM MC",
-          "$CallistoPenalMines FROM ProjectCard",
           "4 MC",
           "PROD[3 MC]",
       )
@@ -1403,7 +1326,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$ProtectedValley"),
           "Pay<Class<Steel>> FROM Steel",
           "11 Pay<> FROM MC",
-          "$ProtectedValley FROM ProjectCard",
           "PROD[2 MC]",
           "GreeneryTile<Elysium_1_2>",
           "OxygenStep",
@@ -1414,7 +1336,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$PowerPlant"),
           "2 Pay<> FROM MC",
-          "$PowerPlant FROM ProjectCard",
           "PROD[Energy]",
       )
     }
@@ -1424,7 +1345,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Bushes"),
           "8 Pay<> FROM MC",
-          "$Bushes FROM ProjectCard",
           "PROD[2 Plant]",
           "2 Plant",
       )
@@ -1433,7 +1353,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Insects"),
           "9 Pay<> FROM MC",
-          "$Insects FROM ProjectCard",
           "PROD[4 Plant]",
           "Microbe<$Decomposers>",
       )
@@ -1443,7 +1362,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MedicalLab"),
           "11 Pay<> FROM MC",
-          "$MedicalLab FROM ProjectCard",
           "PROD[5 MC]",
           "-ProjectCard",
           "ProjectCard",
@@ -1475,7 +1393,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$MirandaResort"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "$MirandaResort FROM ProjectCard",
           "PROD[4 MC]",
       )
       doTasks(
@@ -1605,7 +1522,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$ViralEnhancers"),
           "9 Pay<> FROM MC",
-          "$ViralEnhancers FROM ProjectCard",
           "Plant",
           "Ok", // provisionally decline the Mars University exchange
       )
@@ -1632,7 +1548,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$HiredRaiders"),
           "Pay<> FROM MC",
-          "$HiredRaiders FROM ProjectCard",
           "2 Steel<Red FROM Green>",
       )
       assertCounts(1 to "PlayedEvent<Class<$HiredRaiders>>") // visual confirmation
@@ -1641,7 +1556,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$CommercialDistrict"),
           "6 Pay<Class<Steel>> FROM Steel",
           "4 Pay<> FROM MC",
-          "$CommercialDistrict FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
           "CommercialDistrict_SpecialTile<Elysium_7_8>",
@@ -1654,7 +1568,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$OpenCity"),
           "3 Pay<Class<Steel>> FROM Steel",
           "17 Pay<> FROM MC",
-          "$OpenCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
           "2 Plant",
@@ -1674,7 +1587,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$StandardTechnology"),
           "4 Pay<> FROM MC",
-          "$StandardTechnology FROM ProjectCard",
       )
     }
     red.turn {
@@ -1687,7 +1599,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$ImmigrationShuttles"),
           "10 Pay<Class<Titanium>> FROM Titanium",
           "Pay<> FROM MC",
-          "$ImmigrationShuttles FROM ProjectCard",
           "PROD[5 MC]",
       )
     }
@@ -1788,7 +1699,6 @@ internal class Wsbg2025Test : FullGameTest() {
           *playCardTasks("$TerraformingGanymede"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "23 Pay<> FROM MC",
-          "$TerraformingGanymede FROM ProjectCard",
           "4 MC",
           "3 TerraformRating",
       )
@@ -1802,13 +1712,11 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$MediaArchives"),
           "8 Pay<> FROM MC",
-          "$MediaArchives FROM ProjectCard",
           "13 MC",
       )
       doTasks(
           *playCardTasks("$Trees"),
           "13 Pay<> FROM MC",
-          "$Trees FROM ProjectCard",
           "PROD[3 Plant]",
           "Plant",
           "Microbe<$Decomposers>",
@@ -1818,7 +1726,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$EcologicalZone"),
           "12 Pay<> FROM MC",
-          "$EcologicalZone FROM ProjectCard",
           "EcologicalZone_SpecialTile<Elysium_3_2>",
       )
       repeat(2) {
@@ -1832,7 +1739,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Farming"),
           "16 Pay<> FROM MC",
-          "$Farming FROM ProjectCard",
           "PROD[2 MC]",
           "PROD[2 Plant]",
           "2 Plant",
@@ -1849,7 +1755,6 @@ internal class Wsbg2025Test : FullGameTest() {
       )
       assertCounts(0 to "MC") // visual confirmation
       doTasks(
-          "$ImportedNitrogen FROM ProjectCard",
           "7 MC",
           "3 Heat",
           "TerraformRating",
@@ -1871,7 +1776,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Virus"),
           "Pay<> FROM MC",
-          "$Virus FROM ProjectCard",
           "-0 Plant<Anyone>",
           "Plant",
           "3 MC",
@@ -1879,7 +1783,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Zeppelins"),
           "13 Pay<> FROM MC",
-          "$Zeppelins FROM ProjectCard",
           "PROD[9 MC]",
       )
     }
@@ -1889,7 +1792,6 @@ internal class Wsbg2025Test : FullGameTest() {
       doTasks(
           *playCardTasks("$TransNeptuneProbe"),
           "2 Pay<> FROM MC",
-          "$TransNeptuneProbe FROM ProjectCard",
       )
     }
     black.doTask("Pass")

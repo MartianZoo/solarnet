@@ -41,8 +41,8 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           2 to "Owed",
       )
       doTask("2 Pay<> FROM MC")
-      kim.count("ProjectCard<StagedProject<Class<$Mine>>>") shouldBe 1
-      doTasks("$Mine FROM ProjectCard<StagedProject<Class<$Mine>>>", "PROD[Steel]")
+      kim.count("ProjectCard<StagedProject<Class<$Mine>>>") shouldBe 0
+      doTasks("PROD[Steel]")
     }
 
     kim.assertCounts(1 to "$Mine", 0 to "ProjectCard<Hand>", 0 to "StagedProject", 0 to "RobotUnit")
@@ -360,7 +360,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           *playCardTasks("$ImmigrantCity", "StagedProject<Class<$ImmigrantCity>>"),
-          "$ImmigrantCity FROM ProjectCard<StagedProject<Class<$ImmigrantCity>>>",
           "PROD[-Energy]",
           "PROD[-2 MC]",
           "CityTile<Tharsis_7_4>",
@@ -389,7 +388,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$Mine", "StagedProject<Class<$Mine>>"),
           "2 Pay<> FROM MC",
-          "$Mine FROM ProjectCard<StagedProject<Class<$Mine>>>",
           "PROD[Steel]",
       )
     }
@@ -428,7 +426,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               *playCardTasks("$Mine", "StagedProject<Class<$Mine>>"),
-              "$Mine FROM ProjectCard<StagedProject<Class<$Mine>>>",
               "PROD[Steel]",
           )
         }
@@ -472,7 +469,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               *playCardTasks("$Mine", "StagedProject<Class<$Mine>>"),
-              "$Mine FROM ProjectCard<StagedProject<Class<$Mine>>>",
               "PROD[Steel]",
           )
         }
@@ -632,7 +628,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SelfReplicatingRobots"),
           "7 Pay<> FROM MC",
-          "$SelfReplicatingRobots FROM ProjectCard",
       )
     }
     kim.assertCounts(1 to "$SelfReplicatingRobots", 0 to "ProjectCard", 0 to "MC")
@@ -649,7 +644,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           *playCardTasks("$TitaniumMine", "StagedProject<Class<$TitaniumMine>>"),
           "2 Pay<Class<Steel>> FROM Steel",
           "1 Pay<> FROM MC",
-          "$TitaniumMine FROM ProjectCard<StagedProject<Class<$TitaniumMine>>>",
           "PROD[Titanium]",
       )
     }
@@ -669,7 +663,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           *playCardTasks("$SpaceStation", "StagedProject<Class<$SpaceStation>>"),
           "2 Pay<Class<Titanium>> FROM Titanium",
           "0 Pay<> FROM MC",
-          "$SpaceStation FROM ProjectCard<StagedProject<Class<$SpaceStation>>>",
       )
     }
     kim.assertCounts(0 to "MC", 0 to "Titanium", 0 to "ProjectCard", 0 to "RobotUnit")
@@ -684,7 +677,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$AsteroidCard", "StagedProject<Class<$AsteroidCard>>"),
           "12 Pay<> FROM MC",
-          "$AsteroidCard FROM ProjectCard<StagedProject<Class<$AsteroidCard>>>",
           "TemperatureStep",
           "2 Titanium",
           "-0 Plant<Anyone>",
@@ -761,7 +753,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$SponsoredAcademies"),
             "9 Pay<> FROM MC",
-            "$SponsoredAcademies FROM ProjectCard",
         )
         // Expand the reward into separate tasks for each other player.
         doTasks(
@@ -802,7 +793,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$ResearchOutpost", "StagedProject<Class<$ResearchOutpost>>"),
               "16 Pay<> FROM MC",
-              "$ResearchOutpost FROM ProjectCard<StagedProject<Class<$ResearchOutpost>>>",
           )
           // Resolve the exchange offer: the empty hand leaves no card to discard.
           doTasks(
@@ -836,7 +826,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CorroderSuits"),
           "8 Pay<> FROM MC",
-          "$CorroderSuits FROM ProjectCard",
           "PROD[2 MC]",
           "RobotUnit<StagedProject<Class<$VenusWaystation>>>",
       )
@@ -874,7 +863,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$DiversitySupport"),
           "1 Pay<> FROM MC",
-          "$DiversitySupport FROM ProjectCard",
           "TerraformRating",
       )
     }
@@ -963,7 +951,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$CeosFavoriteProject"),
           "1 Pay<> FROM MC",
-          "$CeosFavoriteProject FROM ProjectCard",
       )
       // Select the eligible-holder choice before choosing the hosted card's resource.
       selectTask("CardResource<ResourceHolder(HAS CardResource)>*")
@@ -1022,7 +1009,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$L1TradeTerminal"),
           "25 Pay<> FROM MC",
-          "$L1TradeTerminal FROM ProjectCard",
       )
       // Expand the bonus into a separate resource choice for each eligible card.
       doTask("EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }")
@@ -1045,7 +1031,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$L1TradeTerminal"),
               "25 Pay<> FROM MC",
-              "$L1TradeTerminal FROM ProjectCard",
               "EACH @ResourceHolder(HAS CardResource) { CardResource<@ResourceHolder>? }",
               "RobotUnit<StagedProject<Class<$Mine>>>",
           )
@@ -1093,7 +1078,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$CeosFavoriteProject"),
               "1 Pay<> FROM MC",
-              "$CeosFavoriteProject FROM ProjectCard",
               "RobotUnit<StagedProject<Class<$PhysicsComplex>>>",
           )
         }
@@ -1139,7 +1123,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$Mine", "StagedProject<Class<$Mine>>"),
               "2 Pay<> FROM MC",
-              "$Mine FROM ProjectCard<StagedProject<Class<$Mine>>>",
               "PROD[Steel]",
           )
         }

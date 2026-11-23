@@ -18,7 +18,6 @@ internal class ValleyTrustTest : TfmSandboxTest() {
           )
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-              "$Donation FROM PreludeCard<Selecting>!",
               "21 MC",
           )
         }
@@ -37,7 +36,6 @@ internal class ValleyTrustTest : TfmSandboxTest() {
           )
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>",
-              "$MartianIndustries FROM PreludeCard<Selecting>!",
               "PROD[Energy]",
               "PROD[Steel]",
               "6 MC",
@@ -61,7 +59,6 @@ internal class ValleyTrustTest : TfmSandboxTest() {
           )
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$SpaceLanes>>",
-              "$SpaceLanes FROM PreludeCard<Selecting>",
               "3 Titanium",
           )
         }
@@ -85,7 +82,6 @@ internal class ValleyTrustTest : TfmSandboxTest() {
         )
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
-            "$IndustrialComplex FROM PreludeCard<Selecting>",
             "-18 MC",
         )
       }

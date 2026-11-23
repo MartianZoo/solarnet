@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PaymentOffersTest : TfmSandboxTest() {
@@ -17,7 +17,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
 
     kim.inTurn {
           // Thorgate makes the card free even with several alternative payment sources.
-          doTasks(*playCardTasks("$SpaceMirrors"), "$SpaceMirrors FROM ProjectCard")
+          doTasks(*playCardTasks("$SpaceMirrors"))
         }
         .expect("0 MC, 0 Titanium, 0 Graphene")
   }
@@ -28,7 +28,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
     kim.exMachina("$FakeHelion, $EarthCatapult, $AntiGravityTechnology, Steel, Heat")
 
     kim.inTurn {
-          doTasks(*playCardTasks("$Mine"), "$Mine FROM ProjectCard", "PROD[Steel]")
+          doTasks(*playCardTasks("$Mine"), "PROD[Steel]")
         }
         .expect("0 MC, 0 Steel, 0 Heat")
   }
@@ -45,7 +45,6 @@ internal class PaymentOffersTest : TfmSandboxTest() {
               "7 Pay<Class<Steel>> FROM Steel",
               "5 Pay<Class<Titanium>> FROM Titanium",
               "Ok",
-              "$SpaceElevator FROM ProjectCard",
               "PROD[Titanium]",
           )
         }
@@ -61,7 +60,6 @@ internal class PaymentOffersTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$SpaceElevator"),
           "27 Pay<> FROM MC",
-          "$SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -77,7 +75,6 @@ internal class PaymentOffersTest : TfmSandboxTest() {
           *playCardTasks("$SpaceElevator"),
           "Pay<Class<Steel>> FROM Steel",
           "25 Pay<> FROM MC",
-          "$SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -94,7 +91,6 @@ internal class PaymentOffersTest : TfmSandboxTest() {
           *playCardTasks("$SpaceElevator"),
           "9 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // Nothing remains to pay in MC.
-          "$SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -111,7 +107,6 @@ internal class PaymentOffersTest : TfmSandboxTest() {
           "Pay<Class<Steel>> FROM Steel",
           "Pay<Class<Titanium>> FROM Titanium",
           "21 Pay<> FROM MC",
-          "$SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
       )
     }
@@ -131,7 +126,6 @@ internal class PaymentOffersTest : TfmSandboxTest() {
       shouldThrow<TaskException> { doTask("Ok") }
       doTasks(
           "2 Pay<> FROM MC",
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }
@@ -145,7 +139,7 @@ internal class PaymentOffersTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(*playCardTasks("$Mine"))
           doTask("Ok") // Keep the steel.
-          doTasks("4 Pay<> FROM MC", "$Mine FROM ProjectCard", "PROD[Steel]")
+          doTasks("4 Pay<> FROM MC", "PROD[Steel]")
         }
         .expect("0 Steel")
   }
@@ -158,9 +152,10 @@ internal class PaymentOffersTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks(*playCardTasks("$Mine"), "2 Pay<Class<Steel>> FROM Steel")
-          shouldThrow<RequirementException> { doTask("$Mine FROM ProjectCard") }
+          kim.count("$Mine") shouldBe 0
           doTask("Ok") // Nothing remains to pay in MC.
-          doTasks("$Mine FROM ProjectCard", "PROD[Steel]")
+          kim.count("$Mine") shouldBe 1
+          doTasks("PROD[Steel]")
         }
         .expect("0 MC")
   }
@@ -177,7 +172,6 @@ internal class PaymentOffersTest : TfmSandboxTest() {
       doTasks(
           "2 Pay<Class<Titanium>> FROM Titanium",
           "15 Pay<> FROM MC",
-          "$SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
       )
     }

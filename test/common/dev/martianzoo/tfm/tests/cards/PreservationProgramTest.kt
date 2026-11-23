@@ -43,13 +43,11 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
-          "$UnmiContractor FROM PreludeCard",
           "3 TerraformRating",
           "ProjectCard",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
-          "$PreservationProgram FROM PreludeCard",
           "5 TerraformRating",
       )
     }
@@ -119,13 +117,11 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
-          "$UnmiContractor FROM PreludeCard",
           "3 TerraformRating",
           "ProjectCard",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
     }
@@ -135,7 +131,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
               "DoRequiredActions",
               "3 PreludeCard<Selecting>",
               "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
-              "$PreservationProgram FROM PreludeCard<Selecting>",
               "5 TerraformRating",
           )
           .expect("4 TerraformRating")
@@ -148,12 +143,10 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$PowerGeneration>>",
-          "$PowerGeneration FROM PreludeCard",
           "PROD[3 Energy]",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
     }
@@ -163,7 +156,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
               "DoRequiredActions",
               "3 PreludeCard<Selecting>",
               "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
-              "$PreservationProgram FROM PreludeCard<Selecting>",
               "5 TerraformRating",
           )
           .expect("4 TerraformRating")
@@ -189,7 +181,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       )
       doTasks(
               "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
-              "$PreservationProgram FROM PreludeCard",
               "5 TerraformRating",
           )
           .expect("5 TerraformRating")
@@ -210,7 +201,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       )
       doTasks(
               "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
-              "$PreservationProgram FROM PreludeCard",
               "5 TerraformRating",
           )
           .expect("4 TerraformRating")
@@ -413,7 +403,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(
               *playCardTasks("$MagneticFieldGeneratorsPromo"),
               "22 Pay<> FROM MC",
-              "$MagneticFieldGeneratorsPromo FROM ProjectCard",
               "PROD[-4 Energy]",
               "PROD[2 Plant]",
               "3 TerraformRating",
@@ -432,7 +421,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
               *playCardTasks("$TerraformingGanymede"),
               "Ok",
               "33 Pay<> FROM MC", // No titanium payment.
-              "$TerraformingGanymede FROM ProjectCard",
               "PROD[MC]",
               "3 TerraformRating",
           )
@@ -456,7 +444,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
               *playCardTasks("$TerraformingGanymede"),
               "4 Pay<Class<Titanium>> FROM Titanium",
               "21 Pay<> FROM MC",
-              "$TerraformingGanymede FROM ProjectCard",
               "PROD[MC]",
               "3 TerraformRating",
           )
@@ -513,12 +500,10 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
-          "$PreservationProgram FROM PreludeCard",
           "5 TerraformRating",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-          "$DoubleDown FROM PreludeCard",
           "CopyPrelude<$PreservationProgram>",
           "5 TerraformRating",
       )
@@ -528,7 +513,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(
               *playCardTasks("$Comet"),
               "21 Pay<> FROM MC",
-              "$Comet FROM ProjectCard",
               "TemperatureStep",
               "TerraformRating",
               "OceanTile<Tharsis_1_2>",
@@ -549,7 +533,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
               "DoRequiredActions",
               "3 PreludeCard<Selecting>",
               "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-              "$DoubleDown FROM PreludeCard<Selecting>",
               "CopyPrelude<$PreservationProgram>",
               "5 TerraformRating",
           )
@@ -578,7 +561,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       )
       doTasks(
               "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
-              "$DoubleDown FROM PreludeCard",
               "CopyPrelude<$PreservationProgram>",
               "5 TerraformRating",
           )
@@ -593,7 +575,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(
               *playCardTasks("$PhysicsComplex"),
               "12 Pay<> FROM MC",
-              "$PhysicsComplex FROM ProjectCard",
               "TerraformRating FROM Disease<$PharmacyUnion>",
           )
           .expect("0 TerraformRating")
@@ -670,17 +651,14 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "PlayCard<Class<CorporationCard>, Class<$Pristar>>",
-          "$Pristar FROM CorporationCard<Selecting>",
           "53 MC",
           "-2 TerraformRating",
           "-42 MC",
       )
       doTasks(
           *playCardTasks("$ProjectInspection"),
-          "$ProjectInspection FROM ProjectCard",
           "UseAction<$BoardOfDirectors, Action1>",
           "PreludeCard",
           "-12 MC",
@@ -688,7 +666,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       )
       doTasks(
               "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
-              "$PreservationProgram FROM PreludeCard",
               "5 TerraformRating",
           )
           .expect("5 TerraformRating")
@@ -728,10 +705,8 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
           "PlayCard<Class<CorporationCard>, Class<$Pristar>>",
-          "$Pristar FROM CorporationCard<Selecting>",
           "53 MC",
           "-2 TerraformRating",
           "-42 MC",
@@ -804,7 +779,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(
               *playCardTasks("$PhysicsComplex"),
               "12 Pay<> FROM MC",
-              "$PhysicsComplex FROM ProjectCard",
               "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion",
               "3 TerraformRating",
           )
@@ -836,7 +810,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       )
       doTasks(
               "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
-              "$PreservationProgram FROM PreludeCard",
               "5 TerraformRating",
           )
           .expect("5 TerraformRating")
@@ -898,12 +871,10 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
-          "$PreservationProgram FROM PreludeCard",
           "5 TerraformRating",
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
     }
@@ -930,7 +901,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(
               *playCardTasks("$MagneticFieldGeneratorsPromo"),
               "22 Pay<> FROM MC",
-              "$MagneticFieldGeneratorsPromo FROM ProjectCard",
               "PROD[-4 Energy]",
               "PROD[2 Plant]",
               "3 TerraformRating",
@@ -948,7 +918,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(
               *playCardTasks("$MagneticFieldGeneratorsPromo"),
               "22 Pay<> FROM MC",
-              "$MagneticFieldGeneratorsPromo FROM ProjectCard",
               "PROD[-4 Energy]",
               "PROD[2 Plant]",
               "3 TerraformRating",
@@ -997,7 +966,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(
               *playCardTasks("$MagneticFieldGeneratorsPromo"),
               "22 Pay<> FROM MC",
-              "$MagneticFieldGeneratorsPromo FROM ProjectCard",
               "PROD[-4 Energy]",
               "PROD[2 Plant]",
               "3 TerraformRating",
@@ -1016,7 +984,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(
               *playCardTasks("$MagneticFieldGeneratorsPromo"),
               "22 Pay<> FROM MC",
-              "$MagneticFieldGeneratorsPromo FROM ProjectCard",
               "PROD[-4 Energy]",
               "PROD[2 Plant]",
               "3 TerraformRating",
@@ -1036,7 +1003,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       doTasks(
               *playCardTasks("$ReleaseOfInertGases"),
               "14 Pay<> FROM MC",
-              "$ReleaseOfInertGases FROM ProjectCard",
               "2 TerraformRating",
               "-3 MC",
           )
@@ -1052,7 +1018,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
         doTasks(
             *playCardTasks("$ReleaseOfInertGases"),
             "14 Pay<> FROM MC",
-            "$ReleaseOfInertGases FROM ProjectCard",
             "2 TerraformRating",
             "-6 MC",
         )
@@ -1112,13 +1077,11 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     kim.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>",
-          "$PreservationProgram FROM PreludeCard",
           "5 TerraformRating",
       )
 
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
     }
@@ -1129,14 +1092,12 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.completeOperation {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
-          "$Supplier FROM PreludeCard",
           "PROD[2 Energy]",
           "4 Steel",
       )
 
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
-          "$MetalsCompany FROM PreludeCard",
           "PROD[MC]",
           "PROD[Steel]",
           "PROD[Titanium]",

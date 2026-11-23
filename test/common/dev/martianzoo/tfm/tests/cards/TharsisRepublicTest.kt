@@ -12,7 +12,6 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
-          "$TharsisRepublic FROM CorporationCard",
           "40 MC",
           "PROD[2 MC]",
           "15 Pay<> FROM MC",
@@ -30,12 +29,10 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-              "$Merger FROM PreludeCard",
               "4 CorporationCard<Selecting>",
           )
           doTasks(
               "PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>",
-              "$TharsisRepublic FROM CorporationCard<Selecting>!",
               "40 MC",
               "-42 MC",
           )

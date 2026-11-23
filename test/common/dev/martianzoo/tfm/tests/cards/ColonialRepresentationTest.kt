@@ -18,7 +18,6 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$ColonialRepresentation"),
               "10 Pay<> FROM MC",
-              "$ColonialRepresentation FROM ProjectCard",
               "6 MC",
           )
         }
@@ -44,7 +43,6 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
         doTasks(
             *playCardTasks("$ColonialRepresentation"),
             "10 Pay<> FROM MC",
-            "$ColonialRepresentation FROM ProjectCard",
             "0 MC",
         )
       }

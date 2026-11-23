@@ -27,7 +27,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<CorporationCard>, Class<$FakeHelion>>",
-              "$FakeHelion FROM CorporationCard",
               "42 MC",
               "PROD[3 Heat]",
               "15 Pay<Class<Heat>> FROM Heat",
@@ -49,7 +48,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
               *playCardTasks("$Mine"),
               "4 Pay<Class<Heat>> FROM Heat",
               "Ok",
-              "$Mine FROM ProjectCard",
               "PROD[Steel]",
           )
         }
@@ -67,7 +65,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
               *playCardTasks("$Mine"),
               "4 Pay<Class<Heat>> FROM Heat",
               "Ok",
-              "$Mine FROM ProjectCard",
               "PROD[Steel]",
           )
         }
@@ -85,7 +82,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
           *playCardTasks("$Mine"),
           "2 Pay<Class<Heat>> FROM Heat",
           "2 Pay<> FROM MC",
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }
@@ -102,7 +98,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
               *playCardTasks("$Mine"),
               "Ok",
               "4 Pay<> FROM MC",
-              "$Mine FROM ProjectCard",
               "PROD[Steel]",
           )
         }
@@ -147,7 +142,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BusinessEmpire>>",
-          "$BusinessEmpire FROM PreludeCard",
           "PROD[6 MC]",
           "6 Pay<Class<Heat>> FROM Heat",
           "Ok",
@@ -180,7 +174,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$IndustrialComplex>>",
-          "$IndustrialComplex FROM PreludeCard",
           "18 Pay<Class<Heat>> FROM Heat",
           "Ok",
           "EACH",
@@ -215,7 +208,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard",
           "4 Director<$BoardOfDirectors>",
       )
     }
@@ -233,7 +225,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
       )
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-          "$Donation FROM PreludeCard",
           "21 MC",
       )
     }
@@ -296,12 +287,10 @@ internal class FakeHelionTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$Merger>>",
-          "$Merger FROM PreludeCard",
           "4 CorporationCard<Selecting>",
       )
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<$Celestic>>",
-          "$Celestic FROM CorporationCard<Selecting>!",
           "42 MC",
           "42 Pay<Class<Heat>> FROM Heat",
           "Ok",
@@ -366,7 +355,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
           *playCardTasks("$Mine"),
           "2 PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>",
           "Ok",
-          "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
     }
@@ -396,7 +384,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
           doTasks(
               *playCardTasks("$HiredRaiders"),
               "1 Pay<> FROM MC",
-              "$HiredRaiders FROM ProjectCard",
               "2 MC<Stan FROM Kim>",
           )
         }
@@ -416,7 +403,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
         .inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$Recession>>",
-              "$Recession FROM PreludeCard",
               "10 MC",
               "EACH",
               "-5* MC<Kim>",
@@ -478,7 +464,6 @@ internal class FakeHelionTest : TfmSandboxTest() {
       doTasks(
           *playCardTasks("$HiredRaiders"),
           "1 Pay<> FROM MC",
-          "$HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
       giveTask(kim, "$payout MC<Rob FROM Kim>")

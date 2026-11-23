@@ -19,7 +19,6 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<$EarlyColonization>>",
-              "$EarlyColonization FROM PreludeCard",
               "3 Energy",
           )
           // Expand the increase into separate track changes for each active colony.
@@ -44,7 +43,6 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$EarlyColonization>>",
-            "$EarlyColonization FROM PreludeCard",
             "3 Energy",
         )
         // Expand the increase into separate track changes for each active colony.
@@ -70,7 +68,6 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>",
-          "$BoardOfDirectors FROM PreludeCard",
           "4 Director<$BoardOfDirectors>",
       )
     }
@@ -87,7 +84,6 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
         )
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$EarlyColonization>>",
-            "$EarlyColonization FROM PreludeCard",
             "3 Energy",
         )
         // Expand the increase into separate track changes for each active colony.
@@ -126,7 +122,6 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
       kim.completeOperation {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$EarlyColonization>>",
-            "$EarlyColonization FROM PreludeCard",
             "3 Energy",
             "EACH",
             "Colony<Luna>",
@@ -135,21 +130,18 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
 
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$Donation>>",
-            "$Donation FROM PreludeCard",
             "21 MC",
         )
       }
       stan.completeOperation {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$Supplier>>",
-            "$Supplier FROM PreludeCard",
             "PROD[2 Energy]",
             "4 Steel",
         )
 
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>",
-            "$MetalsCompany FROM PreludeCard",
             "PROD[MC]",
             "PROD[Steel]",
             "PROD[Titanium]",
