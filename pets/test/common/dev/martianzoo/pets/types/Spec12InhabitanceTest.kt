@@ -384,6 +384,125 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
+  internal fun `T12-4 card payments need a common possible owner`() {
+    // Dirigibles and Psychrophiles use this agreement between a card and a payment scope.
+    val master =
+        loadTypes(
+            """
+            CLASS Kim : Owner
+            CLASS Stan : Owner
+            ABSTRACT CLASS ResourceCard : Owned
+            ABSTRACT CLASS PaymentScope : Owned
+            CLASS KimsCard : ResourceCard<Kim>
+            CLASS StansScope : PaymentScope<Stan>
+            CLASS KimsScope : PaymentScope<Kim>
+            CLASS AcceptingFromCard<ResourceCard<@Owner>, PaymentScope<@Owner>>
+            """
+                .trimIndent()
+        )
+    val mismatched = gameView(master, "KimsCard", "StansScope", "AcceptingFromCard")
+    mismatched.isInhabited(cn("ResourceCard")) shouldBe true
+    mismatched.isInhabited(cn("PaymentScope")) shouldBe true
+    mismatched.isInhabited(cn("AcceptingFromCard")) shouldBe false
+
+    val matched = gameView(master, "KimsCard", "KimsScope", "AcceptingFromCard")
+    matched.isInhabited(cn("AcceptingFromCard")) shouldBe true
+    // Constructing another view must not change the first view's answer.
+    mismatched.isInhabited(cn("AcceptingFromCard")) shouldBe false
+  }
+
+  @Test
+  internal fun `T12-4 a local player can supply a shared card payment owner`() {
+    val master =
+        loadTypes(
+            """
+            ABSTRACT CLASS Player : Owner
+            ABSTRACT CLASS ResourceCard : Owned
+            ABSTRACT CLASS PaymentScope : Owned
+            CLASS AnyCard : ResourceCard
+            CLASS AnyScope : PaymentScope
+            CLASS AcceptingFromCard<ResourceCard<@Owner>, PaymentScope<@Owner>>
+            """
+                .trimIndent()
+        )
+    master.isInhabited(cn("AcceptingFromCard")) shouldBe false
+    val local = PremiseClassTable(master, parseClasses("CLASS Kim : Player").toSet())
+    val game =
+        ClassLoader.forPremise(
+            local,
+            listOf(cn("Kim"), cn("AnyCard"), cn("AnyScope"), cn("AcceptingFromCard")),
+        )
+    game.isInhabited(cn("AcceptingFromCard")) shouldBe true
+    val withoutScope =
+        ClassLoader.forPremise(
+            local,
+            listOf(cn("Kim"), cn("AnyCard"), cn("AcceptingFromCard")),
+        )
+    withoutScope.isInhabited(cn("AcceptingFromCard")) shouldBe false
+    master.isInhabited(cn("AcceptingFromCard")) shouldBe false
+  }
+
+  @Test
+  internal fun `T12-4 local owners enable resource and holder cycles only in their game`() {
+    val master =
+        loadTypes(
+            """
+            ABSTRACT CLASS Player : Owner
+            ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned
+            ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Owner>> : Owned<@Owner>
+            CLASS Animal : CardResource
+            CLASS Pets : ResourceHolder<Class<Animal>>
+            """
+                .trimIndent()
+        )
+    master.isInhabited(cn("Animal")) shouldBe false
+    fun withPlayer(name: String) =
+        ClassLoader.forPremise(
+            PremiseClassTable(master, parseClasses("CLASS $name : Player").toSet()),
+            listOf(cn(name), cn("Pets")),
+        )
+    val kimsGame = withPlayer("Kim")
+    val stansGame = withPlayer("Stan")
+    kimsGame.allConcreteSubtypes(kimsGame.resolve(te("Animal"))).toList() shouldContainExactly
+        listOf(kimsGame.resolve(te("Animal<Kim, Pets<Kim>>")))
+    stansGame.allConcreteSubtypes(stansGame.resolve(te("Animal"))).toList() shouldContainExactly
+        listOf(stansGame.resolve(te("Animal<Stan, Pets<Stan>>")))
+    kimsGame.isInhabited(cn("Animal")) shouldBe true
+    master.isInhabited(cn("Animal")) shouldBe false
+  }
+
+  @Test
+  internal fun `T12-4 local multiple inheritance can supply a missing dependency intersection`() {
+    val master =
+        loadTypes(
+            """
+            ABSTRACT CLASS Area
+            ABSTRACT CLASS WaterArea : Area
+            ABSTRACT CLASS LandArea : Area
+            ABSTRACT CLASS Tile<Area>
+            CLASS WaterTile : Tile<WaterArea>
+            CLASS NeedsLandTile<Tile<LandArea>>
+            """
+                .trimIndent()
+        )
+    master.isInhabited(cn("NeedsLandTile")) shouldBe false
+    val game =
+        ClassLoader.forPremise(
+            PremiseClassTable(
+                master,
+                parseClasses("CLASS CoastalArea : WaterArea, LandArea").toSet(),
+            ),
+            listOf(cn("CoastalArea"), cn("WaterTile"), cn("NeedsLandTile")),
+        )
+    game.isInhabited(cn("NeedsLandTile")) shouldBe true
+    game
+        .allConcreteSubtypes(game.resolve(te("NeedsLandTile")))
+        .map { "$it" }
+        .toList() shouldContainExactly listOf("NeedsLandTile<WaterTile<CoastalArea>>")
+    master.isInhabited(cn("NeedsLandTile")) shouldBe false
+  }
+
+  @Test
   internal fun `T12-4 a structurally empty difference is uninhabited`() {
     val table = loadTypes("CLASS Rabbit")
 

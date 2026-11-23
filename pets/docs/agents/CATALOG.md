@@ -64,6 +64,13 @@ builder reuses its last default-selection preview if the resolved inputs still m
 selection order and local declarations. The first access to the final table still validates every
 selected root and runs the Catalog's content validation.
 
+Class-base inhabitance uses compiled existence conditions derived from the normalized types and
+header-variable equalities. Each frozen game universe compiles its conditions once, including its
+local Classes. Each inclusion frontier reevaluates them against its selected Classes, removing
+impossible alternatives to retain the greatest fixed point, including mutually supporting
+`Class<T>` representatives. Concrete enumeration remains available for callers that need actual
+Types; final viability and content checks still run. See `ClassInhabitance` in the Pets types package.
+
 After its inclusion closure is complete, that game Class Table also derives immutable executable
 effects for its included Classes from the shared declarations. Using only fixed premise facts
 before any World exists, it removes impossible `IF` effects and fixed-true trigger or instruction

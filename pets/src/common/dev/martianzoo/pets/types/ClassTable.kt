@@ -261,19 +261,11 @@ public abstract class ClassTable {
     inhabitedConcreteClassesCache?.let {
       return it
     }
-    var possible = allClasses().filterNotTo(linkedSetOf(), Class::abstract)
-    while (true) {
-      val surviving =
-          possible.filterTo(linkedSetOf()) { klass ->
-            allConcreteSubtypes(klass.baseType, possible).iterator().hasNext()
-          }
-      if (surviving == possible) {
-        inhabitedConcreteClassesCache = surviving
-        return surviving
-      }
-      possible = surviving
-    }
+    return inhabitancePlan.evaluate(allClasses()).also { inhabitedConcreteClassesCache = it }
   }
+
+  /** Structural conditions survive inclusion changes; only their evaluated answers expire. */
+  internal val inhabitancePlan: ClassInhabitance by lazy { ClassInhabitance.create(this) }
 
   /** Whether premise construction included [name], independent of its Type's inhabitance. */
   internal fun isIncluded(name: ClassName): Boolean = name in allClassNames

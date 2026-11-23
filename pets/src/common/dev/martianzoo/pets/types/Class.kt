@@ -587,6 +587,31 @@ internal constructor(
             }
       }
 
+  /**
+   * A choice that must agree across independent dependency witnesses, if any remain open. A
+   * top-level alias of a single nested value needs no search: the nested witness supplies it.
+   * Normalization already intersected their bounds; ordinary dependency-bound cycles are illegal.
+   */
+  internal fun sharedInhabitanceChoice(type: GroundType): DependencyPath? {
+    dependencyEqualities().forEach { equality ->
+      if (equality.paths.all { !type.dependencies.at(it).abstract }) return@forEach
+      val nested = equality.paths.filter { it.keyList.size > 1 }
+      if (nested.isEmpty()) return@forEach
+      val top = equality.paths.filter { it.keyList.size == 1 }
+      if (
+          nested.size == 1 &&
+              top.isNotEmpty() &&
+              top.none { it.keyList.first() == nested.single().keyList.first() }
+      )
+          return@forEach
+      val path = top.firstOrNull() ?: nested.first()
+      // Bind a represented-class slot through its containing Class<X> type dependency.
+      return if (type.dependencies.at(path) is TypeDependency) path
+      else DependencyPath(path.keyList.dropLast(1))
+    }
+    return null
+  }
+
   private fun equalityError(equality: DependencyEquality, dependencies: DependencySet): Nothing =
       throw ExpressionException(
           "type-variable `${equality.expressions.joinToString()}` dependencies disagree in " +
