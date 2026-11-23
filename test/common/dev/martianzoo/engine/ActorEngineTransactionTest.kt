@@ -1,14 +1,18 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Motivation
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -17,6 +21,38 @@ import io.kotest.matchers.types.shouldBeSameInstanceAs
 import kotlin.test.Test
 
 internal class ActorEngineTransactionTest {
+  @Test
+  internal fun cancellationPropagatesThroughTypedEngineTransactionsToTheCallerScope() {
+    val world = Engine.newGame(testGamePremise())
+    val player = world.actorEngine(PLAYER1)
+    val task = player.addTasks(InstructionGroup.of(parse<Instruction>("Token!"))).single()
+    val before = world.events.nextOrdinal
+    val cancel: () -> Int = { throw Exceptions.AbortTransactionException() }
+
+    shouldThrow<Exceptions.AbortTransactionException> {
+      val result: Int =
+          player.transaction(Motivation.CLIENT_REQUEST) {
+            player.doTask(task)
+            cancel()
+          }
+      result shouldBe 7
+    }
+    world.events.nextOrdinal shouldBe before
+
+    var resumed = false
+    world.timeline.atomic {
+      player.transaction<Int>(Motivation.CLIENT_REQUEST) {
+        player.doTask(task)
+        cancel()
+      }
+      resumed = true
+    }
+    resumed shouldBe false
+    world.events.nextOrdinal shouldBe before
+    world.reader.count("Token") shouldBe 0
+    (task in world.tasks) shouldBe true
+  }
+
   @Test
   internal fun directPlacementRepairsLandClaimBeforeReturning() {
     val world = TfmEngine.newGame(canonicalPremise())
@@ -35,8 +71,8 @@ internal class ActorEngineTransactionTest {
     world.reader.count(parse<Metric>("GreeneryTile<Player1, Tharsis_1_1>")) shouldBe 1
     world.reader.count(parse<Metric>("Occupant<Tharsis_1_1>")) shouldBe 1
     (task in world.tasks) shouldBe false
-    // Placement bonuses are still queued for Admin; the cube removal was an immediate effect.
-    world.actorEngine(ADMIN).tasks.ids().size shouldBe 1
+    // The placement signal has run; its resource choice remains with the Player.
+    world.actorEngine(ADMIN).tasks.isEmpty() shouldBe true
     world.reader.count(parse<Metric>("Steel<Player1>")) shouldBe 0
   }
 
@@ -49,16 +85,13 @@ internal class ActorEngineTransactionTest {
         }
     agent.exMachina("8 Plant")
     // During the action phase, greenery also offers the Player an oxygen increase.
-    world.testAgent(ADMIN).exMachina("Photosynthesis")
+    world.testAgents().correct("Photosynthesis")
     agent.beginOperation("UseAction<ConvertPlantsAction, Action1>")
     agent.doTask("8 Pay<Class<Plant>> FROM Plant")
     val player = world.actorEngine(PLAYER1)
     player.doTask(parse<Instruction>("GreeneryTile<Player1, Tharsis_1_1>!"))
     val beforeBonus = world.timeline.checkpoint()
-    shouldThrow<dev.martianzoo.pets.api.Exceptions.TaskException> {
-      player.doTask(parse<Instruction>("OxygenStep!"))
-    }
-    world.timeline.checkpoint() shouldBe beforeBonus
+    world.actorEngine(ADMIN).tasks.extract { it }.all { it.deferred } shouldBe true
     val steel = parse<Metric>("Steel<Player1>")
 
     agent.doTasks("OxygenStep", "2 Steel")
@@ -76,8 +109,7 @@ internal class ActorEngineTransactionTest {
     val resumed = agent.doTasks("OxygenStep", "2 Steel")
 
     world.reader.count(steel) shouldBe 2
-    resumed.changes.first().transaction?.motivation shouldBe
-        dev.martianzoo.state.Motivation.ADMIN_EAGER_POLICY
+    resumed.changes.first().transaction?.motivation shouldBe Motivation.CLIENT_REQUEST
     world.timeline.checkpoint() shouldBe end
   }
 
@@ -112,7 +144,7 @@ internal class ActorEngineTransactionTest {
 
     val caught =
         shouldThrow<AssertionError> {
-          player.transaction(dev.martianzoo.state.Motivation.CLIENT_REQUEST) {
+          player.transaction(Motivation.CLIENT_REQUEST) {
             player
                 .addTasks(InstructionGroup.of(parse<Instruction>("Token!")))
                 .forEach(player::doTask)
@@ -129,11 +161,11 @@ internal class ActorEngineTransactionTest {
     world.timeline.checkpoint() shouldBe checkpoint
     world.timeline.positions.last() shouldBe checkpoint
 
-    player.transaction(dev.martianzoo.state.Motivation.CLIENT_REQUEST) {
+    player.transaction(Motivation.CLIENT_REQUEST) {
       player.addTasks(InstructionGroup.of(parse<Instruction>("Token!"))).forEach(player::doTask)
     }
     world.reader.count(parse<Metric>("Token")) shouldBe 1
-    world.timeline.checkpoint().serial shouldBe checkpoint.serial + 1
+    world.timeline.checkpoint().serial shouldBe checkpoint.serial + 2
   }
 
   @Test
@@ -157,10 +189,9 @@ internal class ActorEngineTransactionTest {
     shouldThrow<DeadEndException> {
       player.transact(afterChanges = {}) {
         player.doTask(placement)
-        // The first task removed the Land Claim cube and queued its placement bonus.
+        // The first task removed Land Claim and processed the automatic placement signal.
         world.reader.count(parse<Metric>("Community<Player1, Tharsis_1_1>")) shouldBe 0
-        world.actorEngine(ADMIN).tasks.isEmpty() shouldBe false
-        world.actorEngine(ADMIN).doTask(world.actorEngine(ADMIN).tasks.ids().single())
+        world.actorEngine(ADMIN).tasks.isEmpty() shouldBe true
         player.doTask(attack)
       }
     }

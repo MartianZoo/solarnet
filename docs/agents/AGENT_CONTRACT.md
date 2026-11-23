@@ -95,8 +95,8 @@ meaningful answer.
   Preserve each task's effects and continuation rather than replacing them with a net engine
   mutation. The client has supplied the intended total; Agent translates it into separate calls.
   Keep unrelated rewards, such as Investment Loan and Media Group, separate in scenario inputs.
-- **Coordinate the surrounding call.** Submit the requested work, ensure mandatory Admin work
-  is handled, and coordinate further execution allowed by Player policies. Account for work
+- **Coordinate the surrounding call.** Submit the requested work; the engine finishes mandatory
+  Admin work. Coordinate further execution allowed by Player policies. Account for work
   performed under installed engine policies too. Stop when further input is needed without
   presenting that stopping point as proof that the whole action has finished. Quiescence includes
   applicable installed engine policies as well as mandatory Admin and configured Player drivers.

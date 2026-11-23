@@ -30,12 +30,12 @@ internal class AsCommand(private val repl: ScriptSession) : ScriptCommand("as") 
   override fun withArgs(args: String): List<String> {
     val (player, rest) = args.trim().split(Regex("\\s+"), 2)
 
-    val saved = repl.agent
+    val saved = repl.currentActor
     return try {
-      repl.agent = repl.agents[repl.actor(player)]
+      repl.currentActor = repl.actor(player)
       repl.command(rest)
     } finally {
-      repl.agent = saved
+      repl.currentActor = saved
     }
   }
 }

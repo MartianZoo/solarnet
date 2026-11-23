@@ -87,7 +87,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
   private fun payWrittenActionCost(payment: String, taskIdsBeforeAction: Set<TaskId>) {
     val costTasks =
         repl.agent.tasks.extract { it }.filter { !it.deferred && it.id !in taskIdsBeforeAction }
-    if (repl.agent.count("PaymentScope") > 0) {
+    if (repl.count("PaymentScope") > 0) {
       TfmPayCommand(repl).withArgs(payment)
       return
     }

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
@@ -14,7 +15,7 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
   @Test
   internal fun `Advances active tracks from their current positions and leaves inactive tiles alone`() {
     newTestGame("PreludeExpansion, $EarlyColonization, Luna, Ceres, Miranda, Titan, Enceladus")
-    admin.setToExMachina(3, "ColonyProduction<Luna>")
+    setWorldCount(3, "ColonyProduction<Luna>")
 
     kim.inTurn {
           doTasks(
@@ -75,7 +76,7 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
       )
     }
     advanceUntilActionPhase()
-    admin.setToExMachina(position, "ColonyProduction<Luna>")
+    setWorldCount(position, "ColonyProduction<Luna>")
 
     shouldThrow<LimitsException> {
       kim.inTurn {

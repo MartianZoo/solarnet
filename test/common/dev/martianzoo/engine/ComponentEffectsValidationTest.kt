@@ -1,13 +1,16 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.agenttestsupport.runSystem
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Component
+import dev.martianzoo.testsupport.count
+import dev.martianzoo.testsupport.resolve
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
@@ -73,13 +76,13 @@ internal class ComponentEffectsValidationTest {
                 players = 0,
             )
         )
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
 
-    shouldThrow<ExpressionException> { admin.exMachina("Token!, BrokenHolder<Bad>!") }
-    admin.runOperation("Marker")
+    shouldThrow<ExpressionException> { admin.correct("Token!, BrokenHolder<Bad>!") }
+    admin.runSystem("Marker")
 
-    admin.count("Token") shouldBe 0
-    admin.count("Echo") shouldBe 0
+    admin.world.reader.count("Token") shouldBe 0
+    admin.world.reader.count("Echo") shouldBe 0
   }
 
   @Test

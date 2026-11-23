@@ -5,14 +5,17 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine
 
@@ -29,8 +32,8 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
   lateinit var agents: Agents
     private set
 
-  protected open val admin: Agent
-    get() = agents[ADMIN]
+  protected open val admin: GameReader
+    get() = game.reader
 
   protected fun TaskResult.expect(expected: String) =
       TestHelpers.assertNetChanges(this, game, expected)
@@ -111,7 +114,7 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
       firstGlobalEvents: List<String>,
   ) {
     createWorld(addOptions, playerCount, firstGlobalEvents)
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
     if (
         playerCount == 1 &&
             GameConfig(addOptions).includedClassNames.none { it in Canon.colonyTileClassNames } &&

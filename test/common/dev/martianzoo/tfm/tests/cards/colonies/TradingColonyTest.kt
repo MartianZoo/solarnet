@@ -13,7 +13,7 @@ internal class TradingColonyTest : TfmSandboxTest() {
   internal fun `May decline its track increase before trade income`() {
     kim.exMachina("$TradingColony, Colony<Europa>")
     kim.setToExMachina(9, "MC")
-    admin.setToExMachina(2, "ColonyProduction<Europa>")
+    setWorldCount(2, "ColonyProduction<Europa>")
 
     kim.inTurn {
       doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC")

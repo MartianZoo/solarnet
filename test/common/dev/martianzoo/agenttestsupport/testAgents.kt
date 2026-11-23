@@ -4,8 +4,6 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
-import dev.martianzoo.state.Actor
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
 
 private var retainedAgents: Agents? = null
@@ -22,7 +20,7 @@ internal fun World.testAgents(): Agents {
 }
 
 /** Test-only seam for obtaining this World's retained Agent for [actor]. */
-internal fun World.testAgent(actor: Actor): Agent = testAgents()[actor]
+internal fun World.testAgent(actor: Player): Agent = testAgents()[actor]
 
 /**
  * Starts this World's game for a synthetic scenario that stays in SetupPhase: setup's pending
@@ -33,10 +31,10 @@ internal fun World.startSetupOnly() {
   val policies = actors.filterIsInstance<Player>().associateWith { agents[it].autoExecPolicy }
   try {
     policies.keys.forEach { agents[it].autoExecPolicy = NONE }
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
-    tasks.extract { it }.filter { it.deferred }.forEach { agents[it.assignee].dropTask(it.id) }
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
+    tasks.extract { it }.filter { it.deferred }.forEach { actorEngine(it.assignee).dropTask(it.id) }
   } finally {
     policies.forEach { (actor, policy) -> agents[actor].autoExecPolicy = policy }
   }
-  agents[ADMIN].autoExecNow()
+  agents.transact()
 }

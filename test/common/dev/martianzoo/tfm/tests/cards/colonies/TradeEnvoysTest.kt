@@ -14,7 +14,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Raises the track before trade income`() {
     kim.exMachina("$TradeEnvoys")
     kim.setToExMachina(9, "MC")
-    admin.setToExMachina(4, "ColonyProduction<Luna>")
+    setWorldCount(4, "ColonyProduction<Luna>")
 
     kim.inTurn {
           doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC")
@@ -35,7 +35,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Raises the track when Titan Floating Launch-Pad trades`() {
     kim.exMachina("$TradeEnvoys, $TitanFloatingLaunchPad, 2 Floater<$TitanFloatingLaunchPad>")
     kim.setToExMachina(0, "MC")
-    admin.setToExMachina(4, "ColonyProduction<Luna>")
+    setWorldCount(4, "ColonyProduction<Luna>")
 
     kim.inTurn {
       doTasks(
@@ -58,7 +58,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Does not increase a maxed track`() {
     kim.exMachina("$TradeEnvoys")
     kim.setToExMachina(9, "MC")
-    admin.setToExMachina(6, "ColonyProduction<Luna>")
+    setWorldCount(6, "ColonyProduction<Luna>")
 
     kim.inTurn {
           doTasks("UseAction<TradeAction, Action1>", "9 Pay<> FROM MC")
@@ -79,7 +79,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Both track decisions precede trade income`() {
     kim.exMachina("$TradeEnvoys, $TradingColony")
     kim.setToExMachina(9, "MC")
-    admin.setToExMachina(4, "ColonyProduction<Luna>")
+    setWorldCount(4, "ColonyProduction<Luna>")
 
     kim.inTurn {
           // Decline the other card's additional optional track increase.

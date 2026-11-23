@@ -449,12 +449,13 @@ does not establish that those policies are implemented.
 
 Each World retains one `ActorEngine` per Actor. It owns attributed task and state
 commands but shares the World's changer, instructor, timeline, and Task services. `Agents(world)`
-constructs the corresponding normal client objects and prevents pairing an Agent with an unrelated
+constructs client objects for Players only and prevents pairing an Agent with an unrelated
 World.
 
 For Actor attribution, receiving the request through that Actor's Agent is sufficient. The engine
 checks the task's current assignee and legal mutation, not the identity or consent of the person
-or program making the call. A client may use all of the World's Agents, including Admin.
+or program making the call. A client may use all Player Agents and the World's attributed engine commands. Admin has an
+ActorEngine but no Agent; mandatory Admin processing belongs to the engine.
 
 ## Where to inspect
 

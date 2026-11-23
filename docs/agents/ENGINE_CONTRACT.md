@@ -9,11 +9,13 @@ owner decisions, and verification evidence are retained in
 ## Responsibility and scope
 
 The engine interprets submitted instructions, enforces the modeled rules, and maintains reversible
-game state. Agent supplies the client-facing calls, application checks, mandatory Admin
-processing, and configured Player automatic behavior. The engine does not authenticate callers;
+game state, including mandatory Admin execution. Agents exist only for Players and supply
+client-facing assistance and configured Player automatic behavior. The Agents session owns
+application-input checks and grouped-call rollback. The engine does not authenticate callers;
 [ADVERSARIAL.md](ADVERSARIAL.md) describes the surrounding application's responsibilities.
 
-Admin has no client to supply choices. The required automatic behavior is the work that supported
+Admin has no Agent and no client to supply choices. It remains an Actor with an ActorEngine for
+task assignment, event attribution, and administrative engine commands. The required automatic behavior is the work that supported
 Canon rules actually assign to Admin. Setup supplies information that rules cannot determine:
 Turmoil's event order (which may be a recorded prefix) and solo neutral tile locations are in the
 resolved premise and exported game files. Drawing beyond the supplied event order fails. Admin
@@ -38,6 +40,12 @@ effects, invariant checks, and admission of resulting tasks. Invariants are chec
 elementary change and its immediate consequences; a later ordinary group member cannot repair an
 earlier member's invalid result. Direct mandatory `Die` fails when admitted.
 
+A task command finishes eligible Admin work in separate transactions before returning. Selection
+and narrowing also finish transfers to Admin. A selected Player task retains priority. Queue edits
+and corrections remain primitives: adding or removing a task does not itself execute its body;
+a session call handles resulting eligible Admin work. Internal interpretation trials deliberately
+stop at their tested transaction and do not execute newly queued Admin tasks.
+
 An **Agent call** runs the requested engine work, mandatory Admin work, configured Player automatic
 work, and applicable application/completion checks. These may be several transactions. For example,
 using AI Central can run System bookkeeping and return with its Player draw task still pending.
@@ -55,7 +63,8 @@ returns no result. A successful call reports the combined changes and surviving 
 all steps. An empty sequence does nothing. The event history retains successful steps; a failed
 later step does not erase them.
 
-Each engine mutation restores its transaction on an escaping `Throwable`. Other Agent mutation
+Each engine task command restores its transaction and subsequent mandatory Admin transactions on
+an escaping `Throwable`. Other Agent mutation
 calls restore the entire call on an escaping failure, including successful earlier transactions
 in that call. An enclosing operation or Agent call still restores its whole block when failure
 escapes, even if it originated in `doTasks`. A task-submission failure caught inside an operation
@@ -211,16 +220,22 @@ work waits for it to finish. A selected Player task takes precedence over ordina
 
 ### Admin's choices and retries
 
-Agent always runs Admin; Player policy and replay settings cannot disable it. Admin attempts
+The engine always runs eligible Admin work; Player policy and replay settings cannot disable it. Admin attempts
 eligible tasks FIFO at the earliest pending deferral. After a success it starts a fresh pass,
 retrying earlier failures. A complete nonempty pass with no success throws, even if Player work
 could make a task executable. An unfixed
 choice, false gate, or unavailable change does not authorize returning control to ordinary Player
 work. On a stalled pass, missing application input takes precedence, then incomplete analysis,
-then a retained rule failure. Escaping failure restores the whole Agent call.
+then a retained rule failure. Escaping failure restores the whole engine command and, when
+enclosed in a session call, that entire call.
 
-The raw engine's Player-priority check probes whether Admin can execute; it is not a replacement
-for Agent's mandatory loop. Clients use Agent for the complete processing and recovery behavior.
+Direct engine calls provide mandatory processing and recovery. The session passes its application
+check through the enclosing `ActorEngine.transact` call; the check runs after each Admin attempt.
+`InputRequiredException` allows retry after other Admin progress. Checks remain scoped to that
+session call: independent engine calls and speculative worlds do not acquire them. A session/call
+scope must enclose attributed engine transactions. Starting `transact` inside an already-open
+`transaction` is rejected before its block runs; otherwise Admin events could join the Player
+transaction or outlive the session's input check.
 Admin finishes when no eligible Admin work remains or selected Player work takes priority.
 Deferred Admin work participates only when no earlier work remains anywhere in the World.
 

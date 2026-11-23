@@ -1,14 +1,15 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.testsupport.count
+import dev.martianzoo.testsupport.resolve
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldInclude
@@ -52,8 +53,8 @@ internal class InitializerTest {
             )
             .withTestSetup("BootstrapProbe")
     val game = Engine.newGame(premise)
-    game.testAgent(ADMIN).count("Right") shouldBe 1
-    game.testAgent(ADMIN).count("Marker") shouldBe 1
+    game.testAgents().world.reader.count("Right") shouldBe 1
+    game.testAgents().world.reader.count("Marker") shouldBe 1
     game.tasks.isEmpty() shouldBe true
   }
 
@@ -108,10 +109,10 @@ internal class InitializerTest {
     val premise = testGamePremise(players = 2)
 
     val game = Engine.newGame(premise)
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
 
     premise.premiseClassName shouldBe null
-    admin.count("Player") shouldBe 2
+    admin.world.reader.count("Player") shouldBe 2
     game.tasks.isEmpty() shouldBe true
   }
 
@@ -186,8 +187,8 @@ internal class InitializerTest {
 
     val game = Engine.newGame(premise)
 
-    game.testAgent(ADMIN).count("Unit") shouldBe 0
-    game.testAgent(ADMIN).count("Token") shouldBe 0
+    game.testAgents().world.reader.count("Unit") shouldBe 0
+    game.testAgents().world.reader.count("Token") shouldBe 0
     game.tasks.isEmpty() shouldBe true
   }
 
@@ -208,8 +209,8 @@ internal class InitializerTest {
 
     val game = Engine.newGame(premise)
 
-    game.testAgent(ADMIN).count("Unit") shouldBe 0
-    game.testAgent(ADMIN).count("Token") shouldBe 0
+    game.testAgents().world.reader.count("Unit") shouldBe 0
+    game.testAgents().world.reader.count("Token") shouldBe 0
     game.tasks.isEmpty() shouldBe true
   }
 

@@ -1,12 +1,14 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.testsupport.PLAYER3
+import dev.martianzoo.testsupport.count
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -33,23 +35,23 @@ internal class RankMetricTest {
     game.testAgent(PLAYER3).runOperation("2 Score<Player3>, Cash<Player3>")
 
     game
-        .testAgent(ADMIN)
-        .runOperation("EACH @Player(HAS =2 (RANK Me@Player { Score })) { Prize<@Player> }")
+        .testAgents()
+        .runSystem("EACH @Player(HAS =2 (RANK Me@Player { Score })) { Prize<@Player> }")
 
     game.testAgent(PLAYER1).count("Prize<Player1>") shouldBe 0
     game.testAgent(PLAYER2).count("Prize<Player2>") shouldBe 1
     game.testAgent(PLAYER3).count("Prize<Player3>") shouldBe 1
 
     game
-        .testAgent(ADMIN)
-        .runOperation("EACH @Player(HAS =1 (RANK { Score<Player> })) { GlobalPrize<@Player> }")
+        .testAgents()
+        .runSystem("EACH @Player(HAS =1 (RANK { Score<Player> })) { GlobalPrize<@Player> }")
     game.testAgent(PLAYER1).count("GlobalPrize<Player1>") shouldBe 1
     game.testAgent(PLAYER2).count("GlobalPrize<Player2>") shouldBe 1
     game.testAgent(PLAYER3).count("GlobalPrize<Player3>") shouldBe 1
 
     game
-        .testAgent(ADMIN)
-        .runOperation(
+        .testAgents()
+        .runSystem(
             "EACH @Player(HAS =2 (RANK Me@Player { Score, Cash })) { TieBreakPrize<@Player> }"
         )
     game.testAgent(PLAYER1).count("TieBreakPrize<Player1>") shouldBe 0
@@ -57,17 +59,15 @@ internal class RankMetricTest {
     game.testAgent(PLAYER3).count("TieBreakPrize<Player3>") shouldBe 1
 
     game
-        .testAgent(ADMIN)
-        .runOperation(
-            "EACH @Player(HAS =3 (RANK Me@Player { 99 - Score })) { InversePrize<@Player> }"
-        )
+        .testAgents()
+        .runSystem("EACH @Player(HAS =3 (RANK Me@Player { 99 - Score })) { InversePrize<@Player> }")
     game.testAgent(PLAYER1).count("InversePrize<Player1>") shouldBe 1
     game.testAgent(PLAYER2).count("InversePrize<Player2>") shouldBe 0
     game.testAgent(PLAYER3).count("InversePrize<Player3>") shouldBe 0
 
     game
-        .testAgent(ADMIN)
-        .runOperation(
+        .testAgents()
+        .runSystem(
             "EACH @Player(HAS =1 (RANK @Player { Score<Anyone(NOT @Player)> })) { DifferencePrize<@Player> }"
         )
     game.testAgent(PLAYER1).count("DifferencePrize<Player1>") shouldBe 0
@@ -91,7 +91,7 @@ internal class RankMetricTest {
     game.testAgent(PLAYER2).runOperation("2 Score<Player2>")
     game.testAgent(PLAYER3).runOperation("Score<Player3>")
 
-    game.testAgent(ADMIN).runOperation("EACH @Player(HAS =2 (RANK { Score })) { Prize<@Player> }")
+    game.testAgents().runSystem("EACH @Player(HAS =2 (RANK { Score })) { Prize<@Player> }")
 
     game.testAgent(PLAYER1).count("Prize<Player1>") shouldBe 0
     game.testAgent(PLAYER2).count("Prize<Player2>") shouldBe 1
@@ -100,8 +100,8 @@ internal class RankMetricTest {
     val field = parse<Expression>("Player(HAS =2 (RANK { Score }))")
     val narrowed = field.copy(className = parse<Expression>("Player2").className)
     narrowed.toString() shouldBe "Player2(HAS =2 (RANK Player { Score }))"
-    game.testAgent(ADMIN).count(narrowed.toString()) shouldBe 1
-    game.testAgent(ADMIN).count("Player2(HAS =2 (RANK { Score }))") shouldBe 0
+    game.testAgents().world.reader.count(narrowed.toString()) shouldBe 1
+    game.testAgents().world.reader.count("Player2(HAS =2 (RANK { Score }))") shouldBe 0
   }
 
   @Test
@@ -116,15 +116,13 @@ internal class RankMetricTest {
                 players = 2,
             )
         )
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     val p1 = game.testAgent(PLAYER1)
     val p2 = game.testAgent(PLAYER2)
     p1.runOperation("Score, Candidate")
     p2.runOperation("2 Score, Candidate")
 
-    admin.runOperation(
-        "EACH Me@Player(HAS =1 (RANK Me@Player { Score })) { -Candidate<Me@Player> }"
-    )
+    admin.runSystem("EACH Me@Player(HAS =1 (RANK Me@Player { Score })) { -Candidate<Me@Player> }")
 
     p1.count("Candidate") shouldBe 1
     p2.count("Candidate") shouldBe 0
@@ -179,17 +177,17 @@ internal class RankMetricTest {
                 """
             )
         )
-    val admin = game.testAgent(ADMIN)
-    admin.runOperation("FirstParty, SecondParty, ThirdParty")
-    admin.runOperation("3 Delegate<FirstParty>, 2 Delegate<SecondParty>, 2 Delegate<ThirdParty>")
-    admin.runOperation("Distance<FirstParty, SecondParty>, 2 Distance<FirstParty, ThirdParty>")
-    admin.runOperation(
+    val admin = game.testAgents()
+    admin.runSystem("FirstParty, SecondParty, ThirdParty")
+    admin.runSystem("3 Delegate<FirstParty>, 2 Delegate<SecondParty>, 2 Delegate<ThirdParty>")
+    admin.runSystem("Distance<FirstParty, SecondParty>, 2 Distance<FirstParty, ThirdParty>")
+    admin.runSystem(
         "EACH @Party(HAS =2 (RANK { Delegate, Distance<FirstParty> })) { Prize<@Party> }"
     )
 
-    admin.count("Prize<FirstParty>") shouldBe 0
-    admin.count("Prize<SecondParty>") shouldBe 0
-    admin.count("Prize<ThirdParty>") shouldBe 1
+    admin.world.reader.count("Prize<FirstParty>") shouldBe 0
+    admin.world.reader.count("Prize<SecondParty>") shouldBe 0
+    admin.world.reader.count("Prize<ThirdParty>") shouldBe 1
   }
 
   @Test
@@ -207,14 +205,14 @@ internal class RankMetricTest {
                 """
             )
         )
-    val admin = game.testAgent(ADMIN)
-    admin.runOperation("3 Score<Class<FirstKind>>, Score<Class<SecondKind>>")
+    val admin = game.testAgents()
+    admin.runSystem("3 Score<Class<FirstKind>>, Score<Class<SecondKind>>")
 
-    admin.runOperation(
+    admin.runSystem(
         "Prize<Class<Kind>(HAS =1 (RANK @Class<Kind> { Score<Class<Kind>(NOT @Class)> }))>"
     )
 
-    admin.count("Prize<Class<FirstKind>>") shouldBe 0
-    admin.count("Prize<Class<SecondKind>>") shouldBe 1
+    admin.world.reader.count("Prize<Class<FirstKind>>") shouldBe 0
+    admin.world.reader.count("Prize<Class<SecondKind>>") shouldBe 1
   }
 }

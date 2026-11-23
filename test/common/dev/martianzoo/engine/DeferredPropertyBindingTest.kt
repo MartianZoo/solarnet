@@ -1,10 +1,12 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -56,7 +58,7 @@ internal class DeferredPropertyBindingTest {
         )
     val p1 = game.testAgent(PLAYER1)
     val p2 = game.testAgent(PLAYER2)
-    game.testAgent(ADMIN).runOperation("Qualified")
+    game.testAgents().runSystem("Qualified")
     p1.runOperation("2 Score")
 
     p1.runOperation("Grant")
@@ -89,7 +91,7 @@ internal class DeferredPropertyBindingTest {
         )
     val p1 = game.testAgent(PLAYER1)
     val p2 = game.testAgent(PLAYER2)
-    game.testAgent(ADMIN).runOperation("Single, Double")
+    game.testAgents().runSystem("Single, Double")
     p1.runOperation("2 Score, 4 OtherScore")
     p2.runOperation("5 Score, 10 OtherScore")
 
@@ -121,7 +123,7 @@ internal class DeferredPropertyBindingTest {
         )
     val p1 = game.testAgent(PLAYER1)
     val p2 = game.testAgent(PLAYER2)
-    game.testAgent(ADMIN).runOperation("First, Second")
+    game.testAgents().runSystem("First, Second")
     p1.runOperation("2 Score, OtherScore")
     p2.runOperation("Score, 3 OtherScore")
 
@@ -154,7 +156,7 @@ internal class DeferredPropertyBindingTest {
         )
     val p1 = game.testAgent(PLAYER1)
     val p2 = game.testAgent(PLAYER2)
-    game.testAgent(ADMIN).runOperation("ConcreteRule")
+    game.testAgents().runSystem("ConcreteRule")
     p1.runOperation("2 Score")
     p2.runOperation("Score")
 

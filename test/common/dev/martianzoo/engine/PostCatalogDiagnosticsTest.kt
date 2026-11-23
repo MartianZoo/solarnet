@@ -1,6 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.catalog.Catalog
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
@@ -36,6 +38,9 @@ import dev.martianzoo.state.CustomInstruction
 import dev.martianzoo.state.CustomMetric
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
+import dev.martianzoo.testsupport.count
+import dev.martianzoo.testsupport.has
+import dev.martianzoo.testsupport.resolve
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -1393,10 +1398,10 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("Unimplemented")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgents()
     val error =
         assertFailsWith<ExpressionException> {
-          agent.runOperation("Unimplemented")
+          agent.runSystem("Unimplemented")
         }
 
     assertEquals(
@@ -1430,10 +1435,10 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgents()
     val error =
         assertFailsWith<ExpressionException> {
-          agent.runOperation("Negative")
+          agent.runSystem("Negative")
         }
 
     assertEquals(
@@ -1476,10 +1481,10 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Unfinished")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgents()
     val error =
         assertFailsWith<CustomCodeException> {
-          agent.runOperation("Unfinished")
+          agent.runSystem("Unfinished")
         }
 
     assertEquals(
@@ -1519,10 +1524,10 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("UnfinishedMetric")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgents()
     val error =
         assertFailsWith<CustomCodeException> {
-          agent.count("UnfinishedMetric")
+          agent.world.reader.count("UnfinishedMetric")
         }
 
     assertEquals(
@@ -1562,10 +1567,10 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Broken")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgents()
     val error =
         assertFailsWith<CustomCodeException> {
-          agent.runOperation("Broken")
+          agent.runSystem("Broken")
         }
 
     assertEquals("custom instruction failed for `Broken`: translator forgot its rule", error.detail)
@@ -1601,11 +1606,11 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("InstructionOnly")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
-    assertEquals(0, agent.count("InstructionOnly"))
-    agent.runOperation("InstructionOnly")
-    assertEquals(0, agent.count("InstructionOnly"))
-    assertEquals(1, agent.count("Water"))
+    val agent = Engine.newGame(premise, catalog.implementations).testAgents()
+    assertEquals(0, agent.world.reader.count("InstructionOnly"))
+    agent.runSystem("InstructionOnly")
+    assertEquals(0, agent.world.reader.count("InstructionOnly"))
+    assertEquals(1, agent.world.reader.count("Water"))
   }
 
   @Test
@@ -1633,10 +1638,10 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("InvalidOutput")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgents()
     val error =
         assertFailsWith<CustomCodeException> {
-          agent.runOperation("InvalidOutput")
+          agent.runSystem("InvalidOutput")
         }
 
     assertEquals(
@@ -1680,10 +1685,10 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgents()
     val error =
         assertFailsWith<ExpressionException> {
-          agent.count("Negative OR Water")
+          agent.world.reader.count("Negative OR Water")
         }
 
     assertEquals(
@@ -1725,10 +1730,10 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgents()
     val error =
         assertFailsWith<CustomCodeException> {
-          agent.count("Negative")
+          agent.world.reader.count("Negative")
         }
 
     assertEquals("custom metric `Negative` returned -1", error.detail)
@@ -1761,10 +1766,10 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("Unimplemented")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgents()
     val error =
         assertFailsWith<ExpressionException> {
-          agent.runOperation("-Unimplemented")
+          agent.runSystem("-Unimplemented")
         }
 
     assertEquals(
@@ -2451,11 +2456,11 @@ internal class PostCatalogDiagnosticsTest {
                 ),
         )
     val game = Engine.newGame(premise, catalog.implementations)
-    val agent = game.testAgent(ADMIN)
-    agent.runOperation("InstructionOnly")
-    assertEquals(1, agent.count("Water"))
-    assertEquals(1, agent.count("Green"))
-    assertEquals(1, agent.count("Blue"))
+    val agent = game.testAgents()
+    agent.runSystem("InstructionOnly")
+    assertEquals(1, agent.world.reader.count("Water"))
+    assertEquals(1, agent.world.reader.count("Green"))
+    assertEquals(1, agent.world.reader.count("Blue"))
     assertEquals(
         1,
         game.events.changesSinceSetup().count {

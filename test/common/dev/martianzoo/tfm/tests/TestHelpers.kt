@@ -4,6 +4,8 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
@@ -25,9 +27,12 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
+import dev.martianzoo.testsupport.count
+import dev.martianzoo.testsupport.list
+import dev.martianzoo.testsupport.resolve
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
@@ -39,9 +44,12 @@ import io.kotest.matchers.shouldBe
 internal fun setUpGame(premise: GamePremise): World =
     TfmEngine.newGame(withTestTurmoilDeck(premise)).apply {
       val agents = Agents(this) { NONE }
-      agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+      agents.runSystem("SetupPhase FROM BootstrapPhase")
       // This prepared position stays in Setup; no corporation turn is part of the scenario.
-      tasks.extract { it }.filter { it.deferred }.forEach { agents[it.assignee].dropTask(it.id) }
+      tasks
+          .extract { it }
+          .filter { it.deferred }
+          .forEach { agents.world.actorEngine(it.assignee).dropTask(it.id) }
       actors.filterIsInstance<Player>().forEach { player ->
         val agent = agents[player]
         // Incidental opening only; the Agent's Player policy remains NONE.
@@ -74,11 +82,13 @@ internal fun withTestTurmoilDeck(
  */
 internal fun World.startCorporationPhaseOutOfTurn() {
   val agents = Agents(this) { NONE }
-  agents[ADMIN].beginOperation("CorporationPhase FROM SetupPhase")
-  tasks.extract { it.id to it.assignee }.forEach { (id, assignee) -> agents[assignee].dropTask(id) }
-  val admin = agents[ADMIN]
+  agents.runSystem("CorporationPhase FROM SetupPhase")
+  tasks
+      .extract { it.id to it.assignee }
+      .forEach { (id, assignee) -> agents.world.actorEngine(assignee).dropTask(id) }
+  val admin = agents.world.reader
   admin.list("Baton").elements.forEach { baton ->
-    admin.exMachina("-${admin.count("$baton")} $baton")
+    agents.correct("-${admin.count("$baton")} $baton")
   }
 }
 
@@ -203,6 +213,9 @@ private val MAP_OPTIONS =
     )
 
 internal object TestHelpers {
+  fun GameReader.assertCounts(vararg pairs: Pair<Int, String>) =
+      pairs.map { this.count(it.second) } shouldBe pairs.map { it.first }
+
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
     require(players > 0)
     val count = if (players == 1) 4 else if (players == 2) 5 else players + 2

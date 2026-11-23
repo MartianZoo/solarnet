@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -24,7 +26,7 @@ internal class DryDesertsTest : TfmGameplayTest() {
   @Test
   fun `First player chooses which ocean disappears and each influence buys a separate resource`() {
     // Two oceans make removal a choice; Kim has two influence from Event Analysts and the chair.
-    admin.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_5>")
+    agents.correct("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_5>")
     kim.exMachina("$EventAnalysts, Chairman FROM Chairman<Neutral>")
     stan.doTask("Pass")
     kim.doTask("Pass")

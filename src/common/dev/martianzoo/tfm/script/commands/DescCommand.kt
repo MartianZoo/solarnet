@@ -45,8 +45,8 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
                   .random()
           type.expressionFull to type
         } else {
-          val expression: Expression = repl.agent.parse(args)
-          expression to repl.agent.resolve(args)
+          val expression: Expression = repl.parse(args)
+          expression to repl.resolve(args)
         }
     return listOf(TypeToText.describe(expression, type, repl.game.classTable))
   }

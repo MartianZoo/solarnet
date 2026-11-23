@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.runSystem
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.Parsing.parse
@@ -10,6 +11,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
@@ -22,23 +24,23 @@ internal class AutomaticEffectDepthTest {
   @Test
   internal fun `automatic effect cycle fails atomically at the depth limit`() {
     val world = TfmEngine.newGame(premise)
-    val admin = world.testAgent(ADMIN)
+    val admin = world.testAgents()
     val checkpoint = world.events.nextOrdinal
 
-    val failure = shouldThrow<ResourceLimitException> { admin.runOperation("ChainA") }
+    val failure = shouldThrow<ResourceLimitException> { admin.runSystem("ChainA") }
 
     failure.detail shouldBe
         "automatic effect chain exceeded depth 8: " +
             "ChainB! -> ChainA! -> ChainB! -> ChainA! -> ChainB! -> ChainA! -> ChainB! -> ChainA! -> ChainB!"
-    admin.count("ChainA") shouldBe 0
-    admin.count("ChainB") shouldBe 0
+    admin.world.reader.count("ChainA") shouldBe 0
+    admin.world.reader.count("ChainB") shouldBe 0
     world.events.entriesSince(checkpoint).shouldBeEmpty()
   }
 
   @Test
   internal fun canSelectTaskPropagatesResourceLimitsAndRollsBack() {
     val world = TfmEngine.newGame(premise)
-    val admin = world.testAgent(ADMIN)
+    val admin = world.testAgents()
     val task =
         world
             .actorEngine(ADMIN)
@@ -46,12 +48,12 @@ internal class AutomaticEffectDepthTest {
             .single()
     val checkpoint = world.events.nextOrdinal
 
-    shouldThrow<ResourceLimitException> { admin.canSelectTask(task) }
+    shouldThrow<ResourceLimitException> { admin.world.actorEngine(ADMIN).canSelectTask(task) }
 
     world.events.nextOrdinal shouldBe checkpoint
-    admin.tasks.ids() shouldBe setOf(task)
-    admin.count("ChainA") shouldBe 0
-    admin.count("ChainB") shouldBe 0
+    admin.world.actorEngine(ADMIN).tasks.ids() shouldBe setOf(task)
+    admin.world.reader.count("ChainA") shouldBe 0
+    admin.world.reader.count("ChainB") shouldBe 0
     world.events.entriesSince(checkpoint).shouldBeEmpty()
   }
 

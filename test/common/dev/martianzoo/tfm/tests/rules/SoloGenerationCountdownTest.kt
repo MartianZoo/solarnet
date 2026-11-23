@@ -2,8 +2,10 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.engine.*
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -16,9 +18,9 @@ internal class SoloGenerationCountdownTest : TfmSandboxTest() {
   internal fun laterGenerationsRemoveOneGenerationLeft() {
     val game = setUpGame(players = 1)
     val agents = Agents(game) { NONE }
-    val admin = agents[ADMIN]
+    val admin = agents.world.reader
 
-    admin.runOperation("Generation")
+    agents.runSystem("Generation")
 
     admin.count("SoloGenerationsLeft") shouldBe 12
   }
@@ -27,10 +29,10 @@ internal class SoloGenerationCountdownTest : TfmSandboxTest() {
   internal fun enteringTheFinalSoloGenerationRemovesTheLastGameEndBarrier() {
     val game = setUpGame(players = 1)
     val agents = Agents(game) { NONE }
-    val admin = agents[ADMIN]
-    admin.exMachina("-12 SoloGenerationsLeft")
+    val admin = agents.world.reader
+    agents.correct("-12 SoloGenerationsLeft")
 
-    admin.runOperation("-SoloGenerationsLeft")
+    agents.runSystem("-SoloGenerationsLeft")
 
     admin.count("SoloGenerationsLeft") shouldBe 0
     admin.count("GameEndBarrier") shouldBe 0

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -36,7 +37,7 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
       )
       // The earlier event draws are incidental; play the card and resolve the prepared event
       // normally.
-      admin.exMachina(
+      agents.correct(
           "$DemocraticReform, Current<$DemocraticReform>, " +
               "PendingGlobalEffect<Current<$DemocraticReform>, Class<AquiferReleasedByPublicCouncil>>"
       )

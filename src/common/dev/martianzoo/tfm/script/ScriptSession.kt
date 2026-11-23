@@ -7,9 +7,14 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -77,7 +82,34 @@ public class ScriptSession(
   internal val game: World
     get() = agents.world
 
-  internal lateinit var agent: Agent
+  internal var currentActor: Actor = ADMIN
+  internal val agent: Agent
+    get() =
+        agents[currentActor as? Player ?: throw UsageException("Select a Player for this command")]
+
+  internal inline fun <reified T : PetElement> parse(text: String): T =
+      PetElaborator(game.classTable)
+          .elaborateInput(
+              Parsing.parse<T>(text),
+              currentActor as? Player,
+          ) as T
+
+  internal fun count(text: String): Int =
+      game.reader.count(
+          PetElaborator(game.classTable)
+              .elaborateMetricInput(
+                  Parsing.parse(text),
+                  currentActor.expression,
+                  currentActor as? Player,
+              )
+      )
+
+  internal fun has(text: String): Boolean = game.reader.has(parse(text))
+
+  internal fun resolve(text: String): Type = game.reader.resolve(parse(text))
+
+  internal fun list(text: String) = game.reader.getComponents(resolve(text)).map { it.expression }
+
   internal var optionCodes: String = ""
     private set
 
@@ -99,24 +131,29 @@ public class ScriptSession(
       candidatePlayerCount: Int,
       purple: Boolean,
   ) {
-    val candidateAgents = Agents(candidateGame) { if (it == ADMIN || purple) EAGER else NONE }
-    val candidateAgent = candidateAgents[ADMIN]
-    candidateAgent.beginOperation("SetupPhase FROM BootstrapPhase")
+    val candidateAgents = Agents(candidateGame) { if (purple) EAGER else NONE }
+    candidateAgents.transact {
+      candidateGame
+          .actorEngine(ADMIN)
+          .addTasks(
+              InstructionGroup.of(Parsing.parse<InstructionTree>("SetupPhase FROM BootstrapPhase!"))
+          )
+    }
     if (!purple) {
       // Outside purple mode the user changes phases, so the game does not leave setup on its own.
       candidateGame.tasks
           .extract { it }
           .filter { it.deferred }
-          .forEach { candidateAgents[it.assignee].dropTask(it.id) }
+          .forEach { candidateGame.actorEngine(it.assignee).dropTask(it.id) }
       candidateGame.actors.filterIsInstance<Player>().forEach {
         candidateAgents[it].autoExecPolicy = EAGER
       }
-      candidateAgent.autoExecNow()
+      candidateAgents.transact()
     }
     optionCodes = candidateOptionCodes
     playerCount = candidatePlayerCount
     agents = candidateAgents
-    agent = candidateAgent
+    currentActor = ADMIN
     if (purple) mode = PURPLE
   }
 
@@ -262,12 +299,11 @@ public class ScriptSession(
     )
   }
 
-  internal fun promptPlain(): String =
-      with(agent) {
-        val phase = list("Phase").singleOrNull() ?: "(no phase)"
-        val checkpoint = game.timeline.checkpoint()
-        "$optionCodes $phase ${agent.actor.className}/$playerCount @$checkpoint> "
-      }
+  internal fun promptPlain(): String = run {
+    val phase = list("Phase").singleOrNull() ?: "(no phase)"
+    val checkpoint = game.timeline.checkpoint()
+    "$optionCodes $phase ${currentActor.className}/$playerCount @$checkpoint> "
+  }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
@@ -320,10 +356,10 @@ public class ScriptSession(
 
   internal fun access(): Access = // TODO maybe don't do this "just-in-time"...
   when (mode) {
-        RED -> RedMode(agent)
-        YELLOW -> YellowMode(agent)
-        GREEN -> GreenMode(agent)
-        BLUE -> BlueMode(agent)
+        RED -> RedMode(this)
+        YELLOW -> YellowMode(this)
+        GREEN -> GreenMode(this)
+        BLUE -> BlueMode(this)
         PURPLE -> PurpleMode()
       }
 
@@ -349,7 +385,7 @@ public class ScriptSession(
   private fun selectableTasks(ids: Set<TaskId>? = null): List<Task> =
       game.tasks
           .extract { it }
-          .filter { it.assignee == agent.actor && (ids == null || it.id in ids) }
+          .filter { it.assignee == currentActor && (ids == null || it.id in ids) }
 
   internal fun taskLines(ids: Set<TaskId>? = null): List<String> =
       selectableTasks(ids).map(::renderTask)
@@ -409,7 +445,7 @@ public class ScriptSession(
   }
 
   internal fun player(name: String): Player {
-    val type: Type = agent.resolve(name)
+    val type: Type = resolve(name)
     return game.actors.filterIsInstance<Player>().singleOrNull { it.className == type.className }
         ?: throw UsageException("not a participating Player: $name")
   }

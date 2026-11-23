@@ -32,6 +32,7 @@ import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
+import dev.martianzoo.state.Motivation
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
@@ -67,12 +68,8 @@ internal class AgentImpl(
   private val allTasks: TaskQueue
     get() = world.tasks
 
-  override var autoExecPolicy: AutoExecPolicy =
-      if (actor == ADMIN) AutoExecPolicy.EAGER else initialPolicy
+  override var autoExecPolicy: AutoExecPolicy = initialPolicy
     set(newPolicy) {
-      require(actor != ADMIN || newPolicy == AutoExecPolicy.EAGER) {
-        "Admin always uses EAGER handling"
-      }
       if (newPolicy != field) {
         field = newPolicy
         if (newPolicy != AutoExecPolicy.NONE) {
@@ -218,16 +215,20 @@ internal class AgentImpl(
   }
 
   private fun addInitialTasks(initialInstructions: InstructionGroup) {
-    engine.addTasks(initialInstructions).forEach { taskId ->
-      autoExecLoop.runAdmin()
+    var added = emptyList<TaskId>()
+    queueEdit { added = engine.addTasks(initialInstructions) }
+    added.forEach { taskId ->
       // Initial routing may assign the task to another Actor before task handling begins, and a
       // dispatch admits work that may wait.
       if (taskId !in tasks || tasks.getTaskData(taskId).deferral > allTasks.earliestDeferral)
           return@forEach
-      try {
-        engine.doTask(taskId)
-      } catch (_: NotFullySpecifiedException) {
-        // Initial abstract work remains pending for the operation body to narrow.
+      engine.transaction(Motivation.CLIENT_REQUEST) {
+        try {
+          world.timeline.atomic { engine.doTask(taskId) }
+        } catch (_: NotFullySpecifiedException) {
+          // Only the initial Player choice may wait for the operation body. Mandatory Admin
+          // consequences run after this transaction and their failures must escape.
+        }
       }
     }
   }
@@ -317,7 +318,6 @@ internal class AgentImpl(
       withAutoExecPolicyOverride(policy) { atomic {} }
 
   private inline fun <T> withAutoExecPolicyOverride(policy: AutoExecPolicy, block: () -> T): T {
-    require(actor != ADMIN || policy == AutoExecPolicy.EAGER) { "Admin always uses EAGER handling" }
     autoExecPolicyOverrides.add(policy)
     return try {
       block()
@@ -328,7 +328,7 @@ internal class AgentImpl(
 
   private fun autoExecAtomically(): TaskResult =
       engine.transact(
-          afterChanges = { validateApplication() },
+          validateApplication = validateApplication,
           block = { autoExecLoop.run() },
       )
 
@@ -385,7 +385,6 @@ internal class AgentImpl(
         ) ?: return false
     matches.forEach { (task, change) ->
       engine.doTask(change, taskId = task.id)
-      autoExecLoop.runAdmin()
     }
     return true
   }
@@ -484,7 +483,8 @@ internal class AgentImpl(
     val parsed = parseTaskNarrowing(narrowing)
     tryExecution {
       engine.doTask(parsed.instruction, parsed.quantifierOmitted, parsed.taskId)
-      if (allTasks.selectedTask() != null) throw AbortTransactionException()
+      if (allTasks.selectedTask()?.let { allTasks.getTaskData(it).assignee != ADMIN } == true)
+          throw AbortTransactionException()
     }
   }
 
@@ -492,35 +492,39 @@ internal class AgentImpl(
     val parsed = parseTaskNarrowing(narrowing, taskId = taskId)
     tryExecution {
       engine.doTask(parsed.instruction, parsed.quantifierOmitted, taskId)
-      if (allTasks.selectedTask() != null) throw AbortTransactionException()
+      if (allTasks.selectedTask()?.let { allTasks.getTaskData(it).assignee != ADMIN } == true)
+          throw AbortTransactionException()
     }
   }
 
   override fun tryTask(taskId: TaskId) = decide {
     tryExecution {
       engine.doTask(taskId)
-      if (taskId in allTasks) throw AbortTransactionException()
+      if (taskId in allTasks && allTasks.getTaskData(taskId).assignee != ADMIN)
+          throw AbortTransactionException()
     }
   }
 
   private fun tryExecution(block: () -> Unit) {
-    try {
-      world.timeline.atomic(block)
-    } catch (e: IncompleteAnalysisException) {
-      throw e
-    } catch (_: NotFullySpecifiedException) {
-      // A known missing choice leaves the request pending; unfinished analysis propagates.
-    } catch (_: NotNowException) {
-      // Currently unavailable work leaves the attempted task and its effects unchanged.
+    world.timeline.atomic {
+      engine.transaction(Motivation.CLIENT_REQUEST) {
+        try {
+          block()
+        } catch (e: IncompleteAnalysisException) {
+          throw e
+        } catch (_: NotFullySpecifiedException) {
+          throw AbortTransactionException()
+        } catch (_: NotNowException) {
+          throw AbortTransactionException()
+        }
+      }
     }
   }
 
   /** Runs a submitted decision and task handling within the enclosing call. */
   private fun decide(block: () -> Unit): TaskResult = atomic {
-    autoExecLoop.runAdmin()
     markDecision()
     block()
-    autoExecLoop.runAdmin()
   }
 
   private fun finishTaskHandoff() {
@@ -589,26 +593,17 @@ internal class AgentImpl(
       block: () -> Unit,
   ): TaskResult =
       engine.transact(
+          validateApplication = validateApplication,
           block = block,
           validateCompletion = validateCompletion,
-          afterChanges = {
-            autoExecLoop.run()
-            validateApplication()
-          },
+          afterChanges = autoExecLoop::run,
       )
 
   // Queue edits handle mandatory Admin work without choosing Player tasks.
   private fun queueEdit(block: () -> Unit): TaskResult =
       engine.transact(
-          afterChanges = {
-            autoExecLoop.runAdmin()
-            validateApplication()
-          },
-          block = {
-            autoExecLoop.runAdmin()
-            block()
-            autoExecLoop.runAdmin()
-          },
+          validateApplication = validateApplication,
+          block = block,
       )
 
   private data class ParsedTaskNarrowing(

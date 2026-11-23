@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.script.commands
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
+import dev.martianzoo.state.Actor
 import dev.martianzoo.tfm.script.ScriptCommand
 import dev.martianzoo.tfm.script.ScriptCompletion
 import dev.martianzoo.tfm.script.ScriptCompletionContext
@@ -20,12 +21,18 @@ internal class AutoCommand(private val repl: ScriptSession) : ScriptCommand("aut
         argument, `auto` reports the current policy.
       """
 
-  override fun noArgs() = listOf("Autoexec policy is: ${repl.agent.autoExecPolicy}")
+  override fun noArgs() =
+      if (repl.currentActor == Actor.ADMIN) listOf("Admin work is always automatic")
+      else listOf("Autoexec policy is: ${repl.agent.autoExecPolicy}")
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.completions("none", "sole", "eager", group = "auto policies")
 
   override fun withArgs(args: String): List<String> {
+    if (repl.currentActor == Actor.ADMIN)
+        throw UsageException(
+            "Admin work is always automatic; select a Player to configure a policy"
+        )
     val policy =
         when (args) {
           "none" -> NONE

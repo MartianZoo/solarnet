@@ -5,6 +5,8 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
@@ -12,8 +14,11 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
+import dev.martianzoo.testsupport.count
+import dev.martianzoo.testsupport.list
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
@@ -35,8 +40,8 @@ internal abstract class TfmSandboxTest {
   protected lateinit var agents: Agents
     private set
 
-  protected val admin: Agent
-    get() = agents[ADMIN]
+  protected val admin: GameReader
+    get() = game.reader
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
@@ -92,7 +97,7 @@ internal abstract class TfmSandboxTest {
     val prepared =
         preparedWorlds.getOrPut(key) {
           createWorld(addOptions, playerCount, firstGlobalEvents)
-          admin.beginOperation("SetupPhase FROM BootstrapPhase")
+          agents.runSystem("SetupPhase FROM BootstrapPhase")
           if (
               playerCount == 1 &&
                   GameConfig(addOptions).includedClassNames.none {
@@ -129,7 +134,7 @@ internal abstract class TfmSandboxTest {
   protected fun advanceUntilActionPhase() {
     check(game.tasks.isEmpty()) { "Finish pending choices before advancing to Action phase" }
     if (admin.count("ActionPhase") == 1) {
-      admin.runOperation("Generation")
+      agents.runSystem("Generation")
     } else {
       check(admin.count("CorporationPhase") + admin.count("PreludePhase") == 1) {
         "Expected Corporation, Prelude, or Action phase"
@@ -141,7 +146,7 @@ internal abstract class TfmSandboxTest {
   private fun setPhase(phase: String) {
     check(game.tasks.isEmpty()) { "Finish pending choices before changing phase" }
     val current = admin.list("Phase").elements.single()
-    admin.exMachina("${phase}Phase FROM $current")
+    agents.correct("${phase}Phase FROM $current")
   }
 
   /**
@@ -152,12 +157,17 @@ internal abstract class TfmSandboxTest {
     game.tasks
         .extract { it.id to it.assignee }
         .forEach { (id, assignee) ->
-          agents[assignee].dropTask(id)
+          agents.world.actorEngine(assignee).dropTask(id)
         }
     // The sandbox leaves the baton behind with the game's turn order.
     admin.list("Baton").elements.forEach { baton ->
-      admin.exMachina("-${admin.count("$baton")} $baton")
+      agents.correct("-${admin.count("$baton")} $baton")
     }
+  }
+
+  protected fun setWorldCount(targetCount: Int, type: String) {
+    val difference = targetCount - admin.count(type)
+    if (difference != 0) agents.correct("$difference $type")
   }
 
   protected fun Agent.setToExMachina(targetCount: Int, type: String) {
@@ -196,11 +206,11 @@ internal abstract class TfmSandboxTest {
    * resolves any player choices offered during scoring; this temporary query executes the remaining
    * concrete scoring tasks through the Players before restoring the position.
    */
-  protected fun victoryPoints(body: OperationBlock = {}): List<Int> {
+  protected fun victoryPoints(body: () -> Unit = {}): List<Int> {
     check(game.tasks.isEmpty()) { "Finish pending choices before querying victory points" }
     val checkpoint = game.timeline.checkpoint()
     try {
-      admin.beginOperation("End FROM Phase", body)
+      agents.runSystem("End FROM Phase", body)
       players.forEach { it.autoExecNow(EAGER) }
       check(game.tasks.isEmpty()) { "Final scoring has unresolved choices" }
       return players.map { it.count("VictoryPoint") }

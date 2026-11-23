@@ -1,11 +1,15 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.count
+import dev.martianzoo.testsupport.has
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.matchers.collections.shouldContainExactly
@@ -34,25 +38,25 @@ internal class EffectActorCharacterizationTest {
     assertFailsWith<LimitsException> { player.runOperation("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
 
-    assertFailsWith<LimitsException> { game.testAgent(ADMIN).runOperation("-TharsisMap") }
+    assertFailsWith<LimitsException> { game.testAgents().runSystem("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
   }
 
   @Test
   internal fun adminPerformedPlacementDoesNotGiveTheChangedComponentHolderTheAreaBonus() {
     val game = TfmEngine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     game.testAgent(PLAYER1).autoExecPolicy = NONE
-    admin.runOperation("Photosynthesis")
+    admin.runSystem("Photosynthesis")
     val checkpoint = game.events.nextOrdinal
 
-    admin.beginOperation("GreeneryTile<Player1, Elysium_9_8>") {
+    admin.runSystem("GreeneryTile<Player1, Elysium_9_8>") {
       game.tasks
           .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactly(PLAYER1 to "OxygenStep*")
 
-      admin.has("Neighbor") shouldBe true
-      admin.count("ProjectCard<Player1>") shouldBe 0
+      admin.world.reader.has("Neighbor") shouldBe true
+      admin.world.reader.count("ProjectCard<Player1>") shouldBe 0
     }
 
     game.events.changesSince(checkpoint).all { it.actor == ADMIN } shouldBe true
@@ -78,13 +82,13 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun ownedEffectDoesNotTreatAdminAsAnOwner() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val admin = game.testAgent(ADMIN)
-    val terraformRatingBefore = admin.count("TerraformRating")
+    val admin = game.testAgents()
+    val terraformRatingBefore = admin.world.reader.count("TerraformRating")
 
-    admin.runOperation("OxygenStep!")
+    admin.runSystem("OxygenStep!")
 
-    admin.count("OxygenStep") shouldBe 1
-    admin.count("TerraformRating") shouldBe terraformRatingBefore
+    admin.world.reader.count("OxygenStep") shouldBe 1
+    admin.world.reader.count("TerraformRating") shouldBe terraformRatingBefore
     game.tasks.isEmpty() shouldBe true
   }
 }

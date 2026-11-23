@@ -9,6 +9,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.Player
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -16,12 +17,42 @@ import kotlin.test.Test
 
 internal class AgentTest {
   @Test
-  internal fun oneStableAgentPerActorWithActorScopedViewsAndTaskCommands() {
+  internal fun beginningAnOperationCannotHideUnresolvedMandatoryAdminWork() {
+    for (adminRequest in listOf("Choice", "X! Choice")) {
+      val game =
+          Engine.newGame(
+              testGamePremise(
+                  """
+          CLASS Start { This:: SOON Admin { $adminRequest } }
+          ABSTRACT CLASS Choice
+          CLASS First : Choice
+          CLASS Second : Choice
+          """
+              )
+          )
+      val player = Agents(game) { NONE }[PLAYER1]
+      val before = game.events.nextOrdinal
+
+      val failure =
+          shouldThrow<dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException> {
+            player.beginOperation("Start")
+          }
+      (failure is IncompleteAnalysisException) shouldBe (adminRequest == "X! Choice")
+      game.events.nextOrdinal shouldBe before
+      game.tasks.isEmpty() shouldBe true
+      player.count("Start") shouldBe 0
+    }
+  }
+
+  @Test
+  internal fun stablePlayerAgentsWithPlayerScopedViewsAndTaskCommands() {
     val game = Engine.newGame(testGamePremise())
     val agents = Agents(game)
     (agents.world === game) shouldBe true
-    game.actors.map { agents[it].actor } shouldBe game.actors
-    game.actors.map { agents[it].autoExecPolicy }.toSet() shouldBe setOf(EAGER)
+    game.actors.filterIsInstance<Player>().map { agents[it].actor } shouldBe
+        game.actors.filterIsInstance<Player>()
+    game.actors.filterIsInstance<Player>().map { agents[it].autoExecPolicy }.toSet() shouldBe
+        setOf(EAGER)
     (game.actorEngine(PLAYER1) === game.actorEngine(PLAYER1)) shouldBe true
     val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
 
@@ -106,19 +137,15 @@ internal class AgentTest {
   }
 
   @Test
-  internal fun tryRestoresAnUnfinishedHandoffBeforeAdminRuns() {
+  internal fun tryFinishesAMandatoryAdminHandoff() {
     val game = Engine.newGame(testGamePremise("CLASS SystemToken : System\nCLASS Token"))
     val agent = Agents(game) { NONE }[PLAYER1]
     val task = agent.addTasks("SystemToken OR Token").single()
-    val pending = agent.tasks.getTaskData(task)
-    val before = game.events.nextOrdinal
 
     agent.tryTask("SystemToken", task)
 
-    game.events.nextOrdinal shouldBe before
-    agent.tasks.getTaskData(task) shouldBe pending
-    agent.count("SystemToken") shouldBe 0
-    game.tasks.selectedTask() shouldBe null
+    agent.count("SystemToken") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
   }
 
   @Test

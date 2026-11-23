@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.engine.*
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import io.kotest.matchers.shouldBe
@@ -16,7 +18,7 @@ internal class VictoryTest : TfmSandboxTest() {
     val p1 = agents[PLAYER1]
     val p2 = agents[PLAYER2]
 
-    admin.beginOperation("End FROM Phase")
+    agents.runSystem("End FROM Phase")
     p1.doTask("20 VictoryPoint")
     p2.doTask("20 VictoryPoint")
 

@@ -3,12 +3,13 @@ package dev.martianzoo.agent
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.engine.ActorEngine
+import dev.martianzoo.engine.Exceptions.AbortTransactionException
 import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
+import dev.martianzoo.engine.InputRequiredException
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
-import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -16,7 +17,7 @@ import dev.martianzoo.state.Motivation
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 
-/** Mandatory Admin handling followed by optional Player-policy execution. */
+/** Optional Player-policy execution; the engine handles mandatory Admin work. */
 internal class AutoExecLoop(
     private val world: World,
     private val validateApplication: () -> Unit,
@@ -39,9 +40,7 @@ internal class AutoExecLoop(
   }
 
   internal fun run() {
-    do {
-      runAdmin()
-    } while (actOnce())
+    while (actOnce()) {}
   }
 
   private fun actOnce(): Boolean {
@@ -74,7 +73,7 @@ internal class AutoExecLoop(
             } ?: return false
         if (selected != null || candidates.isNotEmpty()) return false
         val engine = engineFor(taskId)
-        engine.transaction(motivationFor(engine.actor)) {
+        engine.transaction(Motivation.PLAYER_POLICY) {
           executeConcretePlayerTask(engine, taskId)
         }
         error("that should've completed")
@@ -88,10 +87,11 @@ internal class AutoExecLoop(
             try {
               var progressed = false
               world.timeline.atomic {
-                engine.transaction(motivationFor(engine.actor)) {
+                engine.transaction(Motivation.PLAYER_POLICY) {
                   engine.selectTask(taskId)
                   progressed =
-                      allTasks.getTaskData(taskId).assignee != engine.actor ||
+                      taskId !in allTasks ||
+                          allTasks.getTaskData(taskId).assignee != engine.actor ||
                           (canExecuteWithoutChoice(taskId) &&
                               run {
                                 try {
@@ -103,12 +103,15 @@ internal class AutoExecLoop(
                                   false
                                 }
                               })
+                  try {
+                    validateApplication()
+                  } catch (_: InputRequiredException) {
+                    progressed = false
+                    throw AbortTransactionException()
+                  }
                 }
-                validateApplication()
               }
               if (progressed) return true
-            } catch (_: AgentInputRequiredException) {
-              return false
             } catch (e: DeadEndException) {
               // Current explicit rejection stops handling immediately, without retrying other work.
               throw e.cause ?: e
@@ -118,24 +121,33 @@ internal class AutoExecLoop(
 
     var recoverable = false
     for (taskId in options) {
-      try {
-        world.timeline.atomic {
-          val engine = engineFor(taskId)
-          engine.transaction(motivationFor(engine.actor)) {
+      var executed = false
+      world.timeline.atomic {
+        val engine = engineFor(taskId)
+        engine.transaction(Motivation.PLAYER_POLICY) {
+          // Only a Player attempt is optional. Admin work runs after this block and its failure
+          // must escape the call rather than being treated as another Player option.
+          try {
             executeConcretePlayerTask(engine, taskId)
+            validateApplication()
+            executed = true
+          } catch (_: InputRequiredException) {
+            recoverable = true
+            throw AbortTransactionException()
+          } catch (e: IncompleteAnalysisException) {
+            throw e
+          } catch (_: NotFullySpecifiedException) {
+            recoverable = true
+            throw AbortTransactionException()
+          } catch (_: NotNowException) {
+            if (allTasks.getTaskData(taskId).instruction.needsNarrowing(world.reader)) {
+              recoverable = true
+            }
+            throw AbortTransactionException()
           }
-          validateApplication()
-        }
-        return true
-      } catch (_: AgentInputRequiredException) {
-        recoverable = true
-      } catch (_: NotFullySpecifiedException) {
-        recoverable = true
-      } catch (_: NotNowException) {
-        if (allTasks.getTaskData(taskId).instruction.needsNarrowing(world.reader)) {
-          recoverable = true
         }
       }
+      if (executed) return true
     }
     if (!recoverable) throw DeadEndException("")
     return false
@@ -158,79 +170,7 @@ internal class AutoExecLoop(
     return instruction is InstructionGroup || !instruction.needsNarrowing(world.reader)
   }
 
-  /** Automatic handling is mandatory for Admin and configured policy for every other Actor. */
-  private fun motivationFor(actor: Actor): Motivation =
-      if (actor == ADMIN) Motivation.ADMIN_EAGER_POLICY else Motivation.PLAYER_POLICY
-
   private fun isAdmin(taskId: TaskId): Boolean = allTasks.getTaskData(taskId).assignee == ADMIN
-
-  /**
-   * Attempts Admin work in FIFO order, retrying waiting tasks after each success. A selected Player
-   * task retains priority. Every nonempty pass must succeed at a task; otherwise its retained
-   * failure is thrown, including choices still needing narrowing and work waiting on a Player. An
-   * unfinished proof is retried after progress and takes precedence over gameplay rejection when
-   * the pass stalls. Missing application input is also retried after progress and reported before
-   * returning to Player work.
-   *
-   * Complete enumeration of legal narrowings remains outside this implementation.
-   */
-  internal fun runAdmin() {
-    val waiting = mutableListOf<TaskId>()
-    while (true) {
-      val selected = allTasks.selectedTask()
-      // A failing selected Admin task cannot wait for competing Player work: selection blocks it.
-      if (selected != null && !isAdmin(selected)) return
-      val pending =
-          (selected?.let(::listOf) ?: allTasks.ids().toList()).filter {
-            isAdmin(it) && !waitsForEarlierWork(it)
-          }
-      waiting.retainAll(pending.toSet())
-      waiting.addAll(pending.filterNot { it in waiting })
-      if (waiting.isEmpty()) return
-      var rejection: Exception? = null
-      var incomplete: IncompleteAnalysisException? = null
-      var inputRequired: AgentInputRequiredException? = null
-      var progressed = false
-      repeat(waiting.size) {
-        if (!progressed) {
-          val taskId = waiting.removeAt(0)
-          try {
-            world.timeline.atomic {
-              val engine = engineFor(taskId)
-              engine.transaction(Motivation.ADMIN_EAGER_POLICY) {
-                engine.doTask(taskId)
-              }
-              validateApplication()
-            }
-            progressed = true
-          } catch (e: AgentInputRequiredException) {
-            waiting += taskId
-            inputRequired = inputRequired ?: e
-          } catch (e: IncompleteAnalysisException) {
-            waiting += taskId
-            incomplete = incomplete ?: e
-          } catch (e: NotFullySpecifiedException) {
-            waiting += taskId
-            rejection = e
-          } catch (e: RequirementException) {
-            waiting += taskId
-            rejection = e
-          } catch (e: NotNowException) {
-            waiting += taskId
-            rejection = e
-          } catch (e: DeadEndException) {
-            waiting += taskId
-            rejection = e
-          }
-        }
-      }
-      if (!progressed) {
-        inputRequired?.let { throw it }
-        incomplete?.let { throw it }
-        throw checkNotNull(rejection) { "Admin made no progress without retaining a failure" }
-      }
-    }
-  }
 
   private fun canSelectTask(taskId: TaskId): Boolean = engineFor(taskId).canSelectTask(taskId)
 
@@ -240,7 +180,7 @@ internal class AutoExecLoop(
   /** Admin is always fully automatic; a configured or overridden policy applies to Players only. */
   private fun policy(taskId: TaskId): AutoExecPolicy {
     val actor = allTasks.getTaskData(taskId).assignee
-    if (actor == ADMIN) return AutoExecPolicy.EAGER
+    if (actor == ADMIN) return NONE
     return policies.getValue(actor).invoke()
   }
 

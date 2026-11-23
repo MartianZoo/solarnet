@@ -7,6 +7,7 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameRecording
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.tfm.engine.GameArchiveExporter
 import dev.martianzoo.tfm.engine.GameArchiveImporter
@@ -128,7 +129,7 @@ internal class ArchiveDraftTest {
           commonSetup()
           game20261111()
         }
-    val green = baseline.game.actors.first { it.toString() == "Green" }
+    val green = baseline.game.actors.filterIsInstance<Player>().first { it.toString() == "Green" }
     baseline.agents[green].exMachina("7 Plant")
     val source = GameArchiveExporter(baseline.game.recording(), baseline.config).export()
     val imported = importer(source)
@@ -158,7 +159,7 @@ internal class ArchiveDraftTest {
                     .trimIndent()
         )
     imported.run()
-    val green = imported.agents[imported.agents.world.actors.first()]
+    val green = imported.agents[imported.agents.world.actors.filterIsInstance<Player>().first()]
     assertEquals(1, green.count("ExcentricSponsor"))
     assertEquals(1, green.count("SpaceElevator"))
     assertEquals(18, green.count("MC"))
@@ -185,7 +186,7 @@ internal class ArchiveDraftTest {
                 .trimIndent()
     val imported = importer(prefix)
     imported.run()
-    val green = imported.agents[imported.agents.world.actors.first()]
+    val green = imported.agents[imported.agents.world.actors.filterIsInstance<Player>().first()]
     assertEquals(1, green.count("AdaptedLichen"))
     assertEquals(0, green.count("Microbe<Psychrophiles>"))
     assertEquals(23, green.count("MC"))
@@ -194,7 +195,8 @@ internal class ArchiveDraftTest {
 
     val insufficient = importer(prefix.replace("Pay(5 Microbe", "Pay(4 Microbe"))
     assertFailsWith<IllegalStateException> { insufficient.run() }
-    val unpaid = insufficient.agents[insufficient.agents.world.actors.first()]
+    val unpaid =
+        insufficient.agents[insufficient.agents.world.actors.filterIsInstance<Player>().first()]
     assertEquals(0, unpaid.count("AdaptedLichen"))
     assertEquals(5, unpaid.count("Microbe<Psychrophiles>"))
   }
@@ -216,8 +218,10 @@ internal class ArchiveDraftTest {
     val selected = importer(throughSelection + "\n}")
     val unfinished = assertFailsWith<IllegalStateException> { selected.run() }
     assertTrue("effects are unfinished" in unfinished.message.orEmpty(), unfinished.message)
-    val greenActor = selected.agents.world.actors.first { it.toString() == "Green" }
-    val pinkActor = selected.agents.world.actors.first { it.toString() == "Pink" }
+    val greenActor =
+        selected.agents.world.actors.filterIsInstance<Player>().first { it.toString() == "Green" }
+    val pinkActor =
+        selected.agents.world.actors.filterIsInstance<Player>().first { it.toString() == "Pink" }
     assertEquals(0, selected.agents[greenActor].count("OceanTile"))
     assertEquals(21, selected.agents[pinkActor].count("MC"))
 
@@ -284,7 +288,11 @@ internal class ArchiveDraftTest {
         listOf(Triple("3 Heat, 2 MC", 2, 19), Triple("5 Heat", 0, 21))) {
       val imported = importer(beforePayment + "Pink: Pay($allocation)\n" + effects)
       imported.run()
-      val pink = imported.agents[imported.agents.world.actors.first { it.toString() == "Pink" }]
+      val pink =
+          imported.agents[
+                  imported.agents.world.actors.filterIsInstance<Player>().first {
+                    it.toString() == "Pink"
+                  }]
       assertEquals(heat, pink.count("Heat"))
       assertEquals(cash, pink.count("MC"))
       assertEquals(3, pink.count("Steel"))
@@ -320,7 +328,7 @@ internal class ArchiveDraftTest {
     val imported = importer(text)
     imported.run()
     val world = imported.agents.world
-    val greenActor = world.actors.first { it.toString() == "Green" }
+    val greenActor = world.actors.filterIsInstance<Player>().first { it.toString() == "Green" }
     assertEquals(2, imported.agents[greenActor].count("Animal<Pets>"))
     val config = OtbGame20261111Test().config
     val exported = GameArchiveExporter(world.recording(), config).export()
@@ -347,8 +355,10 @@ internal class ArchiveDraftTest {
     val imported = importer(source.substringBefore("Pink: SendDelegate0"))
     imported.run()
     val world = imported.agents.world
-    val green = imported.agents[world.actors.first { it.toString() == "Green" }]
-    val pink = imported.agents[world.actors.first { it.toString() == "Pink" }]
+    val green =
+        imported.agents[world.actors.filterIsInstance<Player>().first { it.toString() == "Green" }]
+    val pink =
+        imported.agents[world.actors.filterIsInstance<Player>().first { it.toString() == "Pink" }]
     assertEquals(1, green.count("Baton"))
     green.doTask("Ok")
     assertEquals(1, pink.count("Baton"))
@@ -398,7 +408,8 @@ internal class ArchiveDraftTest {
         )
     val original = importer(withRules)
     original.run()
-    val actor = original.agents.world.actors.first { it.toString() == "Green" }
+    val actor =
+        original.agents.world.actors.filterIsInstance<Player>().first { it.toString() == "Green" }
     original.agents[actor].doTask("ArchiveFirst")
     val text =
         GameArchiveExporter(original.agents.world.recording(), OtbGame20261111Test().config)
@@ -430,7 +441,7 @@ internal class ArchiveDraftTest {
     val importer = importer(source.replaceFirst("    2 ProjectCard\n", ""))
     val failure = assertFailsWith<IllegalStateException> { importer.run() }
     assertTrue(failure.message!!.contains("effects are unfinished"), failure.message)
-    val green = importer.agents[importer.agents.world.actors.first()]
+    val green = importer.agents[importer.agents.world.actors.filterIsInstance<Player>().first()]
     assertEquals(4, green.count("ProjectCard"))
   }
 
@@ -440,7 +451,7 @@ internal class ArchiveDraftTest {
     val importer = importer(source.replaceFirst("Pay(18 MC)", "Pay(17 MC)"))
     val failure = assertFailsWith<IllegalStateException> { importer.run() }
     assertTrue(failure.message!!.contains("Pay(17 MC)"), failure.message)
-    val green = importer.agents[importer.agents.world.actors.first()]
+    val green = importer.agents[importer.agents.world.actors.filterIsInstance<Player>().first()]
     assertEquals(23, green.count("MC"))
     assertEquals(0, green.count("ResearchOutpost"))
   }
@@ -511,7 +522,12 @@ internal class ArchiveDraftTest {
               },
           "$entry: ${failure.message}",
       )
-      assertEquals(0, importer.agents[importer.agents.world.actors.first()].count("MC"))
+      assertEquals(
+          0,
+          importer.agents[importer.agents.world.actors.filterIsInstance<Player>().first()].count(
+              "MC"
+          ),
+      )
     }
   }
 
@@ -532,7 +548,12 @@ internal class ArchiveDraftTest {
       val importer = importer(source.replaceFirst("Pay(18 MC)", payment))
       val failure = assertFailsWith<IllegalStateException>(payment) { importer.run() }
       assertTrue(failure.message!!.contains(payment), failure.message)
-      assertEquals(23, importer.agents[importer.agents.world.actors.first()].count("MC"))
+      assertEquals(
+          23,
+          importer.agents[importer.agents.world.actors.filterIsInstance<Player>().first()].count(
+              "MC"
+          ),
+      )
     }
   }
 
@@ -567,8 +588,10 @@ internal class ArchiveDraftTest {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
     val importer = importer(source.substringBefore("Pink {\n    75 VictoryPoint"))
     importer.run()
-    val green = importer.agents.world.actors.first { it.toString() == "Green" }
-    val pink = importer.agents.world.actors.first { it.toString() == "Pink" }
+    val green =
+        importer.agents.world.actors.filterIsInstance<Player>().first { it.toString() == "Green" }
+    val pink =
+        importer.agents.world.actors.filterIsInstance<Player>().first { it.toString() == "Pink" }
     assertEquals(92, importer.agents[green].count("VictoryPoint"))
     assertEquals(0, importer.agents[pink].count("VictoryPoint"))
     assertEquals(0, importer.agents[green].count("Victory"))
@@ -581,7 +604,8 @@ internal class ArchiveDraftTest {
     val importer = importer(source.replace("92 VictoryPoint", "93 VictoryPoint"))
     val failure = assertFailsWith<IllegalStateException> { importer.run() }
     assertTrue(failure.message!!.contains("93 VictoryPoint"), failure.message)
-    val green = importer.agents.world.actors.first { it.toString() == "Green" }
+    val green =
+        importer.agents.world.actors.filterIsInstance<Player>().first { it.toString() == "Green" }
     assertEquals(0, importer.agents[green].count("VictoryPoint"))
   }
 
@@ -601,7 +625,7 @@ internal class ArchiveDraftTest {
     val importer = importer(source.replaceFirst("Pay(4 Titanium, 2 MC)", "Pay(2 MC, 4 Titanium)"))
     val failure = assertFailsWith<IllegalStateException> { importer.run() }
     assertTrue(failure.message!!.contains("Pay(2 MC, 4 Titanium)"), failure.message)
-    val actor = importer.agents.world.actors.first()
+    val actor = importer.agents.world.actors.filterIsInstance<Player>().first()
     for (resource in listOf("MC", "Titanium")) {
       assertEquals(before.agents[actor].count(resource), importer.agents[actor].count(resource))
     }

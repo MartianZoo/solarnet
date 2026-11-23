@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Motivation
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
@@ -92,7 +93,7 @@ internal class TransactionTrialIsolationTest {
     val pending = world.tasks.extract { it }
 
     shouldThrow<ExpressionException> {
-      engine.transaction(dev.martianzoo.state.Motivation.CLIENT_REQUEST) { engine.doTask(id) }
+      engine.transaction(Motivation.CLIENT_REQUEST) { engine.doTask(id) }
     }
 
     world.events.nextOrdinal shouldBe before
@@ -118,6 +119,6 @@ internal class TransactionTrialIsolationTest {
     agent.count("Community") shouldBe 0
     agent.count("Occupant<Tharsis_1_1>") shouldBe 1
     agent.count("Steel") shouldBe 0
-    world.actorEngine(ADMIN).tasks.isEmpty() shouldBe false
+    world.actorEngine(ADMIN).tasks.isEmpty() shouldBe true
   }
 }

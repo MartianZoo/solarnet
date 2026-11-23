@@ -5,7 +5,9 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.TaskForm.Decision.Kind.ALTERNATIVE
 import dev.martianzoo.agent.TaskForm.Decision.Kind.AMOUNT
 import dev.martianzoo.agent.TaskForm.Decision.Kind.TARGET
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
@@ -13,13 +15,13 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
@@ -1322,12 +1324,12 @@ internal class TaskNarrowingTest {
                 CLASS Tile<Place>
                 """
                     .trimIndent(),
-                players = 0,
+                players = 1,
             )
         )
-    val agent = fixture.testAgent(ADMIN)
-    agent.runOperation("First, Second, Marker<First>")
-    val engine = fixture.actorEngine(ADMIN)
+    val agent = fixture.testAgents()
+    agent.runSystem("First, Second, Marker<First>")
+    val engine = fixture.actorEngine(PLAYER1)
     val id =
         engine
             .addTasks(InstructionGroup.of(parse<Instruction>("Tile<Place(HAS Marker)>!")))
@@ -1336,10 +1338,10 @@ internal class TaskNarrowingTest {
     shouldThrow<NarrowingException> { engine.narrowTask(id, parse<Instruction>("Tile<Place>!")) }
     shouldThrow<NarrowingException> { engine.narrowTask(id, parse<Instruction>("Tile<Second>!")) }
     engine.narrowTask(id, parse<Instruction>("Tile<First>!"))
-    agent.count("Tile") shouldBe 0
+    agent.world.reader.count("Tile") shouldBe 0
     engine.doTask(id)
-    agent.count("Tile<First>") shouldBe 1
-    agent.count("Tile<Second>") shouldBe 0
+    agent.world.reader.count("Tile<First>") shouldBe 1
+    agent.world.reader.count("Tile<Second>") shouldBe 0
   }
 
   @Test
@@ -1360,13 +1362,13 @@ internal class TaskNarrowingTest {
                 players = 0,
             )
         )
-    val agent = fixture.testAgent(ADMIN)
-    agent.runOperation("First, Second, Watcher")
-    agent.runOperation("Pair<First, Second>")
-    agent.count("Notice") shouldBe 0
-    agent.runOperation("Pair<First, First>")
-    agent.count("Notice<First>") shouldBe 1
-    agent.count("Notice<Second>") shouldBe 0
+    val agent = fixture.testAgents()
+    agent.runSystem("First, Second, Watcher")
+    agent.runSystem("Pair<First, Second>")
+    agent.world.reader.count("Notice") shouldBe 0
+    agent.runSystem("Pair<First, First>")
+    agent.world.reader.count("Notice<First>") shouldBe 1
+    agent.world.reader.count("Notice<Second>") shouldBe 0
   }
 
   @Test

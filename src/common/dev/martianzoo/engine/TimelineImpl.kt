@@ -122,24 +122,31 @@ internal class TimelineImpl(
     future.clear()
   }
 
-  @Suppress("TooGenericExceptionCaught", "InstanceOfCheckForException")
   override fun atomic(block: () -> Unit): TaskResult {
+    val start = nextEventOrdinal
+    try {
+      restoring(block)
+    } catch (_: AbortTransactionException) {
+      // Explicit caller scopes consume cancellation after restoration.
+    }
+    return gameWorld.activitySince(start)
+  }
+
+  /** Restores failed engine work without consuming cancellation intended for a caller's scope. */
+  @Suppress("TooGenericExceptionCaught")
+  internal fun <T> restoring(block: () -> T): T {
     requireAtEnd()
     val start = nextEventOrdinal
-    // TODO(ENGINE_CONTRACT): review the scope of failure-atomicity. Only the event position is
-    // captured; existing event commentary and arbitrary caller settings are not restored.
+    // Existing event commentary and arbitrary caller settings are not restored.
     atomicStarts += start
-    try {
+    return try {
       block()
-    } catch (_: AbortTransactionException) {
-      rollBackStateTo(start)
     } catch (e: Throwable) {
       rollBackStateTo(start)
       throw e
     } finally {
       atomicStarts.removeLast()
     }
-    return gameWorld.activitySince(start)
   }
 
   internal fun initializationFinished() = gameWorld.markSetupStart()

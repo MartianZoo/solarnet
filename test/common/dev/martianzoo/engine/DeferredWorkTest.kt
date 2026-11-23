@@ -2,11 +2,15 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -179,17 +183,19 @@ internal class DeferredWorkTest {
 
   @Test
   internal fun `fixed scope cleanup finishes before its final continuation`() {
-    val admin = game.testAgent(ADMIN)
-    admin.runOperation("Flow")
-    admin.beginOperation("WorkScope<Player1>")
-    admin.count("Allocation") shouldBe 1
-    shouldThrow<TaskException> { admin.doTask("-WorkScope<Player1>") }
+    val admin = game.testAgents()
+    admin.runSystem("Flow")
+    admin.runSystem("WorkScope<Player1>")
+    admin.world.reader.count("Allocation") shouldBe 1
+    shouldThrow<TaskException> {
+      admin.world.actorEngine(ADMIN).doTask(Parsing.parse("-WorkScope<Player1>"))
+    }
 
     p2.doTask("ChoiceA")
 
     // Nothing earlier remains, so Admin performs the eligible FINALLY cleanup itself.
-    admin.count("WorkScope") shouldBe 0
-    admin.count("Allocation") shouldBe 0
+    admin.world.reader.count("WorkScope") shouldBe 0
+    admin.world.reader.count("Allocation") shouldBe 0
     shouldThrow<TaskException> { p2.doTask("Done") }
 
     p1.doTask("Cleanup")

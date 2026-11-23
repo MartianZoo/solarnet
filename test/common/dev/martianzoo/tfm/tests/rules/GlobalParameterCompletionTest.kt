@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
@@ -23,7 +24,7 @@ internal class GlobalParameterCompletionTest : TfmSandboxTest() {
     newTestGame()
 
     kim.exMachina("18 TemperatureStep, 13 OxygenStep, 14 VenusStep")
-    admin.exMachina(
+    agents.correct(
         "OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, " +
             "OceanTile<Tharsis_4_8>, OceanTile<Tharsis_5_4>, OceanTile<Tharsis_5_5>, " +
             "OceanTile<Tharsis_5_6>, OceanTile<Tharsis_6_7>"
@@ -57,7 +58,7 @@ internal class GlobalParameterCompletionTest : TfmSandboxTest() {
   internal fun extendedOceanTrackRecordsCompletionOnItsEleventhOcean() {
     newTestGame("AmazonisMap")
 
-    admin.exMachina(
+    agents.correct(
         "OceanTile<Amazonis_02_06>, OceanTile<Amazonis_02_07>, OceanTile<Amazonis_03_06>, " +
             "OceanTile<Amazonis_04_02>, OceanTile<Amazonis_05_05>, OceanTile<Amazonis_05_10>, " +
             "OceanTile<Amazonis_06_05>, OceanTile<Amazonis_06_06>, OceanTile<Amazonis_06_11>, OceanTile<Amazonis_07_04>"

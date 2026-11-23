@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
@@ -102,7 +103,7 @@ internal class TilePlacingTest : TfmSandboxTest() {
     }
 
     // The bonus beside this ocean supplies the missing 2 MC for the south-pole charge.
-    admin.exMachina("OceanTile<Hellas_5_6>")
+    agents.correct("OceanTile<Hellas_5_6>")
     kim.inTurn {
       doTasks(
           "UseAction<ConvertPlantsAction, Action1>",

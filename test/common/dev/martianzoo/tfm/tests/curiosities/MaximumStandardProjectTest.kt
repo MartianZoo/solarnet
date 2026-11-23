@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.curiosities
 
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks

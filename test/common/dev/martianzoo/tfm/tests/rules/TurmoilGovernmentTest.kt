@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks
@@ -24,7 +26,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
     stan.exMachina(
         "-LobbyDelegate, Chairman<Stan> FROM Chairman<Neutral>, TerraformRating, PartyLeader<Scientists>, PartyFollower<MarsFirst>"
     )
-    admin.exMachina("PartyFollower<MarsFirst, Neutral>")
+    agents.correct("PartyFollower<MarsFirst, Neutral>")
     kim.doTask("Pass")
     stan.doTask("Pass")
     kim.doTask("20 MC")

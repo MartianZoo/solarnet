@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
@@ -59,7 +61,7 @@ internal class ParadigmBreakdownTest : TfmGameplayTest() {
           back = cn("BeginnerCard"),
       )
     }
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
     players.forEach {
       // Select the setup alternatives before narrowing the beginner path.
       it.selectTask("BeginnerOption OR StandardOption")
@@ -101,7 +103,7 @@ internal class ParadigmBreakdownTest : TfmGameplayTest() {
     newTestGame("TurmoilExpansion, -QuickStartVariant, -ColoniesExpansion", playerCount = 2)
     kim.exMachina("-10 ProjectCard<Hand>, $EventAnalysts")
     // Prepare the event, then resolve it through the real Solar phase.
-    admin.exMachina(
+    agents.correct(
         "$ScientificConsensus, Current<$ScientificConsensus>, " +
             "PendingGlobalEffect<Current<$ScientificConsensus>, Class<ParadigmBreakdown>>"
     )

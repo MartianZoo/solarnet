@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -25,7 +27,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
     )
     // Prepare an already-current event and its pending effect; earlier event reveals are
     // incidental.
-    admin.exMachina(
+    agents.correct(
         "OceanTile<Tharsis_1_2>, $MinimalImpactPolicy, Current<$MinimalImpactPolicy>, " +
             "PendingGlobalEffect<Current<$MinimalImpactPolicy>, Class<DryDeserts>>"
     )
@@ -47,7 +49,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
   @Test
   internal fun `Red Influence charges the lower bracket after TR revision`() {
     newTestGame(options, playerCount = 2)
-    admin.exMachina(
+    agents.correct(
         "$AntarcticaMelts, Current<$AntarcticaMelts>, " +
             "PendingGlobalEffect<Current<$AntarcticaMelts>, Class<RedInfluence>>"
     )
@@ -66,7 +68,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
   @Test
   internal fun `Kelvinists pays for heat production received from the current global event`() {
     newTestGame(options, playerCount = 2)
-    admin.exMachina(
+    agents.correct(
         "$PateraBoring, Current<$PateraBoring>, " +
             "PendingGlobalEffect<Current<$PateraBoring>, Class<VolcanicEruptions>>"
     )
@@ -96,7 +98,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
         firstGlobalEvents =
             listOf("$FreeAcademiaTreaty", "$ExploreFirstDirective", "$MoralMovement"),
     )
-    admin.exMachina(
+    agents.correct(
         "$DemocraticReform, Current<$DemocraticReform>, " +
             "PendingGlobalEffect<Current<$DemocraticReform>, Class<AquiferReleasedByPublicCouncil>>"
     )
@@ -246,7 +248,7 @@ internal class SolarPhaseOrderingTest : TfmGameplayTest() {
   internal fun `UNMI cannot use an Election global event's TR in the following generation`() {
     newTestGame(options, playerCount = 2, kimCorporation = UnitedNationsMarsInitiative)
     kim.exMachina("$Mine") // Only the building tag matters to Election's ranking.
-    admin.exMachina(
+    agents.correct(
         "$SelfSufficiencyProgram, Current<$SelfSufficiencyProgram>, " +
             "PendingGlobalEffect<Current<$SelfSufficiencyProgram>, Class<Election>>"
     )

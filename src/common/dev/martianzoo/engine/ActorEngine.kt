@@ -42,25 +42,27 @@ import dev.martianzoo.state.TaskResult
  * Executes task and correction commands attributed to [actor] in a shared game world.
  *
  * A task command applies its requested change, dependent removals, recursive `::` effects, and
- * invariant checks. Resulting tasks remain queued for their assigned Actors. System changes needing
- * no narrowing are assigned to Admin; Player choices remain with the Player until those choices are
- * supplied. At selection, an instruction with explicit `BY` goes to the named Actor when it needs
- * no further narrowing. The engine calculates consequences; the clients decide which tasks to
- * submit.
+ * invariant checks. Eligible Admin work then runs in separate transactions before return; Player
+ * choices remain queued. System changes needing no narrowing are assigned to Admin; Player choices
+ * remain with the Player until those choices are supplied. At selection, an instruction with
+ * explicit `BY` goes to the named Actor when it needs no further narrowing. The engine calculates
+ * consequences; the clients decide which tasks to submit.
  *
  * For example, placing greenery on a Land Claim cube removes the cube through `::` before
- * returning; the placement bonus remains queued for Admin.
+ * returning; automatic placement processing also finishes, leaving its Player resource task
+ * pending.
  *
- * Each public mutation restores its transaction on a [Throwable]. [Timeline.atomic] can also
- * restore an enclosing batch of completed transactions. Kotlin side effects and observer callbacks
- * are not undone.
+ * Each task command restores its request and subsequent Admin work on a [Throwable].
+ * [Timeline.atomic] can also restore an enclosing batch of completed transactions. Kotlin side
+ * effects and observer callbacks are not undone.
  *
- * Player selection is refused while an eligible Admin task can complete under the existing
- * selection probe. A selected task retains priority and can retain partial choices. Agent's
- * mandatory Admin loop throws after a complete unsuccessful pass; Player inference is limited.
+ * Player commands first finish eligible Admin work. Selection probes only check priority and
+ * executability without driving subsequent tasks. A selected task retains priority and can retain
+ * partial choices. The engine's caller-independent Admin loop throws after a complete unsuccessful
+ * pass; Player inference is limited.
  *
- * [transact] groups commands and caller-supplied task handling in a rollback scope. That block may
- * include several transactions; its behavior is described below.
+ * [transact] groups commands, mandatory processing, and optional caller handling in a rollback
+ * scope. That block may include several transactions; its behavior is described below.
  */
 public class ActorEngine
 internal constructor(
@@ -97,8 +99,14 @@ internal constructor(
    * synchronous behavior is to run to quiescence and report all changes made before return.
    *
    * Runs [afterChanges] and [validateCompletion] for the outermost call, inside the same restoring
-   * block as [block]. Nested calls skip their own finishing steps. Agent supplies task handling and
-   * application validation. This wrapper does not assign an Actor to changes; commands inside do.
+   * block as [block]. Nested calls skip their own optional finishing steps; every call handles
+   * eligible Admin work. [validateApplication] supplies a session check for the duration of this
+   * call and its nested commands, including each Admin attempt. Omitting it inherits an enclosing
+   * check; it is never installed permanently or copied into inference trials. Missing external
+   * input may throw [InputRequiredException] for retry after other Admin progress. This wrapper
+   * does not assign an Actor to changes; commands inside do. A call scope must enclose attributed
+   * transactions: starting one inside [transaction] throws [IllegalStateException] before running
+   * [block], so mandatory processing cannot escape its scoped application check.
    *
    * The returned result covers every retained event in the call. A [Throwable] during the request,
    * task handling, or completion validation restores the whole call's game changes before escaping.
@@ -108,10 +116,11 @@ internal constructor(
   // TODO(ENGINE_CONTRACT): Review whether this block-based coordinator belongs in the public API.
   // Preserve synchronous execution through quiescence and complete TaskResult reporting.
   public fun transact(
-      afterChanges: () -> Unit,
+      afterChanges: () -> Unit = {},
       validateCompletion: () -> Unit = {},
+      validateApplication: (() -> Unit)? = null,
       block: () -> Unit,
-  ): TaskResult = worldTransaction.run(block, validateCompletion, afterChanges)
+  ): TaskResult = worldTransaction.run(block, validateCompletion, afterChanges, validateApplication)
 
   /**
    * Records [block]'s engine mutations as one transaction motivated by [motivation] rather than by
@@ -120,10 +129,14 @@ internal constructor(
    * A driver performing automatic handling uses this so that history says why the work executed
    * when it did. Mutations called inside join this transaction instead of starting their own; a
    * transaction already open, or unfinished initialization, leaves the grouping unchanged. This
-   * supplies provenance only: it grants no additional authority and performs no work itself.
+   * supplies provenance without granting additional authority. Once its outermost transaction
+   * closes, eligible Admin work runs in separate transactions within the same rollback scope.
    */
   public fun <T> transaction(motivation: Motivation, block: () -> T): T =
-      transactions.perform(actor, motivation, block)
+      worldTransaction.command(actor) { transactions.perform(actor, motivation, block) }
+
+  private fun <T> perform(block: () -> T): T =
+      worldTransaction.command(actor) { transactions.perform(actor, CLIENT_REQUEST, block) }
 
   // CHANGES LAYER
 
@@ -301,50 +314,49 @@ internal constructor(
       taskId: TaskId,
       narrowing: InstructionTree,
       quantifierOmitted: Boolean = false,
-  ): Unit =
-      transactions.perform(actor, CLIENT_REQUEST) {
-        requireNoOtherSelectedTask(taskId)
-        val task = tasks.getTaskData(taskId)
-        var effectiveNarrowing = narrowing
-        if (!task.selected) {
-          val prepared = prepareNarrowing(taskId, narrowing, quantifierOmitted)
-          val narrowsBeforeHandoff = prepared != task.instruction
-          val contextualAssignee = taskQueues.assigneeAfterContextualSelection(task)
-          if (contextualAssignee != actor && narrowsBeforeHandoff) {
-            throw TaskException(
-                "`$actor` cannot narrow task $taskId because selection assigns it to " +
-                    "`$contextualAssignee`"
-            )
-          }
-          val selected = selectTask(task)
-          val selectedTask = allTasks.getTaskData(selected)
-          if (selectedTask.assignee != actor) {
-            if (narrowsBeforeHandoff) {
-              throw TaskException(
-                  "`$actor` cannot narrow task $taskId because selection assigns it to " +
-                      "`${selectedTask.assignee}`"
-              )
-            }
-            return@perform
-          }
-          if (effectiveNarrowing is Gated && selectedTask.instruction !is Gated) {
-            effectiveNarrowing =
-                instructor.evaluate(
-                    effectiveNarrowing,
-                    worldGainNarrowing = true,
-                    expandEach = false,
-                )
-          }
-          if (
-              !narrowing.needsNarrowing(reader) &&
-                  narrowing is By &&
-                  instructor.actorFor(narrowing) == actor
-          ) {
-            effectiveNarrowing = narrowing.inner
-          }
-        }
-        narrowSelectedTask(taskId, effectiveNarrowing, quantifierOmitted)
+  ): Unit = perform {
+    requireNoOtherSelectedTask(taskId)
+    val task = tasks.getTaskData(taskId)
+    var effectiveNarrowing = narrowing
+    if (!task.selected) {
+      val prepared = prepareNarrowing(taskId, narrowing, quantifierOmitted)
+      val narrowsBeforeHandoff = prepared != task.instruction
+      val contextualAssignee = taskQueues.assigneeAfterContextualSelection(task)
+      if (contextualAssignee != actor && narrowsBeforeHandoff) {
+        throw TaskException(
+            "`$actor` cannot narrow task $taskId because selection assigns it to " +
+                "`$contextualAssignee`"
+        )
       }
+      val selected = selectTask(task)
+      val selectedTask = allTasks.getTaskData(selected)
+      if (selectedTask.assignee != actor) {
+        if (narrowsBeforeHandoff) {
+          throw TaskException(
+              "`$actor` cannot narrow task $taskId because selection assigns it to " +
+                  "`${selectedTask.assignee}`"
+          )
+        }
+        return@perform
+      }
+      if (effectiveNarrowing is Gated && selectedTask.instruction !is Gated) {
+        effectiveNarrowing =
+            instructor.evaluate(
+                effectiveNarrowing,
+                worldGainNarrowing = true,
+                expandEach = false,
+            )
+      }
+      if (
+          !narrowing.needsNarrowing(reader) &&
+              narrowing is By &&
+              instructor.actorFor(narrowing) == actor
+      ) {
+        effectiveNarrowing = narrowing.inner
+      }
+    }
+    narrowSelectedTask(taskId, effectiveNarrowing, quantifierOmitted)
+  }
 
   private fun narrowSelectedTask(
       taskId: TaskId,
@@ -450,21 +462,21 @@ internal constructor(
    * exposed by selection retain the same task. Execution admits their independent children without
    * passing selection to them and releases any continuation.
    *
-   * When evaluation changes the task's assignee, this call records that change without attempting
-   * the receiving Actor's execution. That Actor performs the instruction in a later transaction,
-   * which may fail independently of this selection.
+   * A transfer to Admin executes automatically in a subsequent transaction before return. A
+   * transfer to a Player remains selected for that Player. Failure of mandatory Admin work restores
+   * this selection and all automatic progress within the call.
    *
    * Rejects work deferred behind earlier tasks, a different selected task, and Player selection
-   * while the existing probe finds an executable eligible Admin task. If no Admin task is proven
-   * executable but an Admin proof remains unfinished, [IncompleteAnalysisException] propagates. A
-   * failed transaction restores its changes.
+   * until eligible Admin work finishes. An unfinished Admin proof propagates
+   * [IncompleteAnalysisException] when no other Admin task can make progress. A failed call
+   * restores its changes.
    */
   public fun selectTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
       throw TaskException("`$actor` cannot select a task assigned to `${task.assignee}`")
     }
-    transactions.perform(actor, CLIENT_REQUEST) {
+    perform {
       selectTask(tasks.getTaskData(taskId))
     }
   }
@@ -482,46 +494,43 @@ internal constructor(
       narrowing: InstructionTree,
       quantifierOmitted: Boolean = false,
       taskId: TaskId? = null,
-  ): Unit =
-      transactions.perform(actor, CLIENT_REQUEST) {
-        val evaluated = evaluatePer(narrowing)
-        val id =
-            (if (taskId == null && tasks.selectedTask() == null) {
-              val exact =
-                  tasks
-                      .extract { it }
-                      .filter { it.assignee == actor && it.instruction == narrowing }
-              if (exact.isNotEmpty()) taskMatcher.uniqueMatchingTask(exact)
-              else matchingTask(evaluated, quantifierOmitted = quantifierOmitted)
-            } else matchingTask(evaluated, taskId, quantifierOmitted))
-                ?: throw TaskException(
-                    "no matching task; available tasks: ${if (tasks.isEmpty()) "none" else "\n$tasks"}"
-                )
-        val task = tasks.getTaskData(id)
-        if (narrowing == task.instruction || evaluated == task.instruction) {
-          selectTask(id)
-          return@perform
-        }
-        val intersection = taskMatcher.intersectTask(evaluated, task.instruction, quantifierOmitted)
-        if (intersection != null) {
-          narrowTask(id, intersection, quantifierOmitted)
-          return@perform
-        }
-        if (!task.selected && selectionTransfersTask(task)) {
-          throw TaskException(
-              "`$actor` cannot narrow task $id because selection assigns it to another Actor"
-          )
-        }
-        val selected = selectTask(task)
-        val selectedTask = allTasks.getTaskData(selected)
-        if (selectedTask.assignee != actor) return@perform
-        narrowTask(
-            id,
-            taskMatcher.intersectTask(evaluated, selectedTask.instruction, quantifierOmitted)
-                ?: evaluated,
-            quantifierOmitted,
-        )
-      }
+  ): Unit = perform {
+    val evaluated = evaluatePer(narrowing)
+    val id =
+        (if (taskId == null && tasks.selectedTask() == null) {
+          val exact =
+              tasks.extract { it }.filter { it.assignee == actor && it.instruction == narrowing }
+          if (exact.isNotEmpty()) taskMatcher.uniqueMatchingTask(exact)
+          else matchingTask(evaluated, quantifierOmitted = quantifierOmitted)
+        } else matchingTask(evaluated, taskId, quantifierOmitted))
+            ?: throw TaskException(
+                "no matching task; available tasks: ${if (tasks.isEmpty()) "none" else "\n$tasks"}"
+            )
+    val task = tasks.getTaskData(id)
+    if (narrowing == task.instruction || evaluated == task.instruction) {
+      selectTask(id)
+      return@perform
+    }
+    val intersection = taskMatcher.intersectTask(evaluated, task.instruction, quantifierOmitted)
+    if (intersection != null) {
+      narrowTask(id, intersection, quantifierOmitted)
+      return@perform
+    }
+    if (!task.selected && selectionTransfersTask(task)) {
+      throw TaskException(
+          "`$actor` cannot narrow task $id because selection assigns it to another Actor"
+      )
+    }
+    val selected = selectTask(task)
+    val selectedTask = allTasks.getTaskData(selected)
+    if (selectedTask.assignee != actor) return@perform
+    narrowTask(
+        id,
+        taskMatcher.intersectTask(evaluated, selectedTask.instruction, quantifierOmitted)
+            ?: evaluated,
+        quantifierOmitted,
+    )
+  }
 
   private fun selectTask(task: Task): TaskId {
     requireNoOtherSelectedTask(task.id)
@@ -590,8 +599,8 @@ internal constructor(
   /**
    * Selects and executes [taskId] for this Actor, applying immediate effects and checking
    * invariants. Executing `EACH` admits its children and consumes the parent; the children remain
-   * queued at their ordinary priorities. A change assigned to another Actor remains selected for
-   * that Actor to perform in a later transaction.
+   * queued at their ordinary priorities. Eligible Admin children and transfers execute before
+   * return; a change assigned to another Player remains selected for that Player.
    *
    * A fixed mandatory or optional change, or OR of those changes, can infer its unique successful
    * concrete target or source/destination pair by trying its complete finite domain in disposable
@@ -603,7 +612,7 @@ internal constructor(
    * removal of an opponent's protected plant leaves that plant intact.
    */
   public fun doTask(taskId: TaskId) {
-    transactions.perform(actor, CLIENT_REQUEST) { doTask(tasks, taskId) }
+    perform { doTask(tasks, taskId) }
   }
 
   private fun doTask(queue: TaskQueue, taskId: TaskId): Task {
@@ -639,7 +648,7 @@ internal constructor(
             val child = it.task
             // Check that its first step can be selected, but leave the recipient's live instruction
             // intact. In particular, do not freeze an AMAP amount before the recipient's request.
-            // Admin execution can still fail; Agent then restores the whole dispatch call.
+            // Admin execution can still fail; the enclosing engine command restores the whole call.
             instructor.evaluate(child.instruction, worldGainNarrowing = true, expandEach = false)
           }
       return emptyList()
@@ -807,9 +816,9 @@ internal constructor(
    * Reactions and continuations remain queued. Separate pending tasks must be submitted
    * individually; a net resource total does not identify their execution order.
    *
-   * A change assigned to another Actor stays selected without attempting that Actor's execution.
-   * Later queued tasks remain pending. A failed transaction restores all changes made by this
-   * command. [narrowing] must describe one stage and cannot contain `THEN`; the first stage of a
+   * A change assigned to another Player stays selected. Admin transfers and eligible queued Admin
+   * work execute before return. A failed command restores its request and all subsequent mandatory
+   * work. [narrowing] must describe one stage and cannot contain `THEN`; the first stage of a
    * linked task can bind shared Type variables and X for its continuation.
    */
   public fun doTask(
@@ -817,66 +826,61 @@ internal constructor(
       quantifierOmitted: Boolean = false,
       taskId: TaskId? = null,
       contextClass: ClassName? = null,
-  ): Unit =
-      transactions.perform(actor, CLIENT_REQUEST) {
-        val evaluated = evaluatePer(narrowing)
-        if (narrowing.descendantsOfType<Then>().isNotEmpty()) {
-          throw TaskException(
-              "doTask accepts one stage at a time; submit each THEN stage separately"
-          )
-        }
-        val match = taskMatcher.match(actor, evaluated, quantifierOmitted, taskId, contextClass)
-        if (match != null && match.preparations.isNotEmpty()) {
-          val id = match.task.id
-          requireNoOtherSelectedTask(id)
-          narrowSelectedTask(id, match.preparations.first(), false)
-          check(allTasks.getTaskData(id).assignee == actor)
-          executeSelectedTask(tasks, id)
-          if (
-              allTasks
-                  .extract { it }
-                  .any {
-                    it.assignee == Actor.ADMIN && it.deferral == allTasks.earliestDeferral
-                  }
-          )
-              throw TaskException(
-                  "Explicitly open the container so its Admin work can finish first"
-              )
-          doTask(narrowing, quantifierOmitted, contextClass = contextClass)
-          return@perform
-        }
-        val id = match?.task?.id
-        if (id == null) {
-          throw TaskException(
-              "no matching task; available tasks: ${if (tasks.isEmpty()) "none" else "\n$tasks"}"
-          )
-        }
-        val task = tasks.getTaskData(id)
-        val intersection = taskMatcher.intersectTask(evaluated, task.instruction, quantifierOmitted)
-        if (intersection != null) {
-          requireNoOtherSelectedTask(id)
-          narrowSelectedTask(id, intersection, quantifierOmitted)
-        } else {
-          val selected = selectTask(task)
-          val selectedTask = queueForAnyTask(selected).getTaskData(selected)
-          if (selectedTask.assignee != actor) return@perform
-          val instruction = selectedTask.instruction
-          narrowSelectedTask(
-              selected,
-              taskMatcher.intersectTask(evaluated, instruction, quantifierOmitted) ?: evaluated,
-              quantifierOmitted,
-          )
-        }
-        val selectedTask = allTasks.getTaskData(id)
-        if (selectedTask.assignee != actor) return@perform
-        val children = executeSelectedTask(tasks, id)
-        if (evaluated is InstructionGroup) {
-          for (child in children) {
-            if (allTasks.selectedTask() != null) break
-            if (child in tasks) doTask(child)
-          }
-        }
+  ): Unit = perform {
+    val evaluated = evaluatePer(narrowing)
+    if (narrowing.descendantsOfType<Then>().isNotEmpty()) {
+      throw TaskException("doTask accepts one stage at a time; submit each THEN stage separately")
+    }
+    val match = taskMatcher.match(actor, evaluated, quantifierOmitted, taskId, contextClass)
+    if (match != null && match.preparations.isNotEmpty()) {
+      val id = match.task.id
+      requireNoOtherSelectedTask(id)
+      narrowSelectedTask(id, match.preparations.first(), false)
+      check(allTasks.getTaskData(id).assignee == actor)
+      executeSelectedTask(tasks, id)
+      if (
+          allTasks
+              .extract { it }
+              .any {
+                it.assignee == Actor.ADMIN && it.deferral == allTasks.earliestDeferral
+              }
+      )
+          throw TaskException("Explicitly open the container so its Admin work can finish first")
+      doTask(narrowing, quantifierOmitted, contextClass = contextClass)
+      return@perform
+    }
+    val id = match?.task?.id
+    if (id == null) {
+      throw TaskException(
+          "no matching task; available tasks: ${if (tasks.isEmpty()) "none" else "\n$tasks"}"
+      )
+    }
+    val task = tasks.getTaskData(id)
+    val intersection = taskMatcher.intersectTask(evaluated, task.instruction, quantifierOmitted)
+    if (intersection != null) {
+      requireNoOtherSelectedTask(id)
+      narrowSelectedTask(id, intersection, quantifierOmitted)
+    } else {
+      val selected = selectTask(task)
+      val selectedTask = queueForAnyTask(selected).getTaskData(selected)
+      if (selectedTask.assignee != actor) return@perform
+      val instruction = selectedTask.instruction
+      narrowSelectedTask(
+          selected,
+          taskMatcher.intersectTask(evaluated, instruction, quantifierOmitted) ?: evaluated,
+          quantifierOmitted,
+      )
+    }
+    val selectedTask = allTasks.getTaskData(id)
+    if (selectedTask.assignee != actor) return@perform
+    val children = executeSelectedTask(tasks, id)
+    if (evaluated is InstructionGroup) {
+      for (child in children) {
+        if (allTasks.selectedTask() != null) break
+        if (child in tasks) doTask(child)
       }
+    }
+  }
 
   private fun evaluatePer(instruction: InstructionTree): InstructionTree =
       if (instruction is Per) instructor.evaluate(instruction) else instruction

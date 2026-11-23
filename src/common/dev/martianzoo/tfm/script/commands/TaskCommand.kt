@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.script.commands
 
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.script.PetsCompletionRoot
 import dev.martianzoo.tfm.script.ScriptCommand
@@ -36,10 +38,19 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
             return listOf("Task deleted")
           }
           "select" -> {
-            repl.agent.selectTask(repl.onlyTask().id)
+            repl.agents.transact {
+              repl.game.actorEngine(repl.currentActor).selectTask(repl.onlyTask().id)
+            }
             return repl.taskLines()
           }
-          else -> repl.agent.doTask(args)
+          else ->
+              if (repl.currentActor is Player) repl.agent.doTask(args)
+              else
+                  repl.agents.transact {
+                    repl.game
+                        .actorEngine(repl.currentActor)
+                        .doTask(repl.parse<InstructionTree>(args))
+                  }
         }
     return repl.describeExecutionResults(result)
   }

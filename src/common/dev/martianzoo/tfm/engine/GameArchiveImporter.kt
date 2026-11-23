@@ -5,6 +5,7 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
@@ -16,6 +17,7 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
@@ -105,7 +107,13 @@ public class GameArchiveImporter(
   /** Executes the archive once. Malformed entries and illegal tasks fail with their source line. */
   public fun run(afterEntry: () -> Unit = {}) {
     cardNames?.start(agents)
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.transact {
+      agents.world
+          .actorEngine(ADMIN)
+          .addTasks(
+              InstructionGroup.of(Parsing.parse<InstructionTree>("SetupPhase FROM BootstrapPhase!"))
+          )
+    }
     entries.drop(bodyStart).forEach {
       execute(it, null, true)
       afterEntry()
@@ -302,7 +310,7 @@ public class GameArchiveImporter(
                 "Production" -> "ProductionPhase"
                 else -> "SolarPhase"
               }
-          check(agents[ADMIN].has(phase)) { "$name outside $phase" }
+          check(agents.world.reader.has(Parsing.parse(phase))) { "$name outside $phase" }
         }
         "Pass",
         "DoRequiredActions" -> agent.doTask(name)

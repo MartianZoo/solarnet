@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.OperationBlock
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -1176,7 +1177,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       // Prior card purchases and event reveals are incidental; stage the hosted card normally.
       kim.exMachina("$SelfReplicatingRobots, $Pets, Animal<$Pets>")
       stan.exMachina("$Tardigrades, Microbe<$Tardigrades>")
-      admin.exMachina(
+      agents.correct(
           "$ScienceSummit, Current<$ScienceSummit>, " +
               "PendingGlobalEffect<Current<$ScienceSummit>, Class<SponsoredProjects>>"
       )

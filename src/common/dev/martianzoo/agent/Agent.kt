@@ -297,8 +297,8 @@ public interface Agent {
   /**
    * Policy used for this Agent's task handling. Changing it to a different policy other than NONE
    * immediately runs task handling. Assigning NONE or the current value runs nothing. The policy
-   * belongs to this Agent, while task handling can affect the shared world. Admin accepts only
-   * [AutoExecPolicy.EAGER], including scoped overrides; other values throw.
+   * belongs to this Player Agent, while task handling can affect the shared world. Mandatory Admin
+   * execution is engine-owned and cannot be disabled by this policy.
    */
   public var autoExecPolicy: AutoExecPolicy
 

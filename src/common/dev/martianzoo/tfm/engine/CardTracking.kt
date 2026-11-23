@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.agent.AgentInputRequiredException
 import dev.martianzoo.agent.AgentTransactionGuard
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.engine.InputRequiredException
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -160,7 +160,7 @@ private constructor(
       /** The `CardFilter` every arriving card must satisfy, or null when any card may arrive. */
       public val filter: Expression?,
       message: String,
-  ) : AgentInputRequiredException(message)
+  ) : InputRequiredException(message)
 
   /** Requires every supplied name to have been used; movement checks run per Agent request. */
   public fun requireComplete() {

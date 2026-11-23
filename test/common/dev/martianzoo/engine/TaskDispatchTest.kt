@@ -1,7 +1,10 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -9,9 +12,11 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -21,10 +26,10 @@ internal class TaskDispatchTest {
   @Test
   internal fun `a closed dispatch admits an open choice for its recipient`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
 
-    admin.beginOperation("SOON Player2 { Choice }")
+    admin.runSystem("SOON Player2 { Choice }")
 
     val choice = game.tasks.extract { it }.single()
     choice.assignee shouldBe PLAYER2
@@ -37,50 +42,52 @@ internal class TaskDispatchTest {
   @Test
   internal fun `a dispatch gives its body to its recipient at once`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
 
-    admin.addTasks("SOON Player2 { Choice }")
+    admin.runSystem("SOON Player2 { Choice }")
 
-    admin.tasks.isEmpty() shouldBe true
+    admin.world.actorEngine(ADMIN).tasks.isEmpty() shouldBe true
     blue.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player2>!")
-    shouldThrow<TaskException> { admin.selectTask("ChoiceA<Player2>") }
+    shouldThrow<TaskException> {
+      admin.world.actorEngine(ADMIN).selectTask(Parsing.parse<InstructionTree>("ChoiceA<Player2>"))
+    }
   }
 
   @Test
   internal fun `a dispatch can finish its operation while the recipients choice remains pending`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
 
-    admin.beginOperation("SOON Player2 { Choice<Player2> }")
+    admin.runSystem("SOON Player2 { Choice<Player2> }")
 
-    admin.tasks.isEmpty() shouldBe true
+    admin.world.actorEngine(ADMIN).tasks.isEmpty() shouldBe true
     blue.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player2>!")
   }
 
   @Test
   internal fun `a continuation after dispatch is available while the recipient has pending work`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
 
-    admin.beginOperation("SOON Player2 { Choice<Player2> } THEN Marker")
+    admin.runSystem("SOON Player2 { Choice<Player2> } THEN Marker")
 
-    admin.tasks.isEmpty() shouldBe true
-    admin.count("Marker") shouldBe 1
+    admin.world.actorEngine(ADMIN).tasks.isEmpty() shouldBe true
+    admin.world.reader.count("Marker") shouldBe 1
     blue.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player2>!")
   }
 
   @Test
   internal fun `fanout dispatchers can give each player an independent choice`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
 
-    admin.beginOperation("EACH Me@Player { SOON { Choice } }")
-    admin.tasks.isEmpty() shouldBe true
+    admin.runSystem("EACH Me@Player { SOON { Choice } }")
+    admin.world.actorEngine(ADMIN).tasks.isEmpty() shouldBe true
 
     first.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player1>!")
     second.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player2>!")
@@ -89,11 +96,11 @@ internal class TaskDispatchTest {
   @Test
   internal fun `a task recipient can choose how much of an optional removal to perform`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
     blue.runOperation("10 Token<Player2>")
 
-    admin.beginOperation("SOON Player2 { -10? Token<Player2> }")
+    admin.runSystem("SOON Player2 { -10? Token<Player2> }")
 
     blue.tasks.extract { it.instruction.toString() } shouldBe listOf("-10? Token<Player2>")
     blue.doTask("-3 Token<Player2>")
@@ -103,11 +110,11 @@ internal class TaskDispatchTest {
   @Test
   internal fun `an explicit EACH recipient supplies Me in the dispatched body`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
 
-    admin.beginOperation("EACH @Player { SOON @Player { Choice } }")
+    admin.runSystem("EACH @Player { SOON @Player { Choice } }")
 
     first.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player1>!")
     second.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player2>!")
@@ -133,14 +140,14 @@ internal class TaskDispatchTest {
   internal fun `an unowned rule without lexical Me dispatches to Admin`() {
     val game = game()
     val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
 
     first.beginOperation("UnownedDispatch")
     first.doTask("SOON Admin { Marker }")
 
     first.tasks.isEmpty() shouldBe true
-    admin.tasks.isEmpty() shouldBe true
-    admin.count("Marker") shouldBe 1
+    admin.world.actorEngine(ADMIN).tasks.isEmpty() shouldBe true
+    admin.world.reader.count("Marker") shouldBe 1
   }
 
   @Test
@@ -157,21 +164,21 @@ internal class TaskDispatchTest {
   @Test
   internal fun `an open recipient stays invalid when a predicate has one current match`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
-    admin.runOperation("StartToken<Player1>")
+    val admin = game.testAgents()
+    admin.runSystem("StartToken<Player1>")
 
-    shouldThrow<ExpressionException> { admin.addTasks("SOON Player(HAS StartToken) { Choice }") }
+    shouldThrow<ExpressionException> { admin.runSystem("SOON Player(HAS StartToken) { Choice }") }
     game.tasks.isEmpty() shouldBe true
   }
 
   @Test
   internal fun `EACH binds the forced match before dispatch`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    admin.runOperation("StartToken<Player1>")
+    admin.runSystem("StartToken<Player1>")
 
-    admin.beginOperation("EACH @Player(HAS StartToken) { SOON @Player { Choice } }")
+    admin.runSystem("EACH @Player(HAS StartToken) { SOON @Player { Choice } }")
 
     first.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player1>!")
   }

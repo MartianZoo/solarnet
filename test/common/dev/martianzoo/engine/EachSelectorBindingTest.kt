@@ -1,9 +1,11 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -25,10 +27,10 @@ internal class EachSelectorBindingTest {
                 players = 2,
             )
         )
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     val p1 = game.testAgent(PLAYER1)
     val p2 = game.testAgent(PLAYER2)
-    admin.runOperation("Provider")
+    admin.runSystem("Provider")
     p1.runOperation("RedToken, BlueToken")
     p2.runOperation("RedToken, BlueToken")
 

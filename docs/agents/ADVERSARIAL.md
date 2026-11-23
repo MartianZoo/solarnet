@@ -34,7 +34,7 @@ elsewhere. A proposed history can simply fail to qualify as a continuation of th
 For Actor attribution, a request to select, narrow, or perform FooPlayer's task through FooPlayer's
 Agent is sufficient. Solarnet checks task assignment and the modeled rules, without asking who
 operates that Agent or demanding evidence of FooPlayer's consent. Any program may call every
-Actor's Agent; acceptance of its submitted decisions belongs to the surrounding arrangement.
+Player's Agent; acceptance of its submitted decisions belongs to the surrounding arrangement.
 
 **The shared record identifies the game being played.** A readable textual record of the game
 in progress is committed to Git. “Type 3 export” refers to the combined recording in the project's

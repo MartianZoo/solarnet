@@ -148,14 +148,15 @@ transition. It is not an Actor, Component, assignee, narrower, or change-event A
 An Actor's Agent binds normal client calls to that Actor and presents a filtered view of the global
 task queue. If a request arrives through FooPlayer's Agent for work currently assigned to FooPlayer,
 that establishes the Actor for the calculation. Solarnet does not authenticate the caller or demand
-proof that FooPlayer's human or bot approved it. The same program may use every Actor's Agent.
+proof that FooPlayer's human or bot approved it. The same program may use every Player's Agent.
 Lower-level engine mutation also remains available for exploration, replay, and correction.
 
 The assignment and handoff checks below preserve the meaning of game decisions and resulting
 events. They do not restrict who can obtain or call an Agent. Whether a submitted decision really
 came from the accepted decision-maker is handled outside Solarnet under
 [ADVERSARIAL.md](ADVERSARIAL.md). Admin likewise requires no separate operator or committer;
-a player's program may call the Admin Agent as part of calculating its proposed continuation.
+a player's program may use administrative engine commands as part of calculating its proposed
+continuation. Admin has no Agent; the engine executes mandatory Admin tasks automatically.
 
 ## Context and event Actor
 

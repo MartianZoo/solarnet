@@ -5,16 +5,15 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldInclude
 import kotlin.test.Test
 
 internal class AdminTimingExperimentTest {
@@ -38,7 +37,7 @@ internal class AdminTimingExperimentTest {
   }
 
   @Test
-  fun playerSelectionWaitsForUniquelyInferableAdminWork() {
+  fun playerSelectionFinishesUniquelyInferableAdminWork() {
     val world =
         Engine.newGame(
             testGamePremise(
@@ -54,14 +53,9 @@ internal class AdminTimingExperimentTest {
     val player = world.actorEngine(PLAYER1)
     val choice = admin.addTasks(InstructionGroup.of(parse<InstructionTree>("Choice!"))).single()
     val foo = player.addTasks(InstructionGroup.of(parse<InstructionTree>("Foo!"))).single()
-    val before = world.events.nextOrdinal
-
-    shouldThrow<TaskException> { player.selectTask(foo) }
-    world.events.nextOrdinal shouldBe before
-    world.tasks.getTaskData(foo).selected shouldBe false
-
-    admin.doTask(choice)
     player.selectTask(foo)
+    (choice in world.tasks) shouldBe false
+    world.reader.count(parse<Metric>("Allowed")) shouldBe 1
     world.tasks.getTaskData(foo).selected shouldBe true
   }
 
@@ -117,7 +111,7 @@ internal class AdminTimingExperimentTest {
   }
 
   @Test
-  fun provenAdminPriorityWinsOverIncompleteProofRegardlessOfQueueOrder() {
+  fun playerRequestsRestoreAllAdminProgressWhenAProofStalls() {
     for (instructions in listOf("X! Token, Reward!", "Reward!, X! Token")) {
       val world = Engine.newGame(testGamePremise("CLASS Token\nCLASS Reward\nCLASS Foo"))
       val admin = world.actorEngine(ADMIN)
@@ -128,14 +122,8 @@ internal class AdminTimingExperimentTest {
       val events = world.events.nextOrdinal
 
       player.canSelectTask(task) shouldBe false
-      shouldThrow<TaskException> { player.selectTask(task) }
-          .message
-          .orEmpty()
-          .shouldInclude("must finish before Player selection")
-      shouldThrow<TaskException> { player.doTask(task) }
-          .message
-          .orEmpty()
-          .shouldInclude("must finish before Player selection")
+      shouldThrow<IncompleteAnalysisException> { player.selectTask(task) }
+      shouldThrow<IncompleteAnalysisException> { player.doTask(task) }
 
       world.tasks.extract { it } shouldBe pending
       world.events.nextOrdinal shouldBe events

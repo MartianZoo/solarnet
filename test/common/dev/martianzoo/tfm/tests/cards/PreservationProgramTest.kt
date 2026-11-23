@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cardActionTasks
@@ -751,7 +753,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   fun `A capped global parameter does not consume the skip`() {
     newTestGame("$PreservationProgram, -QuickStartVariant", 2)
     kim.exMachina("$PreservationProgram")
-    admin.exMachina("14 OxygenStep")
+    agents.correct("14 OxygenStep")
     kim.exMachina("8 Plant")
     kim.turn {
       doTasks(
@@ -775,7 +777,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   fun `Linked oxygen temperature and ocean gains skip a single TR`() {
     newTestGame("$PreservationProgram, -QuickStartVariant", 2)
     kim.exMachina("$PreservationProgram")
-    admin.exMachina("7 OxygenStep, 14 TemperatureStep")
+    agents.correct("7 OxygenStep, 14 TemperatureStep")
     kim.exMachina("8 Plant")
     kim.turn {
       doTasks(
@@ -879,7 +881,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   fun `Venus threshold awards its additional TR while skipping a single step`() {
     newTestGame("$PreservationProgram, -QuickStartVariant", 2)
     kim.exMachina("$PreservationProgram")
-    admin.exMachina("7 VenusStep")
+    agents.correct("7 VenusStep")
     kim.turn {
       doTasks(
               *standardProjectTasks("AirScrappingProject"),

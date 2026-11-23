@@ -50,12 +50,12 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
               for (resource in listOf("Plant", "Energy", "Heat", "Titanium", "Steel", "MC")) {
                 val amount = payments[resource] ?: continue
                 if (amount == 0) continue
-                if (repl.agent.count("Owed<Class<$resource>>") > 0) {
+                if (repl.count("Owed<Class<$resource>>") > 0) {
                   declineUnusedPaymentChoices()
                 }
                 doTask("$amount Pay<Class<$resource>> FROM $resource")
               }
-              if (repl.agent.count("Owed") == 0) declineUnusedPaymentChoices()
+              if (repl.count("Owed") == 0) declineUnusedPaymentChoices()
               repl.agent.autoExecPolicy = previousPolicy
               autoExecNow()
             }
@@ -67,11 +67,11 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
   }
 
   private fun declineUnusedPaymentChoices() {
-    val paid = repl.agent.count("Owed") == 0
+    val paid = repl.count("Owed") == 0
     repl.agent.tasks
         .extract { it }
         .filter { task ->
-          (paid || NoOp.narrows(task.instruction, repl.agent.reader)) &&
+          (paid || NoOp.narrows(task.instruction, repl.game.reader)) &&
               task.instruction.descendantsOfType<Change>().any {
                 it.gaining?.className in setOf(cn("Pay"), cn("PayFromCard"))
               }

@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AgentInputRequiredException
 import dev.martianzoo.agent.AgentTransactionGuard
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.testsupport.PLAYER1
@@ -18,15 +17,15 @@ internal class AgentSessionGuardTest {
     checked.installTransactionGuard(
         object : AgentTransactionGuard {
           override fun validate() {
-            if (!supplied) throw AgentInputRequiredException("supply application information")
+            if (!supplied) throw InputRequiredException("supply application information")
           }
         }
     )
-    shouldThrow<AgentInputRequiredException> { checked[PLAYER1].runOperation("Foo!") }
+    shouldThrow<InputRequiredException> { checked[PLAYER1].runOperation("Foo!") }
     checked[PLAYER1].count("Foo") shouldBe 0
     independent[PLAYER1].runOperation("Foo!")
     checked[PLAYER1].count("Foo") shouldBe 1
-    shouldThrow<AgentInputRequiredException> { checked[PLAYER1].runOperation("Foo!") }
+    shouldThrow<InputRequiredException> { checked[PLAYER1].runOperation("Foo!") }
     checked[PLAYER1].count("Foo") shouldBe 1
     supplied = true
     checked[PLAYER1].runOperation("Foo!")
