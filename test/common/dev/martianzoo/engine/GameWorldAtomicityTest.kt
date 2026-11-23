@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.Parsing.parseClasses
@@ -18,7 +18,7 @@ internal class GameWorldAtomicityTest {
   @Test
   internal fun failedOperationRestoresTheWholeWorldTogether() {
     val world = TfmEngine.newGame(premise)
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val checkpoint = world.events.nextOrdinal
 
     shouldThrow<IllegalStateException> {

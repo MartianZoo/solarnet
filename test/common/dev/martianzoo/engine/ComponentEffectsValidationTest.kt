@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -73,7 +73,7 @@ internal class ComponentEffectsValidationTest {
                 players = 0,
             )
         )
-    val admin = game.testAgent(ADMIN)
+    val admin = Agents(game)[ADMIN]
 
     shouldThrow<ExpressionException> { admin.exMachina("Token!, BrokenHolder<Bad>!") }
     admin.runOperation("Marker")

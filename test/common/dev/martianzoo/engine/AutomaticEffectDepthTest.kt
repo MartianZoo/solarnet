@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.Parsing.parse
@@ -22,7 +22,7 @@ internal class AutomaticEffectDepthTest {
   @Test
   internal fun `automatic effect cycle fails atomically at the depth limit`() {
     val world = TfmEngine.newGame(premise)
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val checkpoint = world.events.nextOrdinal
 
     val failure = shouldThrow<ResourceLimitException> { admin.runOperation("ChainA") }
@@ -38,7 +38,7 @@ internal class AutomaticEffectDepthTest {
   @Test
   internal fun canSelectTaskPropagatesResourceLimitsAndRollsBack() {
     val world = TfmEngine.newGame(premise)
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val task =
         world
             .actorEngine(ADMIN)

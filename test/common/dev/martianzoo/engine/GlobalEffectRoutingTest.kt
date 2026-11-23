@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
@@ -31,9 +32,10 @@ internal class GlobalEffectRoutingTest {
                 players = 2,
             )
         )
-    val admin = game.testAgent(ADMIN)
-    val player1 = game.testAgent(PLAYER1)
-    val player2 = game.testAgent(PLAYER2)
+    val agents = Agents(game) { EAGER }
+    val admin = agents[ADMIN]
+    val player1 = agents[PLAYER1]
+    val player2 = agents[PLAYER2]
 
     admin.runOperation("EventCard")
     admin.count("Pending") shouldBe 1

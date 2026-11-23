@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -8,7 +8,7 @@ import kotlin.test.Test
 internal class PerAtomizationTest {
   @Test
   fun `computed atomized gains fire a separate reaction for each step`() {
-    val admin = Engine.newGame(premise).testAgent(ADMIN)
+    val admin = Agents(Engine.newGame(premise))[ADMIN]
     admin.runOperation("Listener, 3 Counter")
 
     admin.runOperation("CountedSignal / Counter")

@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -9,7 +9,7 @@ internal class AutomaticEffectNarrowingTest {
   @Test
   internal fun automaticGainUsesTheOnlyTargetWithRemainingCapacity() {
     val game = Engine.newGame(premise)
-    val admin = game.testAgent(ADMIN)
+    val admin = Agents(game)[ADMIN]
 
     admin.runOperation("First")
     admin.runOperation("Second")
