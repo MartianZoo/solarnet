@@ -159,8 +159,7 @@ internal class GameArchiveInferenceTest {
 
   @Test
   fun exportsBetweenActionsButRejectsAnActionStillInProgress() {
-    val source =
-        requireNotNull(javaClass.getResource("/games/Game20230521Test.game")).readText()
+    val source = requireNotNull(javaClass.getResource("/games/Game20230521Test.game")).readText()
     val prefix = source.substringBefore("Player2: PlayCard(ArcticAlgae)")
     val original = GameArchiveImporter(prefix).also { it.run() }.agents
     val player = original[original.world.actors.filterIsInstance<Player>().first()]
@@ -185,8 +184,7 @@ internal class GameArchiveInferenceTest {
 
   @Test
   fun rejectsAnUnpaidResearchPurchaseOutsideAnAction() {
-    val source =
-        requireNotNull(javaClass.getResource("/games/Game20230521Test.game")).readText()
+    val source = requireNotNull(javaClass.getResource("/games/Game20230521Test.game")).readText()
     val original =
         GameArchiveImporter(source.substringBefore("Player1: Research")).also { it.run() }.agents
     val player = original[original.world.actors.filterIsInstance<Player>().first()]
