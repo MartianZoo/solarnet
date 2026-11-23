@@ -78,13 +78,13 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `:tfm-tests:jvmTest` excludes replays and can run filtered tests independently. Use
   `:tfm-tests:test` for both JVM suites; `allTests`, `check`, and `build` also include replays.
   The explicit `activeReplayClasses` list in `modules/tfm-tests/build.gradle.kts` selects imports
-  from 2026 plus the retained `Game20230521Test`. `:tfm-tests:archivedReplayTest` runs the three older
+  from 2026 plus the retained `Game20230521Test`. `:tfm-tests:archivedReplayTest` runs older
   scenarios and their checked-in imports on request; it remains outside aggregate verification.
   The optional, commented-out `allBrowserTests` task still runs every portable replay when restored.
   Add `-PreplayExports` to write a human-readable `.game` archive per successful `FullGameTest`
   subclass and check its live re-import against the source final inventory and pending tasks.
   Generated files go under the module's `generated/replay-event-logs` build directory. Export runs
-  remove old JSON files. The 30 commented fixtures live in `modules/tfm-tests/src/jvmTest/resources/games/`;
+  remove old JSON files. Commented fixtures live in `modules/tfm-tests/src/jvmTest/resources/games/`;
   exports never overwrite them. Ordinary runs leave generated exports untouched.
   Direct JUnit runs need `-Djunit.jupiter.extensions.autodetection.enabled=true` for fixture checks;
   add `-Dsolarnet.replayExports=true` for fresh exports as well.
@@ -1114,7 +1114,7 @@ On November 18, all seven also passed both checked-in archive import and fresh e
 Three solo replays now explicitly take their existing expected final VP totals; Pharmacy Union's
 linked flip choice was preserved without repeating its Admin-executed first step. The four partial
 scenarios were later removed; the archived suite now contains the three solo replays. Run `./gradlew :tfm-tests:archivedReplayTest -PreplayExports` to check those remaining
-scenarios. The regular suite selects the 27 active scenarios.
+scenarios. The regular suite selects the active scenarios.
 
 ### Remaining audit observations
 

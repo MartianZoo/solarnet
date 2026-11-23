@@ -26,10 +26,10 @@ ignoring task IDs and event ordinals. The opt-in export hook additionally writes
 uncommented export. `dumpEventlog` imports `.game` files before producing TSV. There is no JSON
 fallback. Old JSON exports are removed when an export run refreshes the directory.
 
-All 34 replay scenarios have fixtures under `modules/tfm-tests/src/jvmTest/resources/games/`, named
-for their Kotlin test class. These include the 27 active and seven older scenarios, including partial
-games. Source comments, dialogue, corrections, uncertainty, and named-card evidence are retained
-near the relevant entries; Kotlin-only TaskForm helper explanations remain in the test source.
+Replay scenarios have fixtures under `modules/tfm-tests/src/jvmTest/resources/games/`, named
+for their Kotlin test class. Source comments, dialogue, corrections, uncertainty, and named-card
+evidence are retained near the relevant entries; Kotlin-only TaskForm helper explanations remain
+in the test source.
 Generation methods supply headings where the source otherwise had no heading. The Kotlin tests
 retain their assertions and original commentary. Normal exports never overwrite these fixtures.
 When a replay changes, update its fixture deliberately and preserve the surrounding comments.
@@ -47,13 +47,14 @@ The user approved `VIA` for explicit source qualification through the normal tas
 CardTracking callback supplies names from the header during validation. Invalid names still fail
 and roll back the Agent command; ordinary games have no tracker. Flat nested card plays,
 card-held payments, granted actions, and recipient-prefixed payments are implemented.
-The original 36 scenarios passed both checked-in-fixture import and fresh export/re-import with
-equal final component counts and pending tasks. After removing the two replays that relied on
-test-only versions of New Holland, all 34 remaining scenarios passed the same checks. Three older solo replays now submit their existing expected VP
-totals explicitly. Pharmacy Union also verifies a linked choice whose System first step executes
-through Admin during selection; the exporter records that selection without a second execution.
-All 21 local archive tests pass, including every November 11 generation, all inventory changes, action order, stable repeated export, source qualification,
-invalid-source failures, payment/card-name failure behavior, trailing turn declines, and persistent
+The replay scenarios passed both checked-in-fixture import and fresh export/re-import with
+equal final component counts and pending tasks. Replays that relied on test-only New Holland were
+later removed. Older solo replays explicitly submit their existing expected VP totals. Pharmacy
+Union also verifies a linked choice whose System first step executes through Admin during selection;
+the exporter records that selection without a second execution.
+The local archive verification covered every November 11 generation, all inventory changes, action
+order, stable repeated export, source qualification, invalid-source failures, payment/card-name
+failure behavior, trailing turn declines, and persistent
 deferred priorities. Verification command:
 `./gradlew :tfm-tests:archiveDraftTest :tfm-tests:replayTest :tfm-tests:archivedReplayTest -PreplayExports`.
 The full build passed after the turn-rule merge with `./gradlew build --max-workers=1`.
@@ -62,15 +63,10 @@ timeouts. The successful serial build used the existing tests and time limits un
 
 The request-directed matching work was checked with all 643 engine and 85 Agent JVM tests,
 the full TFM JVM suite (1,368 cases, 26 existing skips), and then the final 10 focused archive
-cases after adding the exporter total check. All 36 fixture imports and fresh export/re-imports,
-all 21 local archive checks, and the active Web browser suite's two tests pass. Engine, Agent,
-and TFM JavaScript compile. The generated engine/Agent browser tasks are intentionally inert;
+cases after adding the exporter total check. Fixture imports, fresh export/re-imports, local archive
+checks, and the active Web browser tests also passed. Engine, Agent, and TFM JavaScript compiled.
+The generated engine/Agent browser tasks are intentionally inert;
 they are not counted as executed browser tests.
-
-Compared with the commented fixtures, fresh exports contain 28 SelectTask lines instead of 201
-and 22 EACH lines instead of 34. The November 11 export contains neither, while its generation,
-inventory-change, action-order, and stable-export checks still pass. Existing fixture commentary
-has not been overwritten by generation.
 
 ### Current draft syntax and ownership
 
@@ -104,7 +100,7 @@ Research is rendered as a single block per player per generation, containing the
 payment, and purchase transfer. Explicit corrections during research stay nested as ExMachina in
 that player's block. This intentionally collects each player's research even when the recording
 interleaves players' draws and purchases; source comments retain the original observations and
-timing. The importer needs no special handling for this grouping. All 36 fixtures and fresh
+timing. The importer needs no special handling for this grouping. Fixture imports and fresh
 programmatic exports verify the grouped research; the transformation is not a general claim that
 arbitrary pending tasks commute.
 
@@ -236,7 +232,8 @@ the shared matcher. Admin's automatic operation remains required for work still 
 ## Regenerating archives
 
 Run `./gradlew :tfm-tests:replayTest :tfm-tests:archivedReplayTest -PreplayExports` to regenerate
-fresh exports for all 34 scenarios. Omit `archivedReplayTest` for the 27 active games.
+fresh exports for the active and archived replay suites. Omit `archivedReplayTest` to run only
+the active suite.
 A specific replay may be selected with `--tests 'fully.qualified.TestClass'`. Files are under the
 `tfm-tests` module's `generated/replay-event-logs` build directory, relocated beneath
 `~/.gradle/solarnet-builds/` locally. Successful export runs must also pass live re-import checks.
