@@ -1,5 +1,6 @@
 package dev.martianzoo.agent
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
@@ -17,7 +18,7 @@ internal class AdminInputTest {
   internal fun stalledAdminReportsMissingInputBeforePlayerWorkAndCanRetry() {
     for (playerWork in listOf(false, true)) {
       val world = Engine.newGame(testGamePremise("CLASS Draw : System\nCLASS Coin"))
-      val agents = Agents(world)
+      val agents = Agents(world) { EAGER }
       val player = agents[PLAYER1]
       var supplied = false
       agents.installTransactionGuard(

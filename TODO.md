@@ -230,12 +230,13 @@ a Solarnet defect. Preserve that uncertainty without treating it as a migration 
   the acceptance example. Resolve matching, lifetime, selection and priority, failure, transaction,
   replay, and speculation details in the
   [Agent contract](docs/agents/AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine).
-  Keep instructions such as "always take titanium for Philares" deferred; no policy API,
-  implementation, or default migration is selected by this documentation work.
-- Reconcile the global Player default and remaining clients with the
+  Keep instructions such as "always take titanium for Philares" deferred; no engine-installed
+  policy API or implementation is selected.
+- Continue removing Player `EAGER` from remaining clients and older engine test fixtures where
+  explicit task submissions make their behavior clear. Players now default to `NONE`; Admin remains
+  automatic. Preserve the scoped opening and TaskForm exceptions in the
   [gameplay consistency direction](docs/agents/TESTING.md#agreed-direction-execution-and-task-selection).
-  The 2026-11-12 direction makes non-Admin `EAGER` cleanup active work, superseding the earlier
-  blanket deferral. A replacement global default or new smart policy remains unselected.
+  A new smart policy remains unselected.
 - Resolve order-dependent Advanced Alloys discount attribution: the randomized-effect diagnostic
   reproduced the known `ThermalMatterWaveTest` (-96 versus -92) and `Game20230521Test`
   (-33 versus -31) reporting mismatches. Game-state assertions before those checks passed.

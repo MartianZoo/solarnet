@@ -8,6 +8,7 @@ import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
@@ -21,7 +22,8 @@ internal class AgentTest {
     val agents = Agents(game)
     (agents.world === game) shouldBe true
     game.actors.map { agents[it].actor } shouldBe game.actors
-    game.actors.map { agents[it].autoExecPolicy }.toSet() shouldBe setOf(EAGER)
+    agents[ADMIN].autoExecPolicy shouldBe EAGER
+    agents[PLAYER1].autoExecPolicy shouldBe NONE
     (game.actorEngine(PLAYER1) === game.actorEngine(PLAYER1)) shouldBe true
     val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
 
@@ -35,6 +37,19 @@ internal class AgentTest {
 
     agent.count("Token") shouldBe 1
     agent.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun playerWorkWaitsByDefault() {
+    val game = Engine.newGame(testGamePremise())
+    val player = Agents(game)[PLAYER1]
+    player.addTasks("Token")
+
+    player.autoExecNow()
+
+    player.count("Token") shouldBe 0
+    player.doTask("Token")
+    player.count("Token") shouldBe 1
   }
 
   @Test

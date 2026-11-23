@@ -1,5 +1,6 @@
 package dev.martianzoo.agent
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.engine.Engine
@@ -353,7 +354,7 @@ internal class DoTasksTest {
   @Test
   internal fun anEmptySequenceDoesNotTriggerPlayerAutomaticExecution() {
     val game = Engine.newGame(testGamePremise("CLASS Coin"))
-    val player = Agents(game)[PLAYER1]
+    val player = Agents(game) { EAGER }[PLAYER1]
     player.addTasks("Coin")
     val before = game.events.nextOrdinal
 

@@ -12,13 +12,12 @@ import dev.martianzoo.state.Actor
  * Calls through these Agents coordinate their changes and subsequent task handling.
  *
  * [initialPolicy] supplies each Player's initial automatic-execution policy, defaulting to
- * [AutoExecPolicy.EAGER]. It is evaluated once per Player; Admin always uses mandatory eager
+ * [AutoExecPolicy.NONE]. It is evaluated once per Player; Admin always uses mandatory eager
  * handling. Construction does not execute pending tasks; subsequent Agent commands handle them.
  */
 public class Agents(
     public val world: World,
-    // TODO: migrate Players to a suitable smart policy; the user deferred default-policy cleanup.
-    initialPolicy: (Actor) -> AutoExecPolicy = { AutoExecPolicy.EAGER },
+    initialPolicy: (Actor) -> AutoExecPolicy = { AutoExecPolicy.NONE },
 ) {
   /**
    * Optional application check for this session; fresh sessions and speculative copies have none.

@@ -427,7 +427,7 @@ so that task measures both prepared-position scenarios and directly initialized 
 Focused rule scenarios that only need a prepared starting position may use `setUpGame`.
 It finishes incidental opening choices with scoped `EAGER`, drops setup's pending handoff,
 and leaves the game in `SetupPhase`. Callers own `Agents(game) { NONE }`; do not use the older
-`World.testAgent()` cache, which otherwise inherits Player `EAGER`.
+`World.testAgent()` cache, which explicitly retains Player `EAGER` for older engine fixtures.
 `startCorporationPhaseOutOfTurn` starts the corporation phase and drops its turn order.
 These shortcuts do not justify a scenario with no real gameplay subject.
 
@@ -1000,8 +1000,8 @@ disabled throughout the rewarded operations; their setup still uses automatic ex
   execution used to make a test proceed. The user also selected removing `SOLE_TASK` from normal
   gameplay tests as much as possible: optimize for reading every noteworthy event, not for ease
   of writing the test. Prefer `NONE` and explicit task submissions outside the setup convenience.
-  Start with test callers; a replacement global Agent default or new smart policy has not been
-  selected. The TaskForm replay remains outside the ordinary replay cleanup. Use explicit Player
+  Start with test callers. Players now default to `NONE`; a new smart policy remains unselected.
+  The TaskForm replay remains outside the ordinary replay cleanup. Use explicit Player
   choices when testing engine semantics independently of policy.
 - A superclass setup helper may perform corporation setup with automatic execution when the caller
   only needs the corporation to exist and is not testing its turn. Keep this behavior scoped to

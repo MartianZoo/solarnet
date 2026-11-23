@@ -2,6 +2,7 @@ package dev.martianzoo.agenttestsupport
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
 import dev.martianzoo.state.Actor
@@ -18,7 +19,7 @@ private var retainedAgents: Agents? = null
  */
 internal fun World.testAgents(): Agents {
   retainedAgents?.let { if (it.world === this) return it }
-  return Agents(this).also { retainedAgents = it }
+  return Agents(this) { EAGER }.also { retainedAgents = it }
 }
 
 /** Test-only seam for obtaining this World's retained Agent for [actor]. */
