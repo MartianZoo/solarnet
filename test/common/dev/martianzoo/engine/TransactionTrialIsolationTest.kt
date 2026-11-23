@@ -1,8 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agents
-import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
@@ -60,7 +58,7 @@ internal class TransactionTrialIsolationTest {
         )
     val engine = world.actorEngine(ADMIN)
     engine.addTasks(InstructionGroup.of(parse<InstructionTree>("Choice!")))
-    val agents = Agents(world) { NONE }
+    val agents = Agents(world)
     shouldThrow<NotNowException> { agents[PLAYER1].autoExecNow() }
     agents[PLAYER1].count("Choice") shouldBe 0
   }
@@ -103,7 +101,7 @@ internal class TransactionTrialIsolationTest {
   @Test
   fun cityInferenceRejectsASecondCapitalAndRepairsLandClaim() {
     val world = TfmEngine.newGame(canonicalPremise())
-    val agent = world.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = Agents(world)[PLAYER1]
     agent.exMachina("Capital, CapitalTile<Tharsis_6_8>, Community<Tharsis_1_1>")
     val engine = world.actorEngine(PLAYER1)
     val task = agent.addTasks("CityTile<Tharsis_1_1>!").single()

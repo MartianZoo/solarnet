@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import io.kotest.assertions.throwables.shouldThrow
@@ -24,7 +24,7 @@ internal class ReflexiveTransmutationTest {
               players = 0,
           )
       )
-  private val admin = game.testAgent(ADMIN)
+  private val admin = Agents(game)[ADMIN]
 
   @Test
   internal fun concreteSelfTransmutationIsRejectedWithoutFiringEffects() {

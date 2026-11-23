@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.testsupport.PLAYER1
@@ -21,7 +20,7 @@ internal class TriggerScalingTest {
             setupComponents = setOf(cn("TriggerScalingProbe").expression),
         )
     val game = TfmEngine.newGame(premise)
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = Agents(game)[PLAYER1]
 
     agent.beginOperation("5! ScalingSignal") {
       game.tasks
@@ -44,7 +43,7 @@ internal class TriggerScalingTest {
             setupComponents = setOf(cn("TriggerScalingProbe").expression),
         )
     val game = TfmEngine.newGame(premise)
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = Agents(game)[PLAYER1]
 
     agent.beginOperation("3! SelfScaler") {
       game.tasks

@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.ComponentChange
@@ -14,7 +14,7 @@ import kotlin.test.Test
 internal class SignalChangeTest {
   @Test
   internal fun authoredReflexiveSignalTransmutationIsNotASignalGain() {
-    val admin = Engine.newGame(premise).testAgent(ADMIN)
+    val admin = Agents(Engine.newGame(premise))[ADMIN]
 
     shouldThrow<ExpressionException> { admin.runOperation("Moment FROM Moment!") }
     admin.count("Moment") shouldBe 0
@@ -25,7 +25,7 @@ internal class SignalChangeTest {
   @Test
   internal fun signalIsOneEventButNeverLiveState() {
     val game = Engine.newGame(premise)
-    val admin = game.testAgent(ADMIN)
+    val admin = Agents(game)[ADMIN]
     admin.runOperation("Observer")
     val signalType = admin.resolve("Moment")
 
@@ -54,7 +54,7 @@ internal class SignalChangeTest {
   @Test
   internal fun signalFromAnotherComponentIsTransmutedThenRemovesItself() {
     val game = Engine.newGame(premise)
-    val admin = game.testAgent(ADMIN)
+    val admin = Agents(game)[ADMIN]
     admin.runOperation("Observer, Fuel")
     val signalType = admin.resolve("Moment")
     val fuelType = admin.resolve("Fuel")

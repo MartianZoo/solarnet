@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent.Companion.parse
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -23,7 +23,7 @@ import io.kotest.matchers.types.shouldNotBeInstanceOf
 import kotlin.test.Test
 
 internal class DomainExceptionContractTest {
-  private fun agent() = TfmEngine.newGame(canonicalPremise()).testAgent(PLAYER1)
+  private fun agent() = Agents(TfmEngine.newGame(canonicalPremise()))[PLAYER1]
 
   @Test
   internal fun unhandledTransformsAreExpressionFailures() {

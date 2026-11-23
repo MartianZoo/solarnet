@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -8,7 +8,7 @@ import kotlin.test.Test
 internal class EffectAtomizationTest {
   @Test
   fun `automatic gains stay atomized after scaling by listeners and trigger count`() {
-    val admin = Engine.newGame(premise).testAgent(ADMIN)
+    val admin = Agents(Engine.newGame(premise))[ADMIN]
     admin.runOperation("2 Producer, Listener")
 
     admin.runOperation("3 Trigger")

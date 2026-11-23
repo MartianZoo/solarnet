@@ -24,8 +24,6 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 - Prune the `:engine` tests. Keep distinct engine contract checks and remove cases that repeat
   coverage already provided by other tests.
-- Prune the `:script` tests. Keep coverage of script-specific behavior and remove duplicate
-  gameplay scenarios.
 - Investigate why the `:tools:test` Gradle task was open for about two minutes while its three
   test cases took about one second combined. Measure worker wait separately from test execution.
 - Investigate why the `:pets:pets:jvmTest` Gradle task was open for about two minutes while its

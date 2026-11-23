@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -14,7 +14,7 @@ internal class AutomaticEffectRollbackOrderTest {
     }
 
     val world = Engine.newGame(premise)
-    val player = world.testAgent(PLAYER1)
+    val player = Agents(world)[PLAYER1]
     player.runOperation("Earlier")
     player.runOperation("Later")
     player.runOperation("Token")

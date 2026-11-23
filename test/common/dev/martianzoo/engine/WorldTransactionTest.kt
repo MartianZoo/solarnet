@@ -1,7 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.matchers.shouldBe
@@ -11,8 +12,9 @@ internal class WorldTransactionTest {
   @Test
   internal fun outerCallHandlesEveryAgentsPolicyAfterNestedCalls() {
     val game = Engine.newGame(testGamePremise(players = 2))
-    val player1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val player2 = game.testAgent(PLAYER2)
+    val agents = Agents(game) { if (it == PLAYER2) EAGER else NONE }
+    val player1 = agents[PLAYER1]
+    val player2 = agents[PLAYER2]
 
     player2.addTasks("Token")
     player1.runOperation("Ok") { player2.autoExecNow() }
@@ -23,7 +25,7 @@ internal class WorldTransactionTest {
   @Test
   internal fun manualTaskEditsPreserveSelectionAndDoNotExecutePlayerWork() {
     val game = Engine.newGame(testGamePremise())
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = Agents(game)[PLAYER1]
     agent.exMachina("Token")
 
     val taskId = agent.addTasks("-Token?").single()
