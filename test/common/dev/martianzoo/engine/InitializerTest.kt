@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -52,8 +53,9 @@ internal class InitializerTest {
             )
             .withTestSetup("BootstrapProbe")
     val game = Engine.newGame(premise)
-    game.testAgent(ADMIN).count("Right") shouldBe 1
-    game.testAgent(ADMIN).count("Marker") shouldBe 1
+    val agents = Agents(game) { EAGER }
+    agents[ADMIN].count("Right") shouldBe 1
+    agents[ADMIN].count("Marker") shouldBe 1
     game.tasks.isEmpty() shouldBe true
   }
 
@@ -108,7 +110,8 @@ internal class InitializerTest {
     val premise = testGamePremise(players = 2)
 
     val game = Engine.newGame(premise)
-    val admin = game.testAgent(ADMIN)
+    val agents = Agents(game) { EAGER }
+    val admin = agents[ADMIN]
 
     premise.premiseClassName shouldBe null
     admin.count("Player") shouldBe 2
@@ -185,9 +188,10 @@ internal class InitializerTest {
             .withTestSetup("Unit, BootstrapProbe")
 
     val game = Engine.newGame(premise)
+    val agents = Agents(game) { EAGER }
 
-    game.testAgent(ADMIN).count("Unit") shouldBe 0
-    game.testAgent(ADMIN).count("Token") shouldBe 0
+    agents[ADMIN].count("Unit") shouldBe 0
+    agents[ADMIN].count("Token") shouldBe 0
     game.tasks.isEmpty() shouldBe true
   }
 
@@ -207,9 +211,10 @@ internal class InitializerTest {
             .withTestSetup("Unit, BootstrapProbe")
 
     val game = Engine.newGame(premise)
+    val agents = Agents(game) { EAGER }
 
-    game.testAgent(ADMIN).count("Unit") shouldBe 0
-    game.testAgent(ADMIN).count("Token") shouldBe 0
+    agents[ADMIN].count("Unit") shouldBe 0
+    agents[ADMIN].count("Token") shouldBe 0
     game.tasks.isEmpty() shouldBe true
   }
 

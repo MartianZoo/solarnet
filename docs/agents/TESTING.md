@@ -426,8 +426,7 @@ so that task measures both prepared-position scenarios and directly initialized 
 
 Focused rule scenarios that only need a prepared starting position may use `setUpGame`.
 It finishes incidental opening choices with scoped `EAGER`, drops setup's pending handoff,
-and leaves the game in `SetupPhase`. Callers own `Agents(game) { NONE }`; do not use the older
-`World.testAgent()` cache, which explicitly retains Player `EAGER` for older engine fixtures.
+and leaves the game in `SetupPhase`. Callers own `Agents(game) { NONE }`.
 `startCorporationPhaseOutOfTurn` starts the corporation phase and drops its turn order.
 These shortcuts do not justify a scenario with no real gameplay subject.
 

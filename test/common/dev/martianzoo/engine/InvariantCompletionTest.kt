@@ -1,7 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -21,7 +22,8 @@ internal class InvariantCompletionTest {
   @Test
   internal fun bootstrapChecksMinimumsAfterAllInitialComponentsArePresent() {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Status { HAS =2 Status }
                 CLASS First : Status
@@ -30,7 +32,7 @@ internal class InvariantCompletionTest {
                 "First",
                 "Second",
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
 
     admin.count("Status") shouldBe 2
   }
@@ -47,7 +49,7 @@ internal class InvariantCompletionTest {
             "Token",
             "Unrelated",
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val task =
         world
             .actorEngine(ADMIN)
@@ -76,7 +78,7 @@ internal class InvariantCompletionTest {
             "First",
             "Second",
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Second FROM First!") }
@@ -88,7 +90,7 @@ internal class InvariantCompletionTest {
 
   @Test
   internal fun inheritedReplacementEffectKeepsExactlyOneFamilyMember() {
-    val admin = replacementWorld().testAgent(ADMIN)
+    val admin = Agents(replacementWorld())[ADMIN]
 
     admin.runOperation("Passed!")
 
@@ -102,7 +104,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun familyMaximumRejectsRepeatedValueWithoutAPerTypeMaximum() {
     val world = replacementWorld()
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Ready!") }
@@ -114,7 +116,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun gainThenRemovePreservesExactOneAcrossRecursiveEffects() {
     val world = statusWorld("This:: Notice!", "This:: -Ready!")
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     admin.runOperation("Passed!")
 
@@ -134,7 +136,7 @@ internal class InvariantCompletionTest {
             """,
             "Ready",
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     admin.runOperation("-Ready!")
 
@@ -145,7 +147,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun failedRepairRestoresComponentsTasksHistoryAndEffects() {
     val world = statusWorld("This:: Notice!", "This: -Ready!")
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Passed!") }
@@ -170,7 +172,7 @@ internal class InvariantCompletionTest {
             }
             """
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     admin.runOperation("5* Token")
     admin.count("Token") shouldBe 1
 
@@ -201,7 +203,8 @@ internal class InvariantCompletionTest {
                 """
             )
             .withTestSetup("Holder")
-    val player = Engine.newGame(premise).testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val player =
+        Agents(Engine.newGame(premise)) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
 
     player.runOperation("Token$quantifier") { doTask("Capped$quantifier") }
 
@@ -211,7 +214,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun failedExecutionWithNarrowingRestoresThePendingTaskAndCascade() {
     val world = statusWorld("This:: Notice!")
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val engine = world.actorEngine(ADMIN)
     val task = engine.addTasks(InstructionGroup.of(parse<Instruction>("Status!"))).single()
     val pending = admin.tasks.getTaskData(task)
@@ -238,7 +241,7 @@ internal class InvariantCompletionTest {
                 CLASS Other
                 """
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val engine = world.actorEngine(ADMIN)
     val task =
         engine.addTasks(InstructionGroup.of(parse<Instruction>("Guarded! OR Other!"))).single()
@@ -253,7 +256,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun choiceKeepsAnArmWhoseCascadeRepairsTheLimit() {
     val world = statusWorld("This:: -Ready!")
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     admin.runOperation("Passed! OR Die!")
 
@@ -264,7 +267,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun choiceAllowsADeadEndAndRollsItBackBeforeAnotherChoice() {
     val world = statusWorld("This:: Notice!")
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     val engine = world.actorEngine(ADMIN)
     val task =
@@ -285,7 +288,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun abstractGainCanSelectAConcreteRepair() {
     val world = statusWorld("This:: -Ready!")
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     val engine = world.actorEngine(ADMIN)
     val task = engine.addTasks(InstructionGroup.of(parse<Instruction>("Status!"))).single()
@@ -298,7 +301,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun intermediateStatesRemainVisibleToNestedQueuedConditions() {
     val world = statusWorld("This:: Notice!, -Ready!", "This IF =1 Status: Reward!")
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     admin.runOperation("Passed!")
 
@@ -309,7 +312,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun sourceAvailabilityCannotBeRepairedAfterRemoval() {
     val world = world("CLASS Token { -This:: Token! }")
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("-Token!") }
@@ -327,7 +330,7 @@ internal class InvariantCompletionTest {
             CLASS Attached<Anchor> { This:: Anchor! }
             """
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     shouldThrow<DependencyException> { admin.runOperation("Attached!") }
@@ -353,7 +356,7 @@ internal class InvariantCompletionTest {
             CLASS Attached<Bridge>
             """
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     admin.runOperation("FirstAnchor!")
     val before = world.events.nextOrdinal
 
@@ -369,7 +372,8 @@ internal class InvariantCompletionTest {
   @Test
   internal fun gainingAnOwnerEstablishesItsInheritedRequiredParts() {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Anchor { HAS MAX 1 This, =2 Marker<This> }
                 CLASS First : Anchor
@@ -378,7 +382,7 @@ internal class InvariantCompletionTest {
                 CLASS Reward
                 """
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
 
     admin.runOperation("First!, Second!")
     admin.count("Marker<First>") shouldBe 2
@@ -395,7 +399,8 @@ internal class InvariantCompletionTest {
   @Test
   internal fun bootstrapConstructsRequiredPartsAndRunsTheirEffects() {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This, =2 Marker<This> }
                 CLASS Assembly : Holder
@@ -404,7 +409,7 @@ internal class InvariantCompletionTest {
                 """,
                 "Assembly",
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
 
     admin.count("Marker<Assembly>") shouldBe 2
     admin.count("Reward") shouldBe 2
@@ -421,7 +426,7 @@ internal class InvariantCompletionTest {
             CLASS OnlyChoice : Choice
             """
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Assembly!") }
@@ -441,7 +446,7 @@ internal class InvariantCompletionTest {
             CLASS Marker<Holder>
             """
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Assembly!") }
@@ -463,7 +468,7 @@ internal class InvariantCompletionTest {
             CLASS Part<Anchor, Prerequisite>
             """
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     shouldThrow<DependencyException> { admin.runOperation("Assembly!") }
@@ -477,7 +482,8 @@ internal class InvariantCompletionTest {
   @Test
   internal fun requiredPartsFollowDependenciesRegardlessOfInvariantOrder() {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Holder {
                   HAS MAX 1 This, =1 Mounted<This, Bracket<This>>, =1 Bracket<This>
@@ -487,7 +493,7 @@ internal class InvariantCompletionTest {
                 CLASS Mounted<Holder, Bracket>
                 """
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
 
     admin.runOperation("Assembly!")
 
@@ -507,7 +513,8 @@ internal class InvariantCompletionTest {
 
   private fun checkNestedRequiredPart(requirements: String) {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
                 CLASS Assembly : Holder { HAS $requirements }
@@ -516,7 +523,7 @@ internal class InvariantCompletionTest {
                 CLASS Mounted<Branch, Bracket>
                 """
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
 
     admin.runOperation("Assembly!")
 
@@ -528,7 +535,8 @@ internal class InvariantCompletionTest {
   @Test
   internal fun nestedRequiredPartCanWaitForAnotherSiblingsRequiredPart() {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
                 CLASS Assembly : Holder { HAS =1 Branch<This>, =1 Bracket<This> }
@@ -540,7 +548,7 @@ internal class InvariantCompletionTest {
                 CLASS Mounted<Branch, Bolt>
                 """
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
 
     admin.runOperation("Assembly!")
 
@@ -562,7 +570,8 @@ internal class InvariantCompletionTest {
 
   private fun checkPartReactsBeforeDisposal(construction: String) {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
                 CLASS Assembly : Holder {
@@ -575,7 +584,7 @@ internal class InvariantCompletionTest {
                 CLASS Observed
                 """
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
 
     admin.runOperation("Assembly!")
 
@@ -588,7 +597,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun recursiveConstructionSharesTheEnclosingAutomaticEffectDepthLimit() {
     val world = constructionChainWorld(parts = 8)
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     val failure = shouldThrow<ResourceLimitException> { admin.runOperation("Seed!") }
@@ -607,7 +616,7 @@ internal class InvariantCompletionTest {
 
   @Test
   internal fun constructionAtTheCombinedDepthLimitSucceeds() {
-    val admin = constructionChainWorld(parts = 7).testAgent(ADMIN)
+    val admin = Agents(constructionChainWorld(parts = 7))[ADMIN]
 
     admin.runOperation("Seed!")
 
@@ -635,7 +644,8 @@ internal class InvariantCompletionTest {
   @Test
   internal fun requiredPartsAreRecursiveAndPresentBeforeOwnerEffects() {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
                 CLASS Assembly : Holder {
@@ -652,7 +662,7 @@ internal class InvariantCompletionTest {
                 CLASS Reward
                 """
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
 
     admin.runOperation("Assembly!")
 
@@ -677,7 +687,8 @@ internal class InvariantCompletionTest {
 
   private fun checkRequiredSiblingListener(requirements: String) {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
                 CLASS Assembly : Holder { HAS $requirements }
@@ -687,7 +698,7 @@ internal class InvariantCompletionTest {
                 CLASS Reward
                 """
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
 
     admin.runOperation("Assembly!")
 
@@ -700,7 +711,8 @@ internal class InvariantCompletionTest {
   @Test
   internal fun overlappingRequiredPartsAreConstructedOnlyOnce() {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
                 CLASS Assembly : Holder {
@@ -711,7 +723,7 @@ internal class InvariantCompletionTest {
                 CLASS Reward
                 """
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
 
     admin.runOperation("Assembly!")
 
@@ -722,7 +734,8 @@ internal class InvariantCompletionTest {
   @Test
   internal fun requiredAtomizedPartsKeepSeparateGainEvents() {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
                 CLASS Assembly : Holder { HAS MAX 1 This, =2 Marker<This> }
@@ -730,7 +743,7 @@ internal class InvariantCompletionTest {
                 CLASS Reward
                 """
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
 
     val result = admin.runOperation("Assembly!")
 
@@ -764,7 +777,7 @@ internal class InvariantCompletionTest {
             CLASS Reward
             """
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     shouldThrow<DependencyException> { admin.runOperation("Assembly!") }
@@ -785,7 +798,8 @@ internal class InvariantCompletionTest {
   @Test
   internal fun transmutingAnOwnerReplacesItsRequiredParts() {
     val admin =
-        world(
+        Agents(
+            world(
                 """
                 ABSTRACT CLASS Assembly { HAS MAX 1 This, =1 Part<This> }
                 CLASS First : Assembly
@@ -794,7 +808,7 @@ internal class InvariantCompletionTest {
                 CLASS Reward
                 """
             )
-            .testAgent(ADMIN)
+        )[ADMIN]
     admin.runOperation("First!")
 
     admin.runOperation("Second FROM First!")
@@ -807,7 +821,7 @@ internal class InvariantCompletionTest {
   @Test
   internal fun separateInitiatingChangesCannotRepairEachOther() {
     val world = statusWorld("")
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     shouldThrow<LimitsException> { admin.runOperation("Passed! THEN -Ready!") }
@@ -826,7 +840,7 @@ internal class InvariantCompletionTest {
             This IF =2 Status:: Reward!
             """
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     admin.runOperation("Passed!")
 
@@ -845,7 +859,7 @@ internal class InvariantCompletionTest {
             """,
             "Ready",
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     val result = admin.runOperation("-Ready!")
 
@@ -866,7 +880,7 @@ internal class InvariantCompletionTest {
             """,
             "Seed",
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     val engine = world.actorEngine(ADMIN)
     val task = engine.addTasks(InstructionGroup.of(parse<Instruction>("-Token!"))).single()
@@ -891,7 +905,7 @@ internal class InvariantCompletionTest {
             "Place",
             "Ready",
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     val engine = world.actorEngine(ADMIN)
     val task = engine.addTasks(InstructionGroup.of(parse<Instruction>("Status!"))).single()
@@ -921,7 +935,7 @@ internal class InvariantCompletionTest {
             """,
             "Ready",
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     admin.runOperation("Passed!")
 
@@ -941,7 +955,7 @@ internal class InvariantCompletionTest {
             """,
             "Token",
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
     val before = world.events.nextOrdinal
 
     shouldThrow<NotFullySpecifiedException> { admin.runOperation("Start!") }
@@ -963,7 +977,7 @@ internal class InvariantCompletionTest {
             """,
             "Token",
         )
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world)[ADMIN]
 
     admin.runOperation("Start!")
 
@@ -986,7 +1000,7 @@ internal class InvariantCompletionTest {
   internal fun theWrongPerformerDoesNotTriggerTheRepair() {
     val world = actorDependentWorld()
     val before = world.events.nextOrdinal
-    val admin = world.testAgent(ADMIN)
+    val admin = Agents(world) { EAGER }[ADMIN]
 
     shouldThrow<LimitsException> { admin.runOperation("Passed! OR Die!") }
 
@@ -997,7 +1011,7 @@ internal class InvariantCompletionTest {
 
   private fun checkPerformerDependentRepair(overrideActor: Boolean) {
     val world = actorDependentWorld()
-    val actor = world.testAgent(if (overrideActor) ADMIN else PLAYER1)
+    val actor = Agents(world) { EAGER }[if (overrideActor) ADMIN else PLAYER1]
 
     actor.runOperation(if (overrideActor) "(Passed! BY Player1) OR Die!" else "Passed! OR Die!")
 

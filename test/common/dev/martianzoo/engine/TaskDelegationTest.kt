@@ -1,8 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -17,10 +17,11 @@ import kotlin.test.Test
 internal class TaskDelegationTest {
   @Test
   internal fun `the active player offers a concrete reaction before its owner executes it`() {
-    val game = game()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN)
+    val agents = game()
+    val game = agents.world
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
+    val admin = agents[ADMIN]
     admin.runOperation("Observer")
 
     p1.beginOperation("ConcreteReactor<Player2>") {
@@ -48,9 +49,10 @@ internal class TaskDelegationTest {
 
   @Test
   internal fun `the active player offers an abstract reaction without making the owners choice`() {
-    val game = game()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = game()
+    val game = agents.world
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     p1.beginOperation("AbstractReactor<Player2>") {
       p1.addTasks("Spare<Player1>?, Later<Player1>?")
@@ -89,9 +91,10 @@ internal class TaskDelegationTest {
 
   @Test
   internal fun `the active players form cannot make the receiving owners choice`() {
-    val game = game()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = game()
+    val game = agents.world
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     p1.beginOperation("AbstractReactor<Player2>") {
       val reward = game.tasks.extract { it }.single()
@@ -127,10 +130,11 @@ internal class TaskDelegationTest {
 
   @Test
   internal fun `selection viability includes execution by the receiving assignee`() {
-    val game = game()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = game()
+    val game = agents.world
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
 
-    game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     p1.beginOperation("ImpossibleReactor<Player2>") {
       val impossible = game.tasks.extract { it }.single()
@@ -146,9 +150,8 @@ internal class TaskDelegationTest {
 
   @Test
   internal fun systemBookkeepingReturnsItsQueuedChoiceToTheOriginalPlayer() {
-    val game = game()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    game.testAgent(ADMIN)
+    val agents = game()
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
 
     p1.beginOperation("UnownedSystemRequest<Player1>")
 
@@ -158,10 +161,10 @@ internal class TaskDelegationTest {
 
   @Test
   internal fun systemBookkeepingPreservesTheActivePlayersHandoffToAnotherOwner() {
-    val game = game()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    game.testAgent(ADMIN)
+    val agents = game()
+    val game = agents.world
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     p1.beginOperation("Player2SystemSource")
 
@@ -175,9 +178,10 @@ internal class TaskDelegationTest {
 
   @Test
   internal fun theOwnersAutomaticPolicyWaitsForTheActivePlayersHandoff() {
-    val game = game()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = EAGER }
+    val agents = game()
+    val game = agents.world
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2]
 
     p1.beginOperation("ConcreteReactor<Player2>")
 
@@ -190,10 +194,11 @@ internal class TaskDelegationTest {
 
   @Test
   internal fun aDispatchReturnsItsContinuationToItsOwnerAfterTheActivePlayerStartsIt() {
-    val game = game()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    game.testAgent(ADMIN).runOperation("Observer")
+    val agents = game()
+    val game = agents.world
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
+    agents[ADMIN].runOperation("Observer")
     p2.addTasks("SOON Player1 { Spare<Player1> } THEN Result<Player2>")
 
     p1.doTask("NOW Player2 { SOON Player1 { Spare<Player1> } }")
@@ -213,9 +218,10 @@ internal class TaskDelegationTest {
 
   @Test
   internal fun aCalculatedHandoffCountsCompleteGroupsAndLeavesTheResourceChoiceToItsOwner() {
-    val game = game()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = game()
+    val game = agents.world
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     p1.runOperation("5 Spare<Player1>")
     p2.addTasks("Reward<Player2> / 2 Spare<Player1>")
 
@@ -234,9 +240,10 @@ internal class TaskDelegationTest {
   }
 
   private fun game() =
-      Engine.newGame(
-              testGamePremise(
-                  """
+      Agents(
+              Engine.newGame(
+                  testGamePremise(
+                      """
               CLASS Turn<@Player> : TaskScope<@Player>
               CLASS Result : Owned<Player>
               CLASS FollowUp
@@ -271,8 +278,11 @@ internal class TaskDelegationTest {
                 Result<Player2> BY Player2: FollowUp
               }
               """,
-                  players = 2,
+                      players = 2,
+                  )
               )
-          )
-          .also { it.testAgent(ADMIN).exMachina("Turn<Player1>") }
+          ) {
+            EAGER
+          }
+          .also { it[ADMIN].exMachina("Turn<Player1>") }
 }

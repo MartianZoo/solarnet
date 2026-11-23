@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -26,12 +27,12 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PhantomTypeTest {
-  private fun agent() = TfmEngine.newGame(canonicalPremise()).testAgent(ADMIN)
+  private fun agent() = Agents(TfmEngine.newGame(canonicalPremise())) { EAGER }[ADMIN]
 
   @Test
   internal fun `uninhabited types and their class literals count zero`() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val agent = game.testAgent(ADMIN)
+    val agent = Agents(game) { EAGER }[ADMIN]
     val venusTag = agent.resolve("VenusTag")
 
     agent.count("VenusTag") shouldBe 0
@@ -57,7 +58,7 @@ internal class PhantomTypeTest {
         TfmEngine.newGame(
             testGamePremise("ABSTRACT CLASS Empty\nCLASS Holder<Empty>\nCLASS Live", players = 1)
         )
-    val agent = game.testAgent(PLAYER1)
+    val agent = Agents(game) { EAGER }[PLAYER1]
 
     game.classTable.isInhabited(cn("Empty")) shouldBe false
     game.classTable.isInhabited(cn("Holder")) shouldBe false
@@ -105,7 +106,7 @@ internal class PhantomTypeTest {
                 players = 0,
             )
         )
-    val agent = game.testAgent(ADMIN)
+    val agent = Agents(game)[ADMIN]
 
     agent.runOperation("Empty! OR Live!")
     val engine = game.actorEngine(ADMIN)
@@ -136,7 +137,7 @@ internal class PhantomTypeTest {
                 players = 0,
             )
         )
-    val agent = game.testAgent(ADMIN)
+    val agent = Agents(game)[ADMIN]
     val before = game.events.nextOrdinal
 
     agent.runOperation("Source")
@@ -166,7 +167,7 @@ internal class PhantomTypeTest {
                 players = 0,
             )
         )
-    val agent = game.testAgent(ADMIN)
+    val agent = Agents(game)[ADMIN]
     val before = game.events.nextOrdinal
 
     agent.beginOperation("Source") {}

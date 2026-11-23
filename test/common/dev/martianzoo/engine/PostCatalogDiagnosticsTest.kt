@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.catalog.Catalog
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
@@ -1393,7 +1394,7 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("Unimplemented")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Agents(Engine.newGame(premise, catalog.implementations)) { EAGER }[ADMIN]
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("Unimplemented")
@@ -1430,7 +1431,7 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Agents(Engine.newGame(premise, catalog.implementations)) { EAGER }[ADMIN]
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("Negative")
@@ -1476,7 +1477,7 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Unfinished")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Agents(Engine.newGame(premise, catalog.implementations)) { EAGER }[ADMIN]
     val error =
         assertFailsWith<CustomCodeException> {
           agent.runOperation("Unfinished")
@@ -1519,7 +1520,7 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("UnfinishedMetric")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Agents(Engine.newGame(premise, catalog.implementations)) { EAGER }[ADMIN]
     val error =
         assertFailsWith<CustomCodeException> {
           agent.count("UnfinishedMetric")
@@ -1562,7 +1563,7 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Broken")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Agents(Engine.newGame(premise, catalog.implementations)) { EAGER }[ADMIN]
     val error =
         assertFailsWith<CustomCodeException> {
           agent.runOperation("Broken")
@@ -1601,7 +1602,7 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("InstructionOnly")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Agents(Engine.newGame(premise, catalog.implementations)) { EAGER }[ADMIN]
     assertEquals(0, agent.count("InstructionOnly"))
     agent.runOperation("InstructionOnly")
     assertEquals(0, agent.count("InstructionOnly"))
@@ -1633,7 +1634,7 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("InvalidOutput")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Agents(Engine.newGame(premise, catalog.implementations)) { EAGER }[ADMIN]
     val error =
         assertFailsWith<CustomCodeException> {
           agent.runOperation("InvalidOutput")
@@ -1680,7 +1681,7 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Agents(Engine.newGame(premise, catalog.implementations)) { EAGER }[ADMIN]
     val error =
         assertFailsWith<ExpressionException> {
           agent.count("Negative OR Water")
@@ -1725,7 +1726,7 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Agents(Engine.newGame(premise, catalog.implementations)) { EAGER }[ADMIN]
     val error =
         assertFailsWith<CustomCodeException> {
           agent.count("Negative")
@@ -1761,7 +1762,7 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("Unimplemented")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
+    val agent = Agents(Engine.newGame(premise, catalog.implementations)) { EAGER }[ADMIN]
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("-Unimplemented")
@@ -1785,7 +1786,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun unknownQueriedClass() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.count("Missing")
@@ -1805,7 +1806,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun missingQueriedProperty() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.count("Garden.missing")
@@ -1828,7 +1829,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun abstractQueriedProperty() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.count("Scored.score")
@@ -1852,7 +1853,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun metricPropertyWithoutEVAL() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.count("Garden.yield")
@@ -1876,7 +1877,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun receiverlessQueriedProperty() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.count("score")
@@ -1896,7 +1897,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun evaluatedQueryWithMissingProperty() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.count("EVAL Garden.missing")
@@ -1919,7 +1920,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun sameQueryAtADifferentLocation() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     assertFailsWith<ExpressionException> { agent.count("Garden.missing") }
     val error =
         assertFailsWith<ExpressionException> {
@@ -1943,7 +1944,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun rankWithoutASelector() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<PetSyntaxException> {
           agent.count("RANK { Water }")
@@ -1963,7 +1964,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun rankWithoutACandidate() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.count("RANK Player { Water }")
@@ -1983,7 +1984,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun unknownInstructionTransform() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("TYPO[Water]")
@@ -2003,7 +2004,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun unknownMetricTransform() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.count("TYPO[Water]")
@@ -2023,7 +2024,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun unknownRequirementTransform() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.has("TYPO[Water]")
@@ -2043,7 +2044,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun nonActorBYTarget() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("Water BY Rose")
@@ -2063,7 +2064,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun abstractBYTarget() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("Water BY Actor")
@@ -2083,7 +2084,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun absentBYTarget() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("Water BY AbsentActor")
@@ -2102,7 +2103,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun gainWithMissingDependency() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<DependencyException> {
           agent.runOperation("Garden<Rose>")
@@ -2115,7 +2116,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun removeAbsentComponent() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<LimitsException> {
           agent.runOperation("-Water")
@@ -2136,7 +2137,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun unmetInstructionRequirement() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<RequirementException> {
           agent.runOperation("Water: Seed")
@@ -2156,7 +2157,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun impossibleInstruction() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<DeadEndException> {
           agent.runOperation("Die")
@@ -2176,7 +2177,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun noViableChoice() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<NotNowException> {
           agent.runOperation("-Water OR -Seed")
@@ -2200,7 +2201,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun gainPastUpperBound() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     agent.runOperation("Rose")
     val error =
         assertFailsWith<LimitsException> {
@@ -2224,7 +2225,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun sameTypeTransmutationIsAnInvalidExpression() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("Rose FROM Rose")
@@ -2244,7 +2245,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun abstractCorrection() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<NotFullySpecifiedException> {
           agent.exMachina("X Water")
@@ -2264,7 +2265,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun gatedCorrection() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<ExpressionException> {
           agent.exMachina("Water: Seed")
@@ -2289,7 +2290,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun narrowWithoutASelectedTask() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<TaskException> {
           agent.narrowTask("Water")
@@ -2301,7 +2302,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun selectWithoutAMatchingTask() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val error =
         assertFailsWith<TaskException> {
           agent.selectTask("Water")
@@ -2313,7 +2314,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun incompatibleTaskNarrowing() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     val task = agent.addTasks("Water OR Seed").single()
     agent.selectTask(task)
     val error =
@@ -2328,7 +2329,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun completeWithPendingAbstractTask() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     agent.beginOperation("X Water")
     val error =
         assertFailsWith<NotFullySpecifiedException> {
@@ -2350,8 +2351,9 @@ internal class PostCatalogDiagnosticsTest {
   @Test
   internal fun otherActorSelectsAssignedTask() {
     val world = Engine.newGame(premise)
-    val first = world.testAgent(Player(cn("Player1")))
-    val second = world.testAgent(Player(cn("Player2")))
+    val agents = Agents(world) { EAGER }
+    val first = agents[Player(cn("Player1"))]
+    val second = agents[Player(cn("Player2"))]
     val task = first.addTasks("X Water").single()
     val error =
         assertFailsWith<TaskException> {
@@ -2373,7 +2375,7 @@ internal class PostCatalogDiagnosticsTest {
     val restricted = premise.copy(classSelections = setOf(ClassSelection(cn("Water"))))
     val error =
         assertFailsWith<DeadEndException> {
-          Engine.newGame(restricted).testAgent(Player(cn("Player1"))).runOperation("Rose!")
+          Agents(Engine.newGame(restricted)) { EAGER }[Player(cn("Player1"))].runOperation("Rose!")
         }
 
     assertEquals("mandatory change uses uninhabited type: `Rose`", error.detail)
@@ -2391,7 +2393,7 @@ internal class PostCatalogDiagnosticsTest {
 
   @Test
   internal fun correctedGameCanGainComponentsAndQueryProperties() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(premise)) { EAGER }[Player(cn("Player1"))]
     agent.runOperation("Rose, Garden<Rose>, 2 Water")
     assertEquals(1, agent.count("Garden<Rose>"))
     assertEquals(2, agent.count("Water"))
@@ -2402,7 +2404,7 @@ internal class PostCatalogDiagnosticsTest {
   @Test
   internal fun optionalExcludedClassCanBeSkipped() {
     val restricted = premise.copy(classSelections = setOf(ClassSelection(cn("Water"))))
-    val agent = Engine.newGame(restricted).testAgent(Player(cn("Player1")))
+    val agent = Agents(Engine.newGame(restricted)) { EAGER }[Player(cn("Player1"))]
     agent.runOperation("Rose*")
     assertEquals(0, agent.count("Rose"))
   }
@@ -2451,7 +2453,7 @@ internal class PostCatalogDiagnosticsTest {
                 ),
         )
     val game = Engine.newGame(premise, catalog.implementations)
-    val agent = game.testAgent(ADMIN)
+    val agent = Agents(game) { EAGER }[ADMIN]
     agent.runOperation("InstructionOnly")
     assertEquals(1, agent.count("Water"))
     assertEquals(1, agent.count("Green"))

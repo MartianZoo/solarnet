@@ -1,7 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
@@ -56,8 +57,9 @@ internal class WildTagHolderTest {
               players = 2,
           )
       )
-  private val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-  private val admin = game.testAgent(ADMIN)
+  private val agents = Agents(game) { EAGER }
+  private val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+  private val admin = agents[ADMIN]
 
   init {
     admin.runOperation("ActionScope<Player1>")
@@ -128,7 +130,7 @@ internal class WildTagHolderTest {
 
   @Test
   internal fun `a liked tag allocates only the acting players wilds`() {
-    val other = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val other = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     other.addTasks("SecondCard")
     other.doTask("SecondCard")
     player.addTasks("FirstCard, BenefitCard")

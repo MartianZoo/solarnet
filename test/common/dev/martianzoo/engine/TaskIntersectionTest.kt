@@ -1,8 +1,9 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent.Companion.parse
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -46,7 +47,8 @@ internal class TaskIntersectionTest {
       """
           )
       )
-  private val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+  private val agents = Agents(game) { EAGER }
+  private val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
 
   init {
     agent.runOperation("Red, Blue, Circle, Square")

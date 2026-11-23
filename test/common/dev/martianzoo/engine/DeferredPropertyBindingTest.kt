@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
@@ -26,8 +27,9 @@ internal class DeferredPropertyBindingTest {
                 players = 2,
             )
         )
-    val p1 = game.testAgent(PLAYER1)
-    val p2 = game.testAgent(PLAYER2)
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
     p1.runOperation("2 Score")
     p2.runOperation("5 Score")
 
@@ -54,9 +56,10 @@ internal class DeferredPropertyBindingTest {
                 players = 2,
             )
         )
-    val p1 = game.testAgent(PLAYER1)
-    val p2 = game.testAgent(PLAYER2)
-    game.testAgent(ADMIN).runOperation("Qualified")
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    agents[ADMIN].runOperation("Qualified")
     p1.runOperation("2 Score")
 
     p1.runOperation("Grant")
@@ -87,9 +90,10 @@ internal class DeferredPropertyBindingTest {
                 players = 2,
             )
         )
-    val p1 = game.testAgent(PLAYER1)
-    val p2 = game.testAgent(PLAYER2)
-    game.testAgent(ADMIN).runOperation("Single, Double")
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    agents[ADMIN].runOperation("Single, Double")
     p1.runOperation("2 Score, 4 OtherScore")
     p2.runOperation("5 Score, 10 OtherScore")
 
@@ -119,9 +123,10 @@ internal class DeferredPropertyBindingTest {
                 players = 2,
             )
         )
-    val p1 = game.testAgent(PLAYER1)
-    val p2 = game.testAgent(PLAYER2)
-    game.testAgent(ADMIN).runOperation("First, Second")
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    agents[ADMIN].runOperation("First, Second")
     p1.runOperation("2 Score, OtherScore")
     p2.runOperation("Score, 3 OtherScore")
 
@@ -152,9 +157,10 @@ internal class DeferredPropertyBindingTest {
                 players = 2,
             )
         )
-    val p1 = game.testAgent(PLAYER1)
-    val p2 = game.testAgent(PLAYER2)
-    game.testAgent(ADMIN).runOperation("ConcreteRule")
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
+    agents[ADMIN].runOperation("ConcreteRule")
     p1.runOperation("2 Score")
     p2.runOperation("Score")
 

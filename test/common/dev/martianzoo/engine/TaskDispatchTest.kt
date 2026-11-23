@@ -1,7 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -21,8 +22,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun `a closed dispatch admits an open choice for its recipient`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
-    val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val admin = agents[ADMIN]
+    val blue = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     admin.beginOperation("SOON Player2 { Choice }")
 
@@ -37,8 +39,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun `a dispatch gives its body to its recipient at once`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
-    val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val admin = agents[ADMIN]
+    val blue = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     admin.addTasks("SOON Player2 { Choice }")
 
@@ -50,8 +53,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun `a dispatch can finish its operation while the recipients choice remains pending`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
-    val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val admin = agents[ADMIN]
+    val blue = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     admin.beginOperation("SOON Player2 { Choice<Player2> }")
 
@@ -62,8 +66,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun `a continuation after dispatch is available while the recipient has pending work`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
-    val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val admin = agents[ADMIN]
+    val blue = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     admin.beginOperation("SOON Player2 { Choice<Player2> } THEN Marker")
 
@@ -75,9 +80,10 @@ internal class TaskDispatchTest {
   @Test
   internal fun `fanout dispatchers can give each player an independent choice`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
-    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val admin = agents[ADMIN]
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val second = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     admin.beginOperation("EACH Me@Player { SOON { Choice } }")
     admin.tasks.isEmpty() shouldBe true
@@ -89,8 +95,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun `a task recipient can choose how much of an optional removal to perform`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
-    val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val admin = agents[ADMIN]
+    val blue = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     blue.runOperation("10 Token<Player2>")
 
     admin.beginOperation("SOON Player2 { -10? Token<Player2> }")
@@ -103,9 +110,10 @@ internal class TaskDispatchTest {
   @Test
   internal fun `an explicit EACH recipient supplies Me in the dispatched body`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
-    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val admin = agents[ADMIN]
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val second = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     admin.beginOperation("EACH @Player { SOON @Player { Choice } }")
 
@@ -116,8 +124,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun `submitted and owned rules supply the default recipient`() {
     val game = game()
-    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val second = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     first.addTasks("SOON { Choice }")
     first.doTask("SOON { Choice }")
@@ -132,8 +141,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun `an unowned rule without lexical Me dispatches to Admin`() {
     val game = game()
-    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN)
+    val agents = Agents(game) { EAGER }
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val admin = agents[ADMIN]
 
     first.beginOperation("UnownedDispatch")
     first.doTask("SOON Admin { Marker }")
@@ -146,7 +156,8 @@ internal class TaskDispatchTest {
   @Test
   internal fun `trigger BY marker can supply a fixed recipient`() {
     val game = game()
-    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
 
     first.beginOperation("TriggerDispatch")
     first.doTask("SOON { Choice }")
@@ -157,7 +168,8 @@ internal class TaskDispatchTest {
   @Test
   internal fun `an open recipient stays invalid when a predicate has one current match`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
+    val agents = Agents(game) { EAGER }
+    val admin = agents[ADMIN]
     admin.runOperation("StartToken<Player1>")
 
     shouldThrow<ExpressionException> { admin.addTasks("SOON Player(HAS StartToken) { Choice }") }
@@ -167,8 +179,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun `EACH binds the forced match before dispatch`() {
     val game = game()
-    val admin = game.testAgent(ADMIN)
-    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val admin = agents[ADMIN]
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     admin.runOperation("StartToken<Player1>")
 
     admin.beginOperation("EACH @Player(HAS StartToken) { SOON @Player { Choice } }")
@@ -179,8 +192,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun `an automatic effect changes state immediately and queues its SOON body`() {
     val game = game()
-    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val second = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
     second.beginOperation("AutomaticDispatch<Player1>")
 
@@ -197,8 +211,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun `exMachina retains SOON work and preserves selected work while suppressing colon effects`() {
     val game = game()
-    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val second = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     first.addTasks("Choice")
     first.selectTask("Choice")
     first.narrowTask("ChoiceA")
@@ -228,7 +243,8 @@ internal class TaskDispatchTest {
   @Test
   internal fun `exMachina rolls back the correction if SOON admission fails`() {
     val game = game()
-    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     first.addTasks("Choice")
     first.selectTask("ChoiceA")
     val pending = game.tasks.extract { it }
@@ -247,7 +263,8 @@ internal class TaskDispatchTest {
   @Test
   internal fun `production corrections queue a single Suitable Infrastructure reward without player autoexecution`() {
     val game = TfmEngine.newGame(canonicalPremise(cn("SuitableInfrastructure")))
-    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     player.exMachina("SuitableInfrastructure, 11 MC")
     player.beginOperation("UseAction<UseStandardProjectAction, Action1>")
     player.doTasks("UseAction<PowerPlantProject, Action1>", "11 Pay<> FROM MC")
@@ -272,8 +289,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun nowWaitsForExecutionAndPassesSelectionWithoutChoosingForItsRecipient() {
     val game = game()
-    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val second = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     val handoff = first.addTasks("NOW Player2 { Choice }").single()
     first.addTasks("Token<Player1>")
     second.tasks.isEmpty() shouldBe true
@@ -294,8 +312,9 @@ internal class TaskDispatchTest {
   @Test
   internal fun nowLetsItsRecipientExecuteADeferredDispatchBeforeOtherWorkCanStart() {
     val game = game()
-    val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val first = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val second = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     first.addTasks("NOW Player2 { LATER Player2 { Choice } }, Token<Player1>")
 
     first.doTask("NOW Player2 { LATER Player2 { Choice } }")

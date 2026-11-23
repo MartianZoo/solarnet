@@ -1,7 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
@@ -15,7 +16,8 @@ internal class TimelineTest {
   @Test
   internal fun selectionAndExecutionAreSeparateCompletedPositions() {
     val game = Engine.newGame(testGamePremise("CLASS ChoiceA\nCLASS ChoiceB"))
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val task = agent.addTasks("ChoiceA OR ChoiceB").single()
     val offered = game.timeline.checkpoint()
 
@@ -50,7 +52,8 @@ internal class TimelineTest {
                 """
             )
         )
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val timeline = game.timeline
     val start = game.timeline.checkpoint()
     agent.runOperation("Listener")
@@ -94,7 +97,8 @@ internal class TimelineTest {
         Engine.newGame(
             testGamePremise("CLASS ChoiceA\nCLASS ChoiceB\nCLASS ChoiceC\nCLASS ChoiceD")
         )
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val timeline = game.timeline
     val beforeOffer = timeline.checkpoint()
     agent.addTasks("ChoiceA OR ChoiceB, ChoiceC OR ChoiceD")
@@ -121,7 +125,8 @@ internal class TimelineTest {
   @Test
   internal fun directDoTasksRecordsNavigablePositions() {
     val game = Engine.newGame(testGamePremise("CLASS ChoiceA\nCLASS ChoiceB"))
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val timeline = game.timeline
     agent.addTasks("ChoiceA")
     val offered = timeline.checkpoint()
@@ -156,7 +161,8 @@ internal class TimelineTest {
         Engine.newGame(
             testGamePremise("CLASS ChoiceA\nCLASS ChoiceB\nCLASS ChoiceC\nCLASS ChoiceD")
         )
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     agent.addTasks("ChoiceA OR ChoiceB, ChoiceC OR ChoiceD")
     val before = game.timeline.checkpoint()
 
@@ -180,7 +186,8 @@ internal class TimelineTest {
   @Test
   internal fun nestedCorrectionsRecordEachPlayerReturn() {
     val game = Engine.newGame(testGamePremise("CLASS ChoiceA\nCLASS ChoiceB"))
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val start = game.timeline.checkpoint()
 
     game.timeline.atomic {
