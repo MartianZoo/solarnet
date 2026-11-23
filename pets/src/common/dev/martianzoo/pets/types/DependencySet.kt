@@ -348,9 +348,11 @@ private constructor(
                 }
               }
           concreteDependencies.map { concrete ->
-            candidate.rootClass.withAllDependencies(
-                candidate.dependencies.replaceAt(DependencyPath(key), concrete)
-            )
+            if (concrete == dependency) candidate
+            else
+                candidate.rootClass.withAllDependencies(
+                    candidate.dependencies.replaceAt(DependencyPath(key), concrete)
+                )
           }
         }
       }

@@ -186,6 +186,13 @@ internal constructor(
           that.refinement == null -> refinement
           else -> Refinement.join(refinement, that.refinement)
         }
+    // The existing type already satisfies its declared dependency bounds and shared-variable
+    // equalities. With no outer refinement to process, a matching intersection can reuse it.
+    if (glbRefin == null) {
+      if (glbClass == rootClass && glbDeps == dependencies) return inTable(classTable)
+      if (glbClass == that.rootClass && glbDeps == that.dependencies)
+          return that.inTable(classTable)
+    }
     val completeDeps =
         glbClass.normalizeVariableEqualities(
             classTable.glb(glbClass.dependencies, glbDeps) ?: return null
