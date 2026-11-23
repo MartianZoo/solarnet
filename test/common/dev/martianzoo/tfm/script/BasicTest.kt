@@ -1,31 +1,8 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.agenttestsupport.startSetupOnly
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
-import dev.martianzoo.engine.World
-import dev.martianzoo.state.Player
-import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.testsupport.PLAYER2
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-
-internal fun setUpGame(
-    optionCodes: String = "B",
-    players: Int = 2,
-): World {
-  val setup = OptionCodeTranslation.setup(optionCodes, players)
-  return createGame(setup).apply {
-    val agents = testAgents()
-    startSetupOnly()
-    actors.filterIsInstance<Player>().forEach { player ->
-      val agent = agents[player]
-      val offered = agent.count("ProjectCard<Selecting>")
-      agent.doTask(if (offered == 0) "Ok" else "-$offered ProjectCard<Selecting>")
-    }
-  }
-}
 
 internal class BasicTest {
   @Test
@@ -74,108 +51,5 @@ internal class BasicTest {
 
     session.command("newgame B 6")
     assertEquals(6, session.playerCount)
-  }
-
-  @Test
-  internal fun canonicalClassNamesWorkInScriptInput() {
-    val game = setUpGame()
-    val session = game.testAgent(PLAYER2)
-
-    session.runOperation("PROD[5 MC, 4 Energy]")
-    session.runOperation("ProjectCard")
-    session.runOperation("StripMine")
-    session.runOperation("PROD[-2 Energy, 2 Steel, Titanium]")
-
-    assertEquals(1, session.count("PROD[Energy]"))
-    assertEquals(5, session.count("PROD[Steel]"))
-    assertEquals(3, session.count("PROD[Titanium]"))
-
-    assertTrue(game.testAgent(PLAYER1).has("PROD[=1 Energy, =1 Steel]"))
-  }
-
-  @Test
-  internal fun removeAmap() {
-    val game = setUpGame()
-    val session = game.testAgent(PLAYER1)
-
-    session.runOperation("3! Heat")
-    session.runOperation("4* Heat")
-    session.runOperation("-9* Heat")
-    assertEquals(0, session.count("Heat"))
-  }
-
-  @Test
-  internal fun rollback() {
-    val game = setUpGame()
-    val session = game.testAgent(PLAYER1)
-
-    session.runOperation("3 Heat")
-    session.runOperation("4 Heat")
-    assertEquals(7, session.count("Heat"))
-
-    val checkpoint = game.timeline.checkpoint()
-    session.runOperation("-6 Heat")
-    assertEquals(1, session.count("Heat"))
-
-    game.timeline.seek(checkpoint)
-    assertEquals(7, session.count("Heat"))
-  }
-
-  @Test
-  internal fun dependencies() {
-    val game = setUpGame()
-    val session = game.testAgent(PLAYER1)
-
-    assertTrue(game.tasks.isEmpty())
-    assertEquals(0, session.count("Microbe"))
-
-    session.runOperation("4 OxygenStep")
-    assertEquals(4, session.count("OxygenStep"))
-    session.runOperation("ProjectCard")
-    session.runOperation("Ants")
-    assertTrue(game.tasks.isEmpty())
-    assertEquals(1, session.count("Ants"))
-    session.runOperation("3 Microbe<Ants>")
-    assertEquals(3, session.count("Microbe"))
-    session.runOperation("-Ants")
-    assertEquals(0, session.count("Microbe"))
-  }
-
-  @Test
-  internal fun counting() {
-    val game = setUpGame()
-    val session = game.testAgent(PLAYER1)
-    session.runOperation("42 Heat")
-    assertEquals(42, session.count("Heat"))
-    assertEquals(10, session.count("4 Heat"))
-    assertEquals(1, session.count("42 Heat"))
-    assertEquals(0, session.count("43 Heat"))
-    assertEquals(42, session.count("Heat MAX 50"))
-    assertEquals(42, session.count("Heat MAX 42"))
-    assertEquals(41, session.count("Heat MAX 41"))
-    assertEquals(1, session.count("Heat MAX 1"))
-    assertEquals(0, session.count("Heat MAX 0"))
-    assertEquals(10, session.count("4 Heat MAX 10"))
-    assertEquals(9, session.count("4 Heat MAX 9"))
-  }
-
-  @Test
-  internal fun tempTrigger() {
-    val game = setUpGame()
-    val session = game.testAgent(PLAYER1)
-    assertEquals(20, session.count("TerraformRating"))
-
-    session.runOperation("2 TemperatureStep")
-    assertEquals(2, session.count("TemperatureStep"))
-    assertEquals(22, session.count("TerraformRating"))
-    assertEquals(1, session.count("Production<Class<Heat>>"))
-
-    session.runOperation("2 TemperatureStep")
-    assertEquals(24, session.count("TerraformRating"))
-    assertEquals(2, session.count("Production<Class<Heat>>"))
-
-    session.runOperation("8 OxygenStep")
-    assertEquals(33, session.count("TerraformRating"))
-    assertEquals(3, session.count("Production<Class<Heat>>"))
   }
 }

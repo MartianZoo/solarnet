@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -86,6 +87,21 @@ internal class SimpleAddsRemovesTest {
     val p2 = TfmEngine.newGame(canonicalPremise()).testAgent(PLAYER2)
 
     shouldThrow<LimitsException> { p2.runOperation("-Plant") }
+  }
+
+  @Test
+  internal fun removingAHolderAlsoRemovesItsHeldComponents() {
+    val game =
+        Engine.newGame(testGamePremise("CLASS Holder { HAS MAX 1 This }\nCLASS Piece<Holder>"))
+    val player = Agents(game)[PLAYER1]
+    player.runOperation("Holder")
+    player.runOperation("3 Piece")
+    player.count("Piece") shouldBe 3
+
+    player.runOperation("-Holder")
+
+    player.count("Holder") shouldBe 0
+    player.count("Piece") shouldBe 0
   }
 
   @Test
