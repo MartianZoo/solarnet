@@ -1,20 +1,19 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.state.GameReader
-import dev.martianzoo.tfm.canon.cardRequirement
-import dev.martianzoo.tfm.canon.cardTags
-import dev.martianzoo.tfm.state.tfmCatalog
 
 /**
  * Whether the printed card [cardName] satisfies [filter], a `TagFilter`, `NoTagsFilter`,
  * `RequirementFilter`, or `ReferenceFilter` expression such as the criterion recorded by
- * `SearchForCard`.
+ * `SearchForCard`. Uses only printed definitions from [catalog], independent of live game state.
  */
-public fun cardMatchesFilter(reader: GameReader, cardName: ClassName, filter: Expression): Boolean {
-  val catalog = reader.tfmCatalog
+public fun cardMatchesFilter(
+    catalog: TfmCatalog,
+    cardName: ClassName,
+    filter: Expression,
+): Boolean {
   val card = catalog.card(cardName)
   return when (filter.className) {
     cn("TagFilter") -> {

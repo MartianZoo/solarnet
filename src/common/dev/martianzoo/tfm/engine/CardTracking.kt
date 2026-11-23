@@ -12,6 +12,7 @@ import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.tfm.canon.cardBack
+import dev.martianzoo.tfm.canon.cardMatchesFilter
 import dev.martianzoo.tfm.state.tfmCatalog
 
 /**
@@ -248,7 +249,8 @@ private constructor(
             arriving = supplied === arrivals,
             event,
             source?.filterTo(linkedSetOf()) {
-              it !in named && (filter == null || cardMatchesFilter(world.reader, it, filter))
+              it !in named &&
+                  (filter == null || cardMatchesFilter(world.reader.tfmCatalog, it, filter))
             },
             filter,
             "$player must name $count $back $direction at event ${event.ordinal}",
@@ -414,7 +416,7 @@ private constructor(
         }
         if (gainingBack == PROJECT_CARD && arrivalFilter != null) {
           gainedNames.forEach { name ->
-            check(cardMatchesFilter(world.reader, name, arrivalFilter)) {
+            check(cardMatchesFilter(world.reader.tfmCatalog, name, arrivalFilter)) {
               "$name does not satisfy $arrivalFilter at event ${event.ordinal}"
             }
           }
