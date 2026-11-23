@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.AutoExecPolicy
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -21,11 +20,12 @@ import kotlin.reflect.KClass
 import kotlin.test.Test
 
 internal class TaskEvaluationTest {
-  private val game = setUpGame()
+  private val agents = setUpGame()
+  private val game = agents.world
   private val tasks = game.tasks
   private val events = game.events
   private val start = game.events.nextOrdinal
-  private val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = AutoExecPolicy.NONE }
+  private val agent = agents[PLAYER1].also { it.autoExecPolicy = AutoExecPolicy.NONE }
 
   @Test
   internal fun `selecting evaluates an open task and records the selection`() {
