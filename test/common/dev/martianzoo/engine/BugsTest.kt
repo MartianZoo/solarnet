@@ -1,8 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agenttestsupport.correct
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -28,7 +28,8 @@ internal class BugsTest {
 
   private fun pendingPlacementBonusWorld(): World {
     val world = TfmEngine.newGame(canonicalPremise())
-    world.testAgent(PLAYER1).exMachina("Community<Tharsis_1_1>")
+    val agents = Agents(world) { EAGER }
+    agents[PLAYER1].exMachina("Community<Tharsis_1_1>")
     val player = world.actorEngine(PLAYER1)
     val placement =
         player
@@ -36,7 +37,7 @@ internal class BugsTest {
                 InstructionGroup.of(parse<Instruction>("GreeneryTile<Player1, Tharsis_1_1>!"))
             )
             .single()
-    world.testAgents().correct("Photosynthesis")
+    agents.correct("Photosynthesis")
 
     // The greenery replaces Land Claim's cube and creates the queued Admin placement signal.
     player.doTask(placement)

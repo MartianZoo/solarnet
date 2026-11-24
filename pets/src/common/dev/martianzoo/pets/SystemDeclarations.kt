@@ -4,7 +4,6 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.util.toSetStrict
 
-// TODO: Replace this temporary tfm-canon seam with the generic Catalog contract.
 /**
  * Pets runtime declarations that are available to every Catalog, as required by
  * [rule L11-12](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#11-class-declarations):

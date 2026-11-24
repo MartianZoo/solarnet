@@ -1,8 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agenttestsupport.correct
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.ast.Instruction
@@ -56,7 +56,8 @@ internal class ActorEngineTransactionTest {
   @Test
   internal fun directPlacementRepairsLandClaimBeforeReturning() {
     val world = TfmEngine.newGame(canonicalPremise())
-    world.testAgent(PLAYER1).exMachina("Community<Tharsis_1_1>")
+    val agents = Agents(world) { EAGER }
+    agents[PLAYER1].exMachina("Community<Tharsis_1_1>")
     val player = world.actorEngine(PLAYER1)
     val task =
         player
@@ -79,13 +80,14 @@ internal class ActorEngineTransactionTest {
   @Test
   internal fun greeneryBonusCanBeViewedAndResumedBetweenTransactions() {
     val world = TfmEngine.newGame(canonicalPremise())
+    val agents = Agents(world) { EAGER }
     val agent =
-        world.testAgent(PLAYER1).also {
+        agents[PLAYER1].also {
           it.autoExecPolicy = dev.martianzoo.agent.AutoExecPolicy.NONE
         }
     agent.exMachina("8 Plant")
     // During the action phase, greenery also offers the Player an oxygen increase.
-    world.testAgents().correct("Photosynthesis")
+    agents.correct("Photosynthesis")
     agent.beginOperation("UseAction<ConvertPlantsAction, Action1>")
     agent.doTask("8 Pay<Class<Plant>> FROM Plant")
     val player = world.actorEngine(PLAYER1)
@@ -116,7 +118,8 @@ internal class ActorEngineTransactionTest {
   @Test
   internal fun directTaskRestoresRejectedProtectedHabitatsRemoval() {
     val world = TfmEngine.newGame(canonicalPremise())
-    world.testAgent(PLAYER2).exMachina("ProtectedHabitats, Plant")
+    val agents = Agents(world) { EAGER }
+    agents[PLAYER2].exMachina("ProtectedHabitats, Plant")
     val player = world.actorEngine(PLAYER1)
     val attack =
         player.addTasks(InstructionGroup.of(parse<Instruction>("-Plant<Player2>!"))).single()
@@ -171,9 +174,8 @@ internal class ActorEngineTransactionTest {
   @Test
   internal fun failedBlockRestoresImmediateEffectsAndPendingWork() {
     val world = TfmEngine.newGame(canonicalPremise())
-    world
-        .testAgent(PLAYER1)
-        .exMachina("Community<Tharsis_1_1>, ProtectedHabitats<Player2>, Plant<Player2>")
+    val agents = Agents(world) { EAGER }
+    agents[PLAYER1].exMachina("Community<Tharsis_1_1>, ProtectedHabitats<Player2>, Plant<Player2>")
     val player = world.actorEngine(PLAYER1)
     val placement =
         player

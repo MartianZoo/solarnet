@@ -40,8 +40,8 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Human-readable game archive prototype
 
-All 34 remaining replay scenarios have commented `.game` fixtures and pass checked-in import and
-fresh export/re-import. See [archive verification](docs/agents/EXPORT.md#migration-verification).
+Replay scenarios have commented `.game` fixtures; the replay suites check fixture import, and
+export runs also verify fresh export/re-import. See [archive verification](docs/agents/EXPORT.md#migration-verification).
 
 - Pursue the [arithmetic inventory direction](docs/agents/EXPORT.md#arithmetic-inventory-direction):
   move all six ruling bonuses to explicit player tasks, preserving Reds' eligibility before chairman
@@ -230,9 +230,11 @@ a Solarnet defect. Preserve that uncertainty without treating it as a migration 
   [Agent contract](docs/agents/AGENT_CONTRACT.md#4-configure-autoexec-policies-in-the-engine).
   Keep instructions such as "always take titanium for Philares" deferred; no engine-installed
   policy API or implementation is selected.
-- Continue removing Player `EAGER` from remaining clients and older engine test fixtures where
-  explicit task submissions make their behavior clear. Players now default to `NONE`; Admin remains
-  automatic. Preserve the scoped opening and TaskForm exceptions in the
+- Finish the Player `EAGER` audit: inventory production clients and test sites, remove uses that
+  merely reproduce the deleted test cache, and explicitly identify those that test automatic
+  execution or implement the approved scoped opening and TaskForm exceptions. Players default to
+  `NONE`; Admin remains automatic. Determine the intended behavior of REPL purple mode and the
+  persistent policy assigned during non-purple setup. See the
   [gameplay consistency direction](docs/agents/TESTING.md#agreed-direction-execution-and-task-selection).
   A new smart policy remains unselected.
 - Resolve order-dependent Advanced Alloys discount attribution: the randomized-effect diagnostic

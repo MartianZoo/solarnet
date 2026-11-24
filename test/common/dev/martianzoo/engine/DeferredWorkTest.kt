@@ -1,10 +1,10 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.agenttestsupport.runSystem
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -51,8 +51,9 @@ internal class DeferredWorkTest {
               players = 2,
           )
       )
-  private val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-  private val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+  private val agents = Agents(game) { EAGER }
+  private val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+  private val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
 
   @Test
   internal fun `deferred work waits until no ordinary work remains`() {
@@ -183,7 +184,7 @@ internal class DeferredWorkTest {
 
   @Test
   internal fun `fixed scope cleanup finishes before its final continuation`() {
-    val admin = game.testAgents()
+    val admin = agents
     admin.runSystem("Flow")
     admin.runSystem("WorkScope<Player1>")
     admin.world.reader.count("Allocation") shouldBe 1

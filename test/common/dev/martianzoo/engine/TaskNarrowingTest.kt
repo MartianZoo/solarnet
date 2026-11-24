@@ -1,13 +1,13 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.TaskForm.Decision.Kind.ALTERNATIVE
 import dev.martianzoo.agent.TaskForm.Decision.Kind.AMOUNT
 import dev.martianzoo.agent.TaskForm.Decision.Kind.TARGET
 import dev.martianzoo.agenttestsupport.runSystem
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
@@ -35,11 +35,12 @@ import kotlin.test.Test
 
 internal class TaskNarrowingTest {
   private val game = TfmEngine.newGame(canonicalPremise())
+  private val agents = Agents(game) { EAGER }
 
   // Kinda gross
   private val tasks: TaskQueue = game.tasks
   private val events = game.events
-  private val writer = game.testAgent(PLAYER1)
+  private val writer = agents[PLAYER1]
   private val start = game.events.nextOrdinal
 
   init {
@@ -216,7 +217,7 @@ internal class TaskNarrowingTest {
                 players = 1,
             )
         )
-    val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = Agents(fixture) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
     agent.runOperation("One, Two, Red, Blue")
     val form = agent.fillInTask(agent.addTasks("Choice*").single())
 
@@ -258,7 +259,7 @@ internal class TaskNarrowingTest {
                 players = 2,
             )
         )
-    val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = Agents(fixture) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
     agent.exMachina("Available<Player1>, OtherPlayers<Player2>")
     val form = agent.fillInTask(agent.addTasks("Token<Holder<Player1>>*").single())
     val before = fixture.events.nextOrdinal
@@ -327,7 +328,7 @@ internal class TaskNarrowingTest {
                 players = 1,
             )
         )
-    val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = Agents(fixture) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
     val form = agent.fillInTask(agent.addTasks("Spot(HAS MAX 0 Mark)*").single())
 
     form.decisions().shouldBeEmpty()
@@ -436,7 +437,7 @@ internal class TaskNarrowingTest {
                 players = 1,
             )
         )
-    val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = Agents(fixture) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
     agent.runOperation("Full")
     val id = agent.addTasks("Choice*").single()
     val form = agent.fillInTask(id)
@@ -792,8 +793,9 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `selecting a task evaluates a city already identified by area`() {
     val game = TfmEngine.newGame(canonicalPremise(cn("StJosephOfCupertinoMission")))
-    val p1 = game.testAgent(PLAYER1)
-    val p2 = game.testAgent(PLAYER2)
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
     p1.autoExecPolicy = NONE
     p2.runOperation("CityTile<Player2, Tharsis_4_2>")
     p1.addTasks("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
@@ -806,7 +808,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `AMAP saturates only the selected target`() {
-    game.testAgent(PLAYER2).runOperation("3 MC")
+    agents[PLAYER2].runOperation("3 MC")
     initiate("-5* MC<Player>")
 
     selectAndNarrow("-5* MC<Player>", "-5* MC<Player1>")
@@ -814,7 +816,7 @@ internal class TaskNarrowingTest {
 
     tasks.isEmpty() shouldBe true
     writer.count("MC") shouldBe 0
-    game.testAgent(PLAYER2).count("MC") shouldBe 3
+    agents[PLAYER2].count("MC") shouldBe 3
   }
 
   @Test
@@ -1034,24 +1036,24 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `autoexec leaves an AMAP choice that binds a later stage to the player`() {
-    game.testAgent(PLAYER2).runOperation("3 MC")
+    agents[PLAYER2].runOperation("3 MC")
     initiate("3* MC FROM MC<@Player> THEN Plant<@Player>")
 
     writer.autoExecNow()
 
     tasksAsText().shouldContainExactly("3* MC<Player1> FROM MC<Player> THEN Plant<Player>!")
-    game.testAgent(PLAYER2).count("MC") shouldBe 3
+    agents[PLAYER2].count("MC") shouldBe 3
   }
 
   @Test
   internal fun `autoexec does not infer an AMAP task Actor from the sole existing component`() {
-    game.testAgent(PLAYER2).runOperation("3 MC")
+    agents[PLAYER2].runOperation("3 MC")
     initiate("3* MC FROM MC<Player>")
 
     writer.autoExecNow()
 
     tasksAsText().shouldContainExactly("3* MC<Player1> FROM MC<Player>")
-    game.testAgent(PLAYER2).count("MC") shouldBe 3
+    agents[PLAYER2].count("MC") shouldBe 3
   }
 
   @Test
@@ -1065,12 +1067,12 @@ internal class TaskNarrowingTest {
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3
-    game.testAgent(PLAYER2).count("Plant") shouldBe 0
+    agents[PLAYER2].count("Plant") shouldBe 0
   }
 
   @Test
   internal fun `selecting an AMAP source binds the later stage before resolution`() {
-    game.testAgent(PLAYER2).runOperation("3 MC")
+    agents[PLAYER2].runOperation("3 MC")
     writer.autoExecPolicy = NONE
     initiate("3* MC FROM MC<@Player> THEN Plant<@Player>")
 
@@ -1078,25 +1080,25 @@ internal class TaskNarrowingTest {
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3
-    game.testAgent(PLAYER2).count("MC") shouldBe 0
+    agents[PLAYER2].count("MC") shouldBe 0
   }
 
   @Test
   internal fun `selecting a gated mandatory source binds the later stage before resolution`() {
-    game.testAgent(PLAYER2).runOperation("Plant, 3 MC")
+    agents[PLAYER2].runOperation("Plant, 3 MC")
     initiate("(Plant<@Player>: 3 MC FROM MC<@Player>) THEN Heat<@Player>")
 
     writer.doTask("(Plant<Player2>: 3 MC FROM MC<Player2>)")
 
     tasksAsText().shouldContainExactly("Heat<Player2>!")
     writer.count("MC") shouldBe 3
-    game.testAgent(PLAYER2).count("MC") shouldBe 0
+    agents[PLAYER2].count("MC") shouldBe 0
   }
 
   @Test
   internal fun `a gated source must satisfy the gate for the selected player`() {
     writer.runOperation("3 MC")
-    game.testAgent(PLAYER2).runOperation("Plant")
+    agents[PLAYER2].runOperation("Plant")
     initiate("(Plant<@Player>: 3 MC<Player2> FROM MC<@Player>) THEN Heat<@Player>")
 
     shouldThrow<RequirementException> { writer.doTask("3 MC<Player2> FROM MC<Player1>") }
@@ -1327,7 +1329,7 @@ internal class TaskNarrowingTest {
                 players = 1,
             )
         )
-    val agent = fixture.testAgents()
+    val agent = Agents(fixture)
     agent.runSystem("First, Second, Marker<First>")
     val engine = fixture.actorEngine(PLAYER1)
     val id =
@@ -1362,7 +1364,7 @@ internal class TaskNarrowingTest {
                 players = 0,
             )
         )
-    val agent = fixture.testAgents()
+    val agent = Agents(fixture)
     agent.runSystem("First, Second, Watcher")
     agent.runSystem("Pair<First, Second>")
     agent.world.reader.count("Notice") shouldBe 0
@@ -1417,7 +1419,7 @@ internal class TaskNarrowingTest {
                 players = 2,
             )
         )
-    val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = Agents(fixture) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
     agent.runOperation("Other")
     agent.addTasks("Chosen@Shape THEN Notice<Chosen@Shape>")
     agent.doTask("Only")

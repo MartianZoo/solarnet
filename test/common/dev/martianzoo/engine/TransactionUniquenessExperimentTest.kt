@@ -1,8 +1,8 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -259,9 +259,10 @@ internal class TransactionUniquenessExperimentTest {
   @Test
   fun protectedHabitatsEliminatesOnlyProtectedVictim() {
     val world = TfmEngine.newGame(canonicalPremise(players = 3))
-    val actor = world.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(world) { EAGER }
+    val actor = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     actor.exMachina("Plant<Player3>")
-    world.testAgent(PLAYER2).exMachina("ProtectedHabitats, Plant")
+    agents[PLAYER2].exMachina("ProtectedHabitats, Plant")
     val id = actor.addTasks("-Plant<Player>!").single()
     world.actorEngine(PLAYER1).doTask(parse<InstructionTree>("-Plant<Player>!"), taskId = id)
     actor.count("Plant<Player3>") shouldBe 0
@@ -271,7 +272,8 @@ internal class TransactionUniquenessExperimentTest {
   @Test
   fun oceanPermissionAndAreaRequestCombineWithoutSearch() {
     val world = TfmEngine.newGame(canonicalPremise())
-    val actor = world.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(world) { EAGER }
+    val actor = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val id = actor.addTasks("OceanTile<WaterArea>!").single()
     world.actorEngine(PLAYER1).doTask(parse<InstructionTree>("Tile<Tharsis_5_5>!"), taskId = id)
     actor.count("OceanTile<Tharsis_5_5>") shouldBe 1

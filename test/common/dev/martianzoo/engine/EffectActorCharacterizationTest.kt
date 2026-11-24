@@ -1,9 +1,9 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.runSystem
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -21,7 +21,8 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun playerSubmittedSystemGainIsPerformedByAdmin() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val player = game.testAgent(PLAYER1)
+    val agents = Agents(game) { EAGER }
+    val player = agents[PLAYER1]
     val checkpoint = game.events.nextOrdinal
 
     player.runOperation("Generation")
@@ -33,20 +34,22 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun noActorCanRemoveModules() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val player = game.testAgent(PLAYER1)
+    val agents = Agents(game) { EAGER }
+    val player = agents[PLAYER1]
 
     assertFailsWith<LimitsException> { player.runOperation("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
 
-    assertFailsWith<LimitsException> { game.testAgents().runSystem("-TharsisMap") }
+    assertFailsWith<LimitsException> { agents.runSystem("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
   }
 
   @Test
   internal fun adminPerformedPlacementDoesNotGiveTheChangedComponentHolderTheAreaBonus() {
     val game = TfmEngine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
-    val admin = game.testAgents()
-    game.testAgent(PLAYER1).autoExecPolicy = NONE
+    val agents = Agents(game) { EAGER }
+    val admin = agents
+    agents[PLAYER1].autoExecPolicy = NONE
     admin.runSystem("Photosynthesis")
     val checkpoint = game.events.nextOrdinal
 
@@ -65,7 +68,8 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun triggeringPlayerIsFallbackActorForDeferredEffect() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val terraformRatingBefore = p1.count("TerraformRating")
 
     p1.beginOperation("OxygenStep!") {
@@ -82,7 +86,8 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun ownedEffectDoesNotTreatAdminAsAnOwner() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val admin = game.testAgents()
+    val agents = Agents(game) { EAGER }
+    val admin = agents
     val terraformRatingBefore = admin.world.reader.count("TerraformRating")
 
     admin.runSystem("OxygenStep!")

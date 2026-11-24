@@ -1,8 +1,9 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.Expression
@@ -26,7 +27,8 @@ internal class GameRecordingTest {
           override fun count(game: GameReader, type: Type): Int = 7
         }
     val game = Engine.newGame(premise, setOf(score))
-    game.testAgent(PLAYER1).runOperation("Token")
+    val agents = Agents(game) { EAGER }
+    agents[PLAYER1].runOperation("Token")
 
     val playback = game.recording().open()
 
@@ -43,7 +45,8 @@ internal class GameRecordingTest {
   @Test
   internal fun recordingSeeksAcrossCompletedOperationsAndNotifiesPlaybackListeners() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val tasks = agent as Agent
 
     tasks.beginOperation("Heat?")
@@ -81,7 +84,8 @@ internal class GameRecordingTest {
   @Test
   internal fun nestedAgentCallsHaveSeparateRecordedSteps() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     var afterPlant = 0
     agent.runOperation("Heat") {
       agent.runOperation("Plant")

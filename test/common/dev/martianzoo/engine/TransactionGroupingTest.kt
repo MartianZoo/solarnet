@@ -1,7 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
@@ -32,13 +33,14 @@ internal class TransactionGroupingTest {
   @Test
   internal fun initializationPrecedesEveryTransaction() {
     val game = Engine.newGame(premise)
+    val agents = Agents(game) { EAGER }
 
     game.events.entriesSince(0).all { it.transaction == null } shouldBe true
     game.events.lastTransaction shouldBe null
     game.events.transactionRange(0) shouldBe null
 
     val setupEnd = game.events.nextOrdinal
-    game.testAgent(PLAYER1).exMachina("Coin")
+    agents[PLAYER1].exMachina("Coin")
 
     game.events.lastTransaction?.serial shouldBe 0
     game.events.transactionStarts.first() shouldBe setupEnd
@@ -47,7 +49,8 @@ internal class TransactionGroupingTest {
   @Test
   internal fun aPlayerCallGroupsItsOwnWorkApartFromAdminHandling() {
     val game = Engine.newGame(premise)
-    val agent = game.testAgent(PLAYER1)
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1]
     // Queue the work first, as a client holding a pending task would: this call is the submission.
     val task = agent.addTasks("Token").single()
     val before = game.events.nextOrdinal
@@ -77,7 +80,8 @@ internal class TransactionGroupingTest {
   @Test
   internal fun everyEventIsFoundThroughItsOwnTransaction() {
     val game = Engine.newGame(premise)
-    val agent = game.testAgent(PLAYER1)
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1]
     agent.runOperation("Token")
     agent.exMachina("Coin")
 
@@ -99,7 +103,8 @@ internal class TransactionGroupingTest {
   @Test
   internal fun navigationStopsAreTransactionStartsAndTheCurrentEnd() {
     val game = Engine.newGame(premise)
-    val agent = game.testAgent(PLAYER1)
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1]
     val setupEnd = game.events.nextOrdinal
     game.events.transactionStarts shouldBe listOf(setupEnd)
 
@@ -114,7 +119,8 @@ internal class TransactionGroupingTest {
   @Test
   internal fun eligibleDeferredWorkChangesOnlyWhenSelected() {
     val game = Engine.newGame(premise)
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val token = agent.addTasks("Token, LATER { Coin }").first()
     val before = game.events.nextOrdinal
 
@@ -151,7 +157,8 @@ internal class TransactionGroupingTest {
   @Test
   internal fun aTaskEditWithoutAComponentChangeStillEarnsATransaction() {
     val game = Engine.newGame(premise)
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
 
     agent.addTasks("Coin OR Token")
 
@@ -163,7 +170,8 @@ internal class TransactionGroupingTest {
   @Test
   internal fun anUnsuccessfulTryAdvancesNoSerial() {
     val game = Engine.newGame(premise)
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val task = agent.addTasks("Coin OR Token").single()
     val before = game.events.lastTransaction
     val beforeOrdinal = game.events.nextOrdinal
@@ -177,7 +185,8 @@ internal class TransactionGroupingTest {
   @Test
   internal fun restorationFreesTheSerialItWouldHaveUsed() {
     val game = Engine.newGame(premise)
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     agent.addTasks("Coin")
     game.events.lastTransaction?.serial shouldBe 0
 

@@ -1,7 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -37,7 +38,7 @@ internal class WorldForkTest {
         )
 
     val fork = Engine.fork(source)
-    val forkAgent = fork.testAgent(PLAYER1)
+    val forkAgent = Agents(fork) { EAGER }[PLAYER1]
 
     fork.reader.count(parse<Metric>("Score")) shouldBe 7
     forkAgent.runOperation("CustomSignal")
@@ -58,13 +59,13 @@ internal class WorldForkTest {
                 """
             )
         )
-    val sourceAgent = source.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val sourceAgent = Agents(source) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
     sourceAgent.runOperation("Listener")
     val pendingChoice = sourceAgent.addTasks("Choice?").single()
     source.events.entriesSince(0).first().notes = "captured"
 
     val fork = Engine.fork(source)
-    val forkAgent = fork.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val forkAgent = Agents(fork) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
 
     (fork.classTable === source.classTable) shouldBe true
     fork.events.entriesSince(0) shouldBe source.events.entriesSince(0)
@@ -98,13 +99,13 @@ internal class WorldForkTest {
   @Test
   internal fun forkCannotRollBackBeforeItsForkPoint() {
     val source = Engine.newGame(testGamePremise("CLASS Token\nCLASS Choice"))
-    val sourceAgent = source.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val sourceAgent = Agents(source) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
     sourceAgent.runOperation("Token")
     sourceAgent.addTasks("Choice?")
 
     val fork = Engine.fork(source)
     val forkPoint = fork.timeline.checkpoint()
-    val forkAgent = fork.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val forkAgent = Agents(fork) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
 
     shouldThrow<IllegalArgumentException> {
       fork.timeline.seek(Checkpoint(forkPoint.serial - 1))
@@ -130,10 +131,10 @@ internal class WorldForkTest {
                 """
             )
         )
-    val sourceAgent = source.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val sourceAgent = Agents(source) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
     sourceAgent.runOperation("SecondListener, FirstListener")
     val fork = Engine.fork(source)
-    val forkAgent = fork.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val forkAgent = Agents(fork) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
 
     sourceAgent.runOperation("Ping") {
       doTask("First")
@@ -159,11 +160,11 @@ internal class WorldForkTest {
                 """
             )
         )
-    val sourceAgent = source.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val sourceAgent = Agents(source) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
     sourceAgent.runOperation("2 Listener")
     val fork = Engine.fork(source)
     val forkPoint = fork.timeline.checkpoint()
-    val forkAgent = fork.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val forkAgent = Agents(fork) { EAGER }[PLAYER1].also { it.autoExecPolicy = NONE }
 
     forkAgent.runOperation("-2 Listener")
     forkAgent.runOperation("Ping")
@@ -182,7 +183,7 @@ internal class WorldForkTest {
   @Test
   internal fun forkRejectsAnIncompleteGameplayPosition() {
     val source = Engine.newGame(testGamePremise("CLASS Token"))
-    source.testAgent(PLAYER1).runOperation("Token")
+    Agents(source) { EAGER }[PLAYER1].runOperation("Token")
     source.actorEngine(PLAYER1).transaction(dev.martianzoo.state.Motivation.CLIENT_REQUEST) {
       source.actorEngine(PLAYER1).addTasks(InstructionGroup.of(parse<Instruction>("Token")))
       shouldThrow<IllegalStateException> { Engine.fork(source) }

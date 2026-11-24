@@ -1,10 +1,9 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.agenttestsupport.runSystem
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -43,7 +42,8 @@ internal class SimpleAddsRemovesTest {
                     .trimIndent()
             )
         )
-    val p1 = game.testAgent(PLAYER1)
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1]
 
     p1.runOperation("Red, Red, Blue")
 
@@ -67,7 +67,8 @@ internal class SimpleAddsRemovesTest {
                     .trimIndent()
             )
         )
-    val p1 = game.testAgent(PLAYER1)
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1]
     p1.runOperation("Card<Player1>")
     val checkpoint = game.events.nextOrdinal
 
@@ -81,7 +82,8 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val p2 = game.testAgent(PLAYER2)
+    val agents = Agents(game) { EAGER }
+    val p2 = agents[PLAYER2]
 
     p2.runOperation("StandardResource") { doTask("Plant") }
 
@@ -90,7 +92,7 @@ internal class SimpleAddsRemovesTest {
 
   @Test
   internal fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
-    val p2 = TfmEngine.newGame(canonicalPremise()).testAgent(PLAYER2)
+    val p2 = Agents(TfmEngine.newGame(canonicalPremise())) { EAGER }[PLAYER2]
 
     shouldThrow<LimitsException> { p2.runOperation("-Plant") }
   }
@@ -114,7 +116,7 @@ internal class SimpleAddsRemovesTest {
   internal fun transmutationCannotConsumeTheGainedComponentsLastDependency() {
     val game =
         TfmEngine.newGame(testGamePremise("CLASS Token { HAS MAX 1 This }\nCLASS Holder<Token>"))
-    val admin = game.testAgents()
+    val admin = Agents(game) { EAGER }
     admin.correct("Token!")
 
     shouldThrow<LimitsException> { admin.runSystem("Holder FROM Token!") }
@@ -126,7 +128,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualPreservesTasksThatWereAlreadyPending() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val p2 = game.testAgent(PLAYER2)
+    val p2 = Agents(game) { EAGER }[PLAYER2]
     val pendingTask = p2.addTasks("StandardResource?").single()
 
     p2.runOperation("Heat")
@@ -138,7 +140,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualRejectsASelectedTask() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val p2 = game.testAgent(PLAYER2)
+    val p2 = Agents(game) { EAGER }[PLAYER2]
     val pendingTask = p2.addTasks("StandardResource?").single()
     p2.selectTask(pendingTask)
 
@@ -148,13 +150,14 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun basicByApi() {
     val game = TfmEngine.newGame(canonicalPremise())
+    val agents = Agents(game) { EAGER }
 
     val checkpoint = game.events.nextOrdinal
 
-    val admin = game.testAgents()
+    val admin = agents
     admin.world.reader.count("Heat") shouldBe 0
 
-    val p2 = game.testAgent(PLAYER2)
+    val p2 = agents[PLAYER2]
 
     p2.runOperation("5! Heat<Player2>")
     p2.runOperation("10! Heat<Player1>")

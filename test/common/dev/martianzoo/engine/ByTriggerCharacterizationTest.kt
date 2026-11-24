@@ -1,11 +1,10 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.agenttestsupport.runSystem
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.PetElaborator
@@ -50,11 +49,12 @@ internal class ByTriggerCharacterizationTest {
 
   private fun assertByAnyone(actor: Actor) {
     val game = newGame()
+    val agents = Agents(game) { EAGER }
     if (actor == ADMIN) {
-      game.testAgents().runSystem("AnyoneTriggerProbe!")
-      game.testAgents().runSystem("ActorTriggerSignal!")
+      agents.runSystem("AnyoneTriggerProbe!")
+      agents.runSystem("ActorTriggerSignal!")
     } else {
-      val agent = game.testAgent(actor as Player)
+      val agent = agents[actor as Player]
       agent.runOperation("AnyoneTriggerProbe!")
       agent.runOperation("ActorTriggerSignal!")
     }
@@ -64,15 +64,12 @@ internal class ByTriggerCharacterizationTest {
 
   private fun assertByActor(actor: Actor) {
     val game = newGame()
-    if (actor == ADMIN) game.testAgents().correct("ActorTriggerProbe!")
-    else game.testAgent(actor as Player).exMachina("ActorTriggerProbe!")
+    val agents = Agents(game) { EAGER }
+    if (actor == ADMIN) agents.correct("ActorTriggerProbe!")
+    else agents[actor as Player].also { it.autoExecPolicy = NONE }.exMachina("ActorTriggerProbe!")
     val before = game.events.nextOrdinal
-    if (actor == ADMIN) game.testAgents().runSystem("ActorTriggerSignal!")
-    else
-        game
-            .testAgent(actor as Player)
-            .also { it.autoExecPolicy = NONE }
-            .beginOperation("ActorTriggerSignal!")
+    if (actor == ADMIN) agents.runSystem("ActorTriggerSignal!")
+    else agents[actor as Player].beginOperation("ActorTriggerSignal!")
     // Read the task as it was created: Admin performs its own work, so waiting to see it pending
     // would only observe whether its assignee happens to be automatic. A cause marks the triggered
     // consequence, as against the operation's own initiating task.
@@ -87,7 +84,8 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerAcceptsPlayer() {
     val game = newGame()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     p1.exMachina("ActorTriggerProbe!, ActorTriggerSignal!")
 
     p1.beginOperation("-ActorTriggerSignal!") {
@@ -100,8 +98,9 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerBindsTheConcreteActorInTheTriggerAndInstruction() {
     val game = newGame()
-    game.testAgent(PLAYER1).autoExecPolicy = NONE
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    agents[PLAYER1].autoExecPolicy = NONE
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     p2.exMachina("ActorBindingProbe!, OwnedActorTrigger<Player1>!")
 
     p2.beginOperation("-OwnedActorTrigger<Player1>!") {
@@ -117,8 +116,9 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun actorBindingReachesAnInnerConditionAndCountedTrigger() {
     val game = newGame()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = EAGER }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = EAGER }
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
     p2.exMachina("WrappedActorBindingProbe!, Steel<Player2>!")
 
     p2.runOperation("3! OwnedActorTrigger<Player1>")
@@ -130,8 +130,9 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun actorBindingRejectsAnInnerConditionMetOnlyByAnotherPlayer() {
     val game = newGame()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = EAGER }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = EAGER }
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1]
+    val p2 = agents[PLAYER2]
     p2.exMachina("WrappedActorBindingProbe!, Steel<Player1>!")
 
     p2.runOperation("3! OwnedActorTrigger<Player1>")
@@ -143,7 +144,8 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerRejectsAdmin() {
     val game = newGame()
-    val admin = game.testAgents()
+    val agents = Agents(game) { EAGER }
+    val admin = agents
     admin.correct("ActorTriggerProbe!, ActorTriggerSignal!")
 
     admin.runSystem("-ActorTriggerSignal!")
@@ -154,8 +156,9 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byMeTestsThePerformerNotTheActorReceivingTheEffect() {
     val game = newGame()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     p1.exMachina("OwnedByProbe<Player2>!")
 
     p1.runOperation("ActorTriggerSignal!")
@@ -175,8 +178,9 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun anUnownedTriggerDefaultsToTheEffectPlayer() {
     val game = newGame()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     p1.exMachina("RepeatedHolderProbe<Player2>!")
     val checkpoint = game.events.nextOrdinal
 
@@ -204,8 +208,9 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun anOwnedTriggerUsesItsAuthoredDependencyInsteadOfAnImplicitActorFilter() {
     val game = newGame()
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     p1.exMachina("OwnedTriggerProbe<Player1>!")
 
     p2.beginOperation("OwnedActorTrigger<Player2>!") {
@@ -233,8 +238,9 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun systemMakesAnOwnedComponentsSubscriptionTableWide() {
     val game = newGame()
-    val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgents()
+    val agents = Agents(game) { EAGER }
+    val owner = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val admin = agents
     owner.exMachina("SystemTriggerProbe<Player1>!")
 
     admin.runSystem("SystemTriggerSignal!")
@@ -246,9 +252,10 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byOtherPlayerAcceptsOnlyOpponents() {
     val game = newGame()
-    val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val other = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgents()
+    val agents = Agents(game) { EAGER }
+    val owner = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val other = agents[PLAYER2].also { it.autoExecPolicy = NONE }
+    val admin = agents
     owner.exMachina("OpponentByProbe<Player1>!")
 
     owner.runOperation("ActorTriggerSignal!")
@@ -263,8 +270,9 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun orTriggerMatchesItsRemovalAlternative() {
     val game = newGame()
-    val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val other = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game) { EAGER }
+    val owner = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val other = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     owner.exMachina("OpponentByProbe<Player1>!, ActorTriggerSignal!")
 
     other.beginOperation("-ActorTriggerSignal!") {

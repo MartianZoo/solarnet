@@ -1,8 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agenttestsupport.runSystem
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -30,12 +30,12 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PhantomTypeTest {
-  private fun agent() = TfmEngine.newGame(canonicalPremise()).testAgents()
+  private fun agent() = Agents(TfmEngine.newGame(canonicalPremise())) { EAGER }
 
   @Test
   internal fun `uninhabited types and their class literals count zero`() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val agent = game.testAgents()
+    val agent = Agents(game) { EAGER }
     val venusTag = agent.world.reader.resolve("VenusTag")
 
     agent.world.reader.count("VenusTag") shouldBe 0
@@ -61,7 +61,7 @@ internal class PhantomTypeTest {
         TfmEngine.newGame(
             testGamePremise("ABSTRACT CLASS Empty\nCLASS Holder<Empty>\nCLASS Live", players = 1)
         )
-    val agent = game.testAgent(PLAYER1)
+    val agent = Agents(game) { EAGER }[PLAYER1]
 
     game.classTable.isInhabited(cn("Empty")) shouldBe false
     game.classTable.isInhabited(cn("Holder")) shouldBe false
@@ -109,7 +109,7 @@ internal class PhantomTypeTest {
                 players = 0,
             )
         )
-    val agent = game.testAgents()
+    val agent = Agents(game)
 
     agent.runSystem("Empty! OR Live!")
     val engine = game.actorEngine(ADMIN)
@@ -140,7 +140,7 @@ internal class PhantomTypeTest {
                 players = 0,
             )
         )
-    val agent = game.testAgents()
+    val agent = Agents(game)
     val before = game.events.nextOrdinal
 
     agent.runSystem("Source")
@@ -170,7 +170,7 @@ internal class PhantomTypeTest {
                 players = 0,
             )
         )
-    val agent = game.testAgents()
+    val agent = Agents(game)
     val before = game.events.nextOrdinal
 
     agent.runSystem("Source") {}

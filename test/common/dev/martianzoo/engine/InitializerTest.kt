@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.engine.Exceptions.IncompleteAnalysisException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -53,8 +54,9 @@ internal class InitializerTest {
             )
             .withTestSetup("BootstrapProbe")
     val game = Engine.newGame(premise)
-    game.testAgents().world.reader.count("Right") shouldBe 1
-    game.testAgents().world.reader.count("Marker") shouldBe 1
+    val agents = Agents(game) { EAGER }
+    agents.world.reader.count("Right") shouldBe 1
+    agents.world.reader.count("Marker") shouldBe 1
     game.tasks.isEmpty() shouldBe true
   }
 
@@ -109,7 +111,8 @@ internal class InitializerTest {
     val premise = testGamePremise(players = 2)
 
     val game = Engine.newGame(premise)
-    val admin = game.testAgents()
+    val agents = Agents(game) { EAGER }
+    val admin = agents
 
     premise.premiseClassName shouldBe null
     admin.world.reader.count("Player") shouldBe 2
@@ -186,9 +189,10 @@ internal class InitializerTest {
             .withTestSetup("Unit, BootstrapProbe")
 
     val game = Engine.newGame(premise)
+    val agents = Agents(game) { EAGER }
 
-    game.testAgents().world.reader.count("Unit") shouldBe 0
-    game.testAgents().world.reader.count("Token") shouldBe 0
+    agents.world.reader.count("Unit") shouldBe 0
+    agents.world.reader.count("Token") shouldBe 0
     game.tasks.isEmpty() shouldBe true
   }
 
@@ -208,9 +212,10 @@ internal class InitializerTest {
             .withTestSetup("Unit, BootstrapProbe")
 
     val game = Engine.newGame(premise)
+    val agents = Agents(game) { EAGER }
 
-    game.testAgents().world.reader.count("Unit") shouldBe 0
-    game.testAgents().world.reader.count("Token") shouldBe 0
+    agents.world.reader.count("Unit") shouldBe 0
+    agents.world.reader.count("Token") shouldBe 0
     game.tasks.isEmpty() shouldBe true
   }
 
