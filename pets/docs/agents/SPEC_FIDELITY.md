@@ -19,7 +19,7 @@ not imply that their documentation or conformance audits are complete.
 | --- | --- |
 | `pets` | A far higher specification standard: maintained semi-formal language and type-system specifications, plus API KDoc for AST construction, parsing, elaboration, and type queries. See below. |
 | `catalog` | Catalog composition, configuration, content selection and exclusion, dependency closure, validation, and resolved game premises. |
-| `tfm-card-data` | Authored card fields, absent values and defaults, validation, derived card categories, and bundle lookup. |
+| `tfm-card-data` | Authored card fields, absent values and defaults, validation, and bundle lookup. Derived card categories belong to `tfm-compiler`. |
 | `tfm-canon` | Canonical vocabulary and content, bundle composition, Terraforming Mars configuration policies, and map definitions. |
 
 

@@ -51,27 +51,6 @@ public data class CardDefinition(
      */
     val incompatible: Set<String> = emptySet(),
 ) {
-  /**
-   * Printed project-card category. Null for other decks; `EventCard` when tagged `EventTag`;
-   * otherwise `ActiveCard` when the card has an action, an invariant starting with `=`, or a
-   * persistent effect. The remaining project cards are `AutomatedCard`. Effects starting with
-   * `End:` or `End IF ` are scoring effects; `This:` and `This IF ` are immediate play effects.
-   * Neither makes a card active by itself. For example, `CardDefinition(name = "Demo", deck =
-   * "ProjectCard").projectKind` is `AutomatedCard`; adding an action makes it `ActiveCard`, while
-   * adding `EventTag` makes it `EventCard` even if it also has an action.
-   */
-  public val projectKind: String? =
-      when {
-        deck != PROJECT_DECK -> null
-        EVENT_TAG in tags -> EVENT_CARD
-        actions.isNotEmpty() ||
-            invariants.any { it.startsWith("=") } ||
-            effects.any {
-              !it.isScoringEffect() && !it.startsWith("This:") && !it.startsWith("This IF ")
-            } -> ACTIVE_CARD
-        else -> AUTOMATED_CARD
-      }
-
   init {
     require(CARD_NAME.matches(name)) { "Invalid card name: $name" }
     require(deck == null || deck in CARD_DECKS) { "Invalid card deck: $deck" }
@@ -97,8 +76,3 @@ private val CARD_NAME = Regex("[A-Za-z][A-Za-z0-9]*")
 private val CARD_DECKS = setOf("PreludeCard", "ProjectCard", "CorporationCard")
 private const val PROJECT_DECK = "ProjectCard"
 private const val EVENT_TAG = "EventTag"
-private const val EVENT_CARD = "EventCard"
-private const val ACTIVE_CARD = "ActiveCard"
-private const val AUTOMATED_CARD = "AutomatedCard"
-
-private fun String.isScoringEffect(): Boolean = startsWith("End:") || startsWith("End IF ")

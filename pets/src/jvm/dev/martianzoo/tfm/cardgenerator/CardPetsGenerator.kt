@@ -56,7 +56,6 @@ internal object CardPetsGenerator {
     }
 
     private val deck = data.deck?.let(::cn)
-    private val projectKind = data.projectKind?.let(::cn)
     private val directEffect = data.direct?.let { parseAuthored<InstructionTree>(it) }
     private val actions = data.actions.map { parseAuthored<Action>(it) }
     private val actionAllocations = actions.mapIndexedNotNull { index, action ->
@@ -78,12 +77,30 @@ internal object CardPetsGenerator {
     private val benefitInstructions =
         listOfNotNull(directEffect?.node) + authoredThisEffects.map { it.node.instruction }
     private val tagCounts = data.tags.groupingBy(::cn).eachCount()
+    private val authoredInvariants = data.invariants.map { parseAuthored<Requirement>(it) }
     private val invariants =
-        (listOf("MAX 1 $className") +
-                data.invariants +
-                tagCounts.map { (tag, count) -> "=$count $tag<This>" })
-            .map { parseAuthored<Requirement>(it) }
+        (listOf(parseAuthored<Requirement>("MAX 1 $className")) +
+                authoredInvariants +
+                tagCounts.map { (tag, count) -> parseAuthored<Requirement>("=$count $tag<This>") })
             .distinctBy { it.node }
+
+    // Classify authored behavior, ignoring compiler-generated tag and action bookkeeping.
+    private val projectKind: ClassName? =
+        when {
+          deck != cn("ProjectCard") -> null
+          cn("EventTag") in tagCounts -> cn("EventCard")
+          actions.isNotEmpty() ||
+              authoredInvariants.any { invariant ->
+                Requirement.split(invariant.node).any { it is Requirement.Exact }
+              } ||
+              effects.any {
+                val trigger =
+                    (it.node.trigger as? Effect.Trigger.IfTrigger)?.inner ?: it.node.trigger
+                trigger != Effect.Trigger.WhenGain &&
+                    trigger != Effect.Trigger.OnGainOf.create(cn("End").expression)
+              } -> cn("ActiveCard")
+          else -> cn("AutomatedCard")
+        }
     private val componentClasses = data.components.map(::parseOneLinerClass)
     private val requirement: Requirement? =
         data.requirement?.let { parseAuthored<Requirement>(it).node }
