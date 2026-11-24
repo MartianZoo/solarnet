@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.cardgenerator
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.carddata.CardData
 import dev.martianzoo.tfm.carddata.CardDefinition
@@ -24,7 +25,6 @@ internal class GenerateCardPetsTest {
             direct = "Plant",
         )
     val card = CardPetsGenerator.GeneratedCard(data, classes).declaration
-    assertEquals("EventCard", data.projectKind)
     assertEquals(listOf("EventCard"), card.supertypes.map { it.className.toString() })
     assertEquals(
         setOf(
@@ -135,10 +135,27 @@ internal class GenerateCardPetsTest {
         CardDefinition(
             name = "Example",
             deck = "ProjectCard",
-            invariants = setOf("=1 Grant<This>"),
+            invariants = setOf("  =1 Grant<This>"),
         )
 
-    assertEquals("ActiveCard", data.projectKind)
+    val card = CardPetsGenerator.GeneratedCard(data, classes).declaration
+    assertTrue(parse<Expression>("ActiveCard") in card.supertypes)
+  }
+
+  @Test
+  internal fun equivalentInvariantGroupingsKeepAProjectBlue() {
+    val groupings =
+        listOf(
+            setOf("=1 Grant<This>", "MAX 1 Example"),
+            setOf("=1 Grant<This>, MAX 1 Example"),
+            setOf("MAX 1 Example, =1 Grant<This>"),
+        )
+    for (invariants in groupings) {
+      val data = CardDefinition(name = "Example", deck = "ProjectCard", invariants = invariants)
+      val card = CardPetsGenerator.GeneratedCard(data, classes).declaration
+
+      assertEquals(listOf(parse<Expression>("ActiveCard")), card.supertypes, "$invariants")
+    }
   }
 
   @Test
@@ -152,7 +169,7 @@ internal class GenerateCardPetsTest {
         )
     val card = parseClasses(CardPetsGenerator.GeneratedCard(data, classes).render()).single()
 
-    assertEquals("AutomatedCard", data.projectKind)
+    assertTrue(parse<Expression>("AutomatedCard") in card.supertypes)
     assertEquals(
         setOf(parse<Requirement>("MAX 1 Example"), parse<Requirement>("=1 ScienceTag<This>")),
         Requirement.split(card.invariants).toSet(),
@@ -164,12 +181,28 @@ internal class GenerateCardPetsTest {
   internal fun groupedDecksPreserveCardDefinitionsAndDeriveProjectKinds() {
     val cards = CardData.definitions("base").associateBy { it.name }
 
+    fun supertypes(name: String) =
+        CardPetsGenerator.GeneratedCard(cards.getValue(name), classes).declaration.supertypes
+
     assertEquals("CorporationCard", cards.getValue("CrediCor").deck)
-    assertEquals(null, cards.getValue("CrediCor").projectKind)
-    assertEquals("AutomatedCard", cards.getValue("DeepWellHeating").projectKind)
-    assertEquals("ActiveCard", cards.getValue("ArcticAlgae").projectKind)
-    assertEquals("EventCard", cards.getValue("ImportedHydrogen").projectKind)
+    assertTrue(parse<Expression>("CardFront<Class<CorporationCard>>") in supertypes("CrediCor"))
+    assertTrue(parse<Expression>("AutomatedCard") in supertypes("DeepWellHeating"))
+    assertTrue(parse<Expression>("ActiveCard") in supertypes("ArcticAlgae"))
+    assertTrue(parse<Expression>("EventCard") in supertypes("ImportedHydrogen"))
     assertTrue("EventTag" in cards.getValue("ImportedHydrogen").tags)
+  }
+
+  @Test
+  internal fun formattingAndConditionalPlayOrScoringEffectsDoNotMakeAProjectBlue() {
+    val data =
+        CardDefinition(
+            name = "Example",
+            deck = "ProjectCard",
+            effects = listOf("  This : Plant", "This IF Plant : MC", "End IF Plant : VictoryPoint"),
+        )
+    val card = CardPetsGenerator.GeneratedCard(data, classes).declaration
+
+    assertEquals(listOf(parse<Expression>("AutomatedCard")), card.supertypes)
   }
 
   @Test
