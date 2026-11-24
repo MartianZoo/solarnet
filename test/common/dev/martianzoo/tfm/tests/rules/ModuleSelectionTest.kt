@@ -10,7 +10,7 @@ import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
@@ -127,7 +127,7 @@ internal class ModuleSelectionTest {
     resolvesToExactly(config, multiplayerWith("PreludeExpansion", "Prelude2Expansion"))
     val game = TfmEngine.newGame(premise(config, players = 2))
     val agents = Agents(game) { NONE }
-    agents[ADMIN].count("Prelude2Expansion") shouldBe 1
+    agents.world.reader.count("Prelude2Expansion") shouldBe 1
     game.classTable.isInhabited(SpaceLanes) shouldBe true
 
     val cardsOnly = classTable("prelude2:cards")

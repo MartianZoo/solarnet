@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
@@ -14,6 +15,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
@@ -32,12 +34,12 @@ internal class GamePremiseTest {
         Canon.gamePremise(GameConfig("TurmoilExpansion", "Kim", "Stan"))
             .copy(drawOrder = listOf(cn("DemocraticReform"), cn("MinimalImpactPolicy")))
     val agents = Agents(TfmEngine.newGame(premise)) { NONE }
-    val admin = agents[ADMIN]
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    val admin = agents.world.reader
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
     admin.count("Coming<DemocraticReform>") shouldBe 1
     admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
     admin.count("GlobalEventDrawn") shouldBe 2
-    shouldThrow<DeadEndException> { admin.runOperation("DrawGlobalEvent") }
+    shouldThrow<DeadEndException> { agents.runSystem("DrawGlobalEvent") }
     admin.count("GlobalEventDrawn") shouldBe 2
     admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
   }
@@ -110,7 +112,7 @@ internal class GamePremiseTest {
     game.reader.getComponents(cn("Player").expression).map { it.className }.toSet() shouldBe
         setOf(blue, yellow)
     val agents = Agents(game) { NONE }
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
     agents[Player(blue)].doTask("20 TerraformRating")
     agents[Player(yellow)].doTask("20 TerraformRating")
     agents[Player(blue)].count("TerraformRating<Blue>") shouldBe 20
@@ -173,7 +175,7 @@ internal class GamePremiseTest {
             )
         )
     val agents = Agents(game) { NONE }
-    val admin = agents[ADMIN]
+    val admin = agents.world.reader
 
     admin.count("SelectedColonyTile") shouldBe 3
     admin.count("SelectedCallisto") shouldBe 1
@@ -181,7 +183,7 @@ internal class GamePremiseTest {
     admin.count("SelectedEnceladus") shouldBe 1
     admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
 
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
     for (name in listOf("Player1", "Player2")) {
       agents[Player(cn(name))].doTasks(
           "20 TerraformRating",
@@ -206,7 +208,7 @@ internal class GamePremiseTest {
     val premise = Canon.gamePremise(GameConfig.create(included = emptyList(), playerNames = names))
 
     premise.playerNames shouldBe names
-    Agents(TfmEngine.newGame(premise)) { NONE }[ADMIN].count("Player") shouldBe 6
+    TfmEngine.newGame(premise).reader.count("Player") shouldBe 6
   }
 
   @Test

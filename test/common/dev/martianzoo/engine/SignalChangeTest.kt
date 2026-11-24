@@ -1,10 +1,12 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.toComponent
+import dev.martianzoo.testsupport.count
+import dev.martianzoo.testsupport.resolve
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
@@ -14,33 +16,33 @@ import kotlin.test.Test
 internal class SignalChangeTest {
   @Test
   internal fun authoredReflexiveSignalTransmutationIsNotASignalGain() {
-    val admin = Agents(Engine.newGame(premise))[ADMIN]
+    val admin = Agents(Engine.newGame(premise))
 
-    shouldThrow<ExpressionException> { admin.runOperation("Moment FROM Moment!") }
-    admin.count("Moment") shouldBe 0
-    admin.count("SelfGain") shouldBe 0
-    admin.count("SelfRemoval") shouldBe 0
+    shouldThrow<ExpressionException> { admin.runSystem("Moment FROM Moment!") }
+    admin.world.reader.count("Moment") shouldBe 0
+    admin.world.reader.count("SelfGain") shouldBe 0
+    admin.world.reader.count("SelfRemoval") shouldBe 0
   }
 
   @Test
   internal fun signalIsOneEventButNeverLiveState() {
     val game = Engine.newGame(premise)
-    val admin = Agents(game)[ADMIN]
-    admin.runOperation("Observer")
-    val signalType = admin.resolve("Moment")
+    val admin = Agents(game)
+    admin.runSystem("Observer")
+    val signalType = admin.world.reader.resolve("Moment")
 
-    val result = admin.runOperation("Moment!")
+    val result = admin.runSystem("Moment!")
 
-    admin.count("Moment") shouldBe 0
-    admin.count("SelfGain") shouldBe 1
-    admin.count("SelfRemoval") shouldBe 1
-    admin.count("ExternalGain") shouldBe 1
-    admin.count("ExternalRemoval") shouldBe 1
-    admin.count("EitherSignalSide") shouldBe 1
-    admin.count("GainOrSourceRemoval") shouldBe 1
-    admin.count("Token") shouldBe 1
-    admin.count("ObservedWhileLive") shouldBe 0
-    admin.count("HeardTokenWhileLive") shouldBe 0
+    admin.world.reader.count("Moment") shouldBe 0
+    admin.world.reader.count("SelfGain") shouldBe 1
+    admin.world.reader.count("SelfRemoval") shouldBe 1
+    admin.world.reader.count("ExternalGain") shouldBe 1
+    admin.world.reader.count("ExternalRemoval") shouldBe 1
+    admin.world.reader.count("EitherSignalSide") shouldBe 1
+    admin.world.reader.count("GainOrSourceRemoval") shouldBe 1
+    admin.world.reader.count("Token") shouldBe 1
+    admin.world.reader.count("ObservedWhileLive") shouldBe 0
+    admin.world.reader.count("HeardTokenWhileLive") shouldBe 0
 
     val signalChanges =
         result.changes.filter {
@@ -54,23 +56,23 @@ internal class SignalChangeTest {
   @Test
   internal fun signalFromAnotherComponentIsTransmutedThenRemovesItself() {
     val game = Engine.newGame(premise)
-    val admin = Agents(game)[ADMIN]
-    admin.runOperation("Observer, Fuel")
-    val signalType = admin.resolve("Moment")
-    val fuelType = admin.resolve("Fuel")
+    val admin = Agents(game)
+    admin.runSystem("Observer, Fuel")
+    val signalType = admin.world.reader.resolve("Moment")
+    val fuelType = admin.world.reader.resolve("Fuel")
 
-    val result = admin.runOperation("Moment FROM Fuel")
+    val result = admin.runSystem("Moment FROM Fuel")
 
-    admin.count("Moment") shouldBe 0
-    admin.count("Fuel") shouldBe 0
-    admin.count("SelfGain") shouldBe 1
-    admin.count("SelfRemoval") shouldBe 1
-    admin.count("ExternalGain") shouldBe 1
-    admin.count("ExternalRemoval") shouldBe 1
-    admin.count("FuelRemoved") shouldBe 1
-    admin.count("EitherSignalSide") shouldBe 2
-    admin.count("GainOrSourceRemoval") shouldBe 1
-    admin.count("ObservedWhileLive") shouldBe 1
+    admin.world.reader.count("Moment") shouldBe 0
+    admin.world.reader.count("Fuel") shouldBe 0
+    admin.world.reader.count("SelfGain") shouldBe 1
+    admin.world.reader.count("SelfRemoval") shouldBe 1
+    admin.world.reader.count("ExternalGain") shouldBe 1
+    admin.world.reader.count("ExternalRemoval") shouldBe 1
+    admin.world.reader.count("FuelRemoved") shouldBe 1
+    admin.world.reader.count("EitherSignalSide") shouldBe 2
+    admin.world.reader.count("GainOrSourceRemoval") shouldBe 1
+    admin.world.reader.count("ObservedWhileLive") shouldBe 1
     result.net().shouldContain(ComponentChange.Remove(1, fuelType.toComponent()))
     result.changes
         .map { it.change }

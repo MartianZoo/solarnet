@@ -2,10 +2,11 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.testsupport.PLAYER3
+import dev.martianzoo.testsupport.count
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -65,10 +66,9 @@ internal class RefinementQueryTest {
             )
         )
     val agents = Agents(game) { EAGER }
-    val admin = agents[ADMIN]
-    admin.runOperation("Token<Player1>")
+    agents.runSystem("Token<Player1>")
 
-    admin.runOperation("EACH @Player(HAS =1 (RANK { Player(HAS Token) })) { Prize<@Player> }")
+    agents.runSystem("EACH @Player(HAS =1 (RANK { Player(HAS Token) })) { Prize<@Player> }")
 
     agents[PLAYER1].count("Prize") shouldBe 1
     agents[PLAYER2].count("Prize") shouldBe 1

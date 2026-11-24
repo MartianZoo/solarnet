@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*

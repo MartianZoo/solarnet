@@ -1,7 +1,8 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agents
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.agenttestsupport.runSystem
+import dev.martianzoo.testsupport.count
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -9,15 +10,15 @@ internal class AutomaticEffectNarrowingTest {
   @Test
   internal fun automaticGainUsesTheOnlyTargetWithRemainingCapacity() {
     val game = Engine.newGame(premise)
-    val admin = Agents(game)[ADMIN]
+    val admin = Agents(game)
 
-    admin.runOperation("First")
-    admin.runOperation("Second")
-    admin.runOperation("Third")
+    admin.runSystem("First")
+    admin.runSystem("Second")
+    admin.runSystem("Third")
 
-    admin.count("Link<First, Second>") shouldBe 1
-    admin.count("Link<Second, Third>") shouldBe 1
-    admin.count("Link") shouldBe 2
+    admin.world.reader.count("Link<First, Second>") shouldBe 1
+    admin.world.reader.count("Link<Second, Third>") shouldBe 1
+    admin.world.reader.count("Link") shouldBe 2
   }
 
   private companion object {

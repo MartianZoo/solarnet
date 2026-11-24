@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.archive
 
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.GameReader
+import dev.martianzoo.testsupport.has
 import dev.martianzoo.tfm.tests.replays.OtbGame20261111Test
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,9 +36,9 @@ internal class GameArchiveResearchTest {
         blocks.first { it.groupValues[1] == "Green" }.groupValues[2].trimIndent().trim(),
     )
     val imported = replay.importGameArchive(text)
-    assertTrue(imported[ADMIN].has("End"))
+    assertTrue(imported.world.reader.has("End"))
     assertTrue(imported.world.tasks.isEmpty())
-    fun inventory(reader: dev.martianzoo.state.GameReader) =
+    fun inventory(reader: GameReader) =
         reader.getComponents(reader.classTable.componentClass.baseType).entries.associate {
           it.key.toString() to it.value
         }

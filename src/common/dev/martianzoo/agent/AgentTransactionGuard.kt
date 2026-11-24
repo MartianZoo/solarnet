@@ -1,10 +1,12 @@
 package dev.martianzoo.agent
 
+import dev.martianzoo.engine.InputRequiredException
+
 /**
  * Application validation used by clients through the Agent API before accepting their work. For
  * example, card-identity tracking can require the client to identify an anonymous card movement. A
  * guard is installed once on an [Agents] session and shared by its Agents; direct engine calls
- * bypass it.
+ * bypass it unless enclosed in that session's call.
  *
  * Implementations may annotate events but must not change components or tasks. Validation can run
  * repeatedly within the same enclosing call and must tolerate a later failure restoring earlier
@@ -17,7 +19,7 @@ package dev.martianzoo.agent
 public interface AgentTransactionGuard {
   /**
    * Checks the current event history and throws if required application information is missing or
-   * inconsistent. [AgentInputRequiredException] identifies missing client input; other failures
+   * inconsistent. [InputRequiredException] identifies missing client input; other failures
    * propagate. A normal return accepts this check only, not completion of every pending task.
    *
    * Agent callers normally invoke this within a failure-restoring block. Calling it directly

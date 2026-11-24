@@ -5,11 +5,15 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.AutoExecPolicy.SOLE_TASK
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
+import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -37,14 +41,16 @@ internal class SafeAutoExecTest {
   }
 
   @Test
-  internal fun adminHandlingCannotBeDisabledByPolicyOrScopedOverride() {
+  internal fun adminHandlingIgnoresPlayerPolicyAndScopedOverride() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Token"))) { NONE }
-    val admin = agents[ADMIN]
-    shouldThrow<IllegalArgumentException> { admin.autoExecPolicy = NONE }
-    shouldThrow<IllegalArgumentException> { admin.autoExecNow(NONE) }
-    shouldThrow<IllegalArgumentException> { admin.doWithAutoExecPolicy(NONE) {} }
-    admin.addTasks("Token")
-    admin.count("Token") shouldBe 1
+    agents[PLAYER1].doWithAutoExecPolicy(NONE) {
+      agents.transact {
+        agents.world
+            .actorEngine(ADMIN)
+            .addTasks(InstructionGroup.of(Parsing.parse<InstructionTree>("Token!")))
+      }
+    }
+    agents.world.reader.count("Token") shouldBe 1
   }
 
   @Test
@@ -52,16 +58,16 @@ internal class SafeAutoExecTest {
     val game =
         Engine.newGame(testGamePremise("CLASS Token<Owner>\nCLASS Notice : System", players = 2))
     val manual = Agents(game) { NONE }
-    manual[ADMIN].addTasks("Notice!")
+    game.actorEngine(ADMIN).addTasks(InstructionGroup.of(Parsing.parse<InstructionTree>("Notice!")))
     manual[PLAYER1].addTasks("Token<Player1>!, 2! Token<Player1>")
     manual[PLAYER2].addTasks("Token<Player2>!")
     val before = game.events.nextOrdinal
 
-    val agents = Agents(game) { if (it == ADMIN) EAGER else SOLE_TASK }
+    val agents = Agents(game) { SOLE_TASK }
 
     game.events.nextOrdinal shouldBe before
     agents[PLAYER1].autoExecNow()
-    agents[ADMIN].count("Notice") shouldBe 1
+    game.reader.count("Notice") shouldBe 1
     agents[PLAYER2].count("Token<Player2>") shouldBe 1
     agents[PLAYER1].count("Token<Player1>") shouldBe 0
 

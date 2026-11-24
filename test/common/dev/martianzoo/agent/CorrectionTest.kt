@@ -3,7 +3,10 @@ package dev.martianzoo.agent
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
+import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
@@ -74,20 +77,22 @@ internal class CorrectionTest {
             )
         )
     val agents = Agents(world) { NONE }
+    val player = agents[PLAYER1]
     for (actor in listOf(ADMIN, PLAYER1)) {
-      val agent = agents[actor]
+      fun correct(text: String) =
+          if (actor == ADMIN)
+              agents.exMachina(InstructionGroup.of(Parsing.parse<InstructionTree>(text + "!")))
+          else player.exMachina(text)
       val before = world.events.nextOrdinal
-      val markers = agent.count("Marker")
-
-      val result = agent.exMachina("Switch")
-
-      agent.count("Switch") shouldBe 1
-      agent.count("Marker") shouldBe markers + 1
-      agent.count("Coin") shouldBe 0
+      val markers = player.count("Marker")
+      val result = correct("Switch")
+      player.count("Switch") shouldBe 1
+      player.count("Marker") shouldBe markers + 1
+      player.count("Coin") shouldBe 0
       world.tasks.isEmpty() shouldBe true
       result.changes shouldBe world.events.changesSince(before)
-      agent.exMachina("-Switch")
-      agent.count("Switch") shouldBe 0
+      correct("-Switch")
+      player.count("Switch") shouldBe 0
     }
   }
 

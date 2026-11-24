@@ -2,12 +2,14 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
@@ -94,12 +96,12 @@ internal class StartTokenTest : TfmGameplayTest() {
       val setup = canonicalPremise(Hellas, PromoCards, players = 2)
       val game = TfmEngine.newGame(setup)
       val agents = Agents(game) { NONE }
-      val admin = agents[ADMIN]
+      val admin = agents.world.reader
       val p1 = agents[PLAYER1]
       val p2 = agents[PLAYER2]
 
-      admin.exMachina("StartToken<Player2> FROM StartToken<Player1>")
-      admin.beginOperation("SetupPhase FROM BootstrapPhase")
+      agents.correct("StartToken<Player2> FROM StartToken<Player1>")
+      agents.runSystem("SetupPhase FROM BootstrapPhase")
       admin.count("SetupPhase") shouldBe 1
       admin.count("Baton") shouldBe 0
       p1.doTasks(
@@ -144,13 +146,13 @@ internal class StartTokenTest : TfmGameplayTest() {
     internal fun `Research passes the token according to the explicit seat order`() {
       val game = setUpGame(players = 3)
       val agents = Agents(game) { NONE }
-      val admin = agents[ADMIN]
-      admin.exMachina(
+      val admin = agents.world.reader
+      agents.correct(
           "NextPlayer<Player1, Player3> FROM NextPlayer<Player1, Player2>, " +
               "NextPlayer<Player3, Player2> FROM NextPlayer<Player3, Player1>, " +
               "NextPlayer<Player2, Player1> FROM NextPlayer<Player2, Player3>"
       )
-      admin.beginOperation("ResearchPhase FROM SetupPhase")
+      agents.runSystem("ResearchPhase FROM SetupPhase")
       admin.assertCounts(0 to "StartToken<Player1>", 1 to "StartToken<Player3>")
     }
   }

@@ -1,7 +1,8 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agents
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.agenttestsupport.runSystem
+import dev.martianzoo.testsupport.count
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -19,22 +20,22 @@ internal class AutomaticEffectOrderTest {
                 players = 0,
             )
         )
-    val admin = Agents(world)[ADMIN]
-    admin.runOperation("Listener, Token")
+    val admin = Agents(world)
+    admin.runSystem("Listener, Token")
 
-    admin.runOperation("Trigger")
+    admin.runSystem("Trigger")
 
-    admin.count("Token") shouldBe 1
+    admin.world.reader.count("Token") shouldBe 1
   }
 
   @Test
   internal fun selfEffectsRetainDeclarationOrder() {
     val world = Engine.newGame(selfEffectPremise)
-    val admin = Agents(world)[ADMIN]
+    val admin = Agents(world)
 
-    admin.runOperation("Source")
+    admin.runSystem("Source")
 
-    admin.count("Observed") shouldBe 1
+    admin.world.reader.count("Observed") shouldBe 1
   }
 
   private companion object {

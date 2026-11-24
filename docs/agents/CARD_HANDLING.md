@@ -34,7 +34,7 @@ Raw engine calls bypass it. Forks and overlays start without a guard.
 Unused supplied names may be replaced after a failed operation without changing names used by
 surviving events.
 
-Missing names raise `CardTracking.NamesRequiredException`, an `AgentInputRequiredException` with
+Missing names raise `CardTracking.NamesRequiredException`, an engine `InputRequiredException` with
 the Player, back, location, direction, additional count, and attempted change event. Its detached
 `candidates` set describes the eligible source immediately before that movement, including earlier
 movements within the failed command and excluding names already supplied for this movement.

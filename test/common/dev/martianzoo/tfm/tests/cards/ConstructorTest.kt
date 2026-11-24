@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.state.TaskResult
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -48,7 +49,7 @@ internal class VerminTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Tharsis_3_2>")
     rob.exMachina("NormalCityTile<Tharsis_3_3>")
 
-    admin.beginOperation("End FROM Phase")
+    agents.runSystem("End FROM Phase")
     kim.count("VictoryPoint") shouldBe 0
     kim.doTask("18 VictoryPoint")
     stan.doTask("19 VictoryPoint")

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -8,6 +9,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.testsupport.PLAYER3
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
@@ -33,7 +35,7 @@ internal class AwardsTest : TfmSandboxTest() {
     p1.count("CardFront(HAS requirement)") shouldBe 1
     p2.count("CardFront(HAS requirement)") shouldBe 2
 
-    admin.beginOperation("End FROM Phase")
+    agents.runSystem("End FROM Phase")
     p1.doTask("3 VictoryPoint")
     p2.doTask("5 VictoryPoint")
 
@@ -58,7 +60,7 @@ internal class AwardsTest : TfmSandboxTest() {
 
     p1.exMachina("Thermalist, Miner, Heat")
 
-    admin.beginOperation("End FROM Phase")
+    agents.runSystem("End FROM Phase")
     p1.doTask("10 VictoryPoint")
     p2.doTask("7 VictoryPoint")
     p3.doTask("7 VictoryPoint")
@@ -97,7 +99,7 @@ internal class AwardsTest : TfmSandboxTest() {
     p2.assertProds(-5 to "MC")
     p3.assertProds(-5 to "MC")
 
-    admin.beginOperation("End FROM Phase")
+    agents.runSystem("End FROM Phase")
     p1.doTask("5 VictoryPoint")
     p2.doTask("2 VictoryPoint")
     p3.doTask("2 VictoryPoint")
@@ -117,7 +119,7 @@ internal class AwardsTest : TfmSandboxTest() {
     p1.autoExecPolicy = NONE
     p2.autoExecPolicy = NONE
 
-    admin.beginOperation("End FROM Phase")
+    agents.runSystem("End FROM Phase")
     p1.count("VictoryPoint") shouldBe 3
     p2.count("VictoryPoint") shouldBe 0
     admin.count("GameScope") shouldBe 1
@@ -141,7 +143,7 @@ internal class AwardsTest : TfmSandboxTest() {
     p1.exMachina("$CorporateStronghold, $EarthCatapult, 5 TerraformRating")
     p2.exMachina("$EnergyTapping, PlayedEvent<Class<$LargeConvoy>>, 3 TerraformRating")
 
-    admin.beginOperation("End FROM Phase")
+    agents.runSystem("End FROM Phase")
     p1.count("VictoryPoint") shouldBe 0
     p2.count("VictoryPoint") shouldBe 0
     p1.doTask("5 VictoryPoint")

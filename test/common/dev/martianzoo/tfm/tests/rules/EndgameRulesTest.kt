@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -16,7 +18,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     newTestGame("$options, -VenusNextExpansion", playerCount = 2)
     // The earlier resource collection and terraforming are incidental to the final phase order.
     kim.exMachina("7 Plant, PROD[Plant]")
-    admin.exMachina(
+    agents.correct(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>"
     )
@@ -50,7 +52,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
   internal fun `MC breaks an otherwise tied multiplayer final score`() {
     newTestGame("$options, -VenusNextExpansion", playerCount = 2)
     // Equal corporations and resources give a tied score; the patent sale supplies the tiebreaker.
-    admin.exMachina(
+    agents.correct(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>"
     )
@@ -76,7 +78,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     newTestGame("$options, MandatoryVenusVariant", playerCount = 2)
     // Prepare the base end conditions and leave Venus a step short; earlier terraforming is
     // incidental.
-    admin.exMachina(
+    agents.correct(
         "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
             "GpComplete<Class<OceanTile>>, -GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>, 14 VenusStep"
@@ -211,7 +213,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     newTestGame(options, playerCount = 1)
     prepareFinalSoloTemperature()
     // Leave Venus a step short too; both final increases happen through normal projects.
-    admin.exMachina("14 VenusStep")
+    agents.correct("14 VenusStep")
     kim.completeOperation {
       doTasks(
           *standardProjectTasks("AsteroidProject"),
@@ -242,7 +244,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     newTestGame("$options, Tr63SoloObjective, -VenusNextExpansion", playerCount = 1)
     // Prepare 62 TR and plants; the last rating increase and final greenery are the subject.
     kim.exMachina("48 TerraformRating, 8 Plant")
-    admin.exMachina("-13 SoloGenerationsLeft")
+    agents.correct("-13 SoloGenerationsLeft")
     kim.completeOperation {
       doTasks(*standardProjectTasks("BufferGasProject"), "16 Pay<> FROM MC", "TerraformRating")
     }
@@ -269,7 +271,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     newTestGame("$options, Tr63SoloObjective, -VenusNextExpansion", playerCount = 1)
     // Resources cannot substitute for the missing rating at the end of the final generation.
     kim.exMachina("48 TerraformRating, 100 MC, 16 Plant")
-    admin.exMachina("-13 SoloGenerationsLeft")
+    agents.correct("-13 SoloGenerationsLeft")
     kim.doTask("Pass")
     kim.doTask("62 MC")
     kim.count("TerraformRating") shouldBe 62
@@ -308,7 +310,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     )
     // Only the late rating loss matters; install the Board and its unused director directly.
     kim.exMachina("48 TerraformRating, $BoardOfDirectors, Director<$BoardOfDirectors>")
-    admin.exMachina("-13 SoloGenerationsLeft")
+    agents.correct("-13 SoloGenerationsLeft")
     kim.completeOperation {
       doTasks(*standardProjectTasks("BufferGasProject"), "16 Pay<> FROM MC", "TerraformRating")
     }
@@ -337,7 +339,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
   private fun prepareFinalSoloTemperature() {
     // Shared end-condition setup: oxygen and oceans are complete, temperature is a step short.
     // Corrections suppress the incidental terraforming rewards; the final project remains real.
-    admin.exMachina(
+    agents.correct(
         "-13 SoloGenerationsLeft, 18 TemperatureStep, 14 OxygenStep, " +
             "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_3>, OceanTile<Tharsis_1_4>, " +
             "OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_1>, OceanTile<Tharsis_2_6>, " +

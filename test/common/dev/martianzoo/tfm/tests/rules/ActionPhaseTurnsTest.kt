@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.ComponentChange
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow

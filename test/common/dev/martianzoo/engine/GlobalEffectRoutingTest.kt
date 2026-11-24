@@ -2,9 +2,10 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -33,17 +34,16 @@ internal class GlobalEffectRoutingTest {
             )
         )
     val agents = Agents(game) { EAGER }
-    val admin = agents[ADMIN]
     val player1 = agents[PLAYER1]
     val player2 = agents[PLAYER2]
 
-    admin.runOperation("EventCard")
-    admin.count("Pending") shouldBe 1
-    admin.runOperation("Resolve")
+    agents.runSystem("EventCard")
+    agents.world.reader.count("Pending") shouldBe 1
+    agents.runSystem("Resolve")
 
     player1.count("Coin") shouldBe 1
     player2.count("Coin") shouldBe 1
-    admin.runOperation("-Current<EventCard>")
-    admin.count("Pending") shouldBe 0
+    agents.runSystem("-Current<EventCard>")
+    agents.world.reader.count("Pending") shouldBe 0
   }
 }

@@ -18,12 +18,12 @@ internal class PhaseCommand(private val repl: ScriptSession) : ScriptCommand("ph
 
   override fun withArgs(args: String): List<String> {
     // TODO Better way to do it??
-    val saved = repl.agent
+    val saved = repl.currentActor
     return try {
-      repl.agent = repl.agents[ADMIN]
+      repl.currentActor = ADMIN
       repl.describeExecutionResults(repl.access().phase(args.trim()))
     } finally {
-      repl.agent = saved
+      repl.currentActor = saved
     }
   }
 }

@@ -229,7 +229,7 @@ internal class AgentNarrowingExperimentTest {
             .single()
 
     shouldThrow<DeadEndException> { world.actorEngine(ADMIN).doTask(task) }
-    shouldThrow<DeadEndException> { agents[ADMIN].autoExecNow() }
+    shouldThrow<DeadEndException> { agents.transact() }
 
     agent.count("Source<Red>") shouldBe 1
     agent.count("Source<Blue>") shouldBe 1

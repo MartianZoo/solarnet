@@ -5,9 +5,12 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
@@ -97,7 +100,13 @@ public class GameArchiveImporter(
   /** Executes the archive once. Malformed entries and illegal tasks fail with their source line. */
   public fun run(afterEntry: () -> Unit = {}) {
     cardNames?.start(agents)
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.transact {
+      agents.world
+          .actorEngine(ADMIN)
+          .addTasks(
+              InstructionGroup.of(Parsing.parse<InstructionTree>("SetupPhase FROM BootstrapPhase!"))
+          )
+    }
     entries.drop(bodyStart).forEach {
       execute(it, null, true)
       afterEntry()

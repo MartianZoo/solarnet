@@ -1,6 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -16,6 +18,8 @@ import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.count
+import dev.martianzoo.testsupport.resolve
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
@@ -26,18 +30,18 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PhantomTypeTest {
-  private fun agent() = TfmEngine.newGame(canonicalPremise()).testAgent(ADMIN)
+  private fun agent() = TfmEngine.newGame(canonicalPremise()).testAgents()
 
   @Test
   internal fun `uninhabited types and their class literals count zero`() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val agent = game.testAgent(ADMIN)
-    val venusTag = agent.resolve("VenusTag")
+    val agent = game.testAgents()
+    val venusTag = agent.world.reader.resolve("VenusTag")
 
-    agent.count("VenusTag") shouldBe 0
-    agent.count("Class<VenusTag>") shouldBe 0
+    agent.world.reader.count("VenusTag") shouldBe 0
+    agent.world.reader.count("Class<VenusTag>") shouldBe 0
     game.classTable.isInhabited(venusTag) shouldBe false
-    game.classTable.isInhabited(agent.resolve("Class<VenusTag>")) shouldBe false
+    game.classTable.isInhabited(agent.world.reader.resolve("Class<VenusTag>")) shouldBe false
     game.reader.count(venusTag) shouldBe 0
     game.reader.countComponent(venusTag) shouldBe 0
     game.reader.getComponents(venusTag).isEmpty() shouldBe true
@@ -47,8 +51,8 @@ internal class PhantomTypeTest {
   internal fun `unknown names remain errors`() {
     val agent = agent()
 
-    shouldThrow<ExpressionException> { agent.count("Typo") }
-    shouldThrow<ExpressionException> { agent.count("Class<Typo>") }
+    shouldThrow<ExpressionException> { agent.world.reader.count("Typo") }
+    shouldThrow<ExpressionException> { agent.world.reader.count("Class<Typo>") }
   }
 
   @Test
@@ -73,23 +77,23 @@ internal class PhantomTypeTest {
   internal fun `optional and amap phantom changes do nothing while mandatory changes die`() {
     val agent = agent()
 
-    agent.runOperation("VenusTag?")
-    agent.runOperation("VenusTag*")
-    agent.runOperation("-VenusTag?")
-    agent.runOperation("-VenusTag*")
-    shouldThrow<DeadEndException> { agent.runOperation("VenusTag!") }
-    shouldThrow<DeadEndException> { agent.runOperation("-VenusTag!") }
-    agent.count("VenusTag") shouldBe 0
+    agent.runSystem("VenusTag?")
+    agent.runSystem("VenusTag*")
+    agent.runSystem("-VenusTag?")
+    agent.runSystem("-VenusTag*")
+    shouldThrow<DeadEndException> { agent.runSystem("VenusTag!") }
+    shouldThrow<DeadEndException> { agent.runSystem("-VenusTag!") }
+    agent.world.reader.count("VenusTag") shouldBe 0
   }
 
   @Test
   internal fun `choices discard mandatory phantom branches`() {
     val agent = agent()
 
-    agent.runOperation("VenusTag! OR Plant<Player1>!")
-    agent.runOperation("Die! OR Plant<Player1>!")
+    agent.runSystem("VenusTag! OR Plant<Player1>!")
+    agent.runSystem("Die! OR Plant<Player1>!")
 
-    agent.count("Plant<Player1>") shouldBe 2
+    agent.world.reader.count("Plant<Player1>") shouldBe 2
   }
 
   @Test
@@ -105,9 +109,9 @@ internal class PhantomTypeTest {
                 players = 0,
             )
         )
-    val agent = game.testAgent(ADMIN)
+    val agent = game.testAgents()
 
-    agent.runOperation("Empty! OR Live!")
+    agent.runSystem("Empty! OR Live!")
     val engine = game.actorEngine(ADMIN)
     val task =
         engine.addTasks(InstructionGroup.of(parse<Instruction>("ZeroCapacity! OR Live!"))).single()
@@ -116,12 +120,12 @@ internal class PhantomTypeTest {
       engine.doTask(parse<Instruction>("ZeroCapacity!"), taskId = task)
     }
     game.events.nextOrdinal shouldBe before
-    agent.autoExecNow()
-    agent.runOperation("Empty?")
-    agent.runOperation("ZeroCapacity?")
+    agent.transact()
+    agent.runSystem("Empty?")
+    agent.runSystem("ZeroCapacity?")
 
-    agent.count("Live") shouldBe 2
-    agent.count("ZeroCapacity") shouldBe 0
+    agent.world.reader.count("Live") shouldBe 2
+    agent.world.reader.count("ZeroCapacity") shouldBe 0
   }
 
   @Test
@@ -136,10 +140,10 @@ internal class PhantomTypeTest {
                 players = 0,
             )
         )
-    val agent = game.testAgent(ADMIN)
+    val agent = game.testAgents()
     val before = game.events.nextOrdinal
 
-    agent.runOperation("Source")
+    agent.runSystem("Source")
 
     game.tasks.isEmpty() shouldBe true
     game.events
@@ -166,10 +170,10 @@ internal class PhantomTypeTest {
                 players = 0,
             )
         )
-    val agent = game.testAgent(ADMIN)
+    val agent = game.testAgents()
     val before = game.events.nextOrdinal
 
-    agent.beginOperation("Source") {}
+    agent.runSystem("Source") {}
 
     // The pruned arm never becomes a task. Read the task as created, since Admin performs its
     // own; a cause marks the triggered consequence rather than the initiating task.

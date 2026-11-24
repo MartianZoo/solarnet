@@ -120,6 +120,7 @@ public object Engine {
       private val premise: GamePremise,
       private val gameWorld: GameWorld,
       private val overlaySource: WholeWorld? = null,
+      private val executeAdmin: Boolean = true,
   ) {
     private val classTable = premise.classTable.also(::validatePremise)
     private val elaborator: PetElaborator = PetElaborator(classTable)
@@ -139,7 +140,11 @@ public object Engine {
         Changer(reader, gameWorld, effector, transactions::forEvent) { timeline.requireAtEnd() }
     private val timeline: TimelineImpl = TimelineImpl(gameWorld, changer, transactions)
     private val limiter = Limiter(classTable, gameWorld)
-    private val worldTransaction: WorldTransaction = WorldTransaction(timeline)
+    private val worldTransaction: WorldTransaction =
+        WorldTransaction(timeline, transactions) { validate ->
+          AdminTasks(gameWorld.tasks, timeline, { actorEngines.getValue(Actor.ADMIN) }, validate)
+              .run()
+        }
     private val instructor =
         Instructor(reader, limiter, changer, effector, classTable, elaborator, timeline)
     private val actorEngines: Map<Actor, ActorEngine> =
@@ -167,6 +172,7 @@ public object Engine {
     internal fun createWorld(): WholeWorld {
       try {
         initializer.initialize()
+        worldTransaction.enabled = executeAdmin
         limiter.checkRequiredCounts = true
       } catch (e: GameplayException) {
         throw InvalidGameConfigException(
@@ -189,6 +195,7 @@ public object Engine {
 
     internal fun createFork(sourceEffector: Effector): WholeWorld {
       transactions.initializationFinished()
+      worldTransaction.enabled = executeAdmin
       effector.copyIndexFrom(sourceEffector)
       timeline.commit()
       limiter.checkRequiredCounts = true
@@ -198,6 +205,7 @@ public object Engine {
 
     internal fun createOverlay(): OverlayWorld {
       transactions.initializationFinished()
+      worldTransaction.enabled = executeAdmin
       timeline.commit()
       limiter.checkRequiredCounts = true
       return world as OverlayWorld
@@ -331,7 +339,10 @@ public object Engine {
             transactions,
             // Internal trials may begin inside a request after its task has been selected.
             // They get their own transaction completion and no source listeners.
-            { Wiring(premise, gameWorld.overlay(), overlaySource = world).createOverlay() },
+            {
+              Wiring(premise, gameWorld.overlay(), overlaySource = world, executeAdmin = false)
+                  .createOverlay()
+            },
         )
   }
 }

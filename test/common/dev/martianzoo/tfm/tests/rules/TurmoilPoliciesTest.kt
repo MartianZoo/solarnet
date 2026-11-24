@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.playCardTasks

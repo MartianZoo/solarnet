@@ -1,17 +1,23 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.util.toStrings
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
+import dev.martianzoo.testsupport.has
+import dev.martianzoo.testsupport.list
+import dev.martianzoo.testsupport.resolve
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
@@ -108,13 +114,13 @@ internal class SimpleAddsRemovesTest {
   internal fun transmutationCannotConsumeTheGainedComponentsLastDependency() {
     val game =
         TfmEngine.newGame(testGamePremise("CLASS Token { HAS MAX 1 This }\nCLASS Holder<Token>"))
-    val admin = game.testAgent(ADMIN)
-    admin.exMachina("Token!")
+    val admin = game.testAgents()
+    admin.correct("Token!")
 
-    shouldThrow<LimitsException> { admin.runOperation("Holder FROM Token!") }
+    shouldThrow<LimitsException> { admin.runSystem("Holder FROM Token!") }
 
-    admin.count("Token") shouldBe 1
-    admin.count("Holder") shouldBe 0
+    admin.world.reader.count("Token") shouldBe 1
+    admin.world.reader.count("Holder") shouldBe 0
   }
 
   @Test
@@ -145,31 +151,31 @@ internal class SimpleAddsRemovesTest {
 
     val checkpoint = game.events.nextOrdinal
 
-    val admin = game.testAgent(ADMIN)
-    admin.count("Heat") shouldBe 0
+    val admin = game.testAgents()
+    admin.world.reader.count("Heat") shouldBe 0
 
     val p2 = game.testAgent(PLAYER2)
 
     p2.runOperation("5! Heat<Player2>")
     p2.runOperation("10! Heat<Player1>")
 
-    admin.count("Heat") shouldBe 15
+    admin.world.reader.count("Heat") shouldBe 15
 
     p2.runOperation("-4 Heat")
-    admin.has("Heat<Player2>") shouldBe true
-    admin.has("=1 Heat<Player2>") shouldBe true
-    admin.has("MAX 1 Heat<Player2>") shouldBe true
-    admin.has("2 Heat<Player2>") shouldBe false
-    admin.count("StandardResource") shouldBe 11
-    admin.count("StandardResource<Player1>") shouldBe 10
+    admin.world.reader.has("Heat<Player2>") shouldBe true
+    admin.world.reader.has("=1 Heat<Player2>") shouldBe true
+    admin.world.reader.has("MAX 1 Heat<Player2>") shouldBe true
+    admin.world.reader.has("2 Heat<Player2>") shouldBe false
+    admin.world.reader.count("StandardResource") shouldBe 11
+    admin.world.reader.count("StandardResource<Player1>") shouldBe 10
 
     p2.runOperation("3! Steel<Player1> FROM Heat<Player1>")
-    admin.count("StandardResource<Player1>") shouldBe 10
-    admin.count("Steel") shouldBe 3
+    admin.world.reader.count("StandardResource<Player1>") shouldBe 10
+    admin.world.reader.count("Steel") shouldBe 3
 
     p2.runOperation("2! Heat<Player2> FROM Heat<Player1>")
-    admin.has("=3 Heat<Player2>") shouldBe true
-    admin.has("=5 Heat<Player1>") shouldBe true
+    admin.world.reader.has("=3 Heat<Player2>") shouldBe true
+    admin.world.reader.has("=5 Heat<Player1>") shouldBe true
 
     val changes = game.events.changesSince(checkpoint)
     changes

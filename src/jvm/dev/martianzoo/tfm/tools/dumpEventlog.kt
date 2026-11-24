@@ -4,9 +4,12 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.api.SystemClasses.ICONIC
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameEvent.ChangeEvent
@@ -55,7 +58,13 @@ private fun createGame(playerCount: Int): World {
   val deck = TfmEngine.globalEventDeck(preparedPremise).shuffled(kotlin.random.Random(0))
   return TfmEngine.newGame(preparedPremise.copy(drawOrder = deck)).also { game ->
     val agents = Agents(game) { EAGER }
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.transact {
+      agents.world
+          .actorEngine(ADMIN)
+          .addTasks(
+              InstructionGroup.of(Parsing.parse<InstructionTree>("SetupPhase FROM BootstrapPhase!"))
+          )
+    }
     val players = game.actors.filterIsInstance<Player>()
     if (playerCount == 1) {
       agents[players.first()].doTask("-SelectedColonyTile<Class<${colonies.first()}>>")

@@ -4,7 +4,7 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.engine.World
-import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Player
 
 private var retainedAgents: Agents? = null
 
@@ -20,4 +20,4 @@ internal fun World.testAgents(): Agents {
 }
 
 /** Test-only seam for obtaining this World's retained Agent for [actor]. */
-internal fun World.testAgent(actor: Actor): Agent = testAgents()[actor]
+internal fun World.testAgent(actor: Player): Agent = testAgents()[actor]

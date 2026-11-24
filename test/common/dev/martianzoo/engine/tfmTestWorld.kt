@@ -3,6 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
@@ -10,7 +11,6 @@ import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -49,10 +49,13 @@ internal fun setUpGame(premise: GamePremise = canonicalPremise()): Agents {
   val agents = Agents(world) { NONE }
   val players = world.actors.filterIsInstance<Player>()
   // Keep the test in setup rather than following FINALLY into the corporation phase.
-  agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
-  world.tasks.extract { it }.filter { it.deferred }.forEach { agents[it.assignee].dropTask(it.id) }
+  agents.runSystem("SetupPhase FROM BootstrapPhase")
+  world.tasks
+      .extract { it }
+      .filter { it.deferred }
+      .forEach { world.actorEngine(it.assignee).dropTask(it.id) }
   players.forEach { agents[it].autoExecPolicy = EAGER }
-  agents[ADMIN].autoExecNow()
+  agents.transact()
   players.forEach { player ->
     val agent = agents[player]
     val offered = agent.count("ProjectCard<Selecting>")

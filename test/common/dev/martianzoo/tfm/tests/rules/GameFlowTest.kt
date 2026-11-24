@@ -1,15 +1,19 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.*
+import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
@@ -31,7 +35,7 @@ internal class GameFlowTest : TfmGameplayTest() {
           )
       )
       val player = agents[PLAYER1]
-      admin.beginOperation("SetupPhase FROM BootstrapPhase")
+      agents.runSystem("SetupPhase FROM BootstrapPhase")
       player.doTasks("14 TerraformRating", "10 ProjectCard<Selecting>")
       player.assertCounts(
           14 to "TerraformRating",
@@ -78,7 +82,7 @@ internal class GameFlowTest : TfmGameplayTest() {
     val p1 = agents[PLAYER1]
     val p2 = agents[PLAYER2]
 
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
     p1.assertCounts(
         0 to "BeginnerCard",
         0 to "CorporationCard",
@@ -172,7 +176,7 @@ internal class GameFlowTest : TfmGameplayTest() {
     val p1 = agents[PLAYER1]
     val p2 = agents[PLAYER2]
 
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
     listOf(p1, p2).forEach { player ->
       // Select the setup alternatives before narrowing the chosen starting path.
       player.selectTask("BeginnerOption OR StandardOption")
@@ -219,7 +223,7 @@ internal class GameFlowTest : TfmGameplayTest() {
     initializeGame(Canon.gamePremise(GameConfig("PreludeExpansion", "Player1", "Player2")))
     val p1 = agents[PLAYER1]
     val p2 = agents[PLAYER2]
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
     p1.assertCounts(
         1 to "StandardOption",
         0 to "CorporationCard",
@@ -245,7 +249,9 @@ internal class GameFlowTest : TfmGameplayTest() {
       )
     }
 
-    shouldThrow<TaskException> { admin.doTask("-2 PreludeCard<Player1>") }
+    shouldThrow<TaskException> {
+      game.actorEngine(ADMIN).doTask(Parsing.parse<InstructionTree>("-2 PreludeCard<Player1>"))
+    }
     p1.doTask("-2 PreludeCard")
     p2.doTask("-2 PreludeCard")
 
@@ -275,7 +281,7 @@ internal class GameFlowTest : TfmGameplayTest() {
     )
     val players = listOf(agents[PLAYER1], agents[PLAYER2])
 
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
     players.forEach { player ->
       player.doTasks(
           "3 CorporationCard",
@@ -406,7 +412,7 @@ internal class GameFlowTest : TfmGameplayTest() {
 
       agents[PLAYER1].exMachina("20 MC")
       agents[PLAYER2].exMachina("20 MC")
-      agents[ADMIN].beginOperation("ResearchPhase FROM Phase")
+      agents.runSystem("ResearchPhase FROM Phase")
 
       // The client finishes each Player's choice and payment before starting the next purchase.
       agents[PLAYER2].doTasks(

@@ -7,9 +7,9 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.soloTileSetup
@@ -54,9 +54,19 @@ public open class BusyPreludePhaseBenchmark {
         )
     val agents = Agents(game) { EAGER }
     me = agents[PLAYER1]
-    val admin = agents[ADMIN]
+    val admin = agents.world.reader
 
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.transact {
+      game
+          .actorEngine(dev.martianzoo.state.Actor.ADMIN)
+          .addTasks(
+              dev.martianzoo.pets.ast.InstructionGroup.of(
+                  dev.martianzoo.pets.Parsing.parse<dev.martianzoo.pets.ast.InstructionTree>(
+                      "SetupPhase FROM BootstrapPhase!"
+                  )
+              )
+          )
+    }
     me.doTask("Ok") // Keep all ten starting projects.
     me.doTask("-SelectedColonyTile<Class<Ceres>>")
     check(admin.count("CorporationPhase") == 1) {

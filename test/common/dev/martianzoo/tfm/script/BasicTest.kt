@@ -11,12 +11,12 @@ internal class BasicTest {
     session.newGame("BT", 2)
     assertTrue(session.game.reader.drawOrder.size > 2)
     assertEquals(session.game.reader.drawOrder.size, session.game.reader.drawOrder.toSet().size)
-    assertEquals(2, session.agent.count("GlobalEventDrawn"))
+    assertEquals(2, session.count("GlobalEventDrawn"))
 
     session.newGame("TurmoilExpansion", listOf("Kim", "Stan"))
     assertTrue(session.game.reader.drawOrder.size > 2)
     assertEquals(session.game.reader.drawOrder.size, session.game.reader.drawOrder.toSet().size)
-    assertEquals(2, session.agent.count("GlobalEventDrawn"))
+    assertEquals(2, session.count("GlobalEventDrawn"))
   }
 
   @Test
@@ -25,8 +25,8 @@ internal class BasicTest {
     val response = session.command("newgame \"TerraformingMars, ElysiumMap\" Me purple")
     assertEquals("Me", session.playerSnapshot().playerName, response.joinToString("\n"))
     assertEquals(ScriptSession.ScriptMode.PURPLE, session.mode)
-    assertEquals(2, session.agent.count("CityTile<SoloOpponent>"))
-    assertEquals(2, session.agent.count("GreeneryTile<SoloOpponent>"))
+    assertEquals(2, session.count("CityTile<SoloOpponent>"))
+    assertEquals(2, session.count("GreeneryTile<SoloOpponent>"))
   }
 
   @Test
@@ -43,8 +43,8 @@ internal class BasicTest {
 
     val created = session.command("newgame B 1")
     assertEquals("Me", session.playerSnapshot().playerName, created.joinToString("\n"))
-    assertEquals(2, session.agent.count("CityTile<SoloOpponent>"))
-    assertEquals(2, session.agent.count("GreeneryTile<SoloOpponent>"))
+    assertEquals(2, session.count("CityTile<SoloOpponent>"))
+    assertEquals(2, session.count("GreeneryTile<SoloOpponent>"))
 
     session.command("newgame \"\" Blue Yellow")
     assertEquals("Blue", session.playerSnapshot().playerName)

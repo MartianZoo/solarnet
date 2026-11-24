@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.tests
 
-import dev.martianzoo.agent.AgentInputRequiredException
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.engine.InputRequiredException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -80,7 +81,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun aStoredCardCanBePlayedDirectlyFromItsTrackedStagingLocation() {
     val (tracking, player) = newTrackedGame("$SelfReplicatingRobots")
     val agent = agents[player].also { it.autoExecPolicy = NONE }
-    admin.runOperation("Generation")
+    agents.runSystem("Generation")
     agent.runOperation("$SelfReplicatingRobots, 2 MC")
     tracking.expectArrivals(player, Mine)
     agent.runOperation("ProjectCard")
@@ -122,7 +123,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
   internal fun stagingIdentifiesWhichCardLeftTheTrackedHand() {
     val (tracking, player) = newTrackedGame("$SelfReplicatingRobots")
     val agent = agents[player].also { it.autoExecPolicy = NONE }
-    admin.runOperation("Generation")
+    agents.runSystem("Generation")
     agent.runOperation("$SelfReplicatingRobots, 2 MC")
     tracking.expectArrivals(player, Mine, TitaniumMine)
     agent.runOperation("ProjectCard")
@@ -180,7 +181,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     val (holder, attacker) = game.actors.filterIsInstance<Player>()
     val tracking = CardTracking.start(agents)
-    admin.runOperation("Generation")
+    agents.runSystem("Generation")
     agents[attacker].runOperation("3 MC")
     agents[holder].runOperation("ProductionWasAttacked<$holder, Class<Energy>, $attacker>")
     tracking.expectArrivals(holder, LawSuit)
@@ -511,7 +512,7 @@ internal class CardTrackingTest : TfmSandboxTest() {
     agent.runOperation("2 ProjectCard<Selecting>")
     val before = game.events.nextOrdinal
 
-    shouldThrow<AgentInputRequiredException> { agent.runOperation("-ProjectCard<Selecting>") }
+    shouldThrow<InputRequiredException> { agent.runOperation("-ProjectCard<Selecting>") }
     tracking.expectArrivals(player, MicroMills)
     shouldThrow<IllegalStateException> {
       agent.runOperation("ProjectCard<Hand FROM Selecting>")

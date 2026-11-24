@@ -297,16 +297,6 @@ a Solarnet defect. Preserve that uncertainty without treating it as a migration 
 
 ## Engine contract investigations
 
-- Make mandatory Admin processing inseparable from Player task execution, rather than requiring
-  callers such as `AgentImpl.combineAmounts` to remember `runAdmin()` between raw engine calls.
-  Deferred at the user's request. Investigate engine task execution as the owner, including
-  whether direct `ActorEngine` calls should also finish Admin work automatically. Preserve selected-Player priority,
-  failure rollback, and the distinction between executing a task and probing its interpretation.
-  The current loop also retries Agent application-input failures (`AdminInputTest`), so moving it
-  requires an explicit treatment of that session-owned validation. Remove superseded scheduling
-  calls rather than adding another optional wrapper. Verify the combined-TR case and the shared
-  task-execution behavior once the ownership change is implemented.
-
 [ENGINE_CONTRACT.md](docs/agents/ENGINE_CONTRACT.md) describes current behavior and keeps potential
 further work in its appendix. [Implementation evidence](docs/agents/ENGINE_TRANSITION_RESULTS.md)
 preserves the retired transition plan's useful decisions and experiments. Whole-action planning,

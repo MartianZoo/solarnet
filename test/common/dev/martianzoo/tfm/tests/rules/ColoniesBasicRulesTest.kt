@@ -1,12 +1,15 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -90,7 +93,7 @@ internal class ColoniesBasicRulesTest : TfmSandboxTest() {
     solo.autoExecPolicy = NONE
 
     admin.assertCounts(0 to "ColonyTile", 4 to "SelectedColonyTile")
-    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
     solo.doTask("-SelectedColonyTile<Class<Luna>>")
     admin.assertCounts(
         0 to "ColonyTile",
@@ -145,7 +148,7 @@ internal class ColoniesBasicRulesTest : TfmSandboxTest() {
   @Test
   internal fun `build a colony`() {
     setUp()
-    admin.exMachina("-ColonyProduction<Luna>")
+    agents.correct("-ColonyProduction<Luna>")
     admin.assertCounts(0 to "ColonyProduction<Luna>")
 
     kim.inTurn {
@@ -167,7 +170,7 @@ internal class ColoniesBasicRulesTest : TfmSandboxTest() {
   @Test
   internal fun `three colonies max`() {
     setUp()
-    admin.exMachina("Colony<Kim, Luna>, Colony<Stan, Luna>, Colony<Rob, Luna>")
+    agents.correct("Colony<Kim, Luna>, Colony<Stan, Luna>, Colony<Rob, Luna>")
     shouldThrow<LimitsException> {
       players[3].inTurn {
         doTasks(*standardProjectTasks("BuildColonyProject"), "17 Pay<> FROM MC", "Colony<Luna>")
@@ -203,9 +206,7 @@ internal class ColoniesBasicRulesTest : TfmSandboxTest() {
   @Test
   internal fun `basic trading`() {
     setUp()
-    admin.exMachina(
-        "5 ColonyProduction<Luna>, Colony<Kim, Luna>, Colony<Stan, Luna>, 3 Energy<Kim>"
-    )
+    agents.correct("5 ColonyProduction<Luna>, Colony<Kim, Luna>, Colony<Stan, Luna>, 3 Energy<Kim>")
     kim.assertCounts(6 to "ColonyProduction<Luna>")
     kim.inTurn {
       doTasks(
@@ -233,8 +234,8 @@ internal class ColoniesBasicRulesTest : TfmSandboxTest() {
 
     // When the generation ends, the recorded trades clear and all white markers move 1 step up the
     // Colony track. The players' trade-fleet capacities remain.
-    admin.runOperation("AdvanceColonyTracks")
-    admin.runOperation("Generation")
+    agents.runSystem("AdvanceColonyTracks")
+    agents.runSystem("Generation")
     admin.assertCounts(
         0 to "Trade",
         4 to "TradeFleet",
@@ -245,9 +246,9 @@ internal class ColoniesBasicRulesTest : TfmSandboxTest() {
   @Test
   internal fun `colony production leaves a maximum track at maximum`() {
     setUp()
-    admin.runOperation("5 ColonyProduction<Luna>")
+    agents.runSystem("5 ColonyProduction<Luna>")
 
-    admin.runOperation("AdvanceColonyTracks")
+    agents.runSystem("AdvanceColonyTracks")
 
     admin.count("ColonyProduction<Luna>") shouldBe 6
   }

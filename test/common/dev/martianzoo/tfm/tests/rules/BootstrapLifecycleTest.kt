@@ -2,12 +2,13 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.withTestSoloSetup
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
@@ -27,9 +28,9 @@ internal class BootstrapLifecycleTest {
     val agents = Agents(game) { NONE }
     val p1 = agents[PLAYER1]
     val p2 = agents[PLAYER2]
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
 
-    val admin = agents[ADMIN]
+    val admin = agents.world.reader
     admin.count("BootstrapPhase") shouldBe 0
     admin.count("SetupPhase") shouldBe 1
     admin.count("Generation") shouldBe 1
@@ -47,11 +48,11 @@ internal class BootstrapLifecycleTest {
     val game = TfmEngine.newGame(canonicalPremise(players = 1))
     val agents = Agents(game) { NONE }
     val player = agents[PLAYER1]
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
 
-    agents[ADMIN].count("TerraformRating<Player1>") shouldBe 0
+    agents.world.reader.count("TerraformRating<Player1>") shouldBe 0
     player.doTask("14 TerraformRating")
-    agents[ADMIN].count("TerraformRating<Player1>") shouldBe 14
+    agents.world.reader.count("TerraformRating<Player1>") shouldBe 14
   }
 
   @Test
@@ -84,13 +85,13 @@ internal class BootstrapLifecycleTest {
             )
         )
     val agents = Agents(game) { NONE }
-    val admin = agents[ADMIN]
+    val admin = agents.world.reader
     val player = agents[PLAYER1]
 
     admin.count("SelectedColonyTile") shouldBe 4
     admin.count("SoloColoniesSetup") shouldBe 0
 
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
 
     admin.count("SoloColoniesSetup") shouldBe 1
     player.doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
@@ -108,13 +109,13 @@ internal class BootstrapLifecycleTest {
         )
     val game = TfmEngine.newGame(premise)
     val agents = Agents(game) { NONE }
-    val admin = agents[ADMIN]
+    val admin = agents.world.reader
 
     admin.count("SelectedColonyTile") shouldBe 2
     admin.count("Callisto") shouldBe 0
     admin.count("DelayedEnceladus") shouldBe 0
 
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
     admin.count("SelectedColonyTile") shouldBe 2
 
     for (player in listOf(PLAYER1, PLAYER2)) {
@@ -137,8 +138,8 @@ internal class BootstrapLifecycleTest {
   internal fun setupWaitsForStartingProjectSelection() {
     val game = TfmEngine.newGame(canonicalPremise(PreludeExpansion))
     val agents = Agents(game) { NONE }
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
-    val admin = agents[ADMIN]
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
+    val admin = agents.world.reader
     val p1 = agents[PLAYER1]
     for (player in listOf(PLAYER1, PLAYER2)) {
       agents[player].doTasks(
@@ -173,9 +174,9 @@ internal class BootstrapLifecycleTest {
     val setup = canonicalPremise(players = 1)
     val game = TfmEngine.newGame(setup)
     val agents = Agents(game) { NONE }
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
 
-    val admin = agents[ADMIN]
+    val admin = agents.world.reader
     admin.count("SetupPhase") shouldBe 1
     admin.count("CorporationPhase") shouldBe 0
     admin.count("Generation") shouldBe 1

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -20,7 +21,7 @@ internal class EventAnalystsTest : TfmGameplayTest() {
             "Chairman<Kim> FROM Chairman<Neutral>, " +
             "PartyLeader<Scientists> FROM PartyLeader<Scientists, Neutral>, 3 PartyFollower<Scientists>"
     )
-    admin.exMachina(
+    agents.correct(
         "$DemocraticReform, Current<$DemocraticReform>, " +
             "PendingGlobalEffect<Current<$DemocraticReform>, Class<AquiferReleasedByPublicCouncil>>"
     )

@@ -15,9 +15,10 @@ import dev.martianzoo.state.TaskQueue
  * independent record and [actorEngine] for Actor-attributed gameplay.
  *
  * The [intended interaction contract](../../../../../docs/agents/ENGINE_CONTRACT.md) assigns each
- * raw engine request its immediate consequences and invariant checks. Resulting Admin tasks belong
- * to later transactions submitted by the caller. Agent calls handle that subsequent work and report
- * their retained changes. General transaction-success uniqueness remains transition work.
+ * raw engine request its immediate consequences and invariant checks. Eligible Admin tasks run
+ * automatically in subsequent transactions before return. Session calls supply optional Player
+ * handling and external-input checks, and report their retained changes. General
+ * transaction-success uniqueness remains transition work.
  */
 public interface World {
   /** Participating Actors: configured Players in seat order, followed by Admin. */

@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DomainException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.standardProjectTasks
 import io.kotest.assertions.throwables.shouldThrow

@@ -2,14 +2,17 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -20,8 +23,8 @@ internal class TaskDelegationTest {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN)
-    admin.runOperation("Observer")
+    val admin = game.testAgents()
+    admin.runSystem("Observer")
 
     p1.beginOperation("ConcreteReactor<Player2>") {
       val reaction = game.tasks.extract { it }.single()
@@ -148,7 +151,7 @@ internal class TaskDelegationTest {
   internal fun systemBookkeepingReturnsItsQueuedChoiceToTheOriginalPlayer() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    game.testAgent(ADMIN)
+    game.testAgents()
 
     p1.beginOperation("UnownedSystemRequest<Player1>")
 
@@ -161,7 +164,7 @@ internal class TaskDelegationTest {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    game.testAgent(ADMIN)
+    game.testAgents()
 
     p1.beginOperation("Player2SystemSource")
 
@@ -193,7 +196,7 @@ internal class TaskDelegationTest {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    game.testAgent(ADMIN).runOperation("Observer")
+    game.testAgents().runSystem("Observer")
     p2.addTasks("SOON Player1 { Spare<Player1> } THEN Result<Player2>")
 
     p1.doTask("NOW Player2 { SOON Player1 { Spare<Player1> } }")
@@ -274,5 +277,5 @@ internal class TaskDelegationTest {
                   players = 2,
               )
           )
-          .also { it.testAgent(ADMIN).exMachina("Turn<Player1>") }
+          .also { it.testAgents().correct("Turn<Player1>") }
 }

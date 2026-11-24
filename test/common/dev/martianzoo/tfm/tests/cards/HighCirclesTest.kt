@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -78,7 +79,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
       )
       // The card's play and the earlier election are incidental to its continuing influence.
       kim.exMachina("$HighCircles, Chairman<Kim> FROM Chairman<Neutral>")
-      admin.exMachina(
+      agents.correct(
           "$DemocraticReform, Current<$DemocraticReform>, " +
               "PendingGlobalEffect<Current<$DemocraticReform>, Class<AquiferReleasedByPublicCouncil>>"
       )

@@ -21,7 +21,7 @@ internal class HasCommand(private val repl: ScriptSession) : ScriptCommand("has"
       context.petsWords(PetsCompletionRoot.REQUIREMENT)
 
   override fun withArgs(args: String): List<String> {
-    val result = repl.agent.has(args)
-    return listOf("$result: ${repl.agent.parse<Requirement>(args)}")
+    val result = repl.has(args)
+    return listOf("$result: ${repl.parse<Requirement>(args)}")
   }
 }

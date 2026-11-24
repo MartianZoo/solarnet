@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -31,7 +33,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         firstGlobalEvents =
             listOf("$FreeAcademiaTreaty", "$ExploreFirstDirective", "$MoralMovement"),
     )
-    admin.exMachina(
+    agents.correct(
         "$DemocraticReform, Current<$DemocraticReform>, " +
             "PendingGlobalEffect<Current<$DemocraticReform>, Class<AquiferReleasedByPublicCouncil>>"
     )
@@ -256,7 +258,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   internal fun `Strong Society pays only for owned cities`() {
     prepareEvent("$MoralMovement", "StrongSociety")
     kim.exMachina("NormalCityTile<Tharsis_3_3>, NormalCityTile<Tharsis_8_8>")
-    admin.exMachina("NormalCityTile<Tharsis_6_4, Neutral>")
+    agents.correct("NormalCityTile<Tharsis_6_4, Neutral>")
     kim.doTask("Pass")
     stan.doTask("Pass")
     players.forEach { it.doTask("20 MC") }
@@ -439,7 +441,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   internal fun `Mud Slides counts each coastal tile once even beside two oceans`() {
     prepareEvent("$ThawMining", "MudSlides")
     kim.exMachina("NormalCityTile<Tharsis_4_4>, GreeneryTile<Tharsis_4_5>")
-    admin.exMachina("OceanTile<Tharsis_5_4>, OceanTile<Tharsis_5_5>")
+    agents.correct("OceanTile<Tharsis_5_4>, OceanTile<Tharsis_5_5>")
     kim.doTask("Pass")
     stan.doTask("Pass")
     players.forEach { it.doTask("20 MC") }
@@ -744,7 +746,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Snow Cover cannot lower a completed temperature track`() {
     prepareEvent("$MoholeLakeGlobalEvent", "SnowCover")
-    admin.exMachina("19 TemperatureStep")
+    agents.correct("19 TemperatureStep")
     // Leading Mars First and having another delegate supply two influence.
     kim.exMachina(
         "PartyLeader<MarsFirst> FROM PartyLeader<MarsFirst, Neutral>, 4 PartyFollower<MarsFirst>"
@@ -785,7 +787,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Volcanic Eruptions lets the first player place the threshold ocean for Admin`() {
     prepareEvent("$PateraBoring", "VolcanicEruptions")
-    admin.exMachina("13 TemperatureStep")
+    agents.correct("13 TemperatureStep")
     kim.doTask("Pass")
     stan.doTask("Pass")
     players.forEach { it.doTask("20 MC") }
@@ -833,7 +835,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         firstGlobalEvents =
             listOf("$DemocraticReform", "$FreeAcademiaTreaty", "$ExploreFirstDirective"),
     )
-    admin.exMachina(
+    agents.correct(
         "OceanTile<Tharsis_1_2>, $MinimalImpactPolicy, Current<$MinimalImpactPolicy>, " +
             "PendingGlobalEffect<Current<$MinimalImpactPolicy>, Class<DryDeserts>>"
     )
@@ -867,7 +869,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         "Chairman<Kim> FROM Chairman<Neutral>, PartyLeader<Scientists>, 5 PartyFollower<Scientists>"
     )
     stan.exMachina("6 PartyFollower<Scientists>")
-    admin.exMachina(
+    agents.correct(
         "4 PartyFollower<MarsFirst, Neutral>, 4 PartyFollower<Reds, Neutral>, " +
             "PartyLeader<Unity, Neutral>, 3 PartyFollower<Unity, Neutral>"
     )
@@ -979,6 +981,6 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
             listOf("$DemocraticReform", "$MinimalImpactPolicy", "$ExperimentalLifeforms"),
     )
     // Earlier reveals and their unrelated effects are incidental to these focused event tests.
-    admin.exMachina("$event, Current<$event>, PendingGlobalEffect<Current<$event>, Class<$effect>>")
+    agents.correct("$event, Current<$event>, PendingGlobalEffect<Current<$event>, Class<$effect>>")
   }
 }

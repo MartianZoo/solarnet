@@ -2,11 +2,13 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.testsupport.count
+import dev.martianzoo.testsupport.list
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.soloTileSetup
 import dev.martianzoo.tfm.engine.GameArchiveExporter
@@ -25,16 +27,16 @@ internal class SoloPremiseTest {
     val premise = soloTileSetup(Canon.gamePremise(config), locations)
     val agents = Agents(TfmEngine.newGame(premise)) { NONE }
 
-    agents[ADMIN].beginOperation("SetupPhase FROM BootstrapPhase")
+    agents.runSystem("SetupPhase FROM BootstrapPhase")
 
-    val admin = agents[ADMIN]
+    val admin = agents.world.reader
     admin.count("CityTile<Tharsis_4_1, SoloOpponent>") shouldBe 1
     admin.count("GreeneryTile<Tharsis_5_1, SoloOpponent>") shouldBe 1
     admin.count("CityTile<Tharsis_2_2, SoloOpponent>") shouldBe 1
     admin.count("GreeneryTile<Tharsis_2_3, SoloOpponent>") shouldBe 1
     val text = GameArchiveExporter(agents.world.recording(), config).export()
     val replay = GameArchiveImporter(text).also { it.run() }.agents
-    replay[ADMIN].list("Component").entries shouldBe admin.list("Component").entries
+    replay.world.reader.list("Component").entries shouldBe admin.list("Component").entries
   }
 
   @Test

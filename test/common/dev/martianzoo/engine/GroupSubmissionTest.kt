@@ -43,20 +43,17 @@ internal class GroupSubmissionTest {
   }
 
   @Test
-  fun submittedGroupLeavesAdminMembersForLaterTransactions() {
+  fun submittedGroupFinishesAdminMembersAndTheirMandatoryConsequences() {
     engine.addTasks(
         InstructionGroup.of(parse<InstructionTree>("(First! BY Admin, Second!) OR Other!"))
     )
 
     engine.doTask(parse<InstructionTree>("First! BY Admin, Second!"))
 
-    world.reader.count(parse<Metric>("First")) shouldBe 0
-    world.reader.count(parse<Metric>("Second")) shouldBe 1
-    world.reader.count(parse<Metric>("Reaction")) shouldBe 0
-    val admin = world.actorEngine(ADMIN)
-    admin.doTask(admin.tasks.ids().single())
     world.reader.count(parse<Metric>("First")) shouldBe 1
-    world.reader.count(parse<Metric>("Reaction")) shouldBe 0
+    world.reader.count(parse<Metric>("Second")) shouldBe 1
+    world.reader.count(parse<Metric>("Reaction")) shouldBe 1
+    world.actorEngine(ADMIN).tasks.isEmpty() shouldBe true
   }
 
   @Test

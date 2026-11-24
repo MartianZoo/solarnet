@@ -21,8 +21,8 @@ internal class CountCommand(private val repl: ScriptSession) : ScriptCommand("co
       context.petsWords(PetsCompletionRoot.METRIC)
 
   override fun withArgs(args: String): List<String> {
-    val metric: Metric = repl.agent.parse(args)
-    val count = repl.agent.count(args)
+    val metric: Metric = repl.parse(args)
+    val count = repl.count(args)
     return listOf("$count $metric")
   }
 }

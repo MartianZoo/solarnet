@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -24,7 +26,7 @@ internal class VolcanicEruptionsTest : TfmGameplayTest() {
   @Test
   fun `First player chooses the threshold ocean location without earning terraforming credit`() {
     // The event's two temperature steps will cross the ocean threshold.
-    admin.exMachina("13 TemperatureStep")
+    agents.correct("13 TemperatureStep")
     stan.doTask("Pass")
     kim.doTask("Pass")
     players.forEach { it.doTask("19 MC") }

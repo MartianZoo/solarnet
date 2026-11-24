@@ -1,8 +1,9 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.testsupport.count
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -24,35 +25,35 @@ internal class ReflexiveTransmutationTest {
               players = 0,
           )
       )
-  private val admin = Agents(game)[ADMIN]
+  private val admin = Agents(game)
 
   @Test
   internal fun concreteSelfTransmutationIsRejectedWithoutFiringEffects() {
-    admin.runOperation("Token")
-    shouldThrow<ExpressionException> { admin.runOperation("Token FROM Token") }
-    admin.count("Token") shouldBe 1
-    admin.count("Gained") shouldBe 1
-    admin.count("Removed") shouldBe 0
+    admin.runSystem("Token")
+    shouldThrow<ExpressionException> { admin.runSystem("Token FROM Token") }
+    admin.world.reader.count("Token") shouldBe 1
+    admin.world.reader.count("Gained") shouldBe 1
+    admin.world.reader.count("Removed") shouldBe 0
   }
 
   @Test
   internal fun optionalSelfTransmutationIsInvalidEvenWhenItCouldBeDeclined() {
-    admin.runOperation("Token")
-    shouldThrow<ExpressionException> { admin.runOperation("Token FROM Token?") }
-    admin.count("Token") shouldBe 1
+    admin.runSystem("Token")
+    shouldThrow<ExpressionException> { admin.runSystem("Token FROM Token?") }
+    admin.world.reader.count("Token") shouldBe 1
   }
 
   @Test
   internal fun optionalAbstractTransferCanDoNothingWhenOnlySelfIsAvailable() {
-    admin.runOperation("Token")
-    admin.runOperation("Token FROM Thing?")
-    admin.count("Token") shouldBe 1
-    admin.count("Gained") shouldBe 1
-    admin.count("Removed") shouldBe 0
+    admin.runSystem("Token")
+    admin.runSystem("Token FROM Thing?")
+    admin.world.reader.count("Token") shouldBe 1
+    admin.world.reader.count("Gained") shouldBe 1
+    admin.world.reader.count("Removed") shouldBe 0
   }
 
   @Test
   internal fun sharedAbstractVariableCannotTransmuteIntoItself() {
-    shouldThrow<ExpressionException> { admin.runOperation("@Thing FROM @Thing") }
+    shouldThrow<ExpressionException> { admin.runSystem("@Thing FROM @Thing") }
   }
 }

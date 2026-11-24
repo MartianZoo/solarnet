@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -277,7 +279,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       )
       kim.exMachina("PartyLeader<Scientists> FROM PartyLeader<Scientists, Neutral>")
       stan.exMachina("PartyFollower<Scientists>")
-      admin.exMachina(
+      agents.correct(
           "$DemocraticReform, Current<$DemocraticReform>, " +
               "PendingGlobalEffect<Current<$DemocraticReform>, Class<AquiferReleasedByPublicCouncil>>"
       )
@@ -312,7 +314,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
           "Chairman<Kim> FROM Chairman<Neutral>, PartyLeader<Scientists> FROM PartyLeader<Scientists, Neutral>, PartyFollower<Scientists>"
       )
       stan.exMachina("PartyFollower<Scientists>")
-      admin.exMachina(
+      agents.correct(
           "$DemocraticReform, Current<$DemocraticReform>, " +
               "PendingGlobalEffect<Current<$DemocraticReform>, Class<AquiferReleasedByPublicCouncil>>"
       )

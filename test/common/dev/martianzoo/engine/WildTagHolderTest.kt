@@ -1,11 +1,13 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -57,10 +59,10 @@ internal class WildTagHolderTest {
           )
       )
   private val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-  private val admin = game.testAgent(ADMIN)
+  private val admin = game.testAgents()
 
   init {
-    admin.runOperation("ActionScope<Player1>")
+    admin.runSystem("ActionScope<Player1>")
   }
 
   @Test
@@ -79,7 +81,7 @@ internal class WildTagHolderTest {
     player.doTask("CountEarth")
     player.count("Benefit") shouldBe 2
     player.count("EarthTag") shouldBe 2
-    admin.runOperation("-ActionScope<Player1>")
+    admin.runSystem("-ActionScope<Player1>")
     player.count("WildTagElection") shouldBe 0
     player.count("EarthTag") shouldBe 1
     player.count("WildTag") shouldBe 1
@@ -87,7 +89,7 @@ internal class WildTagHolderTest {
     player.addTasks("-EarthTag<PrintedCard>")
     player.doTask("-EarthTag<PrintedCard>")
     player.count("RemovedPrintedReward") shouldBe 1
-    admin.runOperation("ActionScope<Player1>")
+    admin.runSystem("ActionScope<Player1>")
     player.addTasks("ScienceTag<WildTagElection<WildTag<FirstCard>>>, CountEarth")
     player.doTask("ScienceTag<WildTagElection<WildTag<FirstCard>>>")
     player.count("ScienceTag<WildTagElection<WildTag<FirstCard>>>") shouldBe 1
@@ -122,7 +124,7 @@ internal class WildTagHolderTest {
     player.doTask("Benefit")
     player.count("Benefit") shouldBe 1
     player.count("Tag<WildTagElection<WildTag>>") shouldBe 2
-    admin.runOperation("-ActionScope<Player1>")
+    admin.runSystem("-ActionScope<Player1>")
     player.count("Tag<WildTagElection<WildTag>>") shouldBe 0
   }
 

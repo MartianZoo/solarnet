@@ -2,7 +2,10 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.correct
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.PetElaborator
@@ -10,8 +13,11 @@ import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
+import dev.martianzoo.state.Player
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
+import dev.martianzoo.testsupport.resolve
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
@@ -44,23 +50,29 @@ internal class ByTriggerCharacterizationTest {
 
   private fun assertByAnyone(actor: Actor) {
     val game = newGame()
-    val agent = game.testAgent(actor).also { it.autoExecPolicy = EAGER }
-    agent.runOperation("AnyoneTriggerProbe!")
-
-    agent.runOperation("ActorTriggerSignal!")
-
-    agent.count("Plant<Player1>") shouldBe 1
-    agent.count("Steel<Player1>") shouldBe 1
+    if (actor == ADMIN) {
+      game.testAgents().runSystem("AnyoneTriggerProbe!")
+      game.testAgents().runSystem("ActorTriggerSignal!")
+    } else {
+      val agent = game.testAgent(actor as Player)
+      agent.runOperation("AnyoneTriggerProbe!")
+      agent.runOperation("ActorTriggerSignal!")
+    }
+    game.reader.count("Plant<Player1>") shouldBe 1
+    game.reader.count("Steel<Player1>") shouldBe 1
   }
 
   private fun assertByActor(actor: Actor) {
     val game = newGame()
-    val agent = game.testAgent(actor).also { if (actor != ADMIN) it.autoExecPolicy = NONE }
-    agent.exMachina("ActorTriggerProbe!")
+    if (actor == ADMIN) game.testAgents().correct("ActorTriggerProbe!")
+    else game.testAgent(actor as Player).exMachina("ActorTriggerProbe!")
     val before = game.events.nextOrdinal
-
-    agent.beginOperation("ActorTriggerSignal!") {}
-
+    if (actor == ADMIN) game.testAgents().runSystem("ActorTriggerSignal!")
+    else
+        game
+            .testAgent(actor as Player)
+            .also { it.autoExecPolicy = NONE }
+            .beginOperation("ActorTriggerSignal!")
     // Read the task as it was created: Admin performs its own work, so waiting to see it pending
     // would only observe whether its assignee happens to be automatic. A cause marks the triggered
     // consequence, as against the operation's own initiating task.
@@ -131,10 +143,10 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerRejectsAdmin() {
     val game = newGame()
-    val admin = game.testAgent(ADMIN)
-    admin.exMachina("ActorTriggerProbe!, ActorTriggerSignal!")
+    val admin = game.testAgents()
+    admin.correct("ActorTriggerProbe!, ActorTriggerSignal!")
 
-    admin.beginOperation("-ActorTriggerSignal!")
+    admin.runSystem("-ActorTriggerSignal!")
 
     game.tasks.isEmpty() shouldBe true
   }
@@ -222,10 +234,10 @@ internal class ByTriggerCharacterizationTest {
   internal fun systemMakesAnOwnedComponentsSubscriptionTableWide() {
     val game = newGame()
     val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     owner.exMachina("SystemTriggerProbe<Player1>!")
 
-    admin.beginOperation("SystemTriggerSignal!")
+    admin.runSystem("SystemTriggerSignal!")
     owner.autoExecPolicy = EAGER
 
     owner.count("Plant<Player1>") shouldBe 1
@@ -236,11 +248,11 @@ internal class ByTriggerCharacterizationTest {
     val game = newGame()
     val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val other = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN)
+    val admin = game.testAgents()
     owner.exMachina("OpponentByProbe<Player1>!")
 
     owner.runOperation("ActorTriggerSignal!")
-    admin.runOperation("ActorTriggerSignal!")
+    admin.runSystem("ActorTriggerSignal!")
     game.tasks.isEmpty() shouldBe true
 
     other.beginOperation("ActorTriggerSignal!") {

@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -101,8 +103,8 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
     )
     admin.count("Delegate<Neutral>") shouldBe 13
 
-    admin
-        .runOperation("RevealDistantEvent")
+    agents
+        .runSystem("RevealDistantEvent")
         .expect("Delegate<Neutral>, -PartyLeader<Greens, Kim>, PartyFollower<Greens, Kim>")
     admin.count("Delegate<Neutral>") shouldBe 14
   }
@@ -117,7 +119,7 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
     kim.exMachina("11 PartyFollower<MarsFirst, Neutral>")
     admin.count("Delegate<Neutral>") shouldBe 14
 
-    admin.runOperation("ChangingTimes").expect("0 Delegate<Neutral>")
+    agents.runSystem("ChangingTimes").expect("0 Delegate<Neutral>")
     admin.count("Current<$DemocraticReform>") shouldBe 1
     admin.count("Coming<$MinimalImpactPolicy>") shouldBe 1
     admin.count("Distant<$ExperimentalLifeforms>") shouldBe 1
@@ -128,8 +130,8 @@ internal class TurmoilDelegatesTest : TfmSandboxTest() {
     newTestGame("TurmoilExpansion")
     kim.exMachina("8 PartyFollower<MarsFirst, Neutral>, PartyFollower<MarsFirst>")
 
-    admin
-        .runOperation("FormGovernment")
+    agents
+        .runSystem("FormGovernment")
         .expect(
             "-9 PartyDelegate<MarsFirst, Neutral>, -PartyFollower<MarsFirst, Kim>, 0 PartyDelegate<Reds, Neutral>"
         )

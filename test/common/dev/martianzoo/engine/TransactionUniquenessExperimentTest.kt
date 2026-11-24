@@ -11,7 +11,6 @@ import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmEngine
@@ -223,12 +222,16 @@ internal class TransactionUniquenessExperimentTest {
       ) { world ->
         val agent = Agents(world)[PLAYER1].also { it.autoExecPolicy = NONE }
         val id = agent.addTasks("Choice!").single()
-        world.actorEngine(PLAYER1).doTask(parse<InstructionTree>("Choice!"), taskId = id)
-        agent.count("Allowed") shouldBe 1
-        val admin = world.actorEngine(ADMIN)
-        shouldThrow<LimitsException> { admin.doTask(admin.tasks.ids().single()) }
-        agent.count("Allowed") shouldBe 1
+        val engine = world.actorEngine(PLAYER1)
+        val before = world.events.nextOrdinal
+        engine.canSelectTask(id) shouldBe true
+        shouldThrow<LimitsException> {
+          engine.doTask(parse<InstructionTree>("Choice!"), taskId = id)
+        }
+        world.events.nextOrdinal shouldBe before
+        agent.count("Allowed") shouldBe 0
         agent.count("QueuedFailure") shouldBe 0
+        (id in world.tasks) shouldBe true
       }
 
   @Test

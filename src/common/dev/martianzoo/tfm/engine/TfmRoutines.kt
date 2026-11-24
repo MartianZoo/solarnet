@@ -14,7 +14,6 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.cardBack
@@ -56,7 +55,7 @@ public class TfmRoutines(private val agents: Agents) {
   /** Checks a group label's phase without performing any phase work. */
   internal fun checkPhase(name: String) {
     val phase = phaseGroups.getValue(name)
-    check(agents[ADMIN].has(phase)) { "$name outside $phase" }
+    check(agents.world.reader.has(parse(phase))) { "$name outside $phase" }
   }
 
   private fun prepareAction(agent: Agent) {

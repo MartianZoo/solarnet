@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

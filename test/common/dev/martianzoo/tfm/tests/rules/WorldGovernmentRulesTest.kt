@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cardActionTasks
@@ -213,7 +215,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     internal fun `Solar World Government cannot choose a completed parameter`() {
       newTestGame(playerCount = 2)
       // Start with Venus full; reaching its cap is incidental to rejecting the government choice.
-      admin.exMachina("15 VenusStep")
+      agents.correct("15 VenusStep")
       kim.doTask("Pass")
       stan.doTask("Pass")
       players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
@@ -281,7 +283,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     internal fun `First player places the standard temperature track's threshold ocean`() {
       newTestGame(playerCount = 2)
       // Begin just below the ocean threshold; earlier temperature increases are incidental.
-      admin.exMachina("14 TemperatureStep")
+      agents.correct("14 TemperatureStep")
       kim.doTask("Pass")
       stan.doTask("Pass")
       players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
@@ -295,7 +297,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     internal fun `First player places the extended temperature track's threshold ocean`() {
       newTestGame(addOptions = "AmazonisMap", playerCount = 2)
       // Begin just below the ocean threshold; earlier temperature increases are incidental.
-      admin.exMachina("14 TemperatureStep")
+      agents.correct("14 TemperatureStep")
       kim.doTask("Pass")
       stan.doTask("Pass")
       players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }
@@ -331,7 +333,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     internal fun `Solar World Government currently skips Amazonis Venus colony bonus`() {
       newTestGame(addOptions = "AmazonisMap", playerCount = 2)
       // Begin just below the colony threshold; earlier Venus increases are incidental.
-      admin.exMachina("7 VenusStep")
+      agents.correct("7 VenusStep")
       kim.doTask("Pass")
       stan.doTask("Pass")
       players.forEach { it.doTasks("21 MC", "Steel", "Titanium", "Plant", "Energy", "Heat") }

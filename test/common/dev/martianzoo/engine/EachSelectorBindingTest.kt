@@ -2,9 +2,10 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.agenttestsupport.runSystem
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.testsupport.count
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -27,10 +28,9 @@ internal class EachSelectorBindingTest {
             )
         )
     val agents = Agents(game)
-    val admin = agents[ADMIN]
     val p1 = agents[PLAYER1]
     val p2 = agents[PLAYER2]
-    admin.runOperation("Provider")
+    agents.runSystem("Provider")
     p1.runOperation("RedToken, BlueToken")
     p2.runOperation("RedToken, BlueToken")
 

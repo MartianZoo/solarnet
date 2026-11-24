@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.state.Player
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cardActionTasks

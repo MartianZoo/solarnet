@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.correct
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.testsupport.count
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -17,7 +19,7 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest() {
     kim.exMachina("8 Plant")
     // End with oxygen still low so that the final greenery's lack of an oxygen reward is
     // observable.
-    admin.exMachina(
+    agents.correct(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>"
     )
@@ -41,7 +43,7 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest() {
   internal fun soloLossSkipsFinalGreeneryAndScoring() {
     newTestGame(options, playerCount = 1)
     // Reach the final solo generation without filling the global tracks.
-    admin.exMachina("-13 SoloGenerationsLeft")
+    agents.correct("-13 SoloGenerationsLeft")
     kim.doTask("Pass")
     kim.doTask("14 MC")
 
@@ -66,7 +68,7 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest() {
     // Ecoline starts with three plants and will produce two more: six additional plants make 11.
     kim.exMachina("6 Plant")
     // End this generation without completing the parameters; test the final-greenery conversions.
-    admin.exMachina(
+    agents.correct(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>"
     )
@@ -116,7 +118,7 @@ internal class FinalGreeneryPhaseTest : TfmGameplayTest() {
     // The required greenery's placement and adjacency will bring these eight plants to ten.
     kim.exMachina("8 Plant")
     // End this generation without completing the parameters; test the final-greenery conversions.
-    admin.exMachina(
+    agents.correct(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, -GpGameEndBarrier<Class<OceanTile>>"
     )
