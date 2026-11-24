@@ -217,9 +217,10 @@ internal class OtbGame20260904Test : FullGameTest() {
           "PlayCard<Class<PreludeCard>, Class<$SelfSufficientSettlement>>",
           "PROD[2 MC]",
           "CityTile<Amazonis_04_09>",
-          "Plant",
-          "ProjectCard",
       )
+      // Blue forgets these, then realizes 100 lines down from here and corrects.
+      exMachinaDropTask("Plant")
+      exMachinaDropTask("ProjectCard")
       // 2:20:25 PM — Blue: "get two money product."
       // 2:20:29 PM — Blue: "And, uh, my other prelude is terraforming deal."
       // 2:20:35 PM — Blue: "Each step my TR is raised, I gain two mega credits."
@@ -227,8 +228,6 @@ internal class OtbGame20260904Test : FullGameTest() {
           "PlayCard<Class<PreludeCard>, Class<$TerraformingDeal>>",
       )
     }
-    // Blue forgets these, then realizes 100 lines down from here and corrects.
-    blue.exMachina("-Plant, -ProjectCard")
     with(green) {
       // 2:20:43 PM — Green: "I am first going to play Sweetable Infrastructure."
       // 2:20:56 PM — Green: "I'm going to gain five steel right away."
@@ -248,11 +247,10 @@ internal class OtbGame20260904Test : FullGameTest() {
           "2 TemperatureStep",
           "2 TerraformRating",
           "PROD[Heat]",
-          "2 MC",
       )
+      // I already forgot to get the SuitableInfrastructure bonus!
+      exMachinaDropTask("2 MC")
     }
-    // I already forgot to get the SuitableInfrastructure bonus!
-    green.exMachina("-2 MC")
 
     yellow.turn {
       // board-14-23-07.jpg: Generation 1 action phase, immediately before Space Mirrors.
@@ -1276,11 +1274,10 @@ internal class OtbGame20260904Test : FullGameTest() {
       doTasks(
           *playCardTasks("$DiversitySupport"),
           "1 Pay<> FROM MC",
-          "TerraformRating",
       )
+      // Green forgot to take the TR from Diversity Support, and corrects this later.
+      exMachinaDropTask("TerraformRating")
     }
-    // Green forgot to take the TR from Diversity Support, and corrects this later.
-    green.exMachina("-TerraformRating")
 
     yellow.turn {
       // 3:54:23 PM — Blue: "Okay, nine for Lagange of self with whole hay."
@@ -1352,7 +1349,11 @@ internal class OtbGame20260904Test : FullGameTest() {
           "25 Pay<> FROM MC",
           "TemperatureStep",
           "TemperatureStep",
-          "3 MC",
+      )
+      // The printed card operation includes Media Group's 3 M€ event response, but Rainbow's app
+      // has no corresponding credit in entries 89–98.
+      exMachinaDropTask("3 MC")
+      doTasks(
           "2 TerraformRating",
           // 3:58:46 PM — Green: "Alright, since I have you going on seven, four for two money and
           // two plants."
@@ -1399,10 +1400,6 @@ internal class OtbGame20260904Test : FullGameTest() {
       giveTask(blue, "Hydroelectric<$NeptunianPowerConsultants>")
       doTask("-5 Plant<Yellow>")
     }
-    // The printed card operation includes Media Group's 3 M€ event response, but Rainbow's app has
-    // no
-    // corresponding credit in entries 89–98.
-    rainbow.exMachina("-3 MC")
     // 3:59:44 PM — Rainbow: "Did I pay for that?"
     // 3:59:48 PM — Rainbow: "I'll try it again. 25."
     // 4:00:09 PM — Green: "You you. just literally just skipped paying."
@@ -2243,15 +2240,14 @@ internal class OtbGame20260904Test : FullGameTest() {
           "OxygenStep",
           "TerraformRating",
           "ProjectCard",
-          "2 MC",
       )
+      // Blue's app has no 2 M€ Terraforming Deal response to this greenery's oxygen step:
+      // entry 178 leaves 10 M€, and the 15:57 dashboard plus entry 188 production both leave
+      // 54 M€. Preserve the omitted response at the action that caused it.
+      exMachinaDropTask("2 MC")
       // The same photograph shows two plants at 3-8.
       exMachina("2 Plant")
     }
-    // Blue's app has no 2 M€ Terraforming Deal response to this greenery's oxygen step:
-    // entry 178 leaves 10 M€, and the 15:57 dashboard plus entry 188 production both leave
-    // 54 M€. Preserve the omitted response at the action that caused it.
-    blue.exMachina("-2 MC")
     green.turn {
       // 3:43:13 PM — Green: "I'm going to use my business network. No, better not."
       doTasks(
@@ -3093,10 +3089,9 @@ internal class OtbGame20260904Test : FullGameTest() {
           *playCardTasks("$InterstellarColonyShip"),
           "6 Pay<Class<Titanium>> FROM Titanium",
           "2 Pay<> FROM MC",
-          "3 MC",
       )
       // The app omits Media Group's 3 M€ response to this event.
-      rainbow.exMachina("-3 MC")
+      exMachinaDropTask("3 MC")
     }
     blue.turn {
       // 6:11:32 PM — Rainbow: "Flip it. Rip it, rip it down. Okay, so that's two actions that I am
@@ -3353,10 +3348,9 @@ internal class OtbGame20260904Test : FullGameTest() {
           "GreeneryTile<Amazonis_04_05>",
           "OxygenStep",
           "Plant",
-          "2 MC",
       )
       // The app omits the 2 M€ ocean-adjacency income from this final placement.
-      blue.exMachina("-2 MC")
+      exMachinaDropTask("2 MC")
     }
     green.turn {
       // 9:29:05 PM — Green: "Let's just play earth catapult first, that costs 20"
@@ -3592,12 +3586,11 @@ internal class OtbGame20260904Test : FullGameTest() {
           *playCardTasks("$CorroderSuits"),
           "6 Pay<> FROM MC",
           "PROD[2 MC]",
-          "2 MC",
-          "Floater<$CloudTourism>",
       )
       // Despite the narration, the app omits Suitable Infrastructure's 2 M€ response to the
       // production gain.
-      green.exMachina("-2 MC")
+      exMachinaDropTask("2 MC")
+      doTask("Floater<$CloudTourism>")
     }
 
     // No point using Icy Impactors anymore.

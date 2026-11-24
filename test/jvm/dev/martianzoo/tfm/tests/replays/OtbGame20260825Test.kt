@@ -899,20 +899,20 @@ internal class OtbGame20260825Test : FullGameTest() {
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
-          "5 MC",
       )
+      // Yellow does not take either conversion's bonuses at the physical table. She reconstructs
+      // the
+      // missing 6 M€ from Homeostasis Bureau and 4 M€ from Terraforming Deal at generation end.
+      exMachinaDropTask("5 MC")
       doTasks(
           "UseAction<ConvertHeatAction, Action1>",
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
           "PROD[Heat]",
-          "5 MC",
       )
+      exMachinaDropTask("5 MC")
     }
-    // Yellow does not take either conversion's bonuses at the physical table. She reconstructs the
-    // missing 6 M€ from Homeostasis Bureau and 4 M€ from Terraforming Deal at generation end.
-    yellow.exMachina("-10 MC")
     green.turn {
       // "Asteroid mining consortium. I do have the titanium production that I need. You lose a
       // titanium production. I gain a titanium production. And I have to pay 13 for it."

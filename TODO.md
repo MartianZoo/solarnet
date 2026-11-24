@@ -38,6 +38,13 @@ Delete entries when they are done. Static-language and English work lives in [Pe
   rejection of incompatible selections; remove duplicated class inventories and incidental
   implementation checks.
 
+## Replay omissions
+
+- Consider converting the four omitted nonpayment effects in `OtbGame20260828Test` to
+  `exMachinaDropTask` by holding those tasks pending under its TaskForm autoexecution policy.
+  The explicit-task replays already use the operation. Missed-payment refunds remain corrections:
+  dropping a payment does not settle the bill.
+
 ## Human-readable game archive prototype
 
 Replay scenarios have commented `.game` fixtures; the replay suites check fixture import, and
@@ -50,6 +57,8 @@ export runs also verify fresh export/re-import. See [archive verification](docs/
   remain deferred.
 - Treat omitted actor qualifications and typed-zero matching as shared task-matcher concerns,
   never archive-only conveniences. Typed zeros in the current draft already work unchanged.
+- Cover source-qualified recipient responses: the exporter can emit a recipient-prefixed line
+  with `VIA`, which the importer currently rejects. Resolve this through the shared matching contract.
 - Add a direct archive round-trip for Self-Replicating Robots' staged card source. Tracked games,
   plays from Selecting, and card-held payments now have replay coverage. REPL work is deferred.
 - Resolve how an archive should state the actual zero outcome of `4* Microbe`: changing its limit

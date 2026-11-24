@@ -1286,12 +1286,11 @@ internal class OtbGame20260912Test : FullGameTest() {
       doTasks(
           *playCardTasks("$Stratopolis"),
           "22 Pay<> FROM MC",
-          "PROD[2 MC]",
-          "NormalCityTile<Stratopolis_RemoteArea>",
       )
       // The physical game omitted Stratopolis's two M€ production; Blue's ledger and the
       // board-21-13-22.jpg production track both retain eight.
-      exMachina("PROD[-2 MC]")
+      exMachinaDropTask("PROD[2 MC]")
+      doTask("NormalCityTile<Stratopolis_RemoteArea>")
     }
     green.turn {
       // "I'm going to put my free delegate in reds."
@@ -1398,10 +1397,9 @@ internal class OtbGame20260912Test : FullGameTest() {
           "1 Pay<Class<Titanium>> FROM Titanium",
           "1 Pay<Class<Steel>> FROM Steel",
           "8 Pay<> FROM MC",
-          "PROD[-Energy]",
       )
       // The physical game also omitted Asteroid Deflection System's energy-production decrease.
-      exMachina("PROD[Energy]")
+      exMachinaDropTask("PROD[-Energy]")
     }
 
     green.turn {
@@ -1633,12 +1631,11 @@ internal class OtbGame20260912Test : FullGameTest() {
           *cardActionTasks("$AsteroidHollowing"),
           "Pay<Class<Titanium>> FROM Titanium",
           "Asteroid<$AsteroidHollowing>",
-          "PROD[MC]",
       )
       // Asteroid Hollowing should raise M€ production from eight to nine. The phone next records
       // Food Factory raising it directly from eight to twelve, so Blue added the asteroid and spent
       // the titanium but omitted this production step.
-      exMachina("PROD[-MC]")
+      exMachinaDropTask("PROD[MC]")
     }
     green.turn {
       // "Which cost me five. And then I'm going to raise Venus to four percent."
@@ -2089,13 +2086,14 @@ internal class OtbGame20260912Test : FullGameTest() {
           "8 Pay<Class<Plant>> FROM Plant",
           "GreeneryTile<Vastitas_7_7>",
           "OxygenStep",
-          "4 MC",
+      )
+      // Unlike Blue's later greeneries, the ledger omits this 4 M€ Greens ruling bonus.
+      exMachinaDropTask("4 MC")
+      doTasks(
           "2 Plant",
           "2 MC",
           "TerraformRating",
       )
-      // Unlike Blue's later greeneries, the ledger omits this 4 M€ Greens ruling bonus.
-      exMachina("-4 MC")
     }
 
     green.turn {
@@ -2964,14 +2962,15 @@ internal class OtbGame20260912Test : FullGameTest() {
       doTasks(
           *standardProjectTasks("CityProject"),
           "25 Pay<> FROM MC",
-          "PROD[MC]",
+      )
+      // Blue's phone and final production omit the standard city's production increase.
+      exMachinaDropTask("PROD[MC]")
+      doTasks(
           "CityTile<Vastitas_6_4>",
           "Steel",
           "Plant",
           "2 MC",
       )
-      // Blue's phone and final production omit the standard city's production increase.
-      exMachina("PROD[-MC]")
     }
 
     green.turn {

@@ -102,10 +102,7 @@ Green: playCard(SpaceElevator) {
 
 // The phone entry immediately after Space Elevator records a titanium resource instead of the
 // production Space Elevator actually grants.
-Green: exMachina {
-    PROD[-Titanium]
-    Titanium
-}
+Green: exMachina(PROD[-Titanium], Titanium)
 
 // Yellow's ledger records -12 M€ and +1 plant before Aquifer Pumping's payment, and the
 // subsequent oceans all invoke this card. The transcript omitted the play sentence.
@@ -703,10 +700,7 @@ Green: WorldGovernment {
 
 // Before Generation 6 Research, Green's app entries 116–117 correct the Generation 1 entry to
 // titanium production and add the four net titanium resources it should have produced.
-Green: exMachina {
-    PROD[Titanium]
-    4 Titanium
-}
+Green: exMachina(PROD[Titanium], 4 Titanium)
 
 // Research.
 Green: Research {
@@ -735,20 +729,16 @@ Yellow: action(ConvertHeatAction) {
     pay(8 Heat)
     TemperatureStep
     TerraformRating
-    5 MC
+    // Yellow does not take either conversion's bonuses at the physical table. She reconstructs the
+    // missing 6 M€ from Homeostasis Bureau and 4 M€ from Terraforming Deal at generation end.
+    exMachinaDropTask(5 MC)
 }
 Yellow: action(ConvertHeatAction) {
     pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
-    5 MC
-}
-
-// Yellow does not take either conversion's bonuses at the physical table. She reconstructs the
-// missing 6 M€ from Homeostasis Bureau and 4 M€ from Terraforming Deal at generation end.
-Yellow: exMachina {
-    -10 MC
+    exMachinaDropTask(5 MC)
 }
 
 // "Asteroid mining consortium. I do have the titanium production that I need. You lose a
@@ -838,9 +828,7 @@ Yellow {
 
 // The recorded game illegally played Law Suit against Yellow's 2 M€. Temporarily supply the
 // third M€ required by the card, then remove it from Green after reproducing the physical play.
-Yellow: exMachina {
-    MC
-}
+Yellow: exMachina(MC)
 
 Green: playCard(LawSuit) {
     pay(2 MC)
@@ -851,9 +839,7 @@ Green {
     Ok
 }
 
-Green: exMachina {
-    -MC
-}
+Green: exMachina(-MC)
 
 // "Now suppose I can decrease energy product one step, raise Venus one step. That is a TR
 // for me."
@@ -947,9 +933,7 @@ Yellow: WorldGovernment {
 
 // "Way back in the generation, I did two other..." "Oh, I also think I forgot to give the
 // terraforming deal money. So that's a total of ten." Yellow takes the omitted 10 M€ now.
-Yellow: exMachina {
-    10 MC
-}
+Yellow: exMachina(10 MC)
 
 // Generation 7
 // Research.
@@ -1153,13 +1137,9 @@ Green: WorldGovernment {
 // 1:08 pm app-log checkpoint and 1:08:17 pm board photograph, before Generation 8 Research.
 // 5:35:25 pm on Aug 26: "We just did a reconciliation where I took one more money and you
 // gave up one money. To set things right."
-Green: exMachina {
-    MC
-}
+Green: exMachina(MC)
 
-Yellow: exMachina {
-    -MC
-}
+Yellow: exMachina(-MC)
 
 // Research.
 Green: Research {
@@ -1491,9 +1471,7 @@ Yellow {
 }
 
 // Yellow simply forgot to pay the remaining 2 M€.
-Yellow: exMachina {
-    2 MC
-}
+Yellow: exMachina(2 MC)
 
 // "I will Venus Orbital Survey. I will look at these two cards, which are Comet and Rad
 // Suits. And then I might as well buy them."
@@ -1850,9 +1828,7 @@ Green {
 }
 
 // It appears that Yellow gave herself a TR for Green's temp raise (entry 376)
-Yellow: exMachina {
-    TerraformRating
-}
+Yellow: exMachina(TerraformRating)
 // "I guess I just gotta take that last temp raise. And I gain five moolahs. Temp is maxed."
 Yellow: useStandardProject(AsteroidProject) {
     pay(14 MC)

@@ -555,9 +555,7 @@ Green: useAction1(SearchForLife) {
     // "That appears to be the end of everything I can do except..."
     // HACK: Unlike the other narrated Search for Life actions, I never said that I paid the one
     // money.
-    exMachina {
-        MC
-    }
+    exMachina(MC)
 }
 // derived from ledger entry 72 before Industrial Center
 // "Sure. Let us play Industrial Center for four."
@@ -635,9 +633,7 @@ Yellow: playCard(EnergyMarket) {
 }
 
 // HACK: The ledger says Yellow paid six here, although the recording only names Energy Market.
-Yellow: exMachina {
-    -3 MC
-}
+Yellow: exMachina(-3 MC)
 
 // ledger entry 130
 // (12:51 pm) "I'm gonna spend three energy to fly my little ship to Luna."
@@ -663,9 +659,7 @@ Yellow: action(TradeAction, 2) {
 
 // "Come to think of it, I don't know why I did that urgently..."
 // HACK: Despite saying "spend six money," she did not record a second six-money payment.
-Yellow: exMachina {
-    6 MC
-}
+Yellow: exMachina(6 MC)
 
 // ledger entry 130
 // "Earth Catapult for 23."
@@ -1646,7 +1640,9 @@ Yellow: playCard(SubZeroSaltFish) {
     pay(5 MC)
     Animal<EcologicalZone>
     PROD[-Plant<Green>]
-    3 MC<Green> FROM MC
+    // "Like that's gonna change much."
+    // HACK: That exchange never mentions the Mons Insurance payment, which we omitted physically.
+    exMachinaDropTask(3 MC<Green> FROM MC)
 }
 // ledger entry 217
 // "I'm going to play my Sub-Zero Salt Fish." "Oh, I guess I lose a plant production."
@@ -1654,11 +1650,6 @@ Yellow {
     Ok
 }
 
-// "Like that's gonna change much."
-// HACK: That exchange never mentions the Mons Insurance payment, which we omitted physically.
-Green: exMachina {
-    3 MC<Yellow> FROM MC
-}
 // "I use Restricted Area to draw a card."
 Green: useAction1(RestrictedArea) {
     pay(2 MC)
@@ -1671,9 +1662,7 @@ Green {
 }
 
 // HACK: I narrated drawing the card but never mentioned Restricted Area's two-money cost.
-Green: exMachina {
-    2 MC
-}
+Green: exMachina(2 MC)
 
 // ledger entry 217
 // "I play Medical Lab. I'll spend my four steel as 12 money plus one money."
@@ -1860,9 +1849,7 @@ Green: WorldGovernment {
 // _local/replays/Game20260809/board-20-34-03-corrected.png; latest board photograph.
 // See board-20-34-03-corrected.png - verified
 // HACK: I must have fat-fingered this!?
-Green: exMachina {
-    Plant
-}
+Green: exMachina(Plant)
 
 // ledger entry 242
 // Research.
@@ -1915,9 +1902,7 @@ Green: action(TradeAction, 2) {
 
 // HACK: Again, I narrated drawing the card without saying that I paid the two-money action
 // cost.
-Green: exMachina {
-    2 MC
-}
+Green: exMachina(2 MC)
 
 // ledger entry 243
 // "I'm going to convert eight plants to a greenery."
@@ -1935,15 +1920,10 @@ Yellow: action(ConvertPlantsAction) {
 // "I get no placement bonuses, but it's next to two greeneries."
 Yellow: playCard(Gyropolis) {
     pay(3 Steel, 11 MC)
-    PROD[-2 Energy]
-    PROD[3 MC]
+    // HACK: Green distracted Yellow into forgetting to make the production changes
+    exMachinaDropTask(PROD[-2 Energy])
+    exMachinaDropTask(PROD[3 MC])
     NormalCityTile<Hellas_5_3>
-}
-
-// HACK: Green distracted Yellow into forgetting to make the production changes
-Yellow: exMachina {
-    PROD[-3 MC]
-    PROD[2 Energy]
 }
 
 // (8:41 pm) "I'm going to use Venusian Insects for one microbe and one money."
@@ -1987,9 +1967,7 @@ Green {
 }
 
 // HACK: It was a mistake: I only paid 17.
-Green: exMachina {
-    MC
-}
+Green: exMachina(MC)
 
 // ledger entry 249
 // "I sell a card for one money."
@@ -2026,9 +2004,7 @@ Yellow {
 // ledger entry 365
 // (8:48 pm) "I think I forgot one mc of cost, so I'll correct that."
 // ... but she hadn't ...
-Yellow: exMachina {
-    -MC
-}
+Yellow: exMachina(-MC)
 
 // ledger entry 366
 // "I'm going to use Jovian Lanterns to spend a titanium and put two more floaters on Jovian"
@@ -2185,9 +2161,7 @@ Green: useAction1(SearchForLife) {
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
     // I never narrated paying the action's one money; the ledger suggests I took one instead.
-    exMachina {
-        2 MC
-    }
+    exMachina(2 MC)
 }
 // ledger entry 275
 // "So now I must pass. And so we hit production."

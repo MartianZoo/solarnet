@@ -200,7 +200,7 @@ internal constructor(
    * Remove a task because its [Task.instruction] has been handled; any [Task.then] instructions are
    * automatically enqueued.
    */
-  private fun handleTask(queue: TaskQueue, task: Task) {
+  private fun handleTask(queue: TaskQueue, task: Task, skipped: Boolean = false) {
     task.then?.let {
       taskQueues.addTasks(
           it,
@@ -209,7 +209,7 @@ internal constructor(
       )
     }
     val stored = queue.getTaskData(task.id)
-    taskQueues.removeTask(stored)
+    taskQueues.removeTask(stored, skipped)
   }
 
   /**
@@ -827,9 +827,40 @@ internal constructor(
       taskId: TaskId? = null,
       contextClass: ClassName? = null,
   ): Unit = perform {
+    submitTask(narrowing, quantifierOmitted, taskId, contextClass, skip = false)
+  }
+
+  /**
+   * Matches, selects, and narrows the current step as [doTask] does, then removes it without
+   * executing its instruction or effects. Admits its bound continuation normally. Required
+   * container openings still execute, leaving unrelated children pending.
+   *
+   * The request must specify a concrete current step, without THEN. A transfer to another Actor is
+   * rejected. This does not settle bills or manufacture consequences of the omitted work.
+   * Selection, priority, ambiguity, and restoring behavior are the same as [doTask]. The removal
+   * event records that this instruction was skipped.
+   */
+  public fun exMachinaDropTask(
+      narrowing: InstructionTree,
+      quantifierOmitted: Boolean = false,
+      taskId: TaskId? = null,
+      contextClass: ClassName? = null,
+  ): Unit = perform {
+    submitTask(narrowing, quantifierOmitted, taskId, contextClass, skip = true)
+  }
+
+  private fun submitTask(
+      narrowing: InstructionTree,
+      quantifierOmitted: Boolean,
+      taskId: TaskId?,
+      contextClass: ClassName?,
+      skip: Boolean,
+  ) {
     val evaluated = evaluatePer(narrowing)
     if (narrowing.descendantsOfType<Then>().isNotEmpty()) {
-      throw TaskException("doTask accepts one stage at a time; submit each THEN stage separately")
+      throw TaskException(
+          "Task requests accept one stage at a time; submit each THEN stage separately"
+      )
     }
     val match = taskMatcher.match(actor, evaluated, quantifierOmitted, taskId, contextClass)
     if (match != null && match.preparations.isNotEmpty()) {
@@ -846,8 +877,8 @@ internal constructor(
               }
       )
           throw TaskException("Explicitly open the container so its Admin work can finish first")
-      doTask(narrowing, quantifierOmitted, contextClass = contextClass)
-      return@perform
+      submitTask(narrowing, quantifierOmitted, null, contextClass, skip)
+      return
     }
     val id = match?.task?.id
     if (id == null) {
@@ -863,7 +894,10 @@ internal constructor(
     } else {
       val selected = selectTask(task)
       val selectedTask = queueForAnyTask(selected).getTaskData(selected)
-      if (selectedTask.assignee != actor) return@perform
+      if (selectedTask.assignee != actor) {
+        if (skip) throw TaskException("Cannot drop work assigned to ${selectedTask.assignee}")
+        return
+      }
       val instruction = selectedTask.instruction
       narrowSelectedTask(
           selected,
@@ -872,7 +906,19 @@ internal constructor(
       )
     }
     val selectedTask = allTasks.getTaskData(id)
-    if (selectedTask.assignee != actor) return@perform
+    if (selectedTask.assignee != actor) {
+      if (skip) throw TaskException("Cannot drop work assigned to ${selectedTask.assignee}")
+      return
+    }
+    if (skip) {
+      if (selectedTask.instruction.needsNarrowing(reader)) {
+        throw NotFullySpecifiedException(
+            "Specify the task step to drop: ${selectedTask.instruction}"
+        )
+      }
+      handleTask(tasks, selectedTask, skipped = true)
+      return
+    }
     val children = executeSelectedTask(tasks, id)
     if (evaluated is InstructionGroup) {
       for (child in children) {

@@ -90,16 +90,11 @@ Pink: playCard(ProjectEden) {
     GreeneryTile<Vastitas_5_5>
     0 MC
     TemperatureStep
-    OxygenStep
-    2 TerraformRating
+    // The table omitted Project Eden's oxygen and TR. The 13:53:05 photo shows oxygen 0,
+    // TR 23; at 22:31:08 they notice the missing oxygen, but never restore this TR.
+    exMachinaDropTask(OxygenStep)
+    TerraformRating
     -3 ProjectCard
-}
-
-// The table omitted Project Eden's oxygen and TR. The 13:53:05 photo shows oxygen 0,
-// TR 23; at 22:31:08 they notice the missing oxygen, but never restore this TR.
-Pink: exMachina {
-    -OxygenStep
-    -TerraformRating
 }
 
 // board-13-53-05.jpg, after Preludes.
@@ -129,12 +124,9 @@ Pink: playCard(GiantIceAsteroid) {
     4 MC
     2 Plant VIA Vastitas_5_7
     -Plant<Aqua>
-    PROD[Heat]
     // Pink's logs show no heat production and +1 heat (entry 27), apparently confusing
     // the −24°C production bonus with a resource.
-    exMachina {
-        PROD[-Heat]
-    }
+    exMachinaDropTask(PROD[Heat])
 }
 
 Aqua: playCard(ImmigrantCity) {
@@ -153,9 +145,7 @@ Aqua {
 }
 
 // Pink log entry 27 records +1 heat before Pets' payment at entry 28.
-Pink: exMachina {
-    Heat
-}
+Pink: exMachina(Heat)
 // "I think I may as well pets for a sec." "Oh, pets. I can see why you would not have expected
 // me to be playing more cities already."
 Pink: playCard(Pets) {
@@ -498,13 +488,9 @@ Aqua: action(ConvertHeatAction) {
     pay(8 Heat)
     TemperatureStep
     TerraformRating
-    PROD[Heat]
-}
-
-// Aqua never recorded the −20°C production bonus: entries 97 and 106 show
-// 6 heat before production, then 24 from converting 18 energy, with no heat income.
-Aqua: exMachina {
-    PROD[-Heat]
+    // Aqua never recorded the −20°C production bonus: entries 97 and 106 show
+    // 6 heat before production, then 24 from converting 18 energy, with no heat income.
+    exMachinaDropTask(PROD[Heat])
 }
 
 Pink: action(ClaimMilestoneAction) {
@@ -552,9 +538,7 @@ Pink: action(ConvertPlantsAction) {
     // "Oh gosh! We need to raise this two times." "They both should have raised the oxygen."
     // 22:31:08–22:31:24: both greeneries' oxygen is finally recorded. This greenery's
     // step has just resolved normally; restore the missed Project Eden step without its TR.
-    exMachina {
-        OxygenStep
-    }
+    exMachina(OxygenStep)
 }
 // "You haven't even used your electrocatapult yet?" "Who are you?" "I know, I'm crazy."
 Pink: useAction1(ElectroCatapult) {
@@ -569,9 +553,7 @@ Pink: playCard(TerraformingContract) {
     pay(5 MC)
     PROD[4 MC]
     // 22:31:26–22:32:20: Pink says "pay eight", missing Teractor's 3 MC discount.
-    exMachina {
-        -3 MC
-    }
+    exMachina(-3 MC)
 }
 Pink: pass
 
@@ -597,19 +579,11 @@ Aqua: WorldGovernment {
 // Counts from the recorded purchases, draws, discards, and plays; identities are incomplete.
 // October 10, before generation 6 Research: the players apply the agreed corrections.
 // Aqua's -20 C bonus was missed at generation 5 production.
-Aqua: exMachina {
-    PROD[Heat]
-    Heat
-}
+Aqua: exMachina(PROD[Heat], Heat)
 
 // Project Eden's generation-1 TR missed five productions; Pink's -24 C bonus was
 // entered as one heat resource rather than production, missing four further heat.
-Pink: exMachina {
-    TerraformRating
-    5 MC
-    PROD[Heat]
-    4 Heat
-}
+Pink: exMachina(TerraformRating, 5 MC, PROD[Heat], 4 Heat)
 
 // "I pay 11 for research. I get two cards."
 // "I believe I have 1, 2, 3, 4 science tags. Yep. So I'd also spend eight to claim Risocha."
@@ -1773,9 +1747,7 @@ Pink: playCard(TerraformingGanymede) {
     pay(1 Titanium, 25 MC)
     5 TerraformRating
     // 16:34:22: Pink pays one titanium and 29 MC, missing Warp Drive's 4 MC discount.
-    exMachina {
-        -4 MC
-    }
+    exMachina(-4 MC)
 }
 
 Aqua: playCard(MolecularPrinting) {

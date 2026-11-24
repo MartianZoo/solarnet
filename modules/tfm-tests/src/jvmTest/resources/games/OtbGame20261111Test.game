@@ -220,9 +220,7 @@ Green: WorldGovernment {
 }
 
 // green-applog-01 entry 27: we don't know why green did this, maybe a stray tap
-Green: exMachina {
-    PROD[-MC]
-}
+Green: exMachina(PROD[-MC])
 
 // (12:08:06 PM) "Generation becomes two, button moves to Pink. We would take cubes off cards if
 // we had them, and we've done all our colony stuff already. We're good for research. Two for
@@ -377,10 +375,7 @@ Pink: GlobalEvent {
 // Both app logs briefly missed the Scientists bonus; keep it here.
 // (12:18:18 PM) "Generation moves, button moves, cubes come off cards."
 // Correct Green's accidental MC-production decrease and its missed production.
-Green: exMachina {
-    PROD[MC]
-    MC
-}
+Green: exMachina(PROD[MC], MC)
 
 // (12:56:15 PM) "Green has eight cards in hand. Pink has seven cards in hand. We're ready to
 // draft."
@@ -921,11 +916,8 @@ Green: playCard(CupolaCity) {
     PROD[3 MC]
     3 MC
     NormalCityTile<Vastitas_2_3>
-    Steel
     // Green forgot the Mars First party's bonus steel
-    exMachina {
-        -Steel
-    }
+    exMachinaDropTask(Steel)
 }
 
 // (3:52:36 PM) "Spend six money and two heat on Aquifer Pumping to place an ocean for two
@@ -939,11 +931,8 @@ Pink: useAction1(AquiferPumping) {
     2 Heat
     Plant
     2 MC
-    Steel
     // Pink also forgot the Mars First party's bonus steel
-    exMachina {
-        -Steel
-    }
+    exMachinaDropTask(Steel)
 }
 // (3:53:30 PM) "Red Appeasement, and no other player has passed."
 // "I haven't passed yet, so you can't play that. Oh, no other player. Right."
@@ -1314,9 +1303,7 @@ Green: useStandardProject(AquiferProject) {
 }
 
 // Green accidentally gained the ocean's TR twice.
-Green: exMachina {
-    TerraformRating
-}
+Green: exMachina(TerraformRating)
 
 // (4:20:22 PM) "You like to stall and I like to be aggressive. I want to do things in one
 // order, but I want to make sure I get to them. I guess I will play Sky Docks. Had it since
@@ -1354,9 +1341,7 @@ Green: useStandardProject(PowerPlantProject) {
 }
 
 // Green accidentally gained the energy production twice, but took Manutech's energy once.
-Green: exMachina {
-    PROD[Energy]
-}
+Green: exMachina(PROD[Energy])
 
 // (4:24:28 PM) "Steel and two real to use Aquifer Pumping. Place an ocean: two heat, two
 // money on 6,5. Ooh, not heat production."
@@ -1451,12 +1436,10 @@ Pink: useAction2(RotatorImpacts) {
 Green: playCard(NuclearZone) {
     // Green forgot Solar Logistics' 2 MC Earth-tag discount.
     pay(7 MC)
-    exMachina {
-        -2 MC
+    exMachina(-2 MC)
     // (4:29:48 PM) "I'm going to place it at 6,8 for one plant and six money, and raise the temp
     // to minus 14, which gives me two TR. My cube on it. Let me check if there's anything else I
     // want to do. I'm fine."
-    }
     NuclearZone_SpecialTile<Vastitas_6_8>
     Plant
     6 MC
@@ -1608,13 +1591,9 @@ Pink: playCard(ImportedNutrients) {
     4* Microbe
     // No microbe holder; Solar Logistics still awards Green a card for Pink's space event. Keep
     // the handoff separate so we can check Green's hand before the missed draw.
-    Green: ProjectCard
-}
-
-// At 16:43 Green explicitly counts 4 cards, not 5. The user confirms forgetting this Solar
-// Logistics draw; retain the observed hand until the correction is actually applied.
-Green: exMachina {
-    -ProjectCard
+    // At 16:43 Green explicitly counts 4 cards, not 5. The user confirms forgetting this Solar
+    // Logistics draw; retain the observed hand until the correction is actually applied.
+    Green: exMachinaDropTask(ProjectCard)
 }
 
 // (4:40:05 PM) "I am all out of stuff to do. Pass."
@@ -1677,26 +1656,16 @@ Pink: GlobalEvent {
 // (6:43:34 PM) Green: "I've made the necessary adjustments. My resources are 61, 6, 4, 11, 3,
 // 13, and my productions are 22, 1, 4, 1, 3, 6."
 // Pink: "My resources are 54, 1, 2, 6, 5, 16. Productions 17, 0, 1, 0, 5, 12."
-Green: exMachina {
-    MC
-    Steel
-    -TerraformRating
-    PROD[-Energy]
-    -Energy
-}
+Green: exMachina(MC, Steel, -TerraformRating, PROD[-Energy], -Energy)
 
-Pink: exMachina {
-    Steel
-}
+Pink: exMachina(Steel)
 
 // (6:43:59 PM) Green: "I've got four cards in hand. To put things right, because I forgot Solar
 // Logistics, I get to draw a free card. Then we're ready to draft. Two for you, two for me, two
 // for you, two for me."
 // Pink: "And I have my one card."
 // 18:43:59: Green draws the forgotten Solar Logistics card before drafting.
-Green: exMachina {
-    ProjectCard
-}
+Green: exMachina(ProjectCard)
 
 // (6:46:19 PM) "I'm buying two cards."
 Green: Research {
@@ -1829,16 +1798,13 @@ Pink: useAction1(MartianMediaCenter) {
 // and gave me a TR, I think. Put it at 2,5 for one plant. I get a steel for placing that."
 Green: useStandardProject(GreeneryProject) {
     pay(23 MC)
-    3 MC
+    // Green forgot Standard Technology's 3 MC rebate.
+    exMachinaDropTask(3 MC)
     GreeneryTile<Vastitas_2_5>
     Plant
     OxygenStep
     TerraformRating
     Steel
-    // Green forgot Standard Technology's 3 MC rebate.
-    exMachina {
-        -3 MC
-    }
 }
 // "Harvest costs me three, and gives me 12."
 Green: playCard(Harvest) {
@@ -2177,14 +2143,11 @@ Pink: useStandardProject(GreeneryProject) {
 // I do get four money."
 Green: useStandardProject(GreeneryProject) {
     pay(23 MC)
-    3 MC
+    // Green again forgot Standard Technology's 3 MC rebate.
+    exMachinaDropTask(3 MC)
     GreeneryTile<Vastitas_3_6>
     4 MC
     0 OxygenStep
-    // Green again forgot Standard Technology's 3 MC rebate.
-    exMachina {
-        -3 MC
-    }
 }
 // (7:23:32 PM) "Use Mars Nomads, move this guy back to take two money and two cards. Please
 // be good. No."
@@ -2249,12 +2212,9 @@ Green: playCard(GanymedeColony) {
 // It's an Earth tag, so it gives Martian Zoo a marshmallow."
 Pink: playCard(OrbitalCleanup) {
     pay(3 Titanium, 4 MC)
-    PROD[-2 MC]
-    Animal<MartianZoo>
     // Pink forgot Orbital Cleanup's 2 MC-production decrease.
-    exMachina {
-        PROD[2 MC]
-    }
+    exMachinaDropTask(PROD[-2 MC])
+    Animal<MartianZoo>
 }
 
 // (7:27:24 PM) "Neutralizer Factory for six. Venus goes to 20, and I get a TR."

@@ -193,8 +193,12 @@ public object TfmRoutines {
         releasedBy: Agent?,
     ) {
       require(arguments.size in argumentCount) { "Unexpected argument count: " + arguments.size }
-      require(releasedBy == null || this === registered.getValue("pay")) {
-        "Only pay accepts a releasing Agent"
+      require(
+          releasedBy == null ||
+              this === registered.getValue("pay") ||
+              this === registered.getValue("exMachinaDropTask")
+      ) {
+        "This routine does not accept a releasing Agent"
       }
       if (startsAction) prepareAction(agents, agent)
       submit(agent, arguments, releasedBy)
@@ -221,6 +225,11 @@ public object TfmRoutines {
           "exMachina" to
               Definition(1..1, instructionGroup = true) { a, args, _ ->
                 a.exMachina(args.single())
+              },
+          "exMachinaDropTask" to
+              Definition(1..1, instructionGroup = true) { a, args, sender ->
+                if (sender == null) a.exMachinaDropTask(args.single())
+                else a.exMachinaDropTask(args.single(), sender)
               },
           "useAction1" to
               Definition(1..1, startsAction = true) { a, args, _ ->

@@ -131,9 +131,11 @@ internal class TaskQueues(
           dispatch.deferral,
       ) + task.then?.let { admit(it, task.assignee, task.cause, Deferral.SOON) }.orEmpty()
 
-  internal fun removeTask(task: Task): TaskRemovedEvent {
+  internal fun removeTask(task: Task, skipped: Boolean = false): TaskRemovedEvent {
     requireAtEnd()
-    return gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task, transactionForEvent()))
+    return gameWorld.apply(
+        TaskRemovedEvent(gameWorld.nextOrdinal, task, transactionForEvent(), skipped)
+    )
   }
 
   /**

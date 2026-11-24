@@ -389,26 +389,53 @@ internal class AgentImpl(
     engine.selectTask(task.instruction, taskId = task.id)
   }
 
-  private fun executeInput(parsed: ParsedTaskNarrowing, contextClass: ClassName? = null) {
-    if (allTasks.selectedTask() == null && combineAmounts(parsed, contextClass)) return
-    engine.doTask(parsed.instruction, parsed.quantifierOmitted, parsed.taskId, contextClass)
-  }
-
-  private fun combineAmounts(parsed: ParsedTaskNarrowing, contextClass: ClassName?): Boolean {
+  private fun executeInput(
+      parsed: ParsedTaskNarrowing,
+      contextClass: ClassName? = null,
+      skip: Boolean = false,
+  ) {
+    val submit: (InstructionTree, Boolean, TaskId?, ClassName?) -> Unit =
+        if (skip) engine::exMachinaDropTask else engine::doTask
     val matches =
-        engine.taskMatcher.matchingAmounts(
-            parsed.instruction,
-            parsed.quantifierOmitted,
-            contextClass,
-            tasks.extract { it to it.instruction },
-        ) ?: return false
-    matches.forEach { (task, change) ->
-      engine.doTask(change, taskId = task.id)
+        if (allTasks.selectedTask() == null && parsed.taskId == null)
+            engine.taskMatcher.matchingAmounts(
+                parsed.instruction,
+                parsed.quantifierOmitted,
+                contextClass,
+                tasks.extract { it to it.instruction },
+            )
+        else null
+    if (matches == null) {
+      submit(parsed.instruction, parsed.quantifierOmitted, parsed.taskId, contextClass)
+    } else {
+      matches.forEach { (task, change) -> submit(change, false, task.id, contextClass) }
     }
-    return true
   }
 
-  override fun doTask(narrowing: String, releasedBy: Agent): TaskResult = decide {
+  override fun exMachinaDropTask(narrowing: String, contextClass: ClassName?): TaskResult =
+      dropInput(narrowing, contextClass = contextClass)
+
+  private fun dropInput(
+      narrowing: String,
+      taskId: TaskId? = null,
+      contextClass: ClassName? = null,
+  ): TaskResult = decide {
+    val parsed = parseTaskNarrowing(narrowing, contextClass, taskId)
+    executeInput(parsed.copy(taskId = taskId ?: parsed.taskId), contextClass, skip = true)
+    finishTaskHandoff()
+  }
+
+  override fun exMachinaDropTask(narrowing: String, releasedBy: Agent): TaskResult =
+      respond(narrowing, releasedBy, skip = true)
+
+  override fun doTask(narrowing: String, releasedBy: Agent): TaskResult =
+      respond(narrowing, releasedBy, skip = false)
+
+  private fun respond(narrowing: String, releasedBy: Agent, skip: Boolean): TaskResult = decide {
+    fun submit(text: String, taskId: TaskId? = null) {
+      if (skip) dropInput(text, taskId)
+      else if (taskId == null) doTask(text) else doTask(text, taskId)
+    }
     require(releasedBy is AgentImpl && releasedBy.autoExecLoop === autoExecLoop) {
       "The releasing Agent must belong to the same session"
     }
@@ -416,7 +443,7 @@ internal class AgentImpl(
     releasedBy.withAutoExecPolicyOverride(AutoExecPolicy.NONE) {
       withAutoExecPolicyOverride(AutoExecPolicy.NONE) {
         if (allTasks.selectedTask() != null) {
-          doTask(narrowing)
+          submit(narrowing)
         } else {
           val releases =
               releasedBy.tasks
@@ -432,7 +459,7 @@ internal class AgentImpl(
                   }
                   .filterNotNull()
           if (releases.isEmpty()) {
-            doTask(narrowing)
+            submit(narrowing)
           } else {
             val parsed = parseTaskNarrowing(narrowing)
             val matches =
@@ -454,14 +481,14 @@ internal class AgentImpl(
                       )
                       ?.task ?: throw TaskException("no matching task for `$narrowing`")
               if (task.assignee != actor) releasedBy.doTask(task.id)
-              doTask(narrowing)
+              submit(narrowing)
             } else {
               matches.forEach { (task, change) ->
                 if (task.assignee == actor) {
-                  doTask(change.toString(), task.id)
+                  submit(change.toString(), task.id)
                 } else {
                   releasedBy.doTask("NOW $actor { $change }", task.id)
-                  doTask(change.toString())
+                  submit(change.toString())
                 }
               }
             }

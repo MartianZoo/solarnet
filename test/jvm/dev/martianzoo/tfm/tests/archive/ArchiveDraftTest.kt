@@ -133,7 +133,8 @@ internal class ArchiveDraftTest {
           game20261111()
         }
     val green = baseline.game.actors.filterIsInstance<Player>().first { it.toString() == "Green" }
-    baseline.agents[green].exMachina("7 Plant")
+    baseline.agents[green].exMachina("7 Plant, 2 Heat")
+    baseline.agents[green].exMachina("-3 Plant")
     val source = GameArchiveExporter(baseline.game.recording(), baseline.config).export()
     val imported = importer(source)
     imported.run()
@@ -141,7 +142,52 @@ internal class ArchiveDraftTest {
         snapshot(baseline.game.reader, baseline.game.tasks),
         snapshot(imported.agents.world.reader, imported.agents.world.tasks),
     )
-    assertTrue(source.endsWith("Green: exMachina {\n    7 Plant\n}\n"))
+    assertTrue(source.endsWith("Green: exMachina(7 Plant, 2 Heat)\n\nGreen: exMachina(-3 Plant)\n"))
+  }
+
+  @Test
+  fun failedCorrectionRestoresItsWholeGroupAndPreservesEarlierCalls() {
+    val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
+    val imported =
+        importer(
+            source.substringBefore("Green: Setup") +
+                "Green: exMachina(2 Plant)\nGreen: exMachina(3 Plant, -Heat)\n"
+        )
+    assertFailsWith<IllegalStateException> { imported.run() }
+    val green = imported.agents[imported.agents.world.actors.filterIsInstance<Player>().first()]
+    assertEquals(2, green.count("Plant"))
+    assertEquals(0, green.count("Heat"))
+  }
+
+  @Test
+  fun groupedRecipientCorrectionInsideAnActionRetainsItsActor() {
+    val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
+    val imported =
+        importer(
+            source.substringBefore("Green: playCard(ResearchOutpost)") +
+                """
+                Green: playCard(ResearchOutpost) {
+                    pay(18 MC)
+                    Pink: exMachina(3 MC, 2 Plant)
+                    NormalCityTile<Vastitas_6_2>
+                    2 ProjectCard
+                }
+                """
+                    .trimIndent()
+        )
+    imported.run()
+    val config = OtbGame20261111Test().apply { commonSetup() }.config
+    val text = GameArchiveExporter(imported.agents.world.recording(), config).export()
+    assertTrue("    Pink: exMachina(3 MC, 2 Plant)" in text, text)
+    val roundTrip = importer(text).also { it.run() }
+    assertEquals(
+        snapshot(imported.agents.world.reader, imported.agents.world.tasks),
+        snapshot(roundTrip.agents.world.reader, roundTrip.agents.world.tasks),
+    )
+    assertEquals(
+        text,
+        GameArchiveExporter(roundTrip.agents.world.recording(), config).export(),
+    )
   }
 
   @Test
@@ -176,10 +222,7 @@ internal class ArchiveDraftTest {
     val prefix =
         source.substringBefore("Green: playCard(ResearchOutpost)") +
             """
-            Green: exMachina {
-                Psychrophiles
-                5 Microbe<Psychrophiles>
-            }
+            Green: exMachina(Psychrophiles, 5 Microbe<Psychrophiles>)
             Green: playCard(AdaptedLichen) {
                 pay(5 Microbe<Psychrophiles>)
                 PROD[Plant]
@@ -210,9 +253,7 @@ internal class ArchiveDraftTest {
     val throughSelection =
         source.substringBefore("Green: playCard(ResearchOutpost)") +
             """
-            Pink: exMachina {
-                NormalCityTile<Vastitas_5_2>
-            }
+            Pink: exMachina(NormalCityTile<Vastitas_5_2>)
             Green: playCard(Flooding) {
                 pay(7 MC)
                 selectTask(OceanTile<Vastitas_5_3>! THEN -3 MC<Pink>)
@@ -266,11 +307,7 @@ internal class ArchiveDraftTest {
     val beforePayment =
         source.substringBefore("Green: playCard(ResearchOutpost)") +
             """
-            Pink: exMachina {
-                NeptunianPowerConsultants
-                5 Heat
-                3 Steel
-            }
+            Pink: exMachina(NeptunianPowerConsultants, 5 Heat, 3 Steel)
             Green: playCard(Flooding) {
                 pay(7 MC)
                 OceanTile<Vastitas_5_3>
@@ -318,9 +355,7 @@ internal class ArchiveDraftTest {
     val text =
         source.substringBefore("Green: playCard(ResearchOutpost)") +
             """
-            Green: exMachina {
-                ViralEnhancers
-            }
+            Green: exMachina(ViralEnhancers)
             Green: playCard(Pets) {
                 pay(10 MC)
                 Animal<Pets> VIA Pets
@@ -500,6 +535,8 @@ internal class ArchiveDraftTest {
             "WorldGovernment",
             "GlobalEvent",
             "exMachina",
+            "exMachina()",
+            "exMachina {\n    Plant\n}",
             "exMachina(Plant) {\n    Plant\n}",
             "Plant {\n}",
             "UnknownCommand {\n}",

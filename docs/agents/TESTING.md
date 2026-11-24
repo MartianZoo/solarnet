@@ -1039,9 +1039,11 @@ disabled throughout the rewarded operations; their setup still uses automatic ex
   Prefer explicit `exMachina` adjustments with comments explaining the reason: a table mistake,
   an unsupported part of a fake card, or another evidenced mismatch. Ordinary task execution is
   preferable when it already reproduces the sourced position without a correction.
-- Avoid dropping tasks as much as possible. A retained drop needs a comment explaining why it is
-  the most feasible treatment; naming the omitted effect alone is insufficient. Do not replace
-  every drop mechanically with an adjustment before investigating what the task represents.
+- For an evidenced forgotten effect, prefer `exMachinaDropTask` at the original task submission
+  over performing the effect and reversing its inventory change. Keep its source comment and the
+  matching `.game` omission. Preserve any later physical repair as `exMachina` at its sourced time.
+  Use the ordinary matcher, not a queue search or task ID. Missed payments and partial or uncertain
+  discrepancies remain state corrections; see [the correction contract](EX_MACHINA.md).
 - Reproducing a live player's mistake is legitimate. In particular, the October 9 Project Eden
   correction accounts for oxygen/TR the table omitted; that fact alone is not a defect in the test.
 - Do not rewrite replay history in the current autonomous pass. When a pair of `exMachina` calls
@@ -1289,9 +1291,9 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 
 ### State reconciliation
 
-See the [gameplay consistency decisions](#agreed-direction-sources-and-corrections) for the current
-preference for explained corrections over task drops. For now, only comment on pairs of corrections
-that could be retconned later; preserve their execution and the original history.
+See the [gameplay consistency decisions](#agreed-direction-sources-and-corrections): evidenced
+omissions use `exMachinaDropTask`, while later physical repairs remain corrections. Preserve the
+source chronology; this does not authorize eliminating a mistake and its later repair together.
 
 - Express a sourced per-player setup rule, such as a starting handicap, on that replay's concrete
   Player Class with a `SetupPhase` effect supplied through `playerClassPets`. It is game

@@ -114,9 +114,7 @@ Green: playCard(ExperimentalForest) {
     TerraformRating
     // The players acknowledged that paying the initial Greens policy during Prelude was a rule
     // mistake. Green nevertheless took 4 M€ here (transcript and Green ledger entry 6).
-    exMachina {
-        4 MC
-    }
+    exMachina(4 MC)
 }
 // "Y'all ready for this?" "Is it a head start?" "I have 16 project cards in hand. Imagine if
 // we had a planner milestone. So I gain 32 money. Then I immediately take two actions. You
@@ -166,9 +164,7 @@ Yellow: playCard(EstablishedMethods) {
 
 // The players acknowledged this initial Greens-policy payout during Prelude as the same rule
 // mistake. Yellow nevertheless took 4 M€ here (transcript and Yellow ledger entry 15).
-Yellow: exMachina {
-    4 MC
-}
+Yellow: exMachina(4 MC)
 
 // "I got some boring ones, but hopefully they'll be good. Allied Bank." "Oh, that's a good
 // one." "I increased my money production by four and I give myself three loose monies. Dome
@@ -1066,9 +1062,7 @@ Blue: Research {
 
     // Blue says she buys one, but Blue's continuous ledger has no 3 M€ purchase and every later
     // payment reaches the photographed balance only if that charge was missed physically.
-    exMachina {
-        3 MC
-    }
+    exMachina(3 MC)
 }
 
 Yellow: action(FundAwardAction) {
@@ -1079,13 +1073,10 @@ Yellow: action(FundAwardAction) {
 // "Blue is going to pay most of her money, 22, to build Stratopolis."
 Blue: playCard(Stratopolis) {
     pay(22 MC)
-    PROD[2 MC]
-    NormalCityTile<Stratopolis_RemoteArea>
     // The physical game omitted Stratopolis's two M€ production; Blue's ledger and the
     // board-21-13-22.jpg production track both retain eight.
-    exMachina {
-        PROD[-2 MC]
-    }
+    exMachinaDropTask(PROD[2 MC])
+    NormalCityTile<Stratopolis_RemoteArea>
 }
 
 // "I'm going to put my free delegate in reds."
@@ -1167,11 +1158,8 @@ Yellow: useAction1(AppliedScience) {
 
 Blue: playCard(AsteroidDeflectionSystem) {
     pay(1 Titanium, 1 Steel, 8 MC)
-    PROD[-Energy]
     // The physical game also omitted Asteroid Deflection System's energy-production decrease.
-    exMachina {
-        PROD[Energy]
-    }
+    exMachinaDropTask(PROD[-Energy])
 }
 
 Green: useAction1(DeuteriumExport) {
@@ -1323,9 +1311,7 @@ Blue: GlobalEvent {
 // six money" for Blue's and Yellow's event awards; Blue's lone +10 row is exactly 4 + 6. The
 // likeliest entry mistake is therefore recording both announced event awards for Blue while
 // omitting Blue's own 2 M€ ruling bonus, a net overpayment of four.
-Blue: exMachina {
-    4 MC
-}
+Blue: exMachina(4 MC)
 
 // Generation 6
 // Research.
@@ -1357,22 +1343,17 @@ Blue: Research {
 Blue: useAction1(AsteroidHollowing) {
     pay(1 Titanium)
     Asteroid<AsteroidHollowing>
-    PROD[MC]
     // Asteroid Hollowing should raise M€ production from eight to nine. The phone next records
     // Food Factory raising it directly from eight to twelve, so Blue added the asteroid and spent
     // the titanium but omitted this production step.
-    exMachina {
-        PROD[-MC]
-    }
+    exMachinaDropTask(PROD[MC])
 }
 
 // "Which cost me five. And then I'm going to raise Venus to four percent."
 Green: playCard(OptimalAerobraking) {
     pay(5 MC)
     // Green's phone omitted this spoken five-M€ payment; preserve its continuous balance.
-    exMachina {
-        5 MC
-    }
+    exMachina(5 MC)
 }
 // Do not remove another player’s M€.
 Green: playCard(CometForVenus) {
@@ -1427,20 +1408,13 @@ Yellow: playCard(EnvoysFromVenus) {
     // board-21-53-02.jpg instead shows Green as leader with another Green non-leader, while the
     // displaced original Yellow leader remains as Yellow's only Unity delegate. The exact color
     // counts show that the two Envoys cubes were physically taken from Green's supply.
-    exMachina {
-        -2 PartyFollower<Unity>
-    }
+    exMachina(-2 PartyFollower<Unity>)
 }
 
-Green: exMachina {
-    PartyFollower<Unity>
-    PartyLeader<Unity>
-}
+Green: exMachina(PartyFollower<Unity>, PartyLeader<Unity>)
 
 // The table called Envoys free, and Yellow's ledger contains no payment.
-Yellow: exMachina {
-    MC
-}
+Yellow: exMachina(MC)
 Yellow: playCard(EcologicalZone) {
     pay(12 MC)
     Animal<EcologicalZone>
@@ -1629,9 +1603,7 @@ Yellow {
     Ok
 }
 
-Yellow: exMachina {
-    Heat
-}
+Yellow: exMachina(Heat)
 
 Green: pass
 
@@ -1665,9 +1637,7 @@ Blue: Production {
 
 // Blue's TR loss for Diversity was entered before production at the table, reducing the
 // physical M€ payout by one; the engine correctly applies the TR loss later in Solar.
-Blue: exMachina {
-    -MC
-}
+Blue: exMachina(-MC)
 
 // Neither Green's spoken intent correction nor its ledger preserved energy this production.
 // Keep the energy on Supercapacitors.
@@ -1695,18 +1665,12 @@ Blue: GlobalEvent {
 // Diversity resolves, Greens takes government, and Snow Cover is revealed.
 // The physical Greens delegation makes Yellow chairman; the engine retained the neutral
 // tie-break. The spoken transition awards Yellow the corresponding TR.
-Yellow: exMachina {
-    -Chairman<Neutral>
-    Chairman
-    TerraformRating
-}
+Yellow: exMachina(-Chairman<Neutral>, Chairman, TerraformRating)
 
 // This is the table's explicit make-good for the one M€ Blue lost by entering the Diversity
 // TR reduction before production above: "I realized she hadn't produced ... and gave her a
 // money to compensate." It is not an unexplained political payout.
-Blue: exMachina {
-    MC
-}
+Blue: exMachina(MC)
 
 // Generation 7
 // Research.
@@ -1773,15 +1737,11 @@ Blue: action(ConvertPlantsAction) {
     pay(8 Plant)
     GreeneryTile<Vastitas_7_7>
     OxygenStep
-    4 MC VIA GreensPolicy
+    // Unlike Blue's later greeneries, the ledger omits this 4 M€ Greens ruling bonus.
+    exMachinaDropTask(4 MC) VIA GreensPolicy
     2 Plant
     2 MC
     TerraformRating
-}
-
-// Unlike Blue's later greeneries, the ledger omits this 4 M€ Greens ruling bonus.
-Blue: exMachina {
-    -4 MC
 }
 
 Green: playCard(OrbitalReflectors) {
@@ -1945,9 +1905,7 @@ Green: playCard(TopsoilContract) {
     // cost of five. The phone records both a five-M€ debit and a later one-M€ credit, so the
     // narrow mistake is double-crediting that self-trigger; no later Green Microbe tag exists in
     // the generation.
-    exMachina {
-        MC
-    }
+    exMachina(MC)
 }
 
 Yellow: useAction1(MoholeLake) {
@@ -2411,13 +2369,9 @@ Blue: GlobalEvent {
 // separated from the project tableau. Green's omitted card cannot be isolated from the spoken
 // aggregate; SF Memorial is the strongest candidate because it was played during Head Start
 // and sits among the oldest stacked cards, while Parliament Hall is the latest alternative.
-Green: exMachina {
-    -MC
-}
+Green: exMachina(-MC)
 
-Yellow: exMachina {
-    -MC
-}
+Yellow: exMachina(-MC)
 
 // Generation 9
 // Research.
@@ -2525,15 +2479,12 @@ Yellow: action(ConvertPlantsAction) {
 
 Blue: useStandardProject(CityProject) {
     pay(25 MC)
-    PROD[MC]
+    // Blue's phone and final production omit the standard city's production increase.
+    exMachinaDropTask(PROD[MC])
     NormalCityTile<Vastitas_6_4>
     Steel
     Plant
     2 MC
-    // Blue's phone and final production omit the standard city's production increase.
-    exMachina {
-        PROD[-MC]
-    }
 }
 
 Green: playCard(LagrangeObservatory) {
@@ -2685,9 +2636,7 @@ Blue: playCard(SubCrustMeasurements) {
     // extra debit may nevertheless be a delayed correction of an earlier G9 entry; only if it
     // was not does this row represent a 22-M€ Sub-Crust payment. Preserve the bounded difference,
     // not the unproved local cause.
-    exMachina {
-        -2 MC
-    }
+    exMachina(-2 MC)
 }
 Blue: useAction1(SubCrustMeasurements) {
     ProjectCard
@@ -2714,9 +2663,7 @@ Yellow {
 // Deflection System minutes earlier: retaining that reveal instead of discarding it supplies
 // exactly the second patent. Stanford Tours (Generation 6) or the unnamed Generation 8
 // successful reveal are earlier alternatives.
-Blue: exMachina {
-    ProjectCard
-}
+Blue: exMachina(ProjectCard)
 Blue: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
@@ -2727,9 +2674,7 @@ Yellow: useAction1(RedShips) {
     // phone later groups 11 M€ where Red Ships plus the adjacent one-card patent sale explain
     // only ten. Entering ten despite the verbal correction is the strongest candidate, though a
     // delayed unrecorded one-M€ gain from earlier in the interval cannot be excluded.
-    exMachina {
-        MC
-    }
+    exMachina(MC)
 }
 
 Blue: action(PaidLobbyAction) {
@@ -2793,9 +2738,7 @@ Green: Production {
     0 Energy FROM Heat
 }
 
-Yellow: exMachina {
-    -Animal<EcologicalZone>
-}
+Yellow: exMachina(-Animal<EcologicalZone>)
 
 // Final greenery placement in start-player order. Blue and Green each have fewer than eight
 // plants; Yellow's photographed greenery is adjacent to Dawn City at 8-6.

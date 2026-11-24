@@ -77,7 +77,12 @@ otherwise the existing card-action opener; standard projects follow the same rul
 For example, `action(TradeAction, 2)` chooses the Energy trade action. A policy action can name
 its concrete provider, such as `ScientistsPolicy`, or the current `UsePolicyAction` provider.
 Costs and availability remain model rules. Archives emit the recorded provider's name.
-`exMachina { ... }` submits a correction group together.
+`exMachina(change, ...)` submits a correction group together as a single routine call. It takes
+no body; the former braced spelling is rejected.
+`exMachinaDropTask(instruction)` omits a matched pending step while retaining its continuation.
+It accepts source qualification as `exMachinaDropTask(3 MC) VIA StandardTechnology` and supports
+recipient-prefixed omissions inside another Player's action. Import uses the shared Agent matcher;
+export reads the explicit skipped-removal event, keeping skipped and performed amounts separate.
 `selectTask(...)` passes its whole Pets expression to `Agent.selectTask`. It takes no body.
 A linked choice is recorded before its separately executed steps, for example:
 
@@ -98,9 +103,10 @@ Admin work. The exporter omits that decline only when the next recorded step is 
 action; a trailing decline or a decline before intervening work remains explicit. Final greenery
 uses explicit `Ok`, never player-submitted `PassBaton`.
 
-Research is rendered as a single block per player per generation, containing the draw, discard,
-payment, and purchase transfer. Explicit corrections during research stay nested as ExMachina in
-that player's block. This intentionally collects each player's research even when the recording
+Research normally renders as a single block per player per generation, containing the draw,
+discard, payment, and purchase transfer. An explicit NOW release splits this grouping to keep the
+release before its recipient's response. Explicit corrections stay nested as `exMachina(...)` calls
+in that player's block. This intentionally collects each player's research even when the recording
 interleaves players' draws and purchases; source comments retain the original observations and
 timing. The importer needs no special handling for this grouping. Fixture imports and fresh
 programmatic exports verify the grouped research; the transformation is not a general claim that
@@ -130,9 +136,10 @@ restoration, and refusing to bypass newly exposed Admin work. The exporter remai
 it does not collapse a chain of multiple preparation steps, infer a total spread across hidden
 children, or remove preparation across state changes.
 
-Other phase grouping may collect each player's tasks that were already eligible at the start of that
-block. Newly created tasks and work with a later priority begin a new block. This keeps a later
-step behind the other players' earlier work. Amount grouping checks all recorded eligible tasks,
+Outside action bodies, explicit NOW releases remain separate from phase grouping so they precede
+their recipient's performed or omitted response. Other phase grouping may collect each player's
+tasks that were already eligible at the start of that block. Newly created tasks and work with a
+later priority begin a new block. This keeps a later step behind the other players' earlier work. Amount grouping checks all recorded eligible tasks,
 including tasks in subsequent blocks; it cannot emit a partial total because another player acted
 between the matching gains. `VIA`, granted-action detection, and shared total matching use current
 eligibility, since LATER/FINALLY priorities now persist until selection.
@@ -153,7 +160,8 @@ must apply equally to programmatic calls and archives, not a syntax exception in
 ### Strict prototype input
 
 Recognized commands reject unused arguments and unexpected bodies, including empty braces on raw
-Pets lines. Setup/research/production/solar labels and `exMachina` require nonempty bodies.
+Pets lines. Setup/research/production/solar labels require nonempty bodies. `exMachina(...)`
+requires a nonempty correction group and rejects bodies.
 Argument lists reject empty members and mismatched delimiters. Config and GlobalEventDeck must
 be flat blocks in their defined positions; player names and listed event identities are checked.
 `pay` parses each argument separately and requires exact positive integer amounts of supported

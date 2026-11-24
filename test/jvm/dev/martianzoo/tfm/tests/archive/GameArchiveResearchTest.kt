@@ -24,9 +24,7 @@ internal class GameArchiveResearchTest {
     )
     assertEquals(
         """
-        exMachina {
-            PROD[-MC]
-        }
+        exMachina(PROD[-MC])
         4 ProjectCard<Selecting>
         -0 ProjectCard<Selecting>
         pay(12 MC)

@@ -153,19 +153,14 @@ Rainbow: playCard(SpaceLanes) {
 Blue: playCard(SelfSufficientSettlement) {
     PROD[2 MC]
     NormalCityTile<Amazonis_04_09>
-    Plant
-    ProjectCard
+    // Blue forgets these, then realizes 100 lines down from here and corrects.
+    exMachinaDropTask(Plant)
+    exMachinaDropTask(ProjectCard)
 }
 // 2:20:25 PM — Blue: "get two money product."
 // 2:20:29 PM — Blue: "And, uh, my other prelude is terraforming deal."
 // 2:20:35 PM — Blue: "Each step my TR is raised, I gain two mega credits."
 Blue: playCard(TerraformingDeal) {
-}
-
-// Blue forgets these, then realizes 100 lines down from here and corrects.
-Blue: exMachina {
-    -Plant
-    -ProjectCard
 }
 
 // 2:20:43 PM — Green: "I am first going to play Sweetable Infrastructure."
@@ -184,12 +179,8 @@ Green: playCard(AtmosphericEnhancers) {
     TemperatureStep*, TemperatureStep*
     2 TerraformRating
     PROD[Heat]
-    2 MC
-}
-
-// I already forgot to get the SuitableInfrastructure bonus!
-Green: exMachina {
-    -2 MC
+    // I already forgot to get the SuitableInfrastructure bonus!
+    exMachinaDropTask(2 MC)
 }
 
 // board-14-23-07.jpg: Generation 1 action phase, immediately before Space Mirrors.
@@ -239,18 +230,14 @@ Rainbow: playCard(FloatingRefinery) {
     3 Floater<FloatingRefinery>
     // Rainbow physically paid seven before remembering Space Lanes' 2 M€ discount. Preserve the
     // recorded overpayment until the equally explicit refund below.
-    exMachina {
-        -2 MC
+    exMachina(-2 MC)
     // 2:28:54 PM — Rainbow: "Beautiful. Okay. Um, uh and then for my second action oh wait, add
     // one floater here for each Venus tag you have. So that's two?"
     // 2:29:03 PM — Blue: "Actually three, because your wild count."
     // 2:29:03 PM — Rainbow: "Three! Woohoo!"
     // 2:29:05 PM — Green: "Also, did you pay full price for that card?"
     // 2:29:08 PM — Green: "You should take two money back."
-    }
-    exMachina {
-        2 MC
-    }
+    exMachina(2 MC)
 }
 
 // 2:29:45 PM — Blue: "So that cost me 11 money, which is all the money I have left in the
@@ -380,10 +367,7 @@ Yellow: WorldGovernment {
 // 2:42:01 PM — Yellow: "you never you never gave yourself my plants either that's terrible to
 // have a plant this is crazy"
 // Blue noticed the two settlement bonuses while buying cards and restored them together.
-Blue: exMachina {
-    Plant
-    ProjectCard
-}
+Blue: exMachina(Plant, ProjectCard)
 
 // Research.
 Yellow: Research {
@@ -1149,12 +1133,8 @@ Green: playCard(TechnologyDemonstration) {
 // that costs me one money, right? I don't have any discounts on. So that's my turn."
 Green: playCard(DiversitySupport) {
     pay(1 MC)
-    TerraformRating
-}
-
-// Green forgot to take the TR from Diversity Support, and corrects this later.
-Green: exMachina {
-    -TerraformRating
+    // Green forgot to take the TR from Diversity Support, and corrects this later.
+    exMachinaDropTask(TerraformRating)
 }
 
 // 3:54:23 PM — Blue: "Okay, nine for Lagange of self with whole hay."
@@ -1205,9 +1185,7 @@ Yellow: pass
 // Rainbow's app entry 89 debits 2 M€ where the transcript establishes a 25 M€ cash
 // payment. Supply the omitted 23 M€ only long enough for the real billing to reproduce that
 // captured under-debit.
-Rainbow: exMachina {
-    23 MC
-}
+Rainbow: exMachina(23 MC)
 // 3:57:07–3:58:42 PM — Rainbow values three titanium at nine M€, pays the remaining 25 M€,
 // raises temperature twice, and places three oceans. Her offer to take up to six plants
 // from
@@ -1217,7 +1195,10 @@ Rainbow: playCard(GiantIceAsteroid) {
     pay(3 Titanium, 25 MC)
     TemperatureStep
     TemperatureStep
-    3 MC
+    // The printed card operation includes Media Group's 3 M€ event response, but Rainbow's app has
+    // no
+    // corresponding credit in entries 89–98.
+    exMachinaDropTask(3 MC)
     2 TerraformRating
     OceanTile<Amazonis_07_04> VIA GiantIceAsteroid
     TerraformRating
@@ -1263,19 +1244,11 @@ Rainbow {
     Ok
 }
 
-// The printed card operation includes Media Group's 3 M€ event response, but Rainbow's app has
-// no
-// corresponding credit in entries 89–98.
-Rainbow: exMachina {
-    -3 MC
-}
 // 3:59:44 PM — Rainbow: "Did I pay for that?"
 // 3:59:48 PM — Rainbow: "I'll try it again. 25."
 // 4:00:09 PM — Green: "You you. just literally just skipped paying."
 // Rainbow then concludes that she skipped the payment and enters the full narrated 25 M€.
-Rainbow: exMachina {
-    -25 MC
-}
+Rainbow: exMachina(-25 MC)
 
 // 4:01:12 PM — Blue: "Giant space mirror."
 // 4:01:19 PM — Blue: "Titanium and one mega credit, and I gain three energy production."
@@ -1306,9 +1279,7 @@ Rainbow {
 // No recording or app entry supplies another action between this one-cube result and the
 // 16:07:06 photograph, which visibly has two cubes. The extra floater's earliest possible point
 // is the preceding Generation 5 checkpoint and its latest is that photograph.
-Rainbow: exMachina {
-    Floater<FloatingRefinery>
-}
+Rainbow: exMachina(Floater<FloatingRefinery>)
 
 Blue: pass
 
@@ -1417,22 +1388,16 @@ Yellow: WorldGovernment {
 // entries 103/113 remain at 40 despite entry 113 saying -5, then entry 114 adds 5 to reach 45.
 // Green's entry 104 changes 30 to 33. Neither correction's cause is known, so each is isolated
 // at its own app entry.
-Rainbow: exMachina {
-    5 MC
-}
+Rainbow: exMachina(5 MC)
 
-Green: exMachina {
-    3 MC
-}
+Green: exMachina(3 MC)
 
 // 2:59:32–2:59:45 PM — Spoken counts are Green 9, then machine-labeled Yellow 6, Blue 8, and
 // Rainbow 11. The later complete card flows establish Yellow 8, Blue 6, and Rainbow 12 here;
 // machine speaker labels and the off-by-one Rainbow count do not override those owned cards.
 // board-16-07-06.jpg and all four app histories: Generation 6 before Research.
 // Entry 105 restores the TR Green had omitted from Diversity Support in Generation 5.
-Green: exMachina {
-    TerraformRating
-}
+Green: exMachina(TerraformRating)
 
 // Research.
 Yellow: Research {
@@ -1452,9 +1417,7 @@ Rainbow: Research {
     -2 ProjectCard<Selecting>
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
-    exMachina {
-        3 MC
-    }
+    exMachina(3 MC)
 }
 
 Blue: Research {
@@ -1750,21 +1713,15 @@ Green {
 
 // The engine charged the card immediately; restore that 8 M€ to preserve the spoken missed
 // payment until Green corrects it below.
-Green: exMachina {
-    8 MC
-}
+Green: exMachina(8 MC)
 // 3:26:07–3:26:42 PM — Green audits the app: Yellow's sabotage left 7 M€, a patent sale made
 // 8, Nitrophilic Moss spent all 8, then Suitable Infrastructure and Decomposers should leave
 // 3. He enters that correction after initially forgetting the payment.
-Green: exMachina {
-    -8 MC
-}
+Green: exMachina(-8 MC)
 // I accidentally gave myself 2 production instead of 2 money resources
 // But I knew what the ending money balance was supposed to be, so I got confused and ended
 // up giving the 2 money anyway, but never realized what I had done.
-Green: exMachina {
-    PROD[2 MC]
-}
+Green: exMachina(PROD[2 MC])
 
 // 3:27:50 PM — Rainbow: "Um, I am. I'm gonna pay two steel acting as four money plus eleven
 // money. For a lava tube settlement, I decrease my energy production, I increase my money
@@ -1948,9 +1905,7 @@ Yellow: playCard(Comet) {
 
 // Yellow did not physically pay Comet's 21 M€ at this play. Restore the engine-enforced
 // payment until the recorded correction at 3:46:46 PM.
-Yellow: exMachina {
-    21 MC
-}
+Yellow: exMachina(21 MC)
 
 // 3:39:37 PM — Rainbow: "Okay, your turn. Oh yeah. All right, so I'm gonna, I'm gonna kind of
 // hurry here to build my Mahole Lake."
@@ -2006,9 +1961,7 @@ Blue: playCard(DomedCrater) {
     Rainbow: 2 MC
     4 MC
     // board-14-23-07.jpg shows a plant at 3-7 on the mat used in this game.
-    exMachina {
-        Plant
-    }
+    exMachina(Plant)
 }
 // 3:42:19 PM — Blue: "And for my second action I'm going to convert my plants to a greenery."
 // 3:42:58 PM — Blue: "Three eight. Get in there. There we go. Three eight and I get two
@@ -2019,19 +1972,14 @@ Blue: action(ConvertPlantsAction) {
     OxygenStep
     TerraformRating
     ProjectCard
-    2 MC
+    // Blue's app has no 2 M€ Terraforming Deal response to this greenery's oxygen step:
+    // entry 178 leaves 10 M€, and the 15:57 dashboard plus entry 188 production both leave
+    // 54 M€. Preserve the omitted response at the action that caused it.
+    exMachinaDropTask(2 MC)
 }
 
 // The same photograph shows two plants at 3-8.
-Blue: exMachina {
-    2 Plant
-}
-// Blue's app has no 2 M€ Terraforming Deal response to this greenery's oxygen step:
-// entry 178 leaves 10 M€, and the 15:57 dashboard plus entry 188 production both leave
-// 54 M€. Preserve the omitted response at the action that caused it.
-Blue: exMachina {
-    -2 MC
-}
+Blue: exMachina(2 Plant)
 
 // 3:43:13 PM — Green: "I'm going to use my business network. No, better not."
 Green: useAction1(BusinessNetwork) {
@@ -2089,9 +2037,7 @@ Green {
 // 3:46:31 PM — Rainbow: "Yes, because that's why you switched one of the oceans."
 // 3:46:36 PM — Yellow: "Yeah. I forgot to pay for it."
 // 3:46:46 PM — Yellow: "So I'm doing that now."
-Yellow: exMachina {
-    -21 MC
-}
+Yellow: exMachina(-21 MC)
 // 3:47:19 PM — Yellow: "I'm regretting a little bit, yeah. But, um, oh, well, I can still,
 // um,
 // pay ten because of this for Ecological Zone."
@@ -2117,15 +2063,11 @@ Yellow {
 // 3:48:55 PM — Rainbow: "Yes. And I may need to use my thermophile section."
 // 3:49:00 PM — Rainbow: "It says I can add one microbe to any Venus card."
 // 3:49:06 PM — Rainbow: "Add it to some burning bacteria."
-Rainbow: exMachina {
-    Microbe<SulphurEatingBacteria>
-}
+Rainbow: exMachina(Microbe<SulphurEatingBacteria>)
 Rainbow: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Microbe<SulphurEatingBacteria>
-    exMachina {
-        -Microbe<SulphurEatingBacteria>
-    }
+    exMachina(-Microbe<SulphurEatingBacteria>)
 }
 Rainbow: useAction1(Thermophiles) {
     Microbe<SulphurEatingBacteria>
@@ -2295,10 +2237,7 @@ Blue: WorldGovernment {
 // 5:26:07 PM — Green: "Are you questioning the god of game corrections? Okay, so I have taken
 // away two of my money correction and four of my money. Hopefully that was the right thing to
 // do."
-Green: exMachina {
-    PROD[-2 MC]
-    -4 MC
-}
+Green: exMachina(PROD[-2 MC], -4 MC)
 
 // 5:26:20 PM — Rainbow: "So, um, I certainly used the... Applied science thing for three money.
 // Should I take away three money? I mean it might have been okay"
@@ -2489,13 +2428,9 @@ Yellow {
 
 // Rainbow paid 7 M€ for Venus Waystation and 14 M€ for Maxwell Base. Both debits reached her
 // physical/app balance before she found Maxwell's missing energy-production prerequisite.
-Rainbow: exMachina {
-    -21 MC
-}
+Rainbow: exMachina(-21 MC)
 // She canceled both plays and restored the full 21 M€, having spent no titanium.
-Rainbow: exMachina {
-    21 MC
-}
+Rainbow: exMachina(21 MC)
 // 5:45:53 PM — Rainbow: "So first I'm going to take the, it's 11 standard action."
 // 5:45:58 PM — Yellow: "If you want a standard project, tap your money, your 36 money. You
 // don't tap the production. Okay, now there you go. Okay, okay, you did it."
@@ -2763,9 +2698,7 @@ Green: WorldGovernment {
 // does not explain the correction, but every later app balance retains it; entry 223 is both
 // the earliest and latest source-compatible position, and a deliberate app correction is the
 // likeliest cause.
-Rainbow: exMachina {
-    -TerraformRating
-}
+Rainbow: exMachina(-TerraformRating)
 
 // Research.
 Yellow: Research {
@@ -2836,9 +2769,7 @@ Yellow: useStandardProject(CityProject) {
 // 3:48:27 PM, yet this recording explicitly establishes one remaining science resource. No
 // source identifies where the extra resource arose, so 6:09:38 PM is its latest possible
 // insertion point.
-Rainbow: exMachina {
-    Science<AppliedScience>
-}
+Rainbow: exMachina(Science<AppliedScience>)
 Rainbow: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Floater<FloatingRefinery>
@@ -2851,12 +2782,8 @@ Rainbow: useAction1(AppliedScience) {
 // six minus titanium and money."
 Rainbow: playCard(InterstellarColonyShip) {
     pay(6 Titanium, 2 MC)
-    3 MC
-}
-
-// The app omits Media Group's 3 M€ response to this event.
-Rainbow: exMachina {
-    -3 MC
+    // The app omits Media Group's 3 M€ response to this event.
+    exMachinaDropTask(3 MC)
 }
 
 // 6:11:32 PM — Rainbow: "Flip it. Rip it, rip it down. Okay, so that's two actions that I am
@@ -2903,9 +2830,7 @@ Rainbow: useAction2(FloatingRefinery) {
     Titanium
     2 MC
     // The app records a 3 M€ gain for the card's 2 M€ action.
-    exMachina {
-        MC
-    }
+    exMachina(MC)
 }
 // 6:14:06 PM — Rainbow: "I'm gonna take my thermal viol back, that too out a microbe to any
 // Venus card, and then I will add it to sulfur eating bacteria."
@@ -2962,9 +2887,7 @@ Rainbow: playCard(Farming) {
     PROD[2 Plant]
     2 Plant
     // App entries 233-234 move from 53 to 38 despite recording +3 and -16.
-    exMachina {
-        MC
-    }
+    exMachina(MC)
 }
 // 9:18:58 PM — Rainbow: "Green, do you have microbes?"
 // 9:19:12 PM — Green: "I do."
@@ -2982,9 +2905,7 @@ Rainbow: useAction1(Ants) {
 // 9:20:14 PM — Blue: "I get one plant and two money."
 // The sourced transactions since the 51 M€ dashboard leave 6 M€, but Blue's app debits
 // 9 M€ and 14 heat here. Supply the three-M€ overdraft so the real payment can run.
-Blue: exMachina {
-    3 MC
-}
+Blue: exMachina(3 MC)
 Blue: useStandardProject(GreeneryProject) {
     pay(14 Heat, 9 MC)
     GreeneryTile<Amazonis_03_05>
@@ -3012,9 +2933,7 @@ Yellow: playCard(TransNeptuneProbe) {
     -ProjectCard
     ProjectCard
     // Yellow's app posts -3 M€ for this otherwise fully narrated 2 M€ payment.
-    exMachina {
-        -MC
-    }
+    exMachina(-MC)
 }
 
 // 9:21:01 PM — Rainbow: "Okay. that sucks uh okay so would I rather get three more monies or
@@ -3061,9 +2980,7 @@ Green {
 
 // The table corrected Blue's greenery to 5-6 for 4 M€ ocean adjacency. Blue had not previously
 // taken that money; her app also removed one of the space's two plant bonuses.
-Blue: exMachina {
-    -Plant
-}
+Blue: exMachina(-Plant)
 
 // 9:24:40 PM — Yellow: "Right. I am Ada Smanimal. Your turn."
 Yellow: useAction1(SmallAnimals) {
@@ -3109,11 +3026,8 @@ Blue: useStandardProject(GreeneryProject) {
     GreeneryTile<Amazonis_04_05>
     0 OxygenStep
     Plant
-    2 MC
     // The app omits the 2 M€ ocean-adjacency income from this final placement.
-    exMachina {
-        -2 MC
-    }
+    exMachinaDropTask(2 MC)
 }
 
 // 9:29:05 PM — Green: "Let's just play earth catapult first, that costs 20"
@@ -3195,9 +3109,7 @@ Rainbow: useAction1(MoholeLake) {
     // 9:32:57 PM — Yellow: "Base bird."
     // Rainbow physically used Maxwell Base at both 9:21:58 and 9:32:51 in the same generation.
     // The first use consumed its action, so record the recorded illegal second bird.
-    exMachina {
-        Animal<StratosphericBirds>
-    }
+    exMachina(Animal<StratosphericBirds>)
 }
 
 // 9:33:01 PM — Green: "I will direct some heat usage, except I keep grabbing delegates which
@@ -3219,9 +3131,7 @@ Yellow: playCard(ImportedHydrogen) {
     OceanTile<WaterArea(HAS MAX 0 Tile)>*
     3 Plant
     // Conversely, Yellow's app posts -6 M€ for the narrated 8 M€ cash payment.
-    exMachina {
-        2 MC
-    }
+    exMachina(2 MC)
 }
 Yellow: action(ConvertPlantsAction) {
     pay(7 Plant)
@@ -3253,9 +3163,7 @@ Yellow: pass
 // Yellow's app has no entries for CEO's Favorite or either late patent sale. Those three
 // recorded actions net +1 M€, but the next app balance remains 2 M€ before the
 // 44 M€ production credit. Reconcile that recorded one-M€ omission at Yellow's final action.
-Yellow: exMachina {
-    -MC
-}
+Yellow: exMachina(-MC)
 
 // Rainbow app entry 249 is 39 M€ immediately before the mistakenly logged second City
 // purchase. The replay is at 41 M€ because it retains the recorded Rover Construction income
@@ -3267,10 +3175,7 @@ Yellow: exMachina {
 Rainbow: useStandardProject(PowerPlantProject) {
     pay(11 MC)
     PROD[Energy]
-    exMachina {
-        -14 MC
-        PROD[MC]
-    }
+    exMachina(-14 MC, PROD[MC])
 }
 Rainbow: playCard(AsteroidDeflectionSystem) {
     pay(1 Titanium, 2 Steel, 2 MC)
@@ -3278,9 +3183,7 @@ Rainbow: playCard(AsteroidDeflectionSystem) {
 }
 
 // The app then removes the full 13 M€ cost in addition to the steel and titanium payment.
-Rainbow: exMachina {
-    -11 MC
-}
+Rainbow: exMachina(-11 MC)
 
 // 9:37:30 PM — Green: "That changes things. I'm probably not going to bother playing it
 // because it's probably more important that I Yep, it's more important that I play Breathing
@@ -3327,13 +3230,10 @@ Green: useStandardProject(SellPatentsProject) {
 Green: playCard(CorroderSuits) {
     pay(6 MC)
     PROD[2 MC]
-    2 MC
-    Floater<CloudTourism>
     // Despite the narration, the app omits Suitable Infrastructure's 2 M€ response to the
     // production gain.
-    exMachina {
-        -2 MC
-    }
+    exMachinaDropTask(2 MC)
+    Floater<CloudTourism>
 }
 // No point using Icy Impactors anymore.
 Green: pass
@@ -3375,9 +3275,7 @@ Green: Production {
 }
 
 // Green's app credits 50 M€ at production despite 36 TR and 11 M€ production totaling 47.
-Green: exMachina {
-    3 MC
-}
+Green: exMachina(3 MC)
 
 // Post-production states from all four histories, before final greenery. Rainbow's 60 M€
 // retains the physical Rover income missing from her displayed 58; Blue's history exposes only

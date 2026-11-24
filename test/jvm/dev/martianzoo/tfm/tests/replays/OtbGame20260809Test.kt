@@ -1939,12 +1939,11 @@ internal class OtbGame20260809Test : FullGameTest() {
           "5 Pay<> FROM MC",
           "Animal<$EcologicalZone>",
           "PROD[-Plant<Green>]",
-          "3 MC<Green> FROM MC",
       )
+      // "Like that's gonna change much."
+      // HACK: That exchange never mentions the Mons Insurance payment, which we omitted physically.
+      exMachinaDropTask("3 MC<Green> FROM MC")
     }
-    // "Like that's gonna change much."
-    // HACK: That exchange never mentions the Mons Insurance payment, which we omitted physically.
-    green.exMachina("3 MC<Yellow> FROM MC<Green>")
     green.assertCounts(31 to "MC") // ledger entry 217
     yellow.assertCounts(31 to "MC") // ledger entry 325
 
@@ -2254,14 +2253,12 @@ internal class OtbGame20260809Test : FullGameTest() {
           *playCardTasks("$Gyropolis"),
           "3 Pay<Class<Steel>> FROM Steel",
           "11 Pay<> FROM MC",
-          "PROD[-2 Energy]",
-          "PROD[2 MC]",
-          "PROD[MC]",
-          "CityTile<Hellas_5_3>",
       )
+      // HACK: Green distracted Yellow into forgetting to make the production changes
+      exMachinaDropTask("PROD[-2 Energy]")
+      exMachinaDropTask("PROD[3 MC]")
+      doTask("CityTile<Hellas_5_3>")
     }
-    // HACK: Green distracted Yellow into forgetting to make the production changes
-    yellow.exMachina("PROD[-3 MC, 2 Energy]")
 
     // (8:41 pm) "I'm going to use Venusian Insects for one microbe and one money."
     green.turn {

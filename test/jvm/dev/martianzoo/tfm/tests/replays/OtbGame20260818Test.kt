@@ -885,15 +885,13 @@ internal class OtbGame20260818Test : FullGameTest() {
       doTasks(
           *playCardTasks("$IndustrialMicrobes"),
           "12 Pay<> FROM MC",
-          "PROD[Energy]",
-          "PROD[Steel]",
       )
+      // Green never narrated or logged Industrial Microbes' steel and energy production; both
+      // remain absent from the generation-seven photograph and ledger.
+      exMachinaDropTask("PROD[Energy]")
+      exMachinaDropTask("PROD[Steel]")
       doTasks("UseAction<ClaimMilestoneAction, Action1>", "8 Pay<> FROM MC", "Ecologist")
     }
-
-    // Green never narrated or logged Industrial Microbes' steel and energy production; both remain
-    // absent from the generation-seven photograph and ledger.
-    green.exMachina("PROD[-Steel, -Energy]")
 
     yellow.turn {
       // "Forced Precipitation and Extractor Balloons. Remove two off both of them to raise Venus
@@ -1246,25 +1244,21 @@ internal class OtbGame20260818Test : FullGameTest() {
           "4 Plant",
           "3 Microbe",
           "ProjectCard",
-          "Animal<$MartianZoo>",
-          "2 Animal<$MartianZoo>",
       )
+      // I forgot the extra animal from MZ's effect
+      exMachinaDropTask("Animal<$MartianZoo>")
+      doTask("2 Animal<$MartianZoo>")
     }
-
-    // I forgot the extra animal from MZ's effect
-    green.exMachina("-Animal<$MartianZoo>")
 
     yellow.turn {
       // Yellow: "Nitrite Reducing Bacteria. I remove three and get a TR."
       doTasks(
           *cardActionTasks("$NitriteReducingBacteria", "Action2"),
           "-3 Microbe<$NitriteReducingBacteria>",
-          "TerraformRating",
       )
+      // It looks like she forgot to take her TR
+      exMachinaDropTask("TerraformRating")
     }
-
-    // It looks like she forgot to take her TR
-    yellow.exMachina("-TerraformRating")
 
     green.turn {
       // Green: "Now I'm going to use Asteroid Rights to remove an asteroid from Asteroid Rights.
@@ -1444,14 +1438,12 @@ internal class OtbGame20260818Test : FullGameTest() {
           "PROD[2 MC]",
           "ProjectCard",
           "CityTile<Utopia_5_3> FROM GreeneryTile<Utopia_5_3>",
-          "Animal<$Pets>",
-          "2 MC",
       )
+      // The Generation 9 photograph still has five animals on Pets, so Green missed the animal
+      // caused by Kaguya Tech's city placement.
+      exMachinaDropTask("Animal<$Pets>")
+      doTask("2 MC")
     }
-
-    // The Generation 9 photograph still has five animals on Pets, so Green missed the animal caused
-    // by Kaguya Tech's city placement.
-    green.exMachina("-Animal<$Pets>")
 
     yellow.turn {
       // Yellow: "Right. Venusian Animals." Green: "Oh my god." Yellow: "Yep. It immediately adds an
@@ -2212,14 +2204,15 @@ internal class OtbGame20260818Test : FullGameTest() {
           "18 Pay<> FROM MC",
           "TemperatureStep",
           "TemperatureStep",
-          "2 TerraformRating",
+      )
+      // Green's ledger omitted the two TR from Lava Flows' temperature steps.
+      exMachinaDropTask("2 TerraformRating")
+      doTasks(
           "LavaFlows_SpecialTile<Utopia_8_5>",
           "2 ProjectCard",
           "4 MC",
       )
     }
-    // Green's ledger omitted the two TR from Lava Flows' temperature steps.
-    green.exMachina("-2 TerraformRating")
 
     yellow.turn {
       // "Oh, I add a Strato Bird."
@@ -2568,9 +2561,11 @@ internal class OtbGame20260818Test : FullGameTest() {
           "PROD[MC]",
           "CityTile<Utopia_2_3>",
           "Animal<$Pets>",
-          "PROD[MC]",
-          "2 Energy",
       )
+      // Green confirms he forgot Immigrant City's trigger. His ledger records only the standard
+      // project's one M€ production step, so skip the omitted Immigrant City step here.
+      exMachinaDropTask("PROD[MC]")
+      doTask("2 Energy")
       // "And for my second trick, commercial district, from sixteen, lose an energy production,
       // gain four money production, place a shitty tile, not a shitty tile."
       doTasks(
@@ -2582,9 +2577,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           "Steel",
       )
     }
-    // Green confirms he forgot Immigrant City's trigger. His ledger records only the standard
-    // project's one M€ production step, so remove the omitted Immigrant City step here.
-    green.exMachina("PROD[-MC]")
 
     yellow.turn {
       doTasks(*cardActionTasks("$Psychrophiles"), "Microbe<$Psychrophiles>")
@@ -2777,7 +2769,10 @@ internal class OtbGame20260818Test : FullGameTest() {
     green.exMachina("ProjectCard")
     green.turn {
       // "Okay, now I can use Energy Market. Get all up to 12 money."
-      doTasks(*cardActionTasks("$EnergyMarket", "Action2"), "PROD[-Energy]", "8 MC")
+      doTasks(*cardActionTasks("$EnergyMarket", "Action2"))
+      // Green took Energy Market's eight M€ but did not record its energy-production decrease.
+      exMachinaDropTask("PROD[-Energy]")
+      doTask("8 MC")
       // "Play Sub-Zero Salt Fish." "Now you lose plant production. I spend five on that." "It's an
       // animal tag." "So I get an Ecomole."
       doTasks(
@@ -2787,8 +2782,6 @@ internal class OtbGame20260818Test : FullGameTest() {
           "PROD[-Plant<Yellow>]",
       )
     }
-    // Green took Energy Market's eight M€ but did not record its energy-production decrease.
-    green.exMachina("PROD[Energy]")
 
     yellow.turn {
       // "But, well, still, for the means, I can play Predators."

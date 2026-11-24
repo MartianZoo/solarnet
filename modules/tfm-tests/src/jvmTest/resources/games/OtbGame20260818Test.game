@@ -722,19 +722,14 @@ Yellow: action(TradeAction, 2) {
 // become the Ecologist."
 Green: playCard(IndustrialMicrobes) {
     pay(12 MC)
-    PROD[Energy]
-    PROD[Steel]
+    // Green never narrated or logged Industrial Microbes' steel and energy production; both remain
+    // absent from the generation-seven photograph and ledger.
+    exMachinaDropTask(PROD[Energy])
+    exMachinaDropTask(PROD[Steel])
 }
 Green: action(ClaimMilestoneAction) {
     pay(8 MC)
     Ecologist
-}
-
-// Green never narrated or logged Industrial Microbes' steel and energy production; both remain
-// absent from the generation-seven photograph and ledger.
-Green: exMachina {
-    PROD[-Steel]
-    PROD[-Energy]
 }
 
 // "Forced Precipitation and Extractor Balloons. Remove two off both of them to raise Venus
@@ -830,9 +825,7 @@ Green: action(ConvertPlantsAction) {
 }
 
 // Green accidentally took another TR, not realizing the app gave it to him already
-Green: exMachina {
-    TerraformRating
-}
+Green: exMachina(TerraformRating)
 
 // "Noctis City... six steel and six real... place a city tile... on three-two."
 Yellow: playCard(NoctisCity) {
@@ -880,14 +873,7 @@ Yellow: WorldGovernment {
 // board-13-46-12.jpg and both player ledgers: after Generation 6 transition.
 // When we resumed the physical game, we knew about the errors found above, so we made this
 // manual correction to put things right again.
-Green: exMachina {
-    -TerraformRating
-    -MC
-    PROD[Steel]
-    PROD[Energy]
-    Steel
-    Energy
-}
+Green: exMachina(-TerraformRating, -MC, PROD[Steel], PROD[Energy], Steel, Energy)
 
 // Research.
 Green: Research {
@@ -897,9 +883,7 @@ Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 
     // And then I immediately screwed up and forgot to pay for my cards!
-    exMachina {
-        6 MC
-    }
+    exMachina(6 MC)
 }
 
 Yellow: Research {
@@ -942,9 +926,7 @@ Yellow: playCard(IoSulphurResearch) {
     pay(15 MC)
     3 ProjectCard
     // She forgot her Valley Trust discount
-    exMachina {
-        -2 MC
-    }
+    exMachina(-2 MC)
 }
 
 // Green: "I'm going to play Nuclear Power. That cost me ten. I lose two money production. I
@@ -1025,30 +1007,22 @@ Green: playCard(ImportedNitrogen) {
     4 Plant
     3* Microbe
     ProjectCard
-    Animal<MartianZoo> VIA MartianZoo
+    // I forgot the extra animal from MZ's effect
+    exMachinaDropTask(Animal<MartianZoo>) VIA MartianZoo
     2 Animal<MartianZoo>
 }
 Green {
     Ok
 }
 
-// I forgot the extra animal from MZ's effect
-Green: exMachina {
-    -Animal<MartianZoo>
-}
-
 // Yellow: "Nitrite Reducing Bacteria. I remove three and get a TR."
 Yellow: useAction2(NitriteReducingBacteria) {
     -3 Microbe<NitriteReducingBacteria>
-    TerraformRating
+    // It looks like she forgot to take her TR
+    exMachinaDropTask(TerraformRating)
 }
 Yellow {
     Ok
-}
-
-// It looks like she forgot to take her TR
-Yellow: exMachina {
-    -TerraformRating
 }
 
 // Green: "Now I'm going to use Asteroid Rights to remove an asteroid from Asteroid Rights.
@@ -1144,10 +1118,7 @@ Green: Research {
     // So I pay for them now, and realize I wouldn't have afforded VI last round.
     // I let it stay, but reason that it should lose a microbe that I wouldn't have had the
     // chance to play.
-    exMachina {
-        -6 MC
-        -Microbe<VenusianInsects>
-    }
+    exMachina(-6 MC, -Microbe<VenusianInsects>)
 }
 
 Yellow: Research {
@@ -1210,14 +1181,10 @@ Green: playCard(KaguyaTech) {
     PROD[2 MC]
     ProjectCard
     NormalCityTile<Utopia_5_3> FROM GreeneryTile<Utopia_5_3>
-    Animal<Pets>
+    // The Generation 9 photograph still has five animals on Pets, so Green missed the animal caused
+    // by Kaguya Tech's city placement.
+    exMachinaDropTask(Animal<Pets>)
     2 MC
-}
-
-// The Generation 9 photograph still has five animals on Pets, so Green missed the animal caused
-// by Kaguya Tech's city placement.
-Green: exMachina {
-    -Animal<Pets>
 }
 
 // Yellow: "Right. Venusian Animals." Green: "Oh my god." Yellow: "Yep. It immediately adds an
@@ -1231,9 +1198,7 @@ Yellow {
 }
 
 // Again forgot her Valley Trust discount.
-Yellow: exMachina {
-    -2 MC
-}
+Yellow: exMachina(-2 MC)
 
 // Green: "I'm gonna go ahead and use three real and seven titanium. And I'm going to get four
 // plant production, two TR plus another TR for raising temp to minus 12."
@@ -1395,16 +1360,9 @@ Yellow: WorldGovernment {
 // Before Generation 9 Research, both players reconciled the physical table against their
 // resource logs. Green took three M€ and an animal on Martian Zoo and discarded a card; Yellow
 // took six M€ and one TR.
-Green: exMachina {
-    3 MC
-    Animal<MartianZoo>
-    -ProjectCard
-}
+Green: exMachina(3 MC, Animal<MartianZoo>, -ProjectCard)
 
-Yellow: exMachina {
-    6 MC
-    TerraformRating
-}
+Yellow: exMachina(6 MC, TerraformRating)
 
 // Research.
 Green: Research {
@@ -1849,15 +1807,11 @@ Green: playCard(LavaFlows) {
     pay(18 MC)
     TemperatureStep
     TemperatureStep
-    2 TerraformRating
+    // Green's ledger omitted the two TR from Lava Flows' temperature steps.
+    exMachinaDropTask(2 TerraformRating)
     LavaFlows_SpecialTile<Utopia_8_5>
     2 ProjectCard
     4 MC
-}
-
-// Green's ledger omitted the two TR from Lava Flows' temperature steps.
-Green: exMachina {
-    -2 TerraformRating
 }
 
 // "Oh, I add a Strato Bird."
@@ -2128,7 +2082,9 @@ Green: useStandardProject(CityProject) {
     PROD[MC]
     NormalCityTile<Utopia_2_3>
     Animal<Pets>
-    PROD[MC]
+    // Green confirms he forgot Immigrant City's trigger. His ledger records only the standard
+    // project's one M€ production step, so skip the omitted Immigrant City step here.
+    exMachinaDropTask(PROD[MC])
     2 Energy
 }
 // "And for my second trick, commercial district, from sixteen, lose an energy production,
@@ -2139,12 +2095,6 @@ Green: playCard(CommercialDistrict) {
     PROD[4 MC]
     CommercialDistrict_SpecialTile<Utopia_3_3>
     Steel
-}
-
-// Green confirms he forgot Immigrant City's trigger. His ledger records only the standard
-// project's one M€ production step, so remove the omitted Immigrant City step here.
-Green: exMachina {
-    PROD[-MC]
 }
 
 Yellow: useAction1(Psychrophiles) {
@@ -2170,9 +2120,7 @@ Green: action(ConvertPlantsAction) {
 }
 
 // 16:55:51: Green counted five plants, overlooking Research Coordination's wild tag.
-Green: exMachina {
-    -Plant
-}
+Green: exMachina(-Plant)
 
 // "I'm gonna add a strato bird." "I'm at 15 strato birds."
 Yellow: useAction1(StratosphericBirds) {
@@ -2302,12 +2250,11 @@ Yellow {
 
 // The transcript identifies Sub-Zero Salt Fish in Green's hand, while the generic reconstructed
 // hand is one card short after the sourced plays and patent sales.
-Green: exMachina {
-    ProjectCard
-}
+Green: exMachina(ProjectCard)
 // "Okay, now I can use Energy Market. Get all up to 12 money."
 Green: useAction2(EnergyMarket) {
-    PROD[-Energy]
+    // Green took Energy Market's eight M€ but did not record its energy-production decrease.
+    exMachinaDropTask(PROD[-Energy])
     8 MC
 }
 // "Play Sub-Zero Salt Fish." "Now you lose plant production. I spend five on that." "It's an
@@ -2316,11 +2263,6 @@ Green: playCard(SubZeroSaltFish) {
     pay(5 MC)
     Animal<EcologicalZone>
     PROD[-Plant<Yellow>]
-}
-
-// Green took Energy Market's eight M€ but did not record its energy-production decrease.
-Green: exMachina {
-    PROD[Energy]
 }
 
 // "But, well, still, for the means, I can play Predators."
@@ -2378,14 +2320,7 @@ Yellow: Production {
 // the ordinary-rules state. This net delta is characterized by the separate exMachina-free
 // replay, not by the ledgers: retain Lava Flows' two TR and Kaguya Tech's Pets animal, retain
 // Immigrant City's M€-production trigger, and retain Energy Market's production decrease.
-Green: exMachina {
-    4 MC
-    2 TerraformRating
-    PROD[MC]
-    PROD[-Energy]
-    -Energy
-    Animal<Pets>
-}
+Green: exMachina(4 MC, 2 TerraformRating, PROD[MC], PROD[-Energy], -Energy, Animal<Pets>)
 // "So I'm going to 1-2 and 1-3."
 Green: action(ConvertPlantsAction) {
     pay(8 Plant)

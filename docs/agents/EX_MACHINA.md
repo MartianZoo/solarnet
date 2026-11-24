@@ -68,6 +68,24 @@ asked to keep this consolidation expedient rather than redesign correction-time 
 `ActorEngine.exMachina` supplies the elementary correction mechanics across the engine/Agent module
 interface; clients use Agent for the audit, recording, and unfinished-work checks.
 
+## Omitting an evidenced task
+
+`Agent.exMachinaDropTask` matches a concrete current step through the same matcher as `doTask`,
+including source qualification, required container openings, and complete pending totals. It removes
+the matched instruction without its changes or effects and admits its bound `THEN` continuation.
+It records the omission on `TaskRemovedEvent.skipped`; it does not create a component correction.
+Missing, ambiguous, deferred, or incompatible requests fail and restore the call. The request cannot
+contain `THEN` or leave choices unresolved. Direct transfers to another Actor are rejected; the
+recipient overload can first release eligible NOW work through the sending Agent.
+
+This is for an evidenced omission in a replay, such as a forgotten Solar Logistics draw. A later
+physical repair remains an ordinary `exMachina` correction at its recorded position. Skipping a
+payment does not settle `Owed` or finish its `PaymentScope`; missed-payment refunds remain explicit
+corrections. Player autoexecution must leave the intended task pending until the drop. Mandatory
+Admin work and the surrounding Player policy still run normally after the command.
+
+`dropTask(taskId)` remains raw task deletion: unlike `exMachinaDropTask`, it discards the continuation.
+
 ## Required-part construction
 
 Creating a component establishes a positive exact-count invariant only when its specialized target

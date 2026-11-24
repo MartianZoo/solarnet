@@ -1052,10 +1052,9 @@ internal class OtbGame20261111Test : FullGameTest() {
           "PROD[3 MC]",
           "3 MC",
           "CityTile<Vastitas_2_3>",
-          "Steel",
       )
       // Green forgot the Mars First party's bonus steel
-      exMachina("-Steel")
+      exMachinaDropTask("Steel")
     }
     pink.turn {
       // (3:52:36 PM) "Spend six money and two heat on Aquifer Pumping to place an ocean for two
@@ -1071,10 +1070,9 @@ internal class OtbGame20261111Test : FullGameTest() {
           "2 Heat",
           "Plant",
           "2 MC",
-          "Steel",
       )
       // Pink also forgot the Mars First party's bonus steel
-      exMachina("-Steel")
+      exMachinaDropTask("Steel")
       // (3:53:30 PM) "Red Appeasement, and no other player has passed."
       // "I haven't passed yet, so you can't play that. Oh, no other player. Right."
       // "I pay no money, get two money production, and I pass."
@@ -1856,10 +1854,9 @@ internal class OtbGame20261111Test : FullGameTest() {
       doTask("NOW Green { ProjectCard<Green, Hand> }")
 
       green.assertCounts(4 to "ProjectCard")
-      green.doTask("ProjectCard")
       // At 16:43 Green explicitly counts 4 cards, not 5. The user confirms forgetting this Solar
       // Logistics draw; retain the observed hand until the correction is actually applied.
-      green.exMachina("-ProjectCard")
+      green.exMachinaDropTask("ProjectCard")
     }
     // (4:40:05 PM) "I am all out of stuff to do. Pass."
     green.doTask("Pass")
@@ -2082,15 +2079,16 @@ internal class OtbGame20261111Test : FullGameTest() {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
-          "3 MC",
+      )
+      // Green forgot Standard Technology's 3 MC rebate.
+      exMachinaDropTask("3 MC")
+      doTasks(
           "GreeneryTile<Vastitas_2_5>",
           "Plant",
           "OxygenStep",
           "TerraformRating",
           "Steel",
       )
-      // Green forgot Standard Technology's 3 MC rebate.
-      exMachina("-3 MC")
       // "Harvest costs me three, and gives me 12."
       doTasks(
           *playCardTasks("$Harvest"),
@@ -2520,13 +2518,14 @@ internal class OtbGame20261111Test : FullGameTest() {
       doTasks(
           *standardProjectTasks("GreeneryProject"),
           "23 Pay<> FROM MC",
-          "3 MC",
+      )
+      // Green again forgot Standard Technology's 3 MC rebate.
+      exMachinaDropTask("3 MC")
+      doTasks(
           "GreeneryTile<Vastitas_3_6>",
           "4 MC",
           "0 OxygenStep",
       )
-      // Green again forgot Standard Technology's 3 MC rebate.
-      exMachina("-3 MC")
       // (7:23:32 PM) "Use Mars Nomads, move this guy back to take two money and two cards. Please
       // be good. No."
       doTasks(
@@ -2609,11 +2608,10 @@ internal class OtbGame20261111Test : FullGameTest() {
           *playCardTasks("$OrbitalCleanup"),
           "3 Pay<Class<Titanium>> FROM Titanium",
           "4 Pay<> FROM MC",
-          "PROD[-2 MC]",
-          "Animal<$MartianZoo>",
       )
       // Pink forgot Orbital Cleanup's 2 MC-production decrease.
-      exMachina("PROD[2 MC]")
+      exMachinaDropTask("PROD[-2 MC]")
+      doTask("Animal<$MartianZoo>")
     }
     green.turn {
       // (7:27:24 PM) "Neutralizer Factory for six. Venus goes to 20, and I get a TR."

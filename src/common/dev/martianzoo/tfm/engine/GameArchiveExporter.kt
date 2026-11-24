@@ -58,6 +58,7 @@ public class GameArchiveExporter(
       val available: Set<TaskId> = emptySet(),
       val amount: Boolean = false,
       val selection: Boolean = false,
+      val skipped: Boolean = false,
       val turnDecline: Boolean = false,
       val context: ClassName? = null,
       val beforePreparation: GameWorld? = null,
@@ -167,6 +168,8 @@ public class GameArchiveExporter(
         if (block.name == "pass") {
           check(block.lines.isEmpty()) { "Unexpected effects following $block" }
           appendLine("${block.actor}: ${block.name}")
+        } else if (block.name == "exMachina") {
+          appendLine("${block.actor}: exMachina(${block.lines.joinToString()})")
         } else {
           appendLine("${block.actor}${if (block.name.isEmpty()) "" else ": ${block.name}"} {")
           block.lines.forEach { appendLine("    $it") }
@@ -179,6 +182,11 @@ public class GameArchiveExporter(
 
   private fun sameBlock(a: Step, b: Step): Boolean =
       when {
+        // Outside actions, explicit releases must precede their recipients even when grouping by
+        // Actor.
+        a.scope == null &&
+            (a.instruction is Instruction.Dispatch || b.instruction is Instruction.Dispatch) ->
+            false
         // Research is a complete per-player sequence, including the tasks created by purchasing.
         // Keep that player's draw, decisions, payment, and corrections together in this generation.
         a.phase == "ResearchPhase" -> b.phase == a.phase && b.generation == a.generation
@@ -396,9 +404,10 @@ public class GameArchiveExporter(
                         beforeChoice[event.task.id].takeIf {
                           instruction is Instruction.Each || instruction is InstructionGroup
                         },
-                    selection = instruction is InstructionGroup,
+                    selection = instruction is InstructionGroup && !event.skipped,
+                    skipped = event.skipped,
                     executionStart = transactionStart,
-                    turnDecline = actionDecline && phase == "ActionPhase",
+                    turnDecline = actionDecline && phase == "ActionPhase" && !event.skipped,
                     request = requests[event.task.id] ?: event.task.id,
                     available = eligible.map { it.id }.toSet(),
                     context =
@@ -443,8 +452,9 @@ public class GameArchiveExporter(
                 )
           }
           if (
-              (event.task.instruction as? Instruction.Dispatch)?.deferral ==
-                  dev.martianzoo.pets.ast.Deferral.NOW
+              !event.skipped &&
+                  (event.task.instruction as? Instruction.Dispatch)?.deferral ==
+                      dev.martianzoo.pets.ast.Deferral.NOW
           ) {
             released = event.task.id to available[event.task.id].orEmpty()
           }
@@ -549,18 +559,20 @@ public class GameArchiveExporter(
       } else zeroPayment?.let(::line)
       zeroPayment = null
     }
-    var nestedCorrection: Int? = null
+    val correction = mutableListOf<Step>()
+    fun flushCorrection() {
+      if (correction.isEmpty()) return
+      val actor = correction.first().actor
+      val prefix = if (actor == block.actor) "" else "$actor: "
+      line("${prefix}exMachina(${correction.joinToString { render(it.instruction, it.actor) }})")
+      correction.clear()
+    }
     for (step in combineAdjacentAmounts(steps, allSteps)) {
-      if (nestedCorrection != null && nestedCorrection != step.correction) {
-        line("}")
-        nestedCorrection = null
-      }
+      if (correction.isNotEmpty() && correction.first().correction != step.correction)
+          flushCorrection()
       if (step.correction != null && block.name != "exMachina") {
         flushPayment()
-        if (nestedCorrection == null)
-            line("${if (step.actor == block.actor) "" else "${step.actor}: "}exMachina {")
-        nestedCorrection = step.correction
-        line("    ${render(step.instruction, step.actor)}")
+        correction += step
         continue
       }
       if (block.name == "exMachina") {
@@ -568,6 +580,13 @@ public class GameArchiveExporter(
         continue
       }
       val instruction = step.instruction
+      if (step.skipped) {
+        flushPayment()
+        val prefix = if (step.actor == block.actor) "" else "${step.actor}: "
+        val source = step.context?.let { " VIA $it" } ?: ""
+        line("${prefix}exMachinaDropTask(${render(instruction, step.actor)})$source")
+        continue
+      }
       if (step.selection) {
         flushPayment()
         val prefix = if (step.actor == block.actor) "" else "${step.actor}: "
@@ -638,7 +657,7 @@ public class GameArchiveExporter(
         }
       }
     }
-    if (nestedCorrection != null) line("}")
+    flushCorrection()
     flushPayment()
     return block
   }
@@ -680,6 +699,7 @@ public class GameArchiveExporter(
   }
 
   private fun canInferPreparation(step: Step, next: Step?): Boolean {
+    if (step.skipped) return false
     val before = step.beforePreparation ?: return false
     if (
         next == null ||
@@ -738,13 +758,14 @@ public class GameArchiveExporter(
   private fun combineAdjacentAmounts(steps: List<Step>, allSteps: List<Step>): List<Step> {
     val explicit = steps.filter { step ->
       val dispatch = step.instruction as? Instruction.Dispatch
-      if (dispatch != null) {
+      if (dispatch != null && !step.skipped) {
         check(dispatch.deferral == dev.martianzoo.pets.ast.Deferral.NOW) {
           "Unsupported player dispatch: $dispatch"
         }
       }
-      // Recipient-prefixed responses release this work through the shared matcher.
-      dispatch == null
+      // Nested recipient responses release their work through the shared matcher. Outside an
+      // action, retain each release explicitly before the recipient's phase block.
+      dispatch == null || step.skipped || step.scope == null
     }
     fun target(change: Change) = change.gaining ?: change.removing
     fun compatible(first: Step, next: Step): Boolean {
@@ -770,9 +791,13 @@ public class GameArchiveExporter(
     while (index < explicit.size) {
       val first = explicit[index]
       var end = index + 1
-      while (end < explicit.size && compatible(first, explicit[end])) end++
+      while (
+          end < explicit.size &&
+              first.skipped == explicit[end].skipped &&
+              compatible(first, explicit[end])
+      ) end++
       val group = explicit.subList(index, end)
-      // A total must include every matching pending amount, even a reward executed later.
+      // A total must include every matching pending amount, whether performed or omitted later.
       val groupedRequests = group.map { it.request }.toSet()
       val outside = allSteps.any { it.request !in groupedRequests && compatible(first, it) }
       if (group.size > 1 && !outside) {

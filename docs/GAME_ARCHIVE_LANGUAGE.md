@@ -85,6 +85,20 @@ body; it does not require another level of braces.
 UseAction1 and UseAction2 identify card actions. UsePolicy is a standard model action and needs
 no party argument. It is not an importer special case masquerading as an action on a party card.
 
+## Parentheses and braces
+
+Parentheses supply a command's inputs: `pay(3 Titanium, 1 MC)`,
+`selectTask(Plant THEN Heat)`, `exMachina(-2 MC, PROD[Energy])`, and
+`exMachinaDropTask(ProjectCard)`. Each is a complete command, without a body.
+
+Braces contain further archive entries: `playCard(Name) { ... }`, `Research { ... }`, and
+`Green { ... }`. Those bodies can contain commands with their own bodies. Commands without
+arguments omit parentheses, as in `pass` and `doRequiredActions { ... }`.
+
+Header sections such as `Config`, `GlobalEventDeck`, `Cards`, and `SetupRules` also use braces
+for their contents; each header defines what it can contain. Embedded Pets expressions retain
+their own grammar, including `EACH ... { ... }`, `PROD[...]`, and expression parentheses.
+
 ## Players, turns, and phases
 
 An actor prefix identifies whose operation is being requested. Braces group an action's work or a
@@ -233,9 +247,10 @@ Comments are essential. Hand-authored archives can preserve source observations,
 explanations, and corrections beside the relevant play. Ordinary exports omit comments. Regenerating
 commands must not erase commentary in checked-in authored files.
 
-ExMachina is explicit correction, can appear wherever the game needs it, and does not consume an
-action. It must not become a hidden repair the importer uses to make an otherwise invalid archive
-reach the expected result.
+`exMachina(change, ...)` applies the comma-separated changes as a single correction. It can
+appear wherever the game needs it and does not consume an action. It takes no command body.
+It must not become a hidden repair the importer uses to make an otherwise invalid archive reach
+the expected result.
 
 The long-term goal is to account for user-facing inventory changes directly from the file: a reader
 should be able to total a player's plants using arithmetic, without executing the rules. This can

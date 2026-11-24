@@ -115,13 +115,14 @@ internal class OtbGame20261009Test : FullGameTest() {
         "2 MC",
         "-4 MC",
         "TemperatureStep",
-        "OxygenStep",
-        "2 TerraformRating",
-        "-3 ProjectCard",
     )
     // The table omitted Project Eden's oxygen and TR. The 13:53:05 photo shows oxygen 0,
     // TR 23; at 22:31:08 they notice the missing oxygen, but never restore this TR.
-    p2.exMachina("-OxygenStep, -TerraformRating")
+    p2.exMachinaDropTask("OxygenStep")
+    p2.doTasks(
+        "TerraformRating",
+        "-3 ProjectCard",
+    )
     // board-13-53-05.jpg, after Preludes.
     p2.assertResources(m = 37, s = 0, t = 0, p = 3, e = 0, h = 2)
     p2.assertProduction(m = 0, s = 0, t = 0, p = 0, e = 2, h = 0)
@@ -157,11 +158,10 @@ internal class OtbGame20261009Test : FullGameTest() {
           "4 MC",
           "2 Plant",
           "-Plant<Aqua>",
-          "PROD[Heat]",
       )
       // Pink's logs show no heat production and +1 heat (entry 27), apparently confusing
       // the −24°C production bonus with a resource.
-      exMachina("PROD[-Heat]")
+      exMachinaDropTask("PROD[Heat]")
     }
     // "I just want you to see how sad this is and it may even make you wonder why I'm even doing
     // it." "Immigrant city. Can you believe that three cities already got played before it?"
@@ -573,11 +573,10 @@ internal class OtbGame20261009Test : FullGameTest() {
           "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
-          "PROD[Heat]",
       )
       // Aqua never recorded the −20°C production bonus: entries 97 and 106 show
       // 6 heat before production, then 24 from converting 18 energy, with no heat income.
-      exMachina("PROD[-Heat]")
+      exMachinaDropTask("PROD[Heat]")
     }
     p2.turn {
       doTasks(

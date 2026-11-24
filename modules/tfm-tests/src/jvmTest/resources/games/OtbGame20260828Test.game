@@ -164,9 +164,7 @@ Yellow {
 }
 
 // She forgot to reduce her money production (fixed later)
-Yellow: exMachina {
-    PROD[MC]
-}
+Yellow: exMachina(PROD[MC])
 
 Green: pass
 
@@ -763,10 +761,7 @@ Yellow {
 
 // Yellow then corrected Business Network's previously omitted production loss and the three
 // generations of extra income it had caused.
-Yellow: exMachina {
-    -3 MC
-    PROD[-MC]
-}
+Yellow: exMachina(-3 MC, PROD[-MC])
 
 // "Space Elevate. A steel for five money."
 Green: useAction1(SpaceElevator) {
@@ -1344,9 +1339,7 @@ Yellow: playCard(Cartel) {
 }
 
 // She forgot to pay for Cartel (fixed later)
-Yellow: exMachina {
-    6 MC
-}
+Yellow: exMachina(6 MC)
 
 // "I am going to play Olympus Conferencia, which costs nine, and it gives me a science
 // resource because it's a science tag."
@@ -1709,9 +1702,7 @@ Yellow: Research {
 
     // "We made [Yellow] pay six to account for her previous mistake. And then I bought three cards
     // and [Yellow] bought three cards. Yeah, and [Blue]'s buying one card."
-    exMachina {
-        -6 MC
-    }
+    exMachina(-6 MC)
     -ProjectCard<Selecting>
     pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
@@ -2407,9 +2398,7 @@ Blue {
 
 // Blue did not remove the floater spent by the Observatory draw: the generation-end photo still
 // shows it, and every flexible floater action this generation has another destination.
-Blue: exMachina {
-    Floater<RedSpotObservatory>
-}
+Blue: exMachina(Floater<RedSpotObservatory>)
 
 // "Paid two things for Floating Habs. Add to self."
 Yellow: useAction1(FloatingHabs) {
@@ -2587,9 +2576,7 @@ Yellow: useAction2(EnergyMarket) {
 }
 
 // Green forgot to take his Immigrant City effect.
-Green: exMachina {
-    PROD[-MC]
-}
+Green: exMachina(PROD[-MC])
 // "Play Open City. It cost me 19 ... go to 5-3."
 // Green continues to keep the same steel for his next Space Elevator action.
 Green: playCard(OpenCity) {
@@ -2692,10 +2679,7 @@ Blue {
     Ok
 }
 
-Blue: exMachina {
-    -2 Floater<Stratopolis>
-    2 Floater<TitanAirScrapping>
-}
+Blue: exMachina(-2 Floater<Stratopolis>, 2 Floater<TitanAirScrapping>)
 
 // "Power Infrastructure, spend an energy, gain a money."
 Yellow: useAction1(PowerInfrastructure) {
@@ -2733,9 +2717,7 @@ Green {
 }
 
 // Green forgets the Palladin effect for paying a space event
-Green: exMachina {
-    -Titanium
-}
+Green: exMachina(-Titanium)
 
 // "Orbital Cleanup. I gain six monies."
 Blue: useAction1(OrbitalCleanup) {

@@ -226,17 +226,134 @@ internal class GameArchiveInferenceTest {
         roundTrip(
             "EACH @Player { Plant<@Player> / Heat<@Player> }",
             """
-            exMachina {
-                Heat
-            }
+            exMachina(Heat)
             EACH @Player { Plant<@Player> / Heat<@Player> }
-            exMachina {
-                Heat
-            }
+            exMachina(Heat)
             Plant
             """
                 .trimIndent(),
         )
     assertTrue("EACH" in text)
+  }
+
+  @Test
+  fun skippedAmountsStaySeparateFromPerformedAmounts() {
+    val text =
+        roundTrip(
+            "2 Plant<Green>, 3 Plant<Green>, Steel<Green> THEN Plant<Green>",
+            """
+            exMachinaDropTask(5 Plant)
+            Steel
+            Plant
+            """
+                .trimIndent(),
+        )
+    assertTrue("exMachinaDropTask(5 Plant)" in text, text)
+    assertTrue(text.lineSequence().any { it.trim() == "Plant" }, text)
+  }
+
+  @Test
+  fun laterOmittedAmountPreventsCombiningEarlierPerformedAmounts() {
+    val text =
+        roundTrip(
+            "2 Plant<Green>, 3 Plant<Green>, 4 Plant<Green>",
+            """
+            2 Plant
+            3 Plant
+            exMachinaDropTask(4 Plant)
+            """
+                .trimIndent(),
+        )
+    assertFalse(text.lineSequence().any { it.trim() == "5 Plant" }, text)
+  }
+
+  @Test
+  fun laterPerformedAmountPreventsCombiningEarlierOmissions() {
+    val text =
+        roundTrip(
+            "2 Plant<Green>, 3 Plant<Green>, 4 Plant<Green>",
+            """
+            exMachinaDropTask(2 Plant)
+            exMachinaDropTask(3 Plant)
+            4 Plant
+            """
+                .trimIndent(),
+        )
+    assertFalse("exMachinaDropTask(5 Plant)" in text, text)
+  }
+
+  @Test
+  fun skippedEachChildRetainsItsSiblingAndSourceQualification() {
+    val text =
+        roundTrip(
+            "EACH Player { Plant<Green>, Steel<Green> }",
+            """
+            exMachinaDropTask(Plant) VIA Green
+            exMachinaDropTask(Plant) VIA Green
+            2 Steel
+            """
+                .trimIndent(),
+        )
+    assertTrue("exMachinaDropTask" in text, text)
+    assertFalse("selectTask" in text, text)
+  }
+
+  @Test
+  fun skippedStepKeepsItsLinkedContinuation() {
+    val text =
+        roundTrip(
+            "X Plant<Green> THEN 3X Heat<Green>",
+            """
+            exMachinaDropTask(2 Plant)
+            6 Heat
+            """
+                .trimIndent(),
+        )
+    assertTrue("exMachinaDropTask(2 Plant)" in text, text)
+    assertTrue("6 Heat" in text, text)
+  }
+
+  @Test
+  fun recipientOmissionRoundTripsThroughItsRelease() {
+    val text =
+        roundTrip(
+            "NOW Pink { Plant<Pink> }",
+            "Pink: exMachinaDropTask(Plant)",
+        )
+    assertTrue("exMachinaDropTask(Plant)" in text, text)
+    assertTrue("NOW Pink" in text, text)
+  }
+
+  @Test
+  fun performedRecipientResponseRoundTripsThroughItsRelease() {
+    val text = roundTrip("NOW Pink { Plant<Pink> }", "Pink: Plant")
+    assertTrue("NOW Pink" in text, text)
+  }
+
+  @Test
+  fun earlierRecipientWorkDoesNotMoveAnOmissionBeforeItsRelease() {
+    roundTrip(
+        "NOW Pink { Plant<Pink> }",
+        """
+        Pink: 20 TerraformRating
+        Pink: exMachinaDropTask(Plant)
+        """
+            .trimIndent(),
+    )
+  }
+
+  @Test
+  fun skippingARecipientDispatchDoesNotReleaseItsBody() {
+    val text =
+        roundTrip(
+            "NOW Pink { Plant<Pink> } THEN Steel<Green>",
+            """
+            exMachinaDropTask(NOW Pink { Plant<Pink> })
+            Steel
+            """
+                .trimIndent(),
+        )
+    assertTrue("exMachinaDropTask(NOW Pink { Plant<Pink>! })" in text, text)
+    assertFalse("Pink: Setup" in text, text)
   }
 }

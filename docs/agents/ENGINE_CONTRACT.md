@@ -145,6 +145,8 @@ continuations. Transfer to a different Actor stops the submitting Actor from exe
 Ordinary task additions and dropping a different task are refused while a task is selected.
 Dropping the selected task is an explicit correction facility, not an in-game way around priority.
 `exMachina` remains available and preserves selected choices and already calculated amounts.
+`exMachinaDropTask` uses ordinary request matching to omit the current step while retaining its
+bound continuation; see [correction handling](EX_MACHINA.md#omitting-an-evidenced-task).
 
 ### Linked instructions
 

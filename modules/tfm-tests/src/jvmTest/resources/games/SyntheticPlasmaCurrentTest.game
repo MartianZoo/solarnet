@@ -379,9 +379,7 @@ Bloo: GlobalEvent {
 
 // FAQ v1.8 p.100 awards the solo Reds bonus only at 20 TR or below. The archived server
 // nevertheless awarded it at 21 after annual revision; retain that source result explicitly.
-Bloo: exMachina {
-    TerraformRating
-}
+Bloo: exMachina(TerraformRating)
 
 // Generation 7
 Bloo: Research {

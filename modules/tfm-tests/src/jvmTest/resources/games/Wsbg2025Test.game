@@ -1365,9 +1365,7 @@ Black: useAction1(SearchForLife) {
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
     // Intentional Miranda overpayment: Black misses Mass Converter's 2 MC discount.
-    exMachina {
-        -2 MC
-    }
+    exMachina(-2 MC)
 }
 // visual confirmation
 // visual confirmation
@@ -1411,9 +1409,7 @@ Black: Production {
 }
 
 // 01:50:42-01:50:57: table agrees to refund Miranda's missed discount
-Black: exMachina {
-    2 MC
-}
+Black: exMachina(2 MC)
 
 Blue: Research {
     4 ProjectCard<Selecting>

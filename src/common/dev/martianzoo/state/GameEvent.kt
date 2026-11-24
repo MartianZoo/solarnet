@@ -55,6 +55,8 @@ public sealed class GameEvent private constructor() {
       override val ordinal: Int,
       override val task: Task,
       override val transaction: Transaction? = null,
+      /** True when the current instruction was skipped, with its continuation still admitted. */
+      val skipped: Boolean = false,
   ) : TaskEvent() {
     override fun toString(): String = "$ordinal: -Task${task.id}"
   }

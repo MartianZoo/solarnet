@@ -381,6 +381,26 @@ public interface Agent {
   public fun dropTask(taskId: TaskId): TaskRemovedEvent
 
   /**
+   * Omits the concrete current step identified by [narrowing], using [doTask]'s matching, source
+   * qualification, complete-total matching, selection, and priority rules. Required container
+   * openings still run. Removes the matched work without its changes or effects, records the
+   * omission, and admits its bound THEN continuation. Rejects THEN in the request, unresolved
+   * choices, and transfers to another Actor. A missing or ambiguous task fails.
+   *
+   * This is an explicit correction, not a legal alternative to a required task. In particular,
+   * skipping a payment does not clear its bill. Mandatory Admin and configured Player work still
+   * run; callers must keep the intended task pending until this call. Failure restores the call.
+   */
+  public fun exMachinaDropTask(narrowing: String, contextClass: ClassName? = null): TaskResult
+
+  /**
+   * Releases eligible NOW work through [releasedBy] as [doTask] does, then omits the recipient's
+   * matched current steps as [exMachinaDropTask] specifies. Player autoexecution is suppressed
+   * during release and omission. Failure restores both Players' work.
+   */
+  public fun exMachinaDropTask(narrowing: String, releasedBy: Agent): TaskResult
+
+  /**
    * Atomically applies fully specified elementary corrections, constructs required parts, and
    * removes dependents. Runs `::` effects and checks every applicable count invariant. Ordinary `:`
    * effects, task handling, and idle cleanup are omitted. Explicit `SOON` dispatches in `::`
