@@ -232,42 +232,42 @@ Purple: Setup {
     -3 ProjectCard<Selecting>
 }
 
-Blue: PlayCard(Ecoline) {
+Blue: playCard(Ecoline) {
     36 MC VIA Ecoline
     PROD[2 Plant]
     3 Plant
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Yellow: PlayCard(CrediCor) {
+Yellow: playCard(CrediCor) {
     57 MC VIA CrediCor
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Green: PlayCard(AstroDrill) {
+Green: playCard(AstroDrill) {
     35 MC VIA AstroDrill
     3 Asteroid<AstroDrill>
-    Pay(18 MC)
+    pay(18 MC)
     6 ProjectCard<Hand FROM Selecting>
 }
 
-Purple: PlayCard(RobinsonIndustries) {
+Purple: playCard(RobinsonIndustries) {
     47 MC VIA RobinsonIndustries
-    Pay(21 MC)
+    pay(21 MC)
     7 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: PlayCard(EcologyExperts) {
+Blue: playCard(EcologyExperts) {
     PROD[Plant]
-    PlayCard(Algae)
+    playCard(Algae)
     -5 Required<Class<OceanTile>>
-    Pay(10 MC)
+    pay(10 MC)
     PROD[2 Plant]
     Plant
 }
-Blue: PlayCard(HugeAsteroid) {
+Blue: playCard(HugeAsteroid) {
     TemperatureStep
     TemperatureStep
     TemperatureStep
@@ -277,7 +277,7 @@ Blue: PlayCard(HugeAsteroid) {
     3 ThawerCredit
 }
 
-Yellow: PlayCard(GreatAquifer) {
+Yellow: playCard(GreatAquifer) {
     OceanTile<Amazonis_08_04>
     2 ProjectCard
     TerraformRating
@@ -286,40 +286,40 @@ Yellow: PlayCard(GreatAquifer) {
     2 MC
     TerraformRating
 }
-Yellow: PlayCard(SocietySupport) {
+Yellow: playCard(SocietySupport) {
     PROD[-MC]
     PROD[Plant]
     PROD[Energy]
     PROD[Heat]
 }
 
-Green: PlayCard(MetalRichAsteroid) {
+Green: playCard(MetalRichAsteroid) {
     4 Steel
     4 Titanium
     TemperatureStep
     TerraformRating
     ThawerCredit
 }
-Green: PlayCard(MiningOperations) {
+Green: playCard(MiningOperations) {
     PROD[2 Steel]
     4 Steel
 }
 
-Purple: PlayCard(UnmiContractor) {
+Purple: playCard(UnmiContractor) {
     ProjectCard
     3 TerraformRating
 }
-Purple: PlayCard(AntiDesertificationTechniques) {
+Purple: playCard(AntiDesertificationTechniques) {
     PROD[Steel]
     PROD[Plant]
     3 MC
 }
 
 // Generation 1
-Blue: Pass
+Blue: pass
 
-Yellow: PlayCard(MoholeArea) {
-    Pay(20 MC)
+Yellow: playCard(MoholeArea) {
+    pay(20 MC)
     PROD[4 Heat]
     4 MC
     MoholeArea_SpecialTile<Amazonis_09_04>
@@ -328,23 +328,23 @@ Yellow: PlayCard(MoholeArea) {
     2 MC
 }
 
-Green: PlayCard(HomeostasisBureau) {
+Green: playCard(HomeostasisBureau) {
     // no MC paid
-    Pay(8 Steel)
+    pay(8 Steel)
     PROD[2 Heat]
 }
 
-Purple: PlayCard(FoodFactory) {
-    Pay(12 MC)
+Purple: playCard(FoodFactory) {
+    pay(12 MC)
     PROD[4 MC]
     PROD[-Plant]
 }
-Purple: PlayCard(ColonizerTrainingCamp) {
-    Pay(8 MC)
+Purple: playCard(ColonizerTrainingCamp) {
+    pay(8 MC)
 }
 
-Yellow: PlayCard(ProtectedValley) {
-    Pay(1 Steel, 21 MC)
+Yellow: playCard(ProtectedValley) {
+    pay(1 Steel, 21 MC)
     PROD[2 MC]
     4 MC
     GreeneryTile<Amazonis_02_07>
@@ -352,34 +352,34 @@ Yellow: PlayCard(ProtectedValley) {
     OxygenStep
     TerraformRating
 }
-Yellow: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Yellow: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     PROD[Heat]
     ThawerCredit
 }
 
-Green: UseAction2(AstroDrill) {
+Green: useAction2(AstroDrill) {
     -Asteroid<AstroDrill>
     3 Titanium
 }
 
-Purple: PlayCard(StaticHarvesting) {
-    Pay(5 MC)
+Purple: playCard(StaticHarvesting) {
+    pay(5 MC)
     PROD[Energy]
     2 MC
 }
 
-Yellow: Pass
+Yellow: pass
 
-Green: Pass
+Green: pass
 
-Purple: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Purple: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Titanium]
 }
-Purple: Pass
+Purple: pass
 
 Blue: Production {
     26 MC
@@ -415,47 +415,47 @@ Blue: WorldGovernment {
 Yellow: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Yellow: PlayCard(ReleaseOfInertGases) {
-    Pay(14 MC)
+Yellow: playCard(ReleaseOfInertGases) {
+    pay(14 MC)
     2 TerraformRating
 }
 
-Green: PlayCard(Research) {
-    Pay(11 MC)
+Green: playCard(Research) {
+    pay(11 MC)
     2 ProjectCard
 }
 
-Purple: PlayCard(ForcedPrecipitation) {
-    Pay(8 MC)
+Purple: playCard(ForcedPrecipitation) {
+    pay(8 MC)
 }
 
-Blue: ConvertPlants {
-    Pay(7 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Amazonis_08_05>
     Plant
     4 MC
@@ -463,52 +463,52 @@ Blue: ConvertPlants {
     TerraformRating
 }
 
-Yellow: Pass
+Yellow: pass
 
 // no MC paid
 // no MC paid
-Green: PlayCard(MercurianAlloys) {
-    Pay(1 Titanium)
+Green: playCard(MercurianAlloys) {
+    pay(1 Titanium)
 }
 
-Purple: PlayCard(Lichen) {
-    Pay(7 MC)
+Purple: playCard(Lichen) {
+    pay(7 MC)
     PROD[Plant]
 }
 
-Blue: PlayCard(MarsNomads) {
-    Pay(13 MC)
+Blue: playCard(MarsNomads) {
+    pay(13 MC)
     NomadsMarker<Amazonis_11_11>
 }
-Blue: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Amazonis_10_11> FROM NomadsMarker<Amazonis_11_11>! THEN Placement<Amazonis_10_11>!)
+Blue: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Amazonis_10_11> FROM NomadsMarker<Amazonis_11_11>! THEN Placement<Amazonis_10_11>!)
     NomadsMarker<Amazonis_10_11> FROM NomadsMarker<Amazonis_11_11>
     2 Steel
 }
 
-Green: UseAction2(AstroDrill) {
+Green: useAction2(AstroDrill) {
     -Asteroid<AstroDrill>
     3 Titanium
 }
 
-Purple: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Purple: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Heat]
 }
-Purple: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Purple: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
 
-Blue: PlayCard(GeothermalPower) {
-    Pay(2 Steel, 7 MC)
+Blue: playCard(GeothermalPower) {
+    pay(2 Steel, 7 MC)
     PROD[2 Energy]
 }
 
 // no MC paid
 // no MC paid
-Green: PlayCard(AsteroidCard) {
-    Pay(4 Titanium)
+Green: playCard(AsteroidCard) {
+    pay(4 Titanium)
     TemperatureStep
     TerraformRating
     2 Titanium
@@ -519,22 +519,22 @@ Green: PlayCard(AsteroidCard) {
 
 // no MC paid
 // no MC paid
-Purple: PlayCard(SpaceMirrors) {
-    Pay(1 Titanium)
+Purple: playCard(SpaceMirrors) {
+    pay(1 Titanium)
 }
 
-Blue: PlayCard(FuelFactory) {
-    Pay(6 MC)
+Blue: playCard(FuelFactory) {
+    pay(6 MC)
     PROD[MC]
     PROD[Titanium]
     PROD[-Energy]
 }
 
-Green: Pass
+Green: pass
 
-Purple: Pass
+Purple: pass
 
-Blue: Pass
+Blue: pass
 
 Blue: Production {
     28 MC
@@ -576,61 +576,61 @@ Yellow: WorldGovernment {
 Yellow: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Green: PlayCard(ArcticAlgae) {
-    Pay(12 MC)
+Green: playCard(ArcticAlgae) {
+    pay(12 MC)
     Plant
 }
 
-Purple: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Purple: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
-Purple: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Purple: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Titanium]
 }
 
-Blue: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Amazonis_09_11> FROM NomadsMarker<Amazonis_10_11>! THEN Placement<Amazonis_09_11>!)
+Blue: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Amazonis_09_11> FROM NomadsMarker<Amazonis_10_11>! THEN Placement<Amazonis_09_11>!)
     NomadsMarker<Amazonis_09_11> FROM NomadsMarker<Amazonis_10_11>
     Titanium
 }
 
-Yellow: PlayCard(DirectedImpactors) {
-    Pay(2 Titanium, 2 MC)
+Yellow: playCard(DirectedImpactors) {
+    pay(2 Titanium, 2 MC)
 }
 
-Green: UseAction1(AstroDrill) {
+Green: useAction1(AstroDrill) {
     Steel
 }
 
-Purple: PlayCard(Comet) {
-    Pay(1 Titanium, 18 MC)
+Purple: playCard(Comet) {
+    pay(1 Titanium, 18 MC)
     TemperatureStep
     TerraformRating
     OceanTile<Amazonis_06_05>
@@ -642,17 +642,17 @@ Purple: PlayCard(Comet) {
     Green: 2 Plant
 }
 
-Blue: PlayCard(AdvancedAlloys) {
-    Pay(9 MC)
+Blue: playCard(AdvancedAlloys) {
+    pay(9 MC)
 }
 
-Yellow: UseAction1(DirectedImpactors) {
-    Pay(1 Titanium, 3 MC)
+Yellow: useAction1(DirectedImpactors) {
+    pay(1 Titanium, 3 MC)
     Asteroid<DirectedImpactors>
 }
 
-Green: PlayCard(FieldCappedCity) {
-    Pay(5 Steel, 19 MC)
+Green: playCard(FieldCappedCity) {
+    pay(5 Steel, 19 MC)
     PROD[2 MC]
     PROD[Energy]
     3 Plant
@@ -660,8 +660,8 @@ Green: PlayCard(FieldCappedCity) {
     2 Plant
     4 MC
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Amazonis_06_03>
     2 Plant
     2 MC
@@ -669,43 +669,43 @@ Green: ConvertPlants {
     TerraformRating
 }
 
-Purple: PlayCard(BusinessNetwork) {
-    Pay(4 MC)
+Purple: playCard(BusinessNetwork) {
+    pay(4 MC)
     PROD[-MC]
 }
 
-Blue: PlayCard(VestaShipyard) {
-    Pay(2 Titanium, 7 MC)
+Blue: playCard(VestaShipyard) {
+    pay(2 Titanium, 7 MC)
     PROD[Titanium]
 }
 
-Yellow: PlayCard(LocalShading) {
-    Pay(4 MC)
+Yellow: playCard(LocalShading) {
+    pay(4 MC)
 }
 
-Green: PlayCard(IndustrialCenter) {
-    Pay(4 MC)
+Green: playCard(IndustrialCenter) {
+    pay(4 MC)
     IndustrialCenter_SpecialTile<Amazonis_08_03>
     Plant
     2 MC
 }
 
-Purple: Pass
+Purple: pass
 
-Blue: Pass
+Blue: pass
 
-Yellow: UseAction1(LocalShading) {
+Yellow: useAction1(LocalShading) {
     Floater<LocalShading>
 }
 
-Green: UseAction1(IndustrialCenter) {
-    Pay(7 MC)
+Green: useAction1(IndustrialCenter) {
+    pay(7 MC)
     PROD[Steel]
 }
 
-Yellow: Pass
+Yellow: pass
 
-Green: Pass
+Green: pass
 
 Blue: Production {
     28 MC
@@ -753,46 +753,46 @@ Green: WorldGovernment {
 Yellow: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Purple: UseAction2(ForcedPrecipitation) {
+Purple: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
 // keep the revealed card
-Purple: UseAction1(BusinessNetwork) {
+Purple: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Blue: PlayCard(BigAsteroid) {
-    Pay(2 Titanium, 19 MC)
+Blue: playCard(BigAsteroid) {
+    pay(2 Titanium, 19 MC)
     TemperatureStep
     TemperatureStep
     2 TerraformRating
@@ -801,13 +801,13 @@ Blue: PlayCard(BigAsteroid) {
     -4 Plant<Green>
     2 ThawerCredit
 }
-Blue: ClaimMilestone {
-    Pay(8 MC)
+Blue: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Thawer
 }
 
-Yellow: PlayCard(GhgImportFromVenus) {
-    Pay(23 MC)
+Yellow: playCard(GhgImportFromVenus) {
+    pay(23 MC)
     PROD[3 Heat]
     VenusStep
     ProjectCard
@@ -815,20 +815,20 @@ Yellow: PlayCard(GhgImportFromVenus) {
     4 MC
 }
 
-Green: UseAction2(AstroDrill) {
+Green: useAction2(AstroDrill) {
     -Asteroid<AstroDrill>
     3 Titanium
 }
 
-Purple: PlayCard(NaturalPreserve) {
-    Pay(3 Steel, 3 MC)
+Purple: playCard(NaturalPreserve) {
+    pay(3 Steel, 3 MC)
     PROD[MC]
     NaturalPreserve_SpecialTile<Amazonis_10_09>
     3 Plant
 }
 
-Blue: ConvertPlants {
-    Pay(7 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Amazonis_07_05>
     2 Energy
     4 MC
@@ -836,51 +836,51 @@ Blue: ConvertPlants {
     TerraformRating
 }
 
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Green: PlayCard(IoMiningIndustries) {
-    Pay(10 Titanium, 1 MC)
+Green: playCard(IoMiningIndustries) {
+    pay(10 Titanium, 1 MC)
     PROD[2 MC]
     PROD[2 Titanium]
 }
 
-Purple: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Purple: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Steel]
 }
 // no MC paid
 // no MC paid
-Purple: PlayCard(TransNeptuneProbe) {
-    Pay(2 Titanium)
+Purple: playCard(TransNeptuneProbe) {
+    pay(2 Titanium)
 }
 
-Blue: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Amazonis_10_11> FROM NomadsMarker<Amazonis_09_11>! THEN Placement<Amazonis_10_11>!)
+Blue: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Amazonis_10_11> FROM NomadsMarker<Amazonis_09_11>! THEN Placement<Amazonis_10_11>!)
     NomadsMarker<Amazonis_10_11> FROM NomadsMarker<Amazonis_09_11>
     2 Steel
 }
 
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Green: UseAction1(IndustrialCenter) {
-    Pay(7 MC)
+Green: useAction1(IndustrialCenter) {
+    pay(7 MC)
     PROD[Steel]
 }
-Green: ClaimMilestone {
-    Pay(8 MC)
+Green: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Metallurgist
 }
 
-Purple: PlayCard(ConvoyFromEuropa) {
-    Pay(15 MC)
+Purple: playCard(ConvoyFromEuropa) {
+    pay(15 MC)
     ProjectCard
     OceanTile<Amazonis_06_06>
     2 Plant VIA Amazonis_06_06
@@ -889,35 +889,35 @@ Purple: PlayCard(ConvoyFromEuropa) {
     // Arctic Algae
     Green: 2 Plant
 }
-Purple: ConvertPlants {
-    Pay(8 Plant)
+Purple: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Amazonis_10_10>
     2 Plant
     OxygenStep
     TerraformRating
 }
 
-Blue: Pass
+Blue: pass
 
-Yellow: UseAction1(DirectedImpactors) {
-    Pay(6 MC)
+Yellow: useAction1(DirectedImpactors) {
+    pay(6 MC)
     Asteroid<DirectedImpactors>
 }
 
-Green: Pass
+Green: pass
 
-Purple: Pass
+Purple: pass
 
-Yellow: UseAction2(LocalShading) {
+Yellow: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
-Yellow: PlayCard(NuclearPower) {
-    Pay(10 MC)
+Yellow: playCard(NuclearPower) {
+    pay(10 MC)
     PROD[-2 MC]
     PROD[3 Energy]
 }
-Yellow: Pass
+Yellow: pass
 
 Blue: Production {
     31 MC
@@ -963,37 +963,37 @@ Purple: WorldGovernment {
 Yellow: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: PlayCard(RegoPlastics) {
-    Pay(2 Steel, 4 MC)
+Blue: playCard(RegoPlastics) {
+    pay(2 Steel, 4 MC)
 }
 
-Yellow: PlayCard(Capital) {
-    Pay(26 MC)
+Yellow: playCard(Capital) {
+    pay(26 MC)
     PROD[5 MC]
     PROD[-2 Energy]
     4 MC
@@ -1002,19 +1002,19 @@ Yellow: PlayCard(Capital) {
     4 MC
 }
 // payment, CrediCor rebate, and ocean adjacency
-Yellow: ClaimMilestone {
-    Pay(8 MC)
+Yellow: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Sponsor
 }
 
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     3 MC
 }
-Green: PlayCard(GiantIceAsteroid) {
-    Pay(2 Titanium, 28 MC)
+Green: playCard(GiantIceAsteroid) {
+    pay(2 Titanium, 28 MC)
     TemperatureStep
     TemperatureStep
     2 TerraformRating
@@ -1032,32 +1032,32 @@ Green: PlayCard(GiantIceAsteroid) {
     3 TerraformRating
 }
 
-Purple: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Purple: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
 // no cards bought
-Purple: UseAction1(BusinessNetwork) {
+Purple: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
-Blue: ConvertHeat {
-    Pay(8 Heat)
+Blue: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Blue: PlayCard(AsteroidDeflectionSystem) {
-    Pay(3 Titanium, 1 MC)
+Blue: playCard(AsteroidDeflectionSystem) {
+    pay(3 Titanium, 1 MC)
     PROD[-Energy]
 }
 
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Yellow: UseAction2(DirectedImpactors) {
+Yellow: useAction2(DirectedImpactors) {
     -Asteroid<DirectedImpactors>
     TemperatureStep
     TerraformRating
@@ -1066,51 +1066,51 @@ Yellow: UseAction2(DirectedImpactors) {
 // no MC paid
 // no animal holder
 // no MC paid; no animal holder
-Green: PlayCard(EosChasmaNationalPark) {
-    Pay(8 Steel)
+Green: playCard(EosChasmaNationalPark) {
+    pay(8 Steel)
     Animal*
     3 Plant
     PROD[2 MC]
 }
 // no microbe holder
 // no microbe holder
-Green: PlayCard(ImportedNutrients) {
-    Pay(14 MC)
+Green: playCard(ImportedNutrients) {
+    pay(14 MC)
     4 Plant
     4* Microbe
 }
 
-Purple: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Purple: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Energy]
 }
-Purple: PlayCard(Grass) {
-    Pay(11 MC)
+Purple: playCard(Grass) {
+    pay(11 MC)
     PROD[Plant]
     3 Plant
 }
 
 // no space-card reward
 // Harvest is not a space card
-Blue: UseAction1(AsteroidDeflectionSystem) {
+Blue: useAction1(AsteroidDeflectionSystem) {
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>
     -ProjectCard<Revealed>
 }
 
-Yellow: UseAction1(LocalShading) {
+Yellow: useAction1(LocalShading) {
     Floater<LocalShading>
 }
 
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Amazonis_07_02>
     Plant
     OxygenStep
     TerraformRating
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Amazonis_06_02>
     Plant
     OxygenStep
@@ -1118,40 +1118,40 @@ Green: ConvertPlants {
     ProjectCard
 }
 
-Purple: UseAction1(SpaceMirrors) {
-    Pay(7 MC)
+Purple: useAction1(SpaceMirrors) {
+    pay(7 MC)
     PROD[Energy]
 }
-Purple: PlayCard(CeosFavoriteProject) {
-    Pay(1 MC)
+Purple: playCard(CeosFavoriteProject) {
+    pay(1 MC)
     Floater<ForcedPrecipitation>
 }
 
-Blue: PlayCard(Bushes) {
-    Pay(10 MC)
+Blue: playCard(Bushes) {
+    pay(10 MC)
     PROD[2 Plant]
     2 Plant
 }
 
-Yellow: Pass
+Yellow: pass
 
 // no steel paid
-Green: PlayCard(FueledGenerators) {
-    Pay(1 MC)
+Green: playCard(FueledGenerators) {
+    pay(1 MC)
     PROD[-MC]
     PROD[Energy]
 }
 
-Purple: PlayCard(Fish) {
-    Pay(9 MC)
+Purple: playCard(Fish) {
+    pay(9 MC)
     PROD[-Plant<Blue>]
 }
-Purple: UseAction1(Fish) {
+Purple: useAction1(Fish) {
     Animal<Fish>
 }
 
-Blue: ConvertPlants {
-    Pay(7 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Amazonis_07_06>
     Energy
     4 MC
@@ -1159,30 +1159,30 @@ Blue: ConvertPlants {
     TerraformRating
 }
 
-Green: UseAction1(AstroDrill) {
+Green: useAction1(AstroDrill) {
     Asteroid<AstroDrill>
 }
 
-Purple: Pass
+Purple: pass
 
-Blue: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Amazonis_09_11> FROM NomadsMarker<Amazonis_10_11>! THEN Placement<Amazonis_09_11>!)
+Blue: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Amazonis_09_11> FROM NomadsMarker<Amazonis_10_11>! THEN Placement<Amazonis_09_11>!)
     NomadsMarker<Amazonis_09_11> FROM NomadsMarker<Amazonis_10_11>
     Titanium
 }
 
-Green: Pass
+Green: pass
 
-Blue: PlayCard(RobotPollinators) {
-    Pay(9 MC)
+Blue: playCard(RobotPollinators) {
+    pay(9 MC)
     PROD[Plant]
     4 Plant
 }
-Blue: PlayCard(BribedCommittee) {
-    Pay(7 MC)
+Blue: playCard(BribedCommittee) {
+    pay(7 MC)
     2 TerraformRating
 }
-Blue: Pass
+Blue: pass
 
 Blue: Production {
     35 MC
@@ -1230,7 +1230,7 @@ Blue: WorldGovernment {
 Yellow: Research {
     4 ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1242,45 +1242,45 @@ Blue: Research {
 Green: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Green: UseAction2(AstroDrill) {
+Green: useAction2(AstroDrill) {
     -Asteroid<AstroDrill>
     3 Titanium
 }
-Green: PlayCard(Shuttles) {
-    Pay(2 Titanium, 2 MC)
+Green: playCard(Shuttles) {
+    pay(2 Titanium, 2 MC)
     PROD[2 MC]
     PROD[-Energy]
 }
 
-Purple: ConvertHeat {
-    Pay(8 Heat)
+Purple: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Purple: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Purple: useStandardProject(CityProject) {
+    pay(25 MC)
     NormalCityTile<Amazonis_08_06>
     PROD[MC]
     Energy
@@ -1288,19 +1288,19 @@ Purple: UseStandardProject(CityProject) {
 
 // no space-card reward
 // Vermin is not a space card
-Blue: UseAction1(AsteroidDeflectionSystem) {
+Blue: useAction1(AsteroidDeflectionSystem) {
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>
     -ProjectCard<Revealed>
 }
 
-Yellow: UseAction2(DirectedImpactors) {
+Yellow: useAction2(DirectedImpactors) {
     -Asteroid<DirectedImpactors>
     TemperatureStep
     TerraformRating
 }
-Yellow: PlayCard(IceAsteroid) {
-    Pay(23 MC)
+Yellow: playCard(IceAsteroid) {
+    pay(23 MC)
     4 MC
     OceanTile<Amazonis_05_10>
     2 Plant VIA Amazonis_05_10
@@ -1314,39 +1314,39 @@ Yellow: PlayCard(IceAsteroid) {
 }
 
 // Arctic Algae
-Green: PlayCard(SolarLogistics) {
-    Pay(3 Titanium, 6 MC)
+Green: playCard(SolarLogistics) {
+    pay(3 Titanium, 6 MC)
     2 Titanium
 }
-Green: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Green: useStandardProject(CityProject) {
+    pay(25 MC)
     NormalCityTile<Amazonis_05_02>
     PROD[MC]
     Plant
     2 MC
 }
 
-Purple: ConvertPlants {
-    Pay(8 Plant)
+Purple: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Amazonis_09_06>
     Titanium
     OxygenStep
     TerraformRating
 }
-Purple: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Purple: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Heat]
 }
 
-Blue: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Blue: useStandardProject(CityProject) {
+    pay(25 MC)
     NormalCityTile<Amazonis_07_07>
     PROD[MC]
     2 Energy
     2 MC
 }
-Blue: ConvertPlants {
-    Pay(7 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Amazonis_06_07>
     Steel
     2 Plant
@@ -1355,78 +1355,78 @@ Blue: ConvertPlants {
     TerraformRating
 }
 
-Yellow: FundAward {
-    Pay(8 MC)
+Yellow: action(FundAwardAction) {
+    pay(8 MC)
     Thermalist
 }
 
 // no MC paid
 // no MC paid
-Green: PlayCard(PowerInfrastructure) {
-    Pay(2 Steel)
+Green: playCard(PowerInfrastructure) {
+    pay(2 Steel)
 }
-Green: UseAction1(PowerInfrastructure) {
-    SelectTask(-2! Energy THEN 2! MC)
+Green: useAction1(PowerInfrastructure) {
+    selectTask(-2! Energy THEN 2! MC)
     -2 Energy
     2 MC
 }
 
-Purple: UseAction1(Fish) {
+Purple: useAction1(Fish) {
     Animal<Fish>
 }
-Purple: PlayCard(RedShips) {
-    Pay(2 MC)
+Purple: playCard(RedShips) {
+    pay(2 MC)
 }
 
-Blue: ConvertPlants {
-    Pay(7 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Amazonis_08_08>
     Plant
     OxygenStep
     TerraformRating
     0 TemperatureStep
 }
-Blue: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Amazonis_08_10> FROM NomadsMarker<Amazonis_09_11>! THEN Placement<Amazonis_08_10>!)
+Blue: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Amazonis_08_10> FROM NomadsMarker<Amazonis_09_11>! THEN Placement<Amazonis_08_10>!)
     NomadsMarker<Amazonis_08_10> FROM NomadsMarker<Amazonis_09_11>
     Steel
 }
 
-Yellow: UseAction2(LocalShading) {
+Yellow: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 
-Green: Pass
+Green: pass
 
-Purple: UseAction1(RedShips) {
+Purple: useAction1(RedShips) {
     6 MC
 }
-Purple: UseAction1(BusinessNetwork) {
+Purple: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
-Blue: PlayCard(ArtificialPhotosynthesis) {
-    Pay(12 MC)
+Blue: playCard(ArtificialPhotosynthesis) {
+    pay(12 MC)
     PROD[2 Energy]
 }
 
-Yellow: Pass
+Yellow: pass
 
-Purple: UseAction2(ForcedPrecipitation) {
+Purple: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
-Purple: PlayCard(IshtarMining) {
-    Pay(5 MC)
+Purple: playCard(IshtarMining) {
+    pay(5 MC)
     PROD[Titanium]
 }
 
-Blue: Pass
+Blue: pass
 
-Purple: Pass
+Purple: pass
 
 Blue: Production {
     38 MC
@@ -1477,14 +1477,14 @@ Green: WorldGovernment {
 Green: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1496,12 +1496,12 @@ Blue: Research {
 Purple: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Amazonis_04_01>
     Titanium
     4 MC
@@ -1509,22 +1509,22 @@ Green: ConvertPlants {
     TerraformRating
 }
 
-Purple: UseAction1(Fish) {
+Purple: useAction1(Fish) {
     Animal<Fish>
 }
-Purple: UseAction1(BusinessNetwork) {
+Purple: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
-Blue: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Blue: useStandardProject(CityProject) {
+    pay(25 MC)
     NormalCityTile<Amazonis_05_07>
     PROD[MC]
     2 Plant
 }
-Blue: ConvertPlants {
-    Pay(7 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Amazonis_05_06>
     Plant
     4 MC
@@ -1532,51 +1532,51 @@ Blue: ConvertPlants {
     TerraformRating
 }
 
-Yellow: PlayCard(LandClaim) {
-    Pay(1 MC)
+Yellow: playCard(LandClaim) {
+    pay(1 MC)
     Community<Amazonis_09_09>
 }
-Yellow: PlayCard(CarbonNanosystems) {
-    Pay(14 MC)
+Yellow: playCard(CarbonNanosystems) {
+    pay(14 MC)
     Graphene<CarbonNanosystems>
 }
 
-Green: UseAction1(PowerInfrastructure) {
-    SelectTask(-Energy! THEN MC!)
+Green: useAction1(PowerInfrastructure) {
+    selectTask(-Energy! THEN MC!)
     -Energy
     MC
 }
 
-Purple: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Purple: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Steel]
 }
-Purple: UseAction1(RedShips) {
+Purple: useAction1(RedShips) {
     6 MC
 }
 
 // no space-card reward
 // Immigrant City is not a space card
-Blue: UseAction1(AsteroidDeflectionSystem) {
+Blue: useAction1(AsteroidDeflectionSystem) {
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>
     -ProjectCard<Revealed>
 }
-Blue: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Amazonis_07_10> FROM NomadsMarker<Amazonis_08_10>! THEN Placement<Amazonis_07_10>!)
+Blue: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Amazonis_07_10> FROM NomadsMarker<Amazonis_08_10>! THEN Placement<Amazonis_07_10>!)
     NomadsMarker<Amazonis_07_10> FROM NomadsMarker<Amazonis_08_10>
     Plant
 }
 
-Yellow: PlayCard(MarsUniversity) {
-    Pay(8 MC)
+Yellow: playCard(MarsUniversity) {
+    pay(8 MC)
     Graphene<CarbonNanosystems>
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Yellow: PlayCard(UrbanizedArea) {
-    Pay(2 Graphene<CarbonNanosystems>, 2 MC)
+Yellow: playCard(UrbanizedArea) {
+    pay(2 Graphene<CarbonNanosystems>, 2 MC)
     PROD[2 MC]
     PROD[-Energy]
     NormalCityTile<Amazonis_05_03>
@@ -1584,59 +1584,59 @@ Yellow: PlayCard(UrbanizedArea) {
     2 MC
 }
 
-Green: PlayCard(KelpFarming) {
-    Pay(17 MC)
+Green: playCard(KelpFarming) {
+    pay(17 MC)
     PROD[2 MC]
     PROD[3 Plant]
     2 Plant
 }
 
-Purple: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Purple: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
-Purple: PlayCard(TerraformingContract) {
-    Pay(8 MC)
+Purple: playCard(TerraformingContract) {
+    pay(8 MC)
     PROD[4 MC]
 }
 
-Blue: ConvertPlants {
-    Pay(7 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Amazonis_04_07>
     2 Plant
     2 MC
     OxygenStep
     TerraformRating
 }
-Blue: PlayCard(ProjectInspection) {
-    UseAction1(MarsNomads)
-    SelectTask(NomadsMarker<Amazonis_06_10> FROM NomadsMarker<Amazonis_07_10>! THEN Placement<Amazonis_06_10>!)
+Blue: playCard(ProjectInspection) {
+    useAction1(MarsNomads)
+    selectTask(NomadsMarker<Amazonis_06_10> FROM NomadsMarker<Amazonis_07_10>! THEN Placement<Amazonis_06_10>!)
     NomadsMarker<Amazonis_06_10> FROM NomadsMarker<Amazonis_07_10>
     Plant
     4 MC
 }
 
-Yellow: PlayCard(InventionContest) {
-    Pay(2 MC)
+Yellow: playCard(InventionContest) {
+    pay(2 MC)
     3 ProjectCard<Selecting> VIA InventionContest
     ProjectCard<Hand FROM Selecting> VIA InventionContest
     Graphene<CarbonNanosystems>
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Yellow: PlayCard(CuttingEdgeTechnology) {
-    Pay(12 MC)
+Yellow: playCard(CuttingEdgeTechnology) {
+    pay(12 MC)
     Graphene<CarbonNanosystems>
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
 // no MC paid
 // no MC paid
-Green: PlayCard(ImportedNitrogen) {
-    Pay(5 Titanium)
+Green: playCard(ImportedNitrogen) {
+    pay(5 Titanium)
     TerraformRating
     4 Plant
     ProjectCard
@@ -1648,24 +1648,24 @@ Green: PlayCard(ImportedNitrogen) {
 
 // no MC paid
 // no MC paid
-Purple: PlayCard(MartianLumberCorp) {
-    Pay(3 Steel)
+Purple: playCard(MartianLumberCorp) {
+    pay(3 Steel)
     PROD[Plant]
 }
-Purple: PlayCard(SubCrustMeasurements) {
-    Pay(3 Plant, 3 Steel, 5 MC)
+Purple: playCard(SubCrustMeasurements) {
+    pay(3 Plant, 3 Steel, 5 MC)
 }
 
-Blue: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Blue: useStandardProject(CityProject) {
+    pay(25 MC)
     NormalCityTile<Amazonis_04_05>
     PROD[MC]
     Plant
     2 MC
 }
 
-Yellow: ConvertPlants {
-    Pay(8 Plant)
+Yellow: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Amazonis_05_04>
     Plant
     4 MC
@@ -1673,73 +1673,73 @@ Yellow: ConvertPlants {
     TerraformRating
 }
 
-Green: UseAction1(AstroDrill) {
+Green: useAction1(AstroDrill) {
     Plant
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Amazonis_05_01>
     2 Steel
     OxygenStep
     TerraformRating
 }
 
-Purple: UseAction1(SubCrustMeasurements) {
+Purple: useAction1(SubCrustMeasurements) {
     ProjectCard
 }
-Purple: UseStandardProject(SellPatentsProject) {
+Purple: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
 
-Blue: Pass
+Blue: pass
 
-Yellow: PlayCard(PublicBaths) {
-    Pay(4 MC)
+Yellow: playCard(PublicBaths) {
+    pay(4 MC)
     6 MC
 }
 
 // discounted cost and card reward
-Green: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Green: useStandardProject(CityProject) {
+    pay(25 MC)
     NormalCityTile<Amazonis_06_01>
     PROD[MC]
     Plant
 }
 
-Purple: FundAward {
-    Pay(14 MC)
+Purple: action(FundAwardAction) {
+    pay(14 MC)
     Forecaster
 }
-Purple: PlayCard(Hackers) {
-    Pay(3 MC)
+Purple: playCard(Hackers) {
+    pay(3 MC)
     PROD[2 MC]
     PROD[-Energy]
     PROD[-2 MC<Green>]
 }
 
-Yellow: UseAction1(LocalShading) {
+Yellow: useAction1(LocalShading) {
     Floater<LocalShading>
 }
 
-Green: Pass
+Green: pass
 
-Purple: Pass
+Purple: pass
 
-Yellow: PlayCard(StandardTechnology) {
-    Pay(6 MC)
+Yellow: playCard(StandardTechnology) {
+    pay(6 MC)
     Graphene<CarbonNanosystems>
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Yellow: PlayCard(EnergyMarket) {
-    Pay(3 MC)
+Yellow: playCard(EnergyMarket) {
+    pay(3 MC)
 }
-Yellow: UseAction2(EnergyMarket) {
+Yellow: useAction2(EnergyMarket) {
     PROD[-Energy]
     8 MC
 }
-Yellow: Pass
+Yellow: pass
 
 Blue: Production {
     42 MC
@@ -1789,33 +1789,33 @@ Blue: Research {
 Yellow: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Purple: UseAction1(SubCrustMeasurements) {
+Purple: useAction1(SubCrustMeasurements) {
     ProjectCard
 }
-Purple: UseAction1(Fish) {
+Purple: useAction1(Fish) {
     Animal<Fish>
 }
 
-Blue: ConvertPlants {
-    Pay(7 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Amazonis_04_06>
     Plant
     2 MC
@@ -1824,60 +1824,60 @@ Blue: ConvertPlants {
 }
 // no space-card reward
 // Supercapacitors is not a space card
-Blue: UseAction1(AsteroidDeflectionSystem) {
+Blue: useAction1(AsteroidDeflectionSystem) {
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>
     -ProjectCard<Revealed>
 }
 
-Yellow: FundAward {
-    Pay(20 MC)
+Yellow: action(FundAwardAction) {
+    pay(20 MC)
     Administrator
 }
-Yellow: PlayCard(Pets) {
-    Pay(10 MC)
+Yellow: playCard(Pets) {
+    pay(10 MC)
     Animal<Pets>
 }
 
-Green: PlayCard(AqueductSystems) {
-    Pay(4 Steel, 1 MC)
+Green: playCard(AqueductSystems) {
+    pay(4 Steel, 1 MC)
     3 SearchForCard<TagFilter<Class<BuildingTag>>>
 }
-Green: UseStandardProject(PowerPlantProject) {
-    Pay(11 MC)
+Green: useStandardProject(PowerPlantProject) {
+    pay(11 MC)
     PROD[Energy]
 }
 
 // no MC paid
 // no MC paid
-Purple: PlayCard(CallistoPenalMines) {
-    Pay(8 Titanium)
+Purple: playCard(CallistoPenalMines) {
+    pay(8 Titanium)
     PROD[3 MC]
 }
 
-Blue: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Amazonis_05_09> FROM NomadsMarker<Amazonis_06_10>! THEN Placement<Amazonis_05_09>!)
+Blue: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Amazonis_05_09> FROM NomadsMarker<Amazonis_06_10>! THEN Placement<Amazonis_05_09>!)
     NomadsMarker<Amazonis_05_09> FROM NomadsMarker<Amazonis_06_10>
     Plant
     2 MC
 }
-Blue: ConvertPlants {
-    Pay(7 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Amazonis_03_05>
     Plant
     2 MC
     0 OxygenStep
 }
 
-Yellow: UseAction2(LocalShading) {
+Yellow: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 
 // no MC paid
 // no MC paid
-Green: PlayCard(UndergroundCity) {
-    Pay(9 Steel)
+Green: playCard(UndergroundCity) {
+    pay(9 Steel)
     NormalCityTile<Amazonis_03_07>
     4 MC
     PROD[2 Steel]
@@ -1885,134 +1885,134 @@ Green: PlayCard(UndergroundCity) {
     Yellow: Animal<Pets>
 }
 
-Purple: UseStandardProject(SellPatentsProject) {
+Purple: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
-Purple: UseAction1(BusinessNetwork) {
+Purple: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
-Blue: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Blue: useStandardProject(CityProject) {
+    pay(25 MC)
     NormalCityTile<Amazonis_06_09>
     PROD[MC]
     Yellow: Animal<Pets>
 }
 
-Yellow: UseStandardProject(PowerPlantProject) {
-    Pay(11 MC)
+Yellow: useStandardProject(PowerPlantProject) {
+    pay(11 MC)
     PROD[Energy]
     3 MC
 }
 
-Green: PlayCard(NeutralizerFactory) {
-    Pay(7 MC)
+Green: playCard(NeutralizerFactory) {
+    pay(7 MC)
     VenusStep
     TerraformRating
 }
 
-Purple: UseAction1(RedShips) {
+Purple: useAction1(RedShips) {
     9 MC
 }
-Purple: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Purple: useStandardProject(CityProject) {
+    pay(25 MC)
     NormalCityTile<Amazonis_09_05>
     PROD[MC]
     2 MC
     Yellow: Animal<Pets>
 }
 
-Blue: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Blue: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Amazonis_06_08>
     Plant
     0 OxygenStep
 }
 
-Yellow: UseAction2(EnergyMarket) {
+Yellow: useAction2(EnergyMarket) {
     PROD[-Energy]
     8 MC
 }
 
-Green: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Green: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Amazonis_04_08>
     Plant
     0 OxygenStep
 }
-Green: UseAction1(PowerInfrastructure) {
-    SelectTask(-Energy! THEN MC!)
+Green: useAction1(PowerInfrastructure) {
+    selectTask(-Energy! THEN MC!)
     -Energy
     MC
 }
 
-Purple: PlayCard(AdvancedEcosystems) {
-    Pay(11 MC)
+Purple: playCard(AdvancedEcosystems) {
+    pay(11 MC)
 }
 
-Blue: Pass
+Blue: pass
 
-Yellow: UseStandardProject(SellPatentsProject) {
+Yellow: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     7 MC FROM ProjectCard
 }
-Green: PlayCard(Omnicourt) {
-    Pay(11 MC)
+Green: playCard(Omnicourt) {
+    pay(11 MC)
     2 TerraformRating
 }
 
-Purple: PlayCard(Dirigibles) {
-    Pay(11 MC)
+Purple: playCard(Dirigibles) {
+    pay(11 MC)
 }
-Purple: UseAction1(Dirigibles) {
+Purple: useAction1(Dirigibles) {
     Floater<ForcedPrecipitation>
 }
 
-Yellow: UseStandardProject(PowerPlantProject) {
-    Pay(11 MC)
+Yellow: useStandardProject(PowerPlantProject) {
+    pay(11 MC)
     PROD[Energy]
     3 MC
 }
 
-Green: UseAction1(AstroDrill) {
+Green: useAction1(AstroDrill) {
     MC
 }
 
-Purple: UseAction2(ForcedPrecipitation) {
+Purple: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
-Purple: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Purple: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Heat]
 }
 
-Yellow: PlayCard(SpaceStation) {
-    Pay(1 Graphene<CarbonNanosystems>, 1 Titanium, 3 MC)
+Yellow: playCard(SpaceStation) {
+    pay(1 Graphene<CarbonNanosystems>, 1 Titanium, 3 MC)
 }
 
-Green: Pass
+Green: pass
 
-Purple: UseStandardProject(SellPatentsProject) {
+Purple: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Yellow: PlayCard(LavaTubeSettlement) {
-    Pay(2 Graphene<CarbonNanosystems>, 7 MC)
+Yellow: playCard(LavaTubeSettlement) {
+    pay(2 Graphene<CarbonNanosystems>, 7 MC)
     PROD[2 MC]
     PROD[-Energy]
     NormalCityTile<Amazonis_08_09>
     Animal<Pets>
 }
 
-Purple: Pass
+Purple: pass
 
-Yellow: Pass
+Yellow: pass
 
 Blue: Production {
     44 MC
@@ -2052,8 +2052,8 @@ Purple {
     Ok
 }
 
-Blue: ConvertPlants {
-    Pay(7 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Amazonis_05_08>
     Plant
 }
@@ -2067,8 +2067,8 @@ Yellow {
     Ok
 }
 
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Amazonis_03_08>
 }
 // no more greenery

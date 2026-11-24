@@ -307,9 +307,9 @@ tasks.register<JacocoReport>("replayTestCoverage") {
   }
 }
 
-// Opt-in prototype: the human-edited archive stays under _local until its format settles.
+// Extra archive scenarios share the maintained replay fixture and may accept another archive.
 tasks.register<Test>("archiveDraftTest") {
-  description = "Checks the local human-readable archive against the Game20261111 replay."
+  description = "Checks additional archive scenarios against the Game20261111 replay."
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   dependsOn(jvmTestCompilation.compileTaskProvider)
   testClassesDirs = jvmTestCompilation.output.classesDirs
@@ -318,7 +318,12 @@ tasks.register<Test>("archiveDraftTest") {
   val archive =
       providers
           .gradleProperty("archiveFile")
-          .orElse(rootProject.file("_local/notes/game20261111-format-draft.game").absolutePath)
+          .orElse(
+              layout.projectDirectory
+                  .file("src/jvmTest/resources/games/OtbGame20261111Test.game")
+                  .asFile
+                  .absolutePath
+          )
   inputs.file(archive)
   systemProperty("archive.file", archive.get())
   val archiveOutput =

@@ -105,7 +105,7 @@ internal class ArchiveDraftTest {
     assertTrue("//" !in text && "AUTO" !in text)
     val action =
         Regex(
-            "^(Green|Pink): (PlayCard|UseAction[12]|UsePolicy|UseStandardProject|ConvertPlants|ConvertHeat|Trade[123]|SendDelegate[05]|ClaimMilestone|FundAward|Pass|DoRequiredActions)(\\(.*\\))?( \\{)?$"
+            "^(Green|Pink): (playCard|useAction[12]|useStandardProject|action|pass|doRequiredActions)(\\(.*\\))?( \\{)?$"
         )
     fun actions(source: String) =
         source
@@ -113,8 +113,11 @@ internal class ArchiveDraftTest {
             .map { it.substringBefore("//").trimEnd() }
             .filter { action.matches(it) }
             .toList()
-    val mockup = File(requireNotNull(System.getProperty("archive.file"))).readText()
-    assertEquals(actions(mockup), actions(text), "Action order and choices")
+    val fixture = importer(File(requireNotNull(System.getProperty("archive.file"))).readText())
+    fixture.run()
+    val canonicalFixture =
+        GameArchiveExporter(fixture.agents.world.recording(), baseline.config).export()
+    assertEquals(actions(canonicalFixture), actions(text), "Action order and choices")
     assertEquals(
         text,
         GameArchiveExporter(imported.agents.world.recording(), baseline.config).export(),
@@ -138,7 +141,7 @@ internal class ArchiveDraftTest {
         snapshot(baseline.game.reader, baseline.game.tasks),
         snapshot(imported.agents.world.reader, imported.agents.world.tasks),
     )
-    assertTrue(source.endsWith("Green: ExMachina {\n    7 Plant\n}\n"))
+    assertTrue(source.endsWith("Green: exMachina {\n    7 Plant\n}\n"))
   }
 
   @Test
@@ -146,12 +149,12 @@ internal class ArchiveDraftTest {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
     val imported =
         importer(
-            source.substringBefore("Green: PlayCard(OrbitalConstructionYard)") +
+            source.substringBefore("Green: playCard(OrbitalConstructionYard)") +
                 """
-                Green: PlayCard(ExcentricSponsor) {
-                    PlayCard(SpaceElevator)
+                Green: playCard(ExcentricSponsor) {
+                    playCard(SpaceElevator)
                     -25 Owed
-                    Pay(2 MC)
+                    pay(2 MC)
                     PROD[Titanium]
                     Titanium
                 }
@@ -171,14 +174,14 @@ internal class ArchiveDraftTest {
   fun cardResourcesCanPayTheWholePriceWithoutAnExplicitZeroMCLine() {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
     val prefix =
-        source.substringBefore("Green: PlayCard(ResearchOutpost)") +
+        source.substringBefore("Green: playCard(ResearchOutpost)") +
             """
-            Green: ExMachina {
+            Green: exMachina {
                 Psychrophiles
                 5 Microbe<Psychrophiles>
             }
-            Green: PlayCard(AdaptedLichen) {
-                Pay(5 Microbe<Psychrophiles>)
+            Green: playCard(AdaptedLichen) {
+                pay(5 Microbe<Psychrophiles>)
                 PROD[Plant]
                 Plant
             }
@@ -193,7 +196,7 @@ internal class ArchiveDraftTest {
     assertEquals(1, green.count("Plant"))
     assertTrue(green.has("MAX 0 ActionScope"))
 
-    val insufficient = importer(prefix.replace("Pay(5 Microbe", "Pay(4 Microbe"))
+    val insufficient = importer(prefix.replace("pay(5 Microbe", "pay(4 Microbe"))
     assertFailsWith<IllegalStateException> { insufficient.run() }
     val unpaid =
         insufficient.agents[insufficient.agents.world.actors.filterIsInstance<Player>().first()]
@@ -205,14 +208,14 @@ internal class ArchiveDraftTest {
   fun floodingSelectionPreservesTheAttackWithoutExecutingEitherStage() {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
     val throughSelection =
-        source.substringBefore("Green: PlayCard(ResearchOutpost)") +
+        source.substringBefore("Green: playCard(ResearchOutpost)") +
             """
-            Pink: ExMachina {
+            Pink: exMachina {
                 NormalCityTile<Vastitas_5_2>
             }
-            Green: PlayCard(Flooding) {
-                Pay(7 MC)
-                SelectTask(OceanTile<Vastitas_5_3>! THEN -3 MC<Pink>)
+            Green: playCard(Flooding) {
+                pay(7 MC)
+                selectTask(OceanTile<Vastitas_5_3>! THEN -3 MC<Pink>)
             """
                 .trimIndent()
     val selected = importer(throughSelection + "\n}")
@@ -244,7 +247,7 @@ internal class ArchiveDraftTest {
     assertEquals(18, completed.agents[pinkActor].count("MC"))
     val config = OtbGame20261111Test().config
     val exported = GameArchiveExporter(world.recording(), config).export()
-    assertTrue("SelectTask(" in exported, exported)
+    assertTrue("selectTask(" in exported, exported)
     val reimported = importer(exported)
     reimported.run()
     assertEquals(
@@ -261,15 +264,15 @@ internal class ArchiveDraftTest {
   fun recipientPaymentHandlesAlternativesAndRollsBackAnIncompleteAllocation() {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
     val beforePayment =
-        source.substringBefore("Green: PlayCard(ResearchOutpost)") +
+        source.substringBefore("Green: playCard(ResearchOutpost)") +
             """
-            Pink: ExMachina {
+            Pink: exMachina {
                 NeptunianPowerConsultants
                 5 Heat
                 3 Steel
             }
-            Green: PlayCard(Flooding) {
-                Pay(7 MC)
+            Green: playCard(Flooding) {
+                pay(7 MC)
                 OceanTile<Vastitas_5_3>
                 Pink: UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>
             """
@@ -286,7 +289,7 @@ internal class ArchiveDraftTest {
             .trimIndent()
     for ((allocation, heat, cash) in
         listOf(Triple("3 Heat, 2 MC", 2, 19), Triple("5 Heat", 0, 21))) {
-      val imported = importer(beforePayment + "Pink: Pay($allocation)\n" + effects)
+      val imported = importer(beforePayment + "Pink: pay($allocation)\n" + effects)
       imported.run()
       val pink =
           imported.agents[
@@ -301,7 +304,7 @@ internal class ArchiveDraftTest {
     }
     val before = importer(beforePayment + "}")
     assertFailsWith<IllegalStateException> { before.run() }
-    val insufficient = importer(beforePayment + "Pink: Pay(3 Heat, 1 MC)\n" + effects)
+    val insufficient = importer(beforePayment + "Pink: pay(3 Heat, 1 MC)\n" + effects)
     assertFailsWith<IllegalStateException> { insufficient.run() }
     assertEquals(
         snapshot(before.agents.world.reader, before.agents.world.tasks),
@@ -313,13 +316,13 @@ internal class ArchiveDraftTest {
   fun viaUsesTheNormalMatcherAndNeverFallsBackToAnotherSource() {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
     val text =
-        source.substringBefore("Green: PlayCard(ResearchOutpost)") +
+        source.substringBefore("Green: playCard(ResearchOutpost)") +
             """
-            Green: ExMachina {
+            Green: exMachina {
                 ViralEnhancers
             }
-            Green: PlayCard(Pets) {
-                Pay(10 MC)
+            Green: playCard(Pets) {
+                pay(10 MC)
                 Animal<Pets> VIA Pets
                 Animal<Pets> VIA ViralEnhancers
             }
@@ -352,7 +355,7 @@ internal class ArchiveDraftTest {
   @Test
   fun preservesATrailingTurnDeclineAndInfersItBeforeTheNextPlayersAction() {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
-    val imported = importer(source.substringBefore("Pink: SendDelegate0"))
+    val imported = importer(source.substringBefore("Pink: action(LobbyAction)"))
     imported.run()
     val world = imported.agents.world
     val green =
@@ -448,9 +451,9 @@ internal class ArchiveDraftTest {
   @Test
   fun insufficientPaymentDoesNotSpendResources() {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
-    val importer = importer(source.replaceFirst("Pay(18 MC)", "Pay(17 MC)"))
+    val importer = importer(source.replaceFirst("pay(18 MC)", "pay(17 MC)"))
     val failure = assertFailsWith<IllegalStateException> { importer.run() }
-    assertTrue(failure.message!!.contains("Pay(17 MC)"), failure.message)
+    assertTrue(failure.message!!.contains("pay(17 MC)"), failure.message)
     val green = importer.agents[importer.agents.world.actors.filterIsInstance<Player>().first()]
     assertEquals(23, green.count("MC"))
     assertEquals(0, green.count("ResearchOutpost"))
@@ -459,9 +462,10 @@ internal class ArchiveDraftTest {
   @Test
   fun zeroOfAnotherResourceDoesNotDeclineThePlantTask() {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
-    val importer = importer(source.replaceFirst("-0 Plant<Green>", "-0 MC<Green>"))
+    assertTrue("-0 Plant<Anyone>" in source)
+    val importer = importer(source.replaceFirst("-0 Plant<Anyone>", "-0 MC<Anyone>"))
     val failure = assertFailsWith<IllegalStateException> { importer.run() }
-    assertTrue(failure.message!!.contains("-0 MC<Green>"), failure.message)
+    assertTrue(failure.message!!.contains("-0 MC<Anyone>"), failure.message)
   }
 
   @Test
@@ -470,24 +474,24 @@ internal class ArchiveDraftTest {
     val header = source.substringBefore("Green: Setup")
     val invalid =
         listOf(
-            "Pay(1 MC) VIA Pets",
-            "SelectTask",
-            "SelectTask(Plant) {\n}",
-            "ConvertHeat(999)",
-            "ConvertPlants(1)",
-            "Trade2(3 Energy)",
-            "SendDelegate0(5)",
-            "SendDelegate5(5)",
-            "ClaimMilestone(Builder)",
-            "FundAward(Scientist)",
-            "Pass(1)",
-            "DoRequiredActions(1)",
-            "PlayCard(ResearchOutpost, Hand, extra)",
-            "UseAction1(AsteroidRights, extra)",
-            "UseAction2(AsteroidRights, extra)",
-            "UseStandardProject(AquiferProject, extra)",
-            "Pay(1 MC) {\n}",
-            "Pass {\n}",
+            "pay(1 MC) VIA Pets",
+            "selectTask",
+            "selectTask(Plant) {\n}",
+            "action(ConvertHeatAction, 1, extra)",
+            "action()",
+            "action(TradeAction, 3 Energy)",
+            "action(LobbyAction, 0)",
+            "action(PaidLobbyAction, -1)",
+            "action(ClaimMilestoneAction, Builder)",
+            "action(FundAwardAction, Scientist)",
+            "pass(1)",
+            "doRequiredActions(1)",
+            "playCard(ResearchOutpost, Hand, extra)",
+            "useAction1(AsteroidRights, extra)",
+            "useAction2(AsteroidRights, extra)",
+            "useStandardProject(AquiferProject, extra)",
+            "pay(1 MC) {\n}",
+            "pass {\n}",
             "Research",
             "Research {\n}",
             "Research(2) {\n    Ok\n}",
@@ -495,13 +499,13 @@ internal class ArchiveDraftTest {
             "Production",
             "WorldGovernment",
             "GlobalEvent",
-            "ExMachina",
-            "ExMachina(Plant) {\n    Plant\n}",
+            "exMachina",
+            "exMachina(Plant) {\n    Plant\n}",
             "Plant {\n}",
             "UnknownCommand {\n}",
-            "PlayCard(ResearchOutpost,)",
-            "PlayCard(,ResearchOutpost)",
-            "PlayCard(ResearchOutpost, Class<Hand])",
+            "playCard(ResearchOutpost,)",
+            "playCard(,ResearchOutpost)",
+            "playCard(ResearchOutpost, Class<Hand])",
         )
     for (entry in invalid) {
       val importer = importer(header + "Green: $entry\n")
@@ -511,6 +515,7 @@ internal class ArchiveDraftTest {
           listOf(
                   "VIA qualifies a Pets task",
                   "Unexpected arguments",
+                  "Action number must be",
                   "does not take a body",
                   "requires a nonempty body",
                   "Unknown block",
@@ -536,16 +541,16 @@ internal class ArchiveDraftTest {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
     for (payment in
         listOf(
-            "Pay()",
-            "Pay(18? MC)",
-            "Pay(18* MC)",
-            "Pay(0 MC)",
-            "Pay(-18 MC)",
-            "Pay(18 MC, Ok)",
-            "Pay(18 MC,)",
-            "Pay(18 MC<Green>)",
+            "pay()",
+            "pay(18? MC)",
+            "pay(18* MC)",
+            "pay(0 MC)",
+            "pay(-18 MC)",
+            "pay(18 MC, Ok)",
+            "pay(18 MC,)",
+            "pay(18 MC<Green>)",
         )) {
-      val importer = importer(source.replaceFirst("Pay(18 MC)", payment))
+      val importer = importer(source.replaceFirst("pay(18 MC)", payment))
       val failure = assertFailsWith<IllegalStateException>(payment) { importer.run() }
       assertTrue(failure.message!!.contains(payment), failure.message)
       assertEquals(
@@ -620,11 +625,11 @@ internal class ArchiveDraftTest {
   @Test
   fun paymentOrderIsNotRewritten() {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
-    val before = importer(source.substringBefore("Green: PlayCard(VestaShipyard)"))
+    val before = importer(source.substringBefore("Green: playCard(VestaShipyard)"))
     before.run()
-    val importer = importer(source.replaceFirst("Pay(4 Titanium, 2 MC)", "Pay(2 MC, 4 Titanium)"))
+    val importer = importer(source.replaceFirst("pay(4 Titanium, 2 MC)", "pay(2 MC, 4 Titanium)"))
     val failure = assertFailsWith<IllegalStateException> { importer.run() }
-    assertTrue(failure.message!!.contains("Pay(2 MC, 4 Titanium)"), failure.message)
+    assertTrue(failure.message!!.contains("pay(2 MC, 4 Titanium)"), failure.message)
     val actor = importer.agents.world.actors.filterIsInstance<Player>().first()
     for (resource in listOf("MC", "Titanium")) {
       assertEquals(before.agents[actor].count(resource), importer.agents[actor].count(resource))

@@ -19,11 +19,17 @@ import dev.martianzoo.state.TaskResult
  * [initialPolicy] supplies each Player's initial automatic-execution policy, defaulting to
  * [AutoExecPolicy.NONE]. It is evaluated once per Player; the engine handles mandatory Admin work.
  * Construction does not execute pending tasks; subsequent Agent commands handle them.
+ *
+ * [routines] supplies this session's named client interactions. Generic sessions have none.
+ * Definitions are retained by [fork] and must use the receiving session supplied to [Routine].
  */
 public class Agents(
     public val world: World,
+    routines: Map<String, Routine> = emptyMap(),
     initialPolicy: (Player) -> AutoExecPolicy = { AutoExecPolicy.NONE },
 ) {
+  internal val routines: Map<String, Routine> = routines.toMap()
+
   /**
    * Optional application check for this session; fresh sessions and speculative copies have none.
    */
@@ -54,7 +60,7 @@ public class Agents(
   private val agents: Map<Player, Agent> =
       world.actors.filterIsInstance<Player>().associateWith {
         AgentImpl(
-            world,
+            this,
             world.actorEngine(it),
             elaborator,
             autoExecLoop,
@@ -113,5 +119,5 @@ public class Agents(
   public fun fork(): Agents = withWorld(Engine.fork(world))
 
   private fun withWorld(otherWorld: World): Agents =
-      Agents(otherWorld) { actor -> get(actor).autoExecPolicy }
+      Agents(otherWorld, routines) { actor -> get(actor).autoExecPolicy }
 }

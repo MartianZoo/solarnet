@@ -273,27 +273,27 @@ Vin: Setup {
 }
 
 // Generation 1
-Nor: PlayCard(Ecoline) {
+Nor: playCard(Ecoline) {
     36 MC VIA Ecoline
     3 Plant
     PROD[2 Plant]
-    Pay(18 MC)
+    pay(18 MC)
     6 ProjectCard<Hand FROM Selecting>
 }
 
-Vin: PlayCard(CheungShingMars) {
+Vin: playCard(CheungShingMars) {
     44 MC VIA CheungShingMars
     PROD[3 MC]
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Nor: PlayCard(AlbedoPlants) {
+Nor: playCard(AlbedoPlants) {
     PROD[Plant]
     Plant
     3 Heat
 }
-Nor: PlayCard(ProjectEden) {
+Nor: playCard(ProjectEden) {
     3 Heat
     OceanTile<Tharsis_2_6>
     TerraformRating
@@ -310,31 +310,31 @@ Nor: PlayCard(ProjectEden) {
     -3 ProjectCard
 }
 
-Vin: PlayCard(Supplier) {
+Vin: playCard(Supplier) {
     PROD[2 Energy]
     4 Steel
 }
-Vin: PlayCard(ResearchNetwork) {
+Vin: playCard(ResearchNetwork) {
     PROD[MC]
     3 ProjectCard
 }
 
-Nor: Pass
+Nor: pass
 
 // no MC remainder
-Vin: PlayCard(FuelFactory) {
-    Pay(2 Steel)
+Vin: playCard(FuelFactory) {
+    pay(2 Steel)
     PROD[-Energy]
     PROD[Titanium]
     PROD[MC]
 }
 // no MC remainder
-Vin: PlayCard(CarbonateProcessing) {
-    Pay(2 Steel)
+Vin: playCard(CarbonateProcessing) {
+    pay(2 Steel)
     PROD[-Energy]
     PROD[3 Heat]
 }
-Vin: Pass
+Vin: pass
 
 Nor: Production {
     22 MC
@@ -355,69 +355,69 @@ Nor: WorldGovernment {
 Nor: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 18: immediately after both Research purchases in generation 2.
 // Research Network's wild tag supplies Cloud Tourism's missing Earth tag.
-Vin: PlayCard(CloudTourism) {
-    Pay(11 MC)
+Vin: playCard(CloudTourism) {
+    pay(11 MC)
     EarthTag<WildTagElection<WildTag<ResearchNetwork>, ActionScope>>
     PROD[MC]
 }
 
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_3_6>
     OxygenStep
     2 MC
     TerraformRating
 }
-Nor: PlayCard(AquiferPumping) {
-    Pay(1 Steel, 16 MC)
+Nor: playCard(AquiferPumping) {
+    pay(1 Steel, 16 MC)
 }
 
 // Research Network supplies Sister Planet Support's missing Earth tag.
-Vin: PlayCard(SisterPlanetSupport) {
-    Pay(7 MC)
+Vin: playCard(SisterPlanetSupport) {
+    pay(7 MC)
     PROD[3 MC]
 }
 
-Nor: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Nor: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Tharsis_6_9>
     TerraformRating
     Plant
 }
 
-Vin: PlayCard(Omnicourt) {
-    Pay(9 MC)
+Vin: playCard(Omnicourt) {
+    pay(9 MC)
     2 TerraformRating
 }
 
-Nor: Pass
+Nor: pass
 
-Vin: UseAction1(CloudTourism) {
+Vin: useAction1(CloudTourism) {
     Floater<CloudTourism>
 }
-Vin: PlayCard(VenusShuttles) {
-    Pay(9 MC)
+Vin: playCard(VenusShuttles) {
+    pay(9 MC)
     2 Floater<CloudTourism>
 }
-Vin: UseAction1(VenusShuttles) {
-    Pay(8 MC)
+Vin: useAction1(VenusShuttles) {
+    pay(8 MC)
     VenusStep
     TerraformRating
 }
-Vin: Pass
+Vin: pass
 
 Nor: Production {
     24 MC
@@ -438,65 +438,65 @@ Vin: WorldGovernment {
 Nor: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 47: immediately after both Research purchases in generation 3.
-Nor: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Nor: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Tharsis_6_8>
     TerraformRating
     Plant
     2 MC
 }
-Nor: PlayCard(StaticHarvesting) {
-    Pay(5 MC)
+Nor: playCard(StaticHarvesting) {
+    pay(5 MC)
     PROD[Energy]
     MC
 }
 
-Vin: PlayCard(RoboticWorkforce) {
-    Pay(9 MC)
+Vin: playCard(RoboticWorkforce) {
+    pay(9 MC)
     EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? }
     0 BuildingTag<WildTagElection<WildTag<ResearchNetwork>, ActionScope>>
     CopyProductionBox<CheungShingMars>
     PROD[3 MC]
 }
-Vin: ClaimMilestone {
-    Pay(8 MC)
+Vin: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Fundraiser
 }
 
-Nor: PlayCard(AerialMappers) {
-    Pay(11 MC)
+Nor: playCard(AerialMappers) {
+    pay(11 MC)
 }
 
-Vin: UseAction1(CloudTourism) {
+Vin: useAction1(CloudTourism) {
     Floater<CloudTourism>
 }
 
-Nor: PlayCard(LocalShading) {
-    Pay(4 MC)
+Nor: playCard(LocalShading) {
+    pay(4 MC)
 }
 
-Vin: Pass
+Vin: pass
 
-Nor: UseAction1(AerialMappers) {
+Nor: useAction1(AerialMappers) {
     Floater<LocalShading>
 }
-Nor: UseAction2(LocalShading) {
+Nor: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
-Nor: Pass
+Nor: pass
 
 Nor: Production {
     26 MC
@@ -518,7 +518,7 @@ Nor: WorldGovernment {
 Nor: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -527,16 +527,16 @@ Vin: Research {
 
     // discard no research cards
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 75: immediately after both Research purchases in generation 4.
-Vin: PlayCard(OptimalAerobraking) {
-    Pay(2 Titanium, 1 MC)
+Vin: playCard(OptimalAerobraking) {
+    pay(2 Titanium, 1 MC)
 }
-Vin: PlayCard(SpinInducingAsteroid) {
-    Pay(1 Titanium, 13 MC)
+Vin: playCard(SpinInducingAsteroid) {
+    pay(1 Titanium, 13 MC)
     VenusStep
     VenusStep
     3 MC
@@ -545,14 +545,14 @@ Vin: PlayCard(SpinInducingAsteroid) {
     ProjectCard
 }
 
-Nor: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Nor: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Tharsis_4_8>
     TerraformRating
     2 Plant
 }
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_5_8>
     OxygenStep
     2 Plant
@@ -560,8 +560,8 @@ Nor: ConvertPlants {
     TerraformRating
 }
 
-Vin: PlayCard(NuclearZone) {
-    Pay(10 MC)
+Vin: playCard(NuclearZone) {
+    pay(10 MC)
     TemperatureStep
     TemperatureStep
     2 TerraformRating
@@ -571,24 +571,24 @@ Vin: PlayCard(NuclearZone) {
     2 MC
 }
 // Research Network supplies Planetologist's second Jovian tag.
-Vin: ClaimMilestone {
-    Pay(8 MC)
+Vin: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Planetologist
 }
 
-Nor: PlayCard(DesignedMicroorganisms) {
-    Pay(16 MC)
+Nor: playCard(DesignedMicroorganisms) {
+    pay(16 MC)
     PROD[2 Plant]
 }
 
-Vin: UseAction1(VenusShuttles) {
-    Pay(8 MC)
+Vin: useAction1(VenusShuttles) {
+    pay(8 MC)
     VenusStep
     TerraformRating
 }
 
-Nor: PlayCard(EcologicalZone) {
-    Pay(12 MC)
+Nor: playCard(EcologicalZone) {
+    pay(12 MC)
     Animal<EcologicalZone>
     Animal<EcologicalZone>
     3 Heat
@@ -597,35 +597,35 @@ Nor: PlayCard(EcologicalZone) {
     4 MC
 }
 
-Vin: UseAction1(CloudTourism) {
+Vin: useAction1(CloudTourism) {
     Floater<CloudTourism>
 }
 
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_2_5>
     OxygenStep
     2 MC
     TerraformRating
 }
 
-Vin: PlayCard(EnergyTapping) {
-    Pay(3 MC)
+Vin: playCard(EnergyTapping) {
+    pay(3 MC)
     PROD[-Energy<Nor>]
     PROD[Energy]
 }
 
-Nor: UseAction1(AerialMappers) {
+Nor: useAction1(AerialMappers) {
     Floater<LocalShading>
 }
 
-Vin: Pass
+Vin: pass
 
-Nor: UseAction2(LocalShading) {
+Nor: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
-Nor: Pass
+Nor: pass
 
 Nor: Production {
     30 MC
@@ -648,27 +648,27 @@ Vin: WorldGovernment {
 Nor: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 117: immediately after both Research purchases in generation 5.
-Nor: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Nor: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Tharsis_5_6>
     TerraformRating
     2 Plant
     2 MC
 }
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_4_6>
     OxygenStep
     Plant
@@ -676,68 +676,68 @@ Nor: ConvertPlants {
     TerraformRating
 }
 
-Vin: ConvertHeat {
-    Pay(8 Heat)
+Vin: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Vin: ConvertHeat {
-    Pay(8 Heat)
+Vin: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
 
-Nor: ConvertHeat {
-    Pay(8 Heat)
+Nor: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Vin: UseAction1(CloudTourism) {
+Vin: useAction1(CloudTourism) {
     Floater<CloudTourism>
 }
 
-Nor: UseAction1(AerialMappers) {
+Nor: useAction1(AerialMappers) {
     Floater<LocalShading>
 }
 
-Vin: PlayCard(Cartel) {
-    Pay(8 MC)
+Vin: playCard(Cartel) {
+    pay(8 MC)
     PROD[4 MC]
 }
 
-Nor: UseAction2(LocalShading) {
+Nor: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 
-Vin: UseAction1(VenusShuttles) {
-    Pay(8 MC)
+Vin: useAction1(VenusShuttles) {
+    pay(8 MC)
     VenusStep
     TerraformRating
 }
 
-Nor: ClaimMilestone {
-    Pay(8 MC)
+Nor: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Briber
     -12 MC
 }
 
-Vin: PlayCard(SmallAnimals) {
-    Pay(6 MC)
+Vin: playCard(SmallAnimals) {
+    pay(6 MC)
     PROD[-Plant<Nor>]
 }
 
-Nor: Pass
+Nor: pass
 
-Vin: UseAction1(SmallAnimals) {
+Vin: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
-Vin: PlayCard(ProtectedHabitats) {
-    Pay(5 MC)
+Vin: playCard(ProtectedHabitats) {
+    pay(5 MC)
 }
-Vin: Pass
+Vin: pass
 
 Vin: Production {
     47 MC
@@ -760,40 +760,40 @@ Nor: WorldGovernment {
 Nor: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 160: immediately after both Research purchases in generation 6.
-Vin: PlayCard(Sabotage) {
-    Pay(1 MC)
+Vin: playCard(Sabotage) {
+    pay(1 MC)
     -7 MC<Nor>
 }
 
-Nor: PlayCard(ResearchCoordination) {
-    Pay(4 MC)
+Nor: playCard(ResearchCoordination) {
+    pay(4 MC)
 }
 
-Vin: UseAction1(VenusShuttles) {
-    Pay(8 MC)
+Vin: useAction1(VenusShuttles) {
+    pay(8 MC)
     VenusStep
     TerraformRating
 }
-Vin: UseStandardProject(AirScrappingProject) {
-    Pay(15 MC)
+Vin: useStandardProject(AirScrappingProject) {
+    pay(15 MC)
     VenusStep
     2 TerraformRating
 }
 
-Nor: PlayCard(Plantation) {
-    Pay(15 MC)
+Nor: playCard(Plantation) {
+    pay(15 MC)
     Animal<EcologicalZone>
     3 Heat
     GreeneryTile<Tharsis_4_5>
@@ -802,8 +802,8 @@ Nor: PlayCard(Plantation) {
     4 MC
     TerraformRating
 }
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_3_4>
     OxygenStep
     TerraformRating
@@ -811,42 +811,42 @@ Nor: ConvertPlants {
     TerraformRating
 }
 
-Vin: UseAction1(SmallAnimals) {
+Vin: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
-Nor: UseAction1(AerialMappers) {
+Nor: useAction1(AerialMappers) {
     Floater<AerialMappers>
 }
 
-Vin: UseAction1(CloudTourism) {
+Vin: useAction1(CloudTourism) {
     Floater<CloudTourism>
 }
 
-Nor: UseAction1(LocalShading) {
+Nor: useAction1(LocalShading) {
     Floater<LocalShading>
 }
 
-Vin: PlayCard(SolarLogistics) {
-    Pay(2 Titanium, 14 MC)
+Vin: playCard(SolarLogistics) {
+    pay(2 Titanium, 14 MC)
     2 Titanium
 }
 
-Nor: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Nor: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Tharsis_6_7>
     TerraformRating
     Plant
     4 MC
 }
-Nor: PlayCard(IshtarMining) {
-    Pay(5 MC)
+Nor: playCard(IshtarMining) {
+    pay(5 MC)
     PROD[Titanium]
 }
 
-Vin: Pass
+Vin: pass
 
-Nor: Pass
+Nor: pass
 
 Vin: Production {
     50 MC
@@ -875,94 +875,94 @@ Nor: Research {
 Vin: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // _local/replays/Game20260912/Heroku-g1212dda978b8/game-g1212dda978b8.sqlite; source save 201.
 // Database save 201: immediately after both Research purchases in generation 7.
-Nor: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Nor: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Tharsis_5_4>
     TerraformRating
     2 Plant
     2 MC
 }
-Nor: FundAward {
-    Pay(8 MC)
+Nor: action(FundAwardAction) {
+    pay(8 MC)
     Landlord
 }
 
-Vin: PlayCard(MethaneFromTitan) {
-    Pay(3 Titanium, 19 MC)
+Vin: playCard(MethaneFromTitan) {
+    pay(3 Titanium, 19 MC)
     PROD[2 Heat]
     PROD[2 Plant]
 }
 
-Nor: UseAction2(AerialMappers) {
+Nor: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
 
-Vin: UseAction1(SmallAnimals) {
+Vin: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
 // Research Coordination supplies Interplanetary Trade's tenth distinct tag.
-Nor: PlayCard(InterplanetaryTrade) {
-    Pay(1 Titanium, 24 MC)
+Nor: playCard(InterplanetaryTrade) {
+    pay(1 Titanium, 24 MC)
     EACH @WildTagElection { Tag<@WildTagElection>? }
     JovianTag<WildTagElection<WildTag<ResearchCoordination>, ActionScope>>
     PROD[10 MC]
 }
 
-Vin: PlayCard(Thermophiles) {
-    Pay(9 MC)
+Vin: playCard(Thermophiles) {
+    pay(9 MC)
 }
 
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_3_3>
     OxygenStep
     TerraformRating
 }
 
-Vin: UseAction1(CloudTourism) {
+Vin: useAction1(CloudTourism) {
     Floater<CloudTourism>
 }
 
-Nor: UseAction2(LocalShading) {
+Nor: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 
-Vin: UseAction1(Thermophiles) {
+Vin: useAction1(Thermophiles) {
     Microbe<Thermophiles>
 }
 
-Nor: Pass
+Nor: pass
 
-Vin: UseAction1(VenusShuttles) {
-    Pay(7 MC)
+Vin: useAction1(VenusShuttles) {
+    pay(7 MC)
     VenusStep
     TerraformRating
 }
-Vin: ConvertHeat {
-    Pay(8 Heat)
+Vin: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Vin: PlayCard(MarsUniversity) {
-    Pay(6 MC)
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+Vin: playCard(MarsUniversity) {
+    pay(6 MC)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Vin: PlayCard(VenusGovernor) {
-    Pay(4 MC)
+Vin: playCard(VenusGovernor) {
+    pay(4 MC)
     PROD[2 MC]
 }
-Vin: Pass
+Vin: pass
 
 Nor: Production {
     51 MC
@@ -987,88 +987,88 @@ Nor: WorldGovernment {
 Nor: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 246: immediately after both Research purchases in generation 8.
-Vin: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Vin: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_3_5>
 }
-Vin: FundAward {
-    Pay(14 MC)
+Vin: action(FundAwardAction) {
+    pay(14 MC)
     Excentric
 }
 
-Nor: PlayCard(RoverConstruction) {
-    Pay(8 MC)
+Nor: playCard(RoverConstruction) {
+    pay(8 MC)
 }
-Nor: PlayCard(ResearchOutpost) {
-    Pay(18 MC)
+Nor: playCard(ResearchOutpost) {
+    pay(18 MC)
     NormalCityTile<Tharsis_4_2>
     2 MC
     Plant
 }
 
-Vin: PlayCard(Bushes) {
-    Pay(10 MC)
+Vin: playCard(Bushes) {
+    pay(10 MC)
     PROD[2 Plant]
     2 Plant
 }
 
-Nor: UseAction1(AerialMappers) {
+Nor: useAction1(AerialMappers) {
     Floater<AerialMappers>
 }
 
-Vin: ConvertHeat {
-    Pay(8 Heat)
+Vin: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Nor: UseAction1(LocalShading) {
+Nor: useAction1(LocalShading) {
     Floater<LocalShading>
 }
 
-Vin: UseAction1(Thermophiles) {
+Vin: useAction1(Thermophiles) {
     Microbe<Thermophiles>
 }
 
-Nor: PlayCard(Research) {
-    Pay(10 MC)
+Nor: playCard(Research) {
+    pay(10 MC)
     2 ProjectCard
 }
 
-Vin: UseAction1(SmallAnimals) {
+Vin: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
-Nor: PlayCard(Supermarkets) {
-    Pay(8 MC)
+Nor: playCard(Supermarkets) {
+    pay(8 MC)
     PROD[2 MC]
 }
 
-Vin: UseAction1(CloudTourism) {
+Vin: useAction1(CloudTourism) {
     Floater<CloudTourism>
 }
 
-Nor: PlayCard(PowerPlant) {
-    Pay(3 MC)
+Nor: playCard(PowerPlant) {
+    pay(3 MC)
     PROD[Energy]
 }
 
-Vin: Pass
+Vin: pass
 
-Nor: Pass
+Nor: pass
 
 Nor: Production {
     53 MC
@@ -1094,84 +1094,84 @@ Vin: WorldGovernment {
 Nor: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 293: immediately after both Research purchases in generation 9.
-Nor: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Nor: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_4_4>
     2 MC VIA RoverConstruction
     Plant
     4 MC
 }
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_3_1>
     OxygenStep
     ProjectCard
     TerraformRating
 }
 
-Vin: FundAward {
-    Pay(20 MC)
+Vin: action(FundAwardAction) {
+    pay(20 MC)
     Forecaster
 }
 
-Nor: UseAction2(AerialMappers) {
+Nor: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
 
-Vin: ConvertHeat {
-    Pay(8 Heat)
+Vin: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Nor: PlayCard(DuskLaserMining) {
-    Pay(2 Titanium, 1 MC)
+Nor: playCard(DuskLaserMining) {
+    pay(2 Titanium, 1 MC)
     PROD[-Energy]
     PROD[Titanium]
     4 Titanium
 }
 
-Vin: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Vin: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_2_3>
     Nor: 2 MC
 }
 
-Nor: UseAction2(LocalShading) {
+Nor: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 
-Vin: ConvertPlants {
-    Pay(8 Plant)
+Vin: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_2_4>
     OxygenStep
     TerraformRating
 }
 
-Nor: PlayCard(Greenhouses) {
-    Pay(5 MC)
+Nor: playCard(Greenhouses) {
+    pay(5 MC)
     5 Plant
     Animal<EcologicalZone>
     3 Heat
 }
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_4_3>
     OxygenStep
     Plant
@@ -1179,75 +1179,75 @@ Nor: ConvertPlants {
     TerraformRating
 }
 
-Vin: UseAction1(CloudTourism) {
+Vin: useAction1(CloudTourism) {
     Floater<CloudTourism>
 }
 
-Nor: ConvertHeat {
-    Pay(8 Heat)
+Nor: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Vin: UseAction1(SmallAnimals) {
+Vin: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
-Nor: PlayCard(Trees) {
-    Pay(12 MC)
+Nor: playCard(Trees) {
+    pay(12 MC)
     PROD[3 Plant]
     Plant
     Animal<EcologicalZone>
     3 Heat
 }
 
-Vin: UseAction2(Thermophiles) {
+Vin: useAction2(Thermophiles) {
     -2 Microbe<Thermophiles>
     VenusStep
     TerraformRating
 }
 
 // Research Coordination supplies the eighth Plant tag counted by Robot Pollinators.
-Nor: PlayCard(RobotPollinators) {
-    Pay(8 MC)
+Nor: playCard(RobotPollinators) {
+    pay(8 MC)
     PROD[Plant]
     8 Plant
 }
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_5_2>
     OxygenStep
     2 Plant
     TerraformRating
 }
 
-Vin: UseAction1(VenusShuttles) {
-    Pay(5 MC)
+Vin: useAction1(VenusShuttles) {
+    pay(5 MC)
     VenusStep
     TerraformRating
 }
 
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_4_1>
     0 OxygenStep
     Plant
     Titanium
 }
 
-Vin: Pass
+Vin: pass
 
-Nor: PlayCard(IndenturedWorkers) {
+Nor: playCard(IndenturedWorkers) {
     IndenturedWorkers_NextCardEffect
 }
-Nor: PlayCard(GiantSolarShade) {
-    Pay(5 Titanium, 3 MC)
+Nor: playCard(GiantSolarShade) {
+    pay(5 Titanium, 3 MC)
     VenusStep
     VenusStep
     VenusStep
     3 TerraformRating
 }
-Nor: Pass
+Nor: pass
 
 Vin: Production {
     61 MC
@@ -1276,120 +1276,120 @@ Nor: Research {
 
     // discard no research cards
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 357: immediately after both Research purchases in generation 10.
-Vin: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Vin: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_5_1>
     Nor: 2 MC
     2 Plant
 }
-Vin: ConvertPlants {
-    Pay(8 Plant)
+Vin: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_6_2>
     0 OxygenStep
     Plant
 }
 
-Nor: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Nor: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_6_3>
     2 MC
     2 Plant
 }
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_6_4>
     0 OxygenStep
     Plant
     2 MC
 }
 
-Vin: ConvertHeat {
-    Pay(8 Heat)
+Vin: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Nor: PlayCard(LandClaim) {
+Nor: playCard(LandClaim) {
     Community<Tharsis_2_2>
 }
 
-Vin: PlayCard(VenusianAnimals) {
-    Pay(15 MC)
+Vin: playCard(VenusianAnimals) {
+    pay(15 MC)
     Animal<VenusianAnimals>
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Nor: PlayCard(FakeFloydContinuum) {
-    Pay(3 MC)
+Nor: playCard(FakeFloydContinuum) {
+    pay(3 MC)
 }
 
 // Research Network supplies Atalanta Planitia Lab's third Science tag.
-Vin: PlayCard(AtalantaPlanitiaLab) {
-    Pay(10 MC)
+Vin: playCard(AtalantaPlanitiaLab) {
+    pay(10 MC)
     Animal<VenusianAnimals>
     2 ProjectCard VIA AtalantaPlanitiaLab
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Nor: UseAction1(AerialMappers) {
+Nor: useAction1(AerialMappers) {
     Floater<AerialMappers>
 }
 
-Vin: UseAction1(SmallAnimals) {
+Vin: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
-Nor: UseAction1(LocalShading) {
+Nor: useAction1(LocalShading) {
     Floater<LocalShading>
 }
 
-Vin: UseAction1(CloudTourism) {
+Vin: useAction1(CloudTourism) {
     Floater<CloudTourism>
 }
 
 // oceans are already complete
-Nor: PlayCard(DeepWellHeating) {
-    Pay(12 MC)
+Nor: playCard(DeepWellHeating) {
+    pay(12 MC)
     PROD[Energy]
     TemperatureStep
     TerraformRating
     OceanTile<WaterArea(HAS MAX 0 Tile)>*
 }
 
-Vin: UseAction1(Thermophiles) {
+Vin: useAction1(Thermophiles) {
     Microbe<Thermophiles>
 }
 
-Nor: UseAction1(FakeFloydContinuum) {
+Nor: useAction1(FakeFloydContinuum) {
     9 MC
 }
 
-Vin: PlayCard(Algae) {
-    Pay(10 MC)
+Vin: playCard(Algae) {
+    pay(10 MC)
     Plant
     PROD[2 Plant]
 }
 
-Nor: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Nor: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_6_5>
     2 MC VIA RoverConstruction
@@ -1397,13 +1397,13 @@ Nor: UseStandardProject(CityProject) {
     4 MC
 }
 
-Vin: Pass
+Vin: pass
 
-Nor: PlayCard(RadSuits) {
-    Pay(5 MC)
+Nor: playCard(RadSuits) {
+    pay(5 MC)
     PROD[MC]
 }
-Nor: Pass
+Nor: pass
 
 Nor: Production {
     66 MC
@@ -1429,143 +1429,143 @@ Vin: WorldGovernment {
 Nor: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Vin: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 417: immediately after both Research purchases in generation 11.
-Nor: UseAction2(AerialMappers) {
+Nor: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
-Nor: PlayCard(OlympusConference) {
-    Pay(9 MC)
+Nor: playCard(OlympusConference) {
+    pay(9 MC)
     Science<OlympusConference>
 }
 
-Vin: ConvertHeat {
-    Pay(8 Heat)
+Vin: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Vin: PlayCard(IshtarExpedition) {
-    Pay(6 MC)
+Vin: playCard(IshtarExpedition) {
+    pay(6 MC)
     3 Titanium
     2 SearchForCard<TagFilter<Class<VenusTag>>>
 }
 
-Nor: PlayCard(GhgProducingBacteria) {
-    Pay(7 MC)
+Nor: playCard(GhgProducingBacteria) {
+    pay(7 MC)
     ProjectCard FROM Science<OlympusConference>
 }
-Nor: PlayCard(MoholeLake) {
-    Pay(30 MC)
+Nor: playCard(MoholeLake) {
+    pay(30 MC)
     OceanTile<WaterArea(HAS MAX 0 Tile)>*
     TemperatureStep
     3 Plant
     TerraformRating
 }
 
-Vin: ConvertPlants {
-    Pay(8 Plant)
+Vin: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_1_3>
     0 OxygenStep
 }
 
-Nor: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Nor: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
 }
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_6_6>
     0 OxygenStep
     Plant
     6 MC
 }
 
-Vin: UseAction1(Thermophiles) {
+Vin: useAction1(Thermophiles) {
     Microbe<Thermophiles>
 }
 
-Nor: PlayCard(WeatherBalloons) {
-    Pay(10 MC)
+Nor: playCard(WeatherBalloons) {
+    pay(10 MC)
     Science<OlympusConference>
     ProjectCard
 }
 
-Vin: UseAction1(CloudTourism) {
+Vin: useAction1(CloudTourism) {
     Floater<CloudTourism>
 }
 
-Nor: UseAction1(FakeFloydContinuum) {
+Nor: useAction1(FakeFloydContinuum) {
     12 MC
 }
 
-Vin: UseAction1(SmallAnimals) {
+Vin: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_7_5>
     0 OxygenStep
 }
 
-Vin: UseStandardProject(SellPatentsProject) {
+Vin: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Nor: UseAction2(LocalShading) {
+Nor: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 
-Vin: PlayCard(FreyjaBiodomes) {
-    Pay(14 MC)
+Vin: playCard(FreyjaBiodomes) {
+    pay(14 MC)
     PROD[-Energy]
     PROD[2 MC]
     2 Animal<VenusianAnimals>
 }
 
-Nor: UseAction1(GhgProducingBacteria) {
+Nor: useAction1(GhgProducingBacteria) {
     Microbe<GhgProducingBacteria>
 }
 
 // Research Network supplies Interstellar Colony Ship's fifth Science tag.
-Vin: PlayCard(InterstellarColonyShip) {
-    Pay(7 Titanium, 1 MC)
+Vin: playCard(InterstellarColonyShip) {
+    pay(7 Titanium, 1 MC)
     3 MC
     3 Heat
     ProjectCard
 }
 
-Nor: UseAction1(WeatherBalloons) {
+Nor: useAction1(WeatherBalloons) {
     Floater<WeatherBalloons>
 }
 
-Vin: UseStandardProject(PowerPlantProject) {
-    Pay(11 MC)
+Vin: useStandardProject(PowerPlantProject) {
+    pay(11 MC)
     PROD[Energy]
 }
 
 // no MC remainder
-Nor: PlayCard(StanfordTorus) {
-    Pay(4 Titanium)
+Nor: playCard(StanfordTorus) {
+    pay(4 Titanium)
     NormalCityTile<StanfordTorus_RemoteArea>
     2 MC
 }
 
-Vin: PlayCard(NoctisCity) {
-    Pay(16 MC)
+Vin: playCard(NoctisCity) {
+    pay(16 MC)
     PROD[-Energy]
     PROD[3 MC]
     NormalCityTile<Tharsis_5_3>
@@ -1574,60 +1574,60 @@ Vin: PlayCard(NoctisCity) {
     2 MC
 }
 
-Nor: UseStandardProject(SellPatentsProject) {
+Nor: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Vin: UseStandardProject(SellPatentsProject) {
+Vin: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Nor: UseStandardProject(SellPatentsProject) {
+Nor: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Vin: UseStandardProject(SellPatentsProject) {
+Vin: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Nor: UseAction1(MoholeLake) {
+Nor: useAction1(MoholeLake) {
     Animal<EcologicalZone>
 }
 
-Vin: PlayCard(RestrictedArea) {
-    Pay(11 MC)
+Vin: playCard(RestrictedArea) {
+    pay(11 MC)
     Animal<VenusianAnimals>
     RestrictedArea_SpecialTile<Tharsis_7_8>
     Plant
     4 MC
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Nor: UseStandardProject(SellPatentsProject) {
+Nor: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Vin: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Vin: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
 
-Nor: Pass
+Nor: pass
 
-Vin: PlayCard(GeneRepair) {
-    Pay(12 MC)
+Vin: playCard(GeneRepair) {
+    pay(12 MC)
     PROD[2 MC]
     Animal<VenusianAnimals>
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Vin: UseStandardProject(SellPatentsProject) {
+Vin: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
-Vin: Pass
+Vin: pass
 
 Nor: Production {
     69 MC
@@ -1645,8 +1645,8 @@ Vin: Production {
     6 Plant
 }
 
-Nor: ConvertPlants {
-    Pay(7 Plant)
+Nor: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Tharsis_7_6>
 }
 // decline final greenery
@@ -1654,8 +1654,8 @@ Nor {
     Ok
 }
 
-Vin: ConvertPlants {
-    Pay(8 Plant)
+Vin: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_7_9>
     4 MC
 }

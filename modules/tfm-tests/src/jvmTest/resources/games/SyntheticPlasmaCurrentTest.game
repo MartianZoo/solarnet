@@ -43,37 +43,37 @@ Bloo: Setup {
 }
 
 // Generation 1
-Bloo: PlayCard(PhoboLog) {
+Bloo: playCard(PhoboLog) {
     23 MC VIA PhoboLog
     10 Titanium
-    Pay(15 MC)
+    pay(15 MC)
     5 ProjectCard<Hand FROM Selecting>
 }
 
-Bloo: PlayCard(AcquiredSpaceAgency) {
+Bloo: playCard(AcquiredSpaceAgency) {
     6 Titanium
     2 SearchForCard<TagFilter<Class<SpaceTag>>>
 }
-Bloo: PlayCard(CorridorsOfPower) {
+Bloo: playCard(CorridorsOfPower) {
     TerraformRating
     4 MC
 }
 
-Bloo: PlayCard(AsteroidMining) {
-    Pay(7 Titanium, 2 MC)
+Bloo: playCard(AsteroidMining) {
+    pay(7 Titanium, 2 MC)
     PROD[2 Titanium]
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyLeader<Scientists> FROM LobbyDelegate
     ProjectCard
 }
-Bloo: SendDelegate5 {
-    Pay(5 MC)
+Bloo: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyLeader<Reds>
     ProjectCard
 }
-Bloo: PlayCard(TowingAComet) {
-    Pay(5 Titanium, 3 MC)
+Bloo: playCard(TowingAComet) {
+    pay(5 Titanium, 3 MC)
     2 Plant
     OxygenStep
     TerraformRating
@@ -81,7 +81,7 @@ Bloo: PlayCard(TowingAComet) {
     TerraformRating
     2 ProjectCard
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     17 MC
@@ -98,26 +98,26 @@ Bloo: WorldGovernment {
 Bloo: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Save 10: immediately after Research.
-Bloo: PlayCard(TitaniumMine) {
-    Pay(7 MC)
+Bloo: playCard(TitaniumMine) {
+    pay(7 MC)
     PROD[Titanium]
 }
-Bloo: PlayCard(LocalShading) {
-    Pay(4 MC)
+Bloo: playCard(LocalShading) {
+    pay(4 MC)
 }
-Bloo: UseAction1(LocalShading) {
+Bloo: useAction1(LocalShading) {
     Floater<LocalShading>
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyLeader<Greens> FROM LobbyDelegate
     ProjectCard
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     16 MC
@@ -140,27 +140,27 @@ Bloo: Research {
 }
 
 // Save 17: immediately after Research.
-Bloo: UseAction2(LocalShading) {
+Bloo: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
-Bloo: PlayCard(AdvancedAlloys) {
-    Pay(9 MC)
+Bloo: playCard(AdvancedAlloys) {
+    pay(9 MC)
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyLeader<Kelvinists> FROM LobbyDelegate
     ProjectCard
 }
-Bloo: PlayCard(GiantSpaceMirror) {
-    Pay(3 Titanium, 2 MC)
+Bloo: playCard(GiantSpaceMirror) {
+    pay(3 Titanium, 2 MC)
     PROD[3 Energy]
 }
-Bloo: PlayCard(Moss) {
-    Pay(4 MC)
+Bloo: playCard(Moss) {
+    pay(4 MC)
     PROD[Plant]
     -Plant
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     18 MC
@@ -179,22 +179,22 @@ Bloo: WorldGovernment {
 Bloo: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Save 25: immediately after Research.
-Bloo: UseAction1(LocalShading) {
+Bloo: useAction1(LocalShading) {
     Floater<LocalShading>
 }
 // no MC remainder
-Bloo: PlayCard(SolarLogistics) {
-    Pay(4 Titanium)
+Bloo: playCard(SolarLogistics) {
+    pay(4 Titanium)
     2 Titanium
 }
 // decline the optional plant removal
-Bloo: PlayCard(Comet) {
-    Pay(4 Titanium, 1 MC)
+Bloo: playCard(Comet) {
+    pay(4 Titanium, 1 MC)
     TemperatureStep
     ProjectCard
     TerraformRating
@@ -204,24 +204,24 @@ Bloo: PlayCard(Comet) {
     4 MC
     -0 Plant<Anyone>
 }
-Bloo: UsePolicy {
-    Pay(10 MC)
+Bloo: action(UsePolicyAction) {
+    pay(10 MC)
     3 ProjectCard
 }
 // no MC remainder
-Bloo: PlayCard(VestaShipyard) {
-    Pay(3 Titanium)
+Bloo: playCard(VestaShipyard) {
+    pay(3 Titanium)
     PROD[Titanium]
 }
-Bloo: PlayCard(BribedCommittee) {
-    Pay(5 MC)
+Bloo: playCard(BribedCommittee) {
+    pay(5 MC)
     2 TerraformRating
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyLeader<Scientists> FROM LobbyDelegate
     ProjectCard
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     22 MC
@@ -248,42 +248,42 @@ Bloo: Research {
 
     // keep all offered cards
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
 // Save 35: immediately after Research.
-Bloo: UseAction2(LocalShading) {
+Bloo: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 // Source log: 17 cards revealed and 17 M€ gained.
-Bloo: PlayCard(PublicPlans) {
-    Pay(7 MC)
-    SelectTask(17! ProjectCard<Revealed> FROM ProjectCard THEN 17! ProjectCard<Bloo, Hand FROM Revealed> THEN 17! MC)
+Bloo: playCard(PublicPlans) {
+    pay(7 MC)
+    selectTask(17! ProjectCard<Revealed> FROM ProjectCard THEN 17! ProjectCard<Bloo, Hand FROM Revealed> THEN 17! MC)
     17 ProjectCard<Revealed FROM Hand>
     17 ProjectCard<Hand FROM Revealed>
     17 MC
 }
 // no MC remainder
-Bloo: PlayCard(Satellites) {
-    Pay(2 Titanium)
+Bloo: playCard(Satellites) {
+    pay(2 Titanium)
     PROD[6 MC]
 }
-Bloo: PlayCard(WavePower) {
-    Pay(8 MC)
+Bloo: playCard(WavePower) {
+    pay(8 MC)
     PROD[Energy]
 }
-Bloo: PlayCard(Algae) {
-    Pay(10 MC)
+Bloo: playCard(Algae) {
+    pay(10 MC)
     Plant
     PROD[2 Plant]
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyLeader<Greens> FROM LobbyDelegate
     ProjectCard
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     29 MC
@@ -307,56 +307,56 @@ Bloo: GlobalEvent {
 Bloo: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 // Save 44: immediately after Research.
-Bloo: UsePolicy {
-    Pay(10 MC)
+Bloo: action(UsePolicyAction) {
+    pay(10 MC)
     PROD[Heat]
     PROD[Energy]
 }
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_6_6>
     OxygenStep
     Plant
     6 MC
     TerraformRating
 }
-Bloo: PlayCard(MarsUniversity) {
-    Pay(8 MC)
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+Bloo: playCard(MarsUniversity) {
+    pay(8 MC)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Bloo: PlayCard(ResearchOutpost) {
-    Pay(18 MC)
+Bloo: playCard(ResearchOutpost) {
+    pay(18 MC)
     NormalCityTile<Tharsis_8_6>
     ProjectCard VIA Tharsis_8_6
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Bloo: UseAction2(LocalShading) {
+Bloo: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
-Bloo: PlayCard(MethaneFromTitan) {
-    Pay(5 Titanium, 2 MC)
+Bloo: playCard(MethaneFromTitan) {
+    pay(5 Titanium, 2 MC)
     PROD[2 Heat]
     PROD[2 Plant]
 }
-Bloo: PlayCard(EnergyTapping) {
-    Pay(2 MC)
+Bloo: playCard(EnergyTapping) {
+    pay(2 MC)
     PROD[Energy]
     PROD[-Energy<SoloOpponent>]
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyFollower<Scientists> FROM LobbyDelegate
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     31 MC
@@ -379,7 +379,7 @@ Bloo: GlobalEvent {
 
 // FAQ v1.8 p.100 awards the solo Reds bonus only at 20 TR or below. The archived server
 // nevertheless awarded it at 21 after annual revision; retain that source result explicitly.
-Bloo: ExMachina {
+Bloo: exMachina {
     TerraformRating
 }
 
@@ -387,36 +387,36 @@ Bloo: ExMachina {
 Bloo: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Save 55: immediately after Research.
-Bloo: UseAction1(LocalShading) {
+Bloo: useAction1(LocalShading) {
     Floater<LocalShading>
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyLeader<Reds> FROM LobbyDelegate
     ProjectCard
 }
-Bloo: PlayCard(AtalantaPlanitiaLab) {
-    Pay(9 MC)
+Bloo: playCard(AtalantaPlanitiaLab) {
+    pay(9 MC)
     2 ProjectCard VIA AtalantaPlanitiaLab
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Bloo: PlayCard(RedTourismWave) {
+Bloo: playCard(RedTourismWave) {
     8 MC
 }
-Bloo: PlayCard(ExtractorBalloons) {
-    Pay(20 MC)
+Bloo: playCard(ExtractorBalloons) {
+    pay(20 MC)
     3 Floater<ExtractorBalloons>
 }
-Bloo: UseAction1(ExtractorBalloons) {
+Bloo: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     31 MC
@@ -442,81 +442,81 @@ Bloo: GlobalEvent {
 Bloo: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Save 64: immediately after Research.
-Bloo: UsePolicy {
-    Pay(10 MC)
+Bloo: action(UsePolicyAction) {
+    pay(10 MC)
     3 ProjectCard
 }
-Bloo: ConvertHeat {
-    Pay(8 Heat)
+Bloo: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Bloo: ConvertHeat {
-    Pay(8 Heat)
+Bloo: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Bloo: UseAction2(ExtractorBalloons) {
+Bloo: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
     ProjectCard
 }
-Bloo: UseAction2(LocalShading) {
+Bloo: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 // no MC remainder
 // decline Comet for Venus's optional MC attack
-Bloo: PlayCard(CometForVenus) {
-    Pay(2 Titanium)
+Bloo: playCard(CometForVenus) {
+    pay(2 Titanium)
     VenusStep
     ProjectCard
     TerraformRating
     -0 MC<Anyone(HAS VenusTag)>
 }
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_8_7>
     OxygenStep
     ProjectCard
     TerraformRating
 }
-Bloo: PlayCard(CallistoPenalMines) {
-    Pay(4 Titanium, 3 MC)
+Bloo: playCard(CallistoPenalMines) {
+    pay(4 Titanium, 3 MC)
     PROD[3 MC]
 }
-Bloo: PlayCard(EnvoysFromVenus) {
-    SelectTask(PartyFollower<Kelvinists>! THEN PartyDelegate<Kelvinists>!)
+Bloo: playCard(EnvoysFromVenus) {
+    selectTask(PartyFollower<Kelvinists>! THEN PartyDelegate<Kelvinists>!)
     PartyFollower<Kelvinists>
     PartyLeader<Kelvinists>
     ProjectCard
 }
 // decline Sabotage's optional resource attack
-Bloo: PlayCard(Sabotage) {
+Bloo: playCard(Sabotage) {
     Ok
 }
-Bloo: PlayCard(Steelworks) {
-    Pay(14 MC)
+Bloo: playCard(Steelworks) {
+    pay(14 MC)
 }
-Bloo: UseAction1(Steelworks) {
-    Pay(4 Energy)
+Bloo: useAction1(Steelworks) {
+    pay(4 Energy)
     2 Steel
     OxygenStep
     TerraformRating
 }
-Bloo: PlayCard(FueledGenerators) {
+Bloo: playCard(FueledGenerators) {
     PROD[-MC]
     PROD[Energy]
 }
 // The archive used only two of the available steel cubes for Strip Mine.
-Bloo: PlayCard(StripMine) {
-    Pay(2 Steel, 18 MC)
+Bloo: playCard(StripMine) {
+    pay(2 Steel, 18 MC)
     PROD[-2 Energy]
     PROD[2 Steel]
     PROD[Titanium]
@@ -524,17 +524,17 @@ Bloo: PlayCard(StripMine) {
     OxygenStep
     2 TerraformRating
 }
-Bloo: PlayCard(SulphurExports) {
-    Pay(3 Titanium, 5 MC)
+Bloo: playCard(SulphurExports) {
+    pay(3 Titanium, 5 MC)
     VenusStep
     PROD[4 MC]
     TerraformRating
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyLeader<Scientists> FROM LobbyDelegate
     ProjectCard
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     47 MC
@@ -560,111 +560,111 @@ Bloo: GlobalEvent {
 Bloo: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // _local/replays/Game20260908/game-g5625e0252c7c.sqlite; source save 83.
 // Save 83: immediately after Research.
-Bloo: ConvertHeat {
-    Pay(8 Heat)
+Bloo: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
-Bloo: UseAction2(ExtractorBalloons) {
+Bloo: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     2 TerraformRating
 }
-Bloo: UseAction1(LocalShading) {
+Bloo: useAction1(LocalShading) {
     Floater<LocalShading>
 }
-Bloo: UseAction1(Steelworks) {
-    Pay(4 Energy)
+Bloo: useAction1(Steelworks) {
+    pay(4 Energy)
     2 Steel
     OxygenStep
     TerraformRating
 }
-Bloo: PlayCard(Tardigrades) {
-    Pay(3 MC)
+Bloo: playCard(Tardigrades) {
+    pay(3 MC)
 }
-Bloo: PlayCard(InterplanetaryTrade) {
-    Pay(4 Titanium, 2 MC)
+Bloo: playCard(InterplanetaryTrade) {
+    pay(4 Titanium, 2 MC)
     EACH @WildTagElection { Tag<@WildTagElection>? }
     PROD[10 MC]
 }
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_7_6>
     OxygenStep
     TerraformRating
     TemperatureStep
     TerraformRating
 }
-Bloo: UseAction1(Tardigrades) {
+Bloo: useAction1(Tardigrades) {
     Microbe<Tardigrades>
 }
-Bloo: PlayCard(IshtarExpedition) {
-    Pay(5 MC)
+Bloo: playCard(IshtarExpedition) {
+    pay(5 MC)
     3 Titanium
     2 SearchForCard<TagFilter<Class<VenusTag>>>
 }
-Bloo: UseStandardProject(SellPatentsProject) {
+Bloo: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyFollower<Greens> FROM LobbyDelegate
 }
-Bloo: SendDelegate5 {
-    Pay(5 MC)
+Bloo: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Unity>
 }
-Bloo: PlayCard(GanymedeColony) {
-    Pay(3 Titanium, 1 MC)
+Bloo: playCard(GanymedeColony) {
+    pay(3 Titanium, 1 MC)
     NormalCityTile<GanymedeColony_RemoteArea>
 }
-Bloo: PlayCard(SubterraneanReservoir) {
-    Pay(10 MC)
+Bloo: playCard(SubterraneanReservoir) {
+    pay(10 MC)
     OceanTile<Tharsis_6_8>
     TerraformRating
     Plant
     4 MC
 }
-Bloo: PlayCard(AirScrappingExpedition) {
-    Pay(12 MC)
+Bloo: playCard(AirScrappingExpedition) {
+    pay(12 MC)
     VenusStep
     TerraformRating
     3 Floater<ExtractorBalloons>
 }
-Bloo: PlayCard(AstraMechanica) {
-    Pay(6 MC)
+Bloo: playCard(AstraMechanica) {
+    pay(6 MC)
     ProjectCard FROM PlayedEvent<Class<BribedCommittee>> VIA TakeEventCard
     ProjectCard FROM PlayedEvent<Class<Comet>> VIA TakeEventCard
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Bloo: PlayCard(CeosFavoriteProject) {
+Bloo: playCard(CeosFavoriteProject) {
     Floater<ExtractorBalloons>
 }
-Bloo: PlayCard(SmallAnimals) {
-    Pay(5 MC)
+Bloo: playCard(SmallAnimals) {
+    pay(5 MC)
     PROD[-Plant<SoloOpponent>]
 }
-Bloo: UseAction1(SmallAnimals) {
+Bloo: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
-Bloo: PlayCard(BribedCommittee) {
-    Pay(4 MC)
+Bloo: playCard(BribedCommittee) {
+    pay(4 MC)
     2 TerraformRating
 }
-Bloo: PlayCard(SnowAlgae) {
-    Pay(11 MC)
+Bloo: playCard(SnowAlgae) {
+    pay(11 MC)
     PROD[Plant]
     PROD[Heat]
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     66 MC
@@ -690,90 +690,90 @@ Bloo: GlobalEvent {
 Bloo: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Save 107: immediately after Research.
-Bloo: ConvertHeat {
-    Pay(8 Heat)
+Bloo: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
-Bloo: UsePolicy {
-    Pay(10 MC)
+Bloo: action(UsePolicyAction) {
+    pay(10 MC)
     PROD[Heat]
     PROD[Energy]
 }
-Bloo: UseAction2(ExtractorBalloons) {
+Bloo: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
-Bloo: UseAction1(Steelworks) {
-    Pay(4 Energy)
+Bloo: useAction1(Steelworks) {
+    pay(4 Energy)
     2 Steel
     OxygenStep
     TerraformRating
 }
-Bloo: UseAction1(SmallAnimals) {
+Bloo: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 // The archive paid cash despite holding steel that could cover Rego Plastics.
 // no steel paid
-Bloo: PlayCard(RegoPlastics) {
-    Pay(9 MC)
+Bloo: playCard(RegoPlastics) {
+    pay(9 MC)
 }
-Bloo: PlayCard(Omnicourt) {
-    Pay(2 Steel, 2 MC)
+Bloo: playCard(Omnicourt) {
+    pay(2 Steel, 2 MC)
     2 TerraformRating
 }
-Bloo: PlayCard(GhgFactories) {
-    Pay(2 Steel, 2 MC)
+Bloo: playCard(GhgFactories) {
+    pay(2 Steel, 2 MC)
     PROD[-Energy]
     PROD[4 Heat]
 }
-Bloo: PlayCard(AiCentral) {
-    Pay(4 Steel, 4 MC)
+Bloo: playCard(AiCentral) {
+    pay(4 Steel, 4 MC)
     PROD[-Energy]
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Bloo: UseAction1(AiCentral) {
+Bloo: useAction1(AiCentral) {
     2 ProjectCard
 }
-Bloo: UseAction2(LocalShading) {
+Bloo: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
-Bloo: PlayCard(OlympusConference) {
-    Pay(7 MC)
+Bloo: playCard(OlympusConference) {
+    pay(7 MC)
     Science<OlympusConference>
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyLeader<Kelvinists> FROM LobbyDelegate
     ProjectCard
 }
-Bloo: PlayCard(NitriteReducingBacteria) {
-    Pay(10 MC)
+Bloo: playCard(NitriteReducingBacteria) {
+    pay(10 MC)
     3 Microbe<NitriteReducingBacteria>
 }
-Bloo: UseAction2(NitriteReducingBacteria) {
+Bloo: useAction2(NitriteReducingBacteria) {
     -3 Microbe<NitriteReducingBacteria>
     TerraformRating
 }
-Bloo: UseAction1(Tardigrades) {
+Bloo: useAction1(Tardigrades) {
     Microbe<Tardigrades>
 }
 // no MC remainder
 // decline the optional plant removal
-Bloo: PlayCard(Comet) {
-    Pay(4 Titanium)
+Bloo: playCard(Comet) {
+    pay(4 Titanium)
     TemperatureStep
     ProjectCard
     TerraformRating
@@ -782,33 +782,33 @@ Bloo: PlayCard(Comet) {
     2 Titanium
     -0 Plant<Anyone>
 }
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_8_8>
     OxygenStep
     2 MC
     TerraformRating
 }
-Bloo: PlayCard(Extremophiles) {
-    Pay(2 MC)
+Bloo: playCard(Extremophiles) {
+    pay(2 MC)
 }
-Bloo: UseAction1(Extremophiles) {
+Bloo: useAction1(Extremophiles) {
     Microbe<NitriteReducingBacteria>
 }
-Bloo: PlayCard(MiningArea) {
-    Pay(3 MC)
+Bloo: playCard(MiningArea) {
+    pay(3 MC)
     MiningArea_SpecialTile<Tharsis_9_6>
     PROD[Steel]
     2 Steel
 }
-Bloo: PlayCard(FloatingHabs) {
-    Pay(4 MC)
+Bloo: playCard(FloatingHabs) {
+    pay(4 MC)
 }
-Bloo: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Bloo: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<ExtractorBalloons>
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     76 MC
@@ -834,46 +834,46 @@ Bloo: GlobalEvent {
 Bloo: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Save 133: immediately after Research.
-Bloo: ConvertHeat {
-    Pay(8 Heat)
+Bloo: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Bloo: UseAction1(AiCentral) {
+Bloo: useAction1(AiCentral) {
     2 ProjectCard
 }
-Bloo: UseAction1(Steelworks) {
-    Pay(4 Energy)
+Bloo: useAction1(Steelworks) {
+    pay(4 Energy)
     2 Steel
     OxygenStep
     TerraformRating
 }
-Bloo: UseAction2(ExtractorBalloons) {
+Bloo: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
-Bloo: PlayCard(AntiGravityTechnology) {
-    Pay(13 MC)
+Bloo: playCard(AntiGravityTechnology) {
+    pay(13 MC)
     ProjectCard FROM Science<OlympusConference> VIA OlympusConference
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Bloo: UseAction1(Tardigrades) {
+Bloo: useAction1(Tardigrades) {
     Microbe<Tardigrades>
 }
-Bloo: PlayCard(SpecialPermit) {
-    Pay(2 MC)
+Bloo: playCard(SpecialPermit) {
+    pay(2 MC)
     4 Plant FROM Plant<SoloOpponent>
 }
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_7_8>
     OxygenStep
     4 MC VIA GreensPolicy
@@ -882,54 +882,54 @@ Bloo: ConvertPlants {
     TerraformRating
 }
 // no MC remainder
-Bloo: PlayCard(OpenCity) {
-    Pay(5 Steel)
+Bloo: playCard(OpenCity) {
+    pay(5 Steel)
     PROD[-Energy]
     PROD[4 MC]
     2 Plant
     NormalCityTile<Tharsis_7_7>
     2 MC
 }
-Bloo: PlayCard(AqueductSystems) {
-    Pay(1 Steel, 2 MC)
+Bloo: playCard(AqueductSystems) {
+    pay(1 Steel, 2 MC)
     3 SearchForCard<TagFilter<Class<BuildingTag>>>
 }
-Bloo: UseAction1(SmallAnimals) {
+Bloo: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
-Bloo: PlayCard(RoverConstruction) {
-    Pay(1 Steel, 1 MC)
+Bloo: playCard(RoverConstruction) {
+    pay(1 Steel, 1 MC)
 }
-Bloo: PlayCard(BactoviralResearch) {
-    Pay(7 MC)
+Bloo: playCard(BactoviralResearch) {
+    pay(7 MC)
     ProjectCard VIA BactoviralResearch
     Science<OlympusConference>
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
     9 Microbe<NitriteReducingBacteria>
 }
-Bloo: UseAction2(NitriteReducingBacteria) {
+Bloo: useAction2(NitriteReducingBacteria) {
     -3 Microbe<NitriteReducingBacteria>
     TerraformRating
 }
-Bloo: UseAction1(LocalShading) {
+Bloo: useAction1(LocalShading) {
     Floater<LocalShading>
 }
-Bloo: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Bloo: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<ExtractorBalloons>
 }
-Bloo: UseAction1(Extremophiles) {
+Bloo: useAction1(Extremophiles) {
     Microbe<Extremophiles>
 }
-Bloo: PlayCard(Heather) {
-    Pay(3 MC)
+Bloo: playCard(Heather) {
+    pay(3 MC)
     PROD[Plant]
     Plant
 }
-Bloo: PlayCard(LargeConvoy) {
-    Pay(6 Titanium, 1 MC)
+Bloo: playCard(LargeConvoy) {
+    pay(6 Titanium, 1 MC)
     3 ProjectCard
     OceanTile<Tharsis_5_4>
     TerraformRating
@@ -937,58 +937,58 @@ Bloo: PlayCard(LargeConvoy) {
     2 MC
     5 Plant
 }
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_7_5>
     OxygenStep
     4 MC
     TerraformRating
 }
-Bloo: PlayCard(KelpFarming) {
-    Pay(14 MC)
+Bloo: playCard(KelpFarming) {
+    pay(14 MC)
     PROD[2 MC]
     PROD[3 Plant]
     2 Plant
 }
 // no MC remainder
-Bloo: PlayCard(AsteroidRights) {
-    Pay(1 Titanium)
+Bloo: playCard(AsteroidRights) {
+    pay(1 Titanium)
     2 Asteroid<AsteroidRights>
 }
-Bloo: UseAction2(AsteroidRights) {
+Bloo: useAction2(AsteroidRights) {
     -Asteroid<AsteroidRights>
     2 Titanium
 }
-Bloo: PlayCard(PeroxidePower) {
-    Pay(4 MC)
+Bloo: playCard(PeroxidePower) {
+    pay(4 MC)
     PROD[-MC]
     PROD[2 Energy]
 }
-Bloo: PlayCard(VenusianPlants) {
-    Pay(10 MC)
+Bloo: playCard(VenusianPlants) {
+    pay(10 MC)
     VenusStep
     TerraformRating
     Microbe<Extremophiles>
 }
-Bloo: PlayCard(NoctisFarming) {
-    Pay(7 MC)
+Bloo: playCard(NoctisFarming) {
+    pay(7 MC)
     PROD[MC]
     2 Plant
 }
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_6_4>
     0 OxygenStep
     4 MC VIA GreensPolicy
     Plant
     2 MC
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyLeader<Greens> FROM LobbyDelegate
     ProjectCard
 }
-Bloo: PlayCard(MagneticFieldGeneratorsPromo) {
-    Pay(19 MC)
+Bloo: playCard(MagneticFieldGeneratorsPromo) {
+    pay(19 MC)
     PROD[-4 Energy]
     PROD[2 Plant]
     3 TerraformRating
@@ -996,22 +996,22 @@ Bloo: PlayCard(MagneticFieldGeneratorsPromo) {
     2 Plant
     6 MC
 }
-Bloo: PlayCard(Plantation) {
-    Pay(12 MC)
+Bloo: playCard(Plantation) {
+    pay(12 MC)
     GreeneryTile<Tharsis_8_5>
     0 OxygenStep
     4 MC
 }
-Bloo: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Bloo: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
 }
-Bloo: SendDelegate5 {
-    Pay(5 MC)
+Bloo: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Greens>
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     93 MC
@@ -1036,31 +1036,31 @@ Bloo: GlobalEvent {
 Bloo: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Save 168: immediately after Research.
-Bloo: ConvertHeat {
-    Pay(8 Heat)
+Bloo: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Bloo: ConvertHeat {
-    Pay(8 Heat)
+Bloo: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_6_3>
     0 OxygenStep
     Steel
     2 Plant
 }
 // no MC remainder
-Bloo: PlayCard(FrontierTown) {
-    Pay(2 Steel)
+Bloo: playCard(FrontierTown) {
+    pay(2 Steel)
     FrontierTownBonus
     PROD[-Energy]
     NormalCityTile<Tharsis_6_5>
@@ -1072,45 +1072,45 @@ Bloo: PlayCard(FrontierTown) {
     RepeatPlacementBonus<Tharsis_6_5>
     2 Plant
 }
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_8_4>
     0 OxygenStep
     3 Steel
 }
-Bloo: UseAction1(AiCentral) {
+Bloo: useAction1(AiCentral) {
     2 ProjectCard
 }
-Bloo: UseAction2(ExtractorBalloons) {
+Bloo: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
-Bloo: UseAction2(AsteroidRights) {
+Bloo: useAction2(AsteroidRights) {
     -Asteroid<AsteroidRights>
     2 Titanium
 }
-Bloo: UseAction1(SmallAnimals) {
+Bloo: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
-Bloo: UseAction2(NitriteReducingBacteria) {
+Bloo: useAction2(NitriteReducingBacteria) {
     -3 Microbe<NitriteReducingBacteria>
     TerraformRating
 }
-Bloo: UseAction1(Extremophiles) {
+Bloo: useAction1(Extremophiles) {
     Microbe<Extremophiles>
 }
-Bloo: UseAction1(Tardigrades) {
+Bloo: useAction1(Tardigrades) {
     Microbe<Tardigrades>
 }
-Bloo: UseAction2(LocalShading) {
+Bloo: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 // no MC remainder
 // decline the optional plant removal
-Bloo: PlayCard(BigAsteroid) {
-    Pay(5 Titanium)
+Bloo: playCard(BigAsteroid) {
+    pay(5 Titanium)
     TemperatureStep
     TemperatureStep
     4 Titanium
@@ -1120,8 +1120,8 @@ Bloo: PlayCard(BigAsteroid) {
 }
 // no MC remainder
 // decline the optional plant removal
-Bloo: PlayCard(GiantIceAsteroid) {
-    Pay(7 Titanium)
+Bloo: playCard(GiantIceAsteroid) {
+    pay(7 Titanium)
     TemperatureStep
     TemperatureStep
     ProjectCard
@@ -1134,87 +1134,87 @@ Bloo: PlayCard(GiantIceAsteroid) {
     ProjectCard
     -0 Plant<Anyone>
 }
-Bloo: SendDelegate0 {
+Bloo: action(LobbyAction) {
     PartyLeader<MarsFirst> FROM LobbyDelegate
     ProjectCard
 }
-Bloo: PlayCard(Bushes) {
-    Pay(7 MC)
+Bloo: playCard(Bushes) {
+    pay(7 MC)
     PROD[2 Plant]
     2 Plant
 }
 // The archive recorded no payment for the one M€ remaining after card discounts.
-Bloo: PlayCard(BusinessNetwork) {
+Bloo: playCard(BusinessNetwork) {
     PROD[-MC]
 }
-Bloo: UseAction1(BusinessNetwork) {
+Bloo: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
-Bloo: PlayCard(Fish) {
-    Pay(6 MC)
+Bloo: playCard(Fish) {
+    pay(6 MC)
     PROD[-Plant<SoloOpponent>]
 }
-Bloo: UseAction1(Fish) {
+Bloo: useAction1(Fish) {
     Animal<Fish>
 }
 // no MC remainder
-Bloo: PlayCard(MartianRails) {
-    Pay(3 Steel)
+Bloo: playCard(MartianRails) {
+    pay(3 Steel)
 }
-Bloo: UseAction1(MartianRails) {
-    Pay(1 Energy)
+Bloo: useAction1(MartianRails) {
+    pay(1 Energy)
     5 MC
 }
-Bloo: UseStandardProject(SellPatentsProject) {
+Bloo: useStandardProject(SellPatentsProject) {
     7 MC FROM ProjectCard
 }
-Bloo: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Bloo: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
 }
-Bloo: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Bloo: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_7_4>
     Steel
     2 MC
 }
-Bloo: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Bloo: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_9_8>
     Steel
     4 MC
 }
-Bloo: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Bloo: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Tharsis_5_2>
     0 OxygenStep
     Steel
     2 Plant
 }
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_9_7>
     0 OxygenStep
     Steel
 }
-Bloo: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Bloo: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_6_2>
     Steel
     2 MC
     Plant
 }
-Bloo: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Bloo: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
 }
-Bloo: Pass
+Bloo: pass
 
 Bloo: Production {
     106 MC
@@ -1225,12 +1225,12 @@ Bloo: Production {
 }
 
 // Save 200: production completed and final greenery placement is pending.
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_7_3>
 }
-Bloo: ConvertPlants {
-    Pay(8 Plant)
+Bloo: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_5_1>
     2 Plant
 }

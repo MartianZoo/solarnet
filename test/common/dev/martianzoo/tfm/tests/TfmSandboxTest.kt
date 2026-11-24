@@ -21,6 +21,7 @@ import dev.martianzoo.testsupport.list
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
+import dev.martianzoo.tfm.engine.TfmRoutines
 
 /**
  * Focused scenarios with explicit corrections and selected phase shortcuts. [newTestGame] sets up
@@ -33,7 +34,7 @@ internal abstract class TfmSandboxTest {
   protected var game: World
     get() = agents.world
     set(value) {
-      agents = Agents(value) { NONE }
+      agents = Agents(value, TfmRoutines.registered) { NONE }
     }
 
   protected lateinit var agents: Agents

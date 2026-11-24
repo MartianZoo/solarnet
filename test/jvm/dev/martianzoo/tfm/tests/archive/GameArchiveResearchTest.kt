@@ -24,12 +24,12 @@ internal class GameArchiveResearchTest {
     )
     assertEquals(
         """
-        ExMachina {
+        exMachina {
             PROD[-MC]
         }
         4 ProjectCard<Selecting>
         -0 ProjectCard<Selecting>
-        Pay(12 MC)
+        pay(12 MC)
         4 ProjectCard<Hand FROM Selecting>
         """
             .trimIndent(),

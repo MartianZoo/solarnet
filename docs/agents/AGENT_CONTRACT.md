@@ -90,6 +90,10 @@ different outcomes. It would belong here, but is not required for assistance.
 **Selected responsibilities:** these services remain useful when the client supplies every
 meaningful answer.
 
+- **Run registered routines.** `Agent.doRoutine` performs a named interaction supplied by the
+  session's fixed definitions. The generic Agent layer supplies invocation restoration; the
+  game-specific definition translates the request into Agent calls. Definitions remain outside
+  the model and receive the current session, including after a fork. See [routines](ROUTINES.md).
 - **Translate convenient expressions of intent.** A submitted production total of 21 MC can
   execute the separate 6 MC production, 20 MC Terraform Rating income, and -5 MC offset tasks.
   Preserve each task's effects and continuation rather than replacing them with a net engine

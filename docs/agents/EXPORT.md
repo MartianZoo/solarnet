@@ -36,14 +36,14 @@ When a replay changes, update its fixture deliberately and preserve the surround
 
 ## Migration verification
 
-The November 11 local mockup remains under `_local/notes/game20261111-format-draft.game`.
-`./gradlew :tfm-tests:archiveDraftTest` compares each generation and final scoring, the multiset of
-all inventory changes, action order, and repeat-export stability. It also checks malformed input
-and incomplete/incorrect tasks. Optional paths are `-ParchiveFile=/absolute/input.game` and
-`-ParchiveOutput=/absolute/output.game`. Normal tests do not require that local file.
+`./gradlew :tfm-tests:archiveDraftTest` uses the maintained November 11 replay fixture by default.
+It compares each generation and final scoring, the multiset of all inventory changes, resolved
+action order and choices, and repeat-export stability. It also checks malformed input and
+incomplete/incorrect tasks. Optional paths are `-ParchiveFile=/absolute/input.game` and
+`-ParchiveOutput=/absolute/output.game`; supplied input uses the current archive syntax.
 
 The user approved `VIA` for explicit source qualification through the normal task matcher.
-`SelectTask(...)` preserves choices such as Flooding's ocean-and-attack option. The approved
+`selectTask(...)` preserves choices such as Flooding's ocean-and-attack option. The approved
 CardTracking callback supplies names from the header during validation. Invalid names still fail
 and roll back the Agent command; ordinary games have no tracker. Flat nested card plays,
 card-held payments, granted actions, and recipient-prefixed payments are implemented.
@@ -71,16 +71,18 @@ they are not counted as executed browser tests.
 ### Current draft syntax and ownership
 
 `Setup` and `Research` are phase-checked groups of explicit tasks; no discard counts are inferred.
-`UseAction1/2(Name)` is for action cards. It uses an already granted card action when present,
+`useAction1/2(Name)` is for action cards. It uses an already granted card action when present,
 otherwise the existing card-action opener; standard projects follow the same rule.
-`UsePolicy` takes no argument: it submits `UseAction<UsePolicyAction, Action1>`, whose concrete
-provider is the current Scientists or Kelvinists policy. Costs and availability remain model rules.
-`ExMachina { ... }` submits a correction group together.
-`SelectTask(...)` passes its whole Pets expression to `Agent.selectTask`. It takes no body.
+`action(Name[, number])` invokes a modeled StandardAction; the action number defaults to 1.
+For example, `action(TradeAction, 2)` chooses the Energy trade action. A policy action can name
+its concrete provider, such as `ScientistsPolicy`, or the current `UsePolicyAction` provider.
+Costs and availability remain model rules. Archives emit the recorded provider's name.
+`exMachina { ... }` submits a correction group together.
+`selectTask(...)` passes its whole Pets expression to `Agent.selectTask`. It takes no body.
 A linked choice is recorded before its separately executed steps, for example:
 
 ```text
-SelectTask(OceanTile<Amazonis_05_10>! THEN -3 MC<Blue>)
+selectTask(OceanTile<Amazonis_05_10>! THEN -3 MC<Blue>)
 OceanTile<Amazonis_05_10>
 -3 MC<Blue>
 ```
@@ -151,29 +153,29 @@ must apply equally to programmatic calls and archives, not a syntax exception in
 ### Strict prototype input
 
 Recognized commands reject unused arguments and unexpected bodies, including empty braces on raw
-Pets lines. Setup/research/production/solar labels and ExMachina require nonempty bodies.
+Pets lines. Setup/research/production/solar labels and `exMachina` require nonempty bodies.
 Argument lists reject empty members and mismatched delimiters. Config and GlobalEventDeck must
 be flat blocks in their defined positions; player names and listed event identities are checked.
-Pay parses each argument separately and requires exact positive integer amounts of supported
+`pay` parses each argument separately and requires exact positive integer amounts of supported
 resources. It must not silently discard an Ok, zero amount, optional quantity, or extra statement.
 
 The shared runtime accepts a distinct recorded global-event prefix, validates every listed name,
 and throws when a draw would exceed it. The importer passes the prefix unchanged; it neither pads
 the deck nor invents events. The failed Agent call rolls back, while earlier archive entries remain.
 
-Pay submits allocations in file order. Just before paying the exact-denomination remainder it
+`pay` submits allocations in file order. Just before paying the exact-denomination remainder it
 closes unused optional offers; it also closes the zero remainder after alternatives cover the bill.
-For example, `Pay(4 Titanium, 2 MC)` reduces the bill before paying its MC remainder.
-Card-held resources use their ordinary Pets identity, e.g. `Pay(2 Microbe<Psychrophiles>, 5 MC)`.
-A recipient can pay inside another player's action, e.g. `Blue: Pay(3 Heat, 2 MC)`. The payment
+For example, `pay(4 Titanium, 2 MC)` reduces the bill before paying its MC remainder.
+Card-held resources use their ordinary Pets identity, e.g. `pay(2 Microbe<Psychrophiles>, 5 MC)`.
+A recipient can pay inside another player's action, e.g. `Blue: pay(3 Heat, 2 MC)`. The payment
 releases compatible NOW offers through the sending Agent and performs allocations and declines
 through Blue's Agent. Failure restores both players' pending tasks and all spent resources.
 A free play with no positive allocation retains an explicit zero payment task.
 Card placement is an immediate model consequence once payment and requirement preparation have
 finished. Player autoexecution is not required for that movement.
-Nested card plays are flat: `PlayCard(SpaceElevator)`, the explicit Excentric Sponsor discount,
-`Pay(2 MC)`, and production effects can all appear in the enclosing Prelude body.
-`Pay(2 MC, 4 Titanium)` fails without spending either resource. No reordering or independence proof
+Nested card plays are flat: `playCard(SpaceElevator)`, the explicit Excentric Sponsor discount,
+`pay(2 MC)`, and production effects can all appear in the enclosing Prelude body.
+`pay(2 MC, 4 Titanium)` fails without spending either resource. No reordering or independence proof
 is performed. Executable archive directives delegate to the same [Kotlin routines](ROUTINES.md)
 used by the REPL; the importer owns headers, grouping, and source-line errors.
 
@@ -217,10 +219,10 @@ The current model does not satisfy either blanket criterion:
 - `VictoryPoint` is now Iconic and non-System; `ActionUsedMarker` remains both Iconic and System.
   Excluding System omits visible action-usage information; including every Iconic component includes derived tags and markers.
   Neither label currently stands for “all changes the human must explicitly execute.”
-- Quantity and destination visibility is a separate requirement: `Pay(8 Plant)` and
+- Quantity and destination visibility is a separate requirement: `pay(8 Plant)` and
   `Heat FROM Energy` state concrete removals/gains (the omitted scalar is a single unit).
   `4* Microbe` requires state to determine the actual amount and holder. A finished archive must
-  resolve those details if it claims arithmetic readability. `PlayCard(Name)` already names its
+  resolve those details if it claims arithmetic readability. `playCard(Name)` already names its
   inferred card movement, but does not enumerate the card's printed tags.
 
 The relevant declarations are in Pets' `base/resources.pets`, `base/card-model.pets`,

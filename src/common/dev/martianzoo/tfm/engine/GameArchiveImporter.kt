@@ -92,8 +92,7 @@ public class GameArchiveImporter(
             )
           }
   /** The imported live game, including any successfully executed prefix after a failure. */
-  public val agents: Agents = Agents(TfmEngine.newGame(premise)) { NONE }
-  private val routines = TfmRoutines(agents)
+  public val agents: Agents = Agents(TfmEngine.newGame(premise), TfmRoutines.registered) { NONE }
   private val players =
       agents.world.actors.filterIsInstance<Player>().associate { it.toString() to agents[it] }
 
@@ -145,7 +144,7 @@ public class GameArchiveImporter(
               .orEmpty()
       val expectedArgs =
           when {
-            name == "ExMachina" || name in TfmRoutines.phaseGroups -> 0..0
+            name == "exMachina" || name in TfmRoutines.phaseGroups -> 0..0
             else -> routine?.argumentCount
           }
       require(context == null || (expectedArgs == null && entry.body == null)) {
@@ -155,33 +154,32 @@ public class GameArchiveImporter(
         require(args.size in expectedArgs) { "Unexpected arguments for $name: $args" }
       }
       when {
-        name == "ExMachina" || name in TfmRoutines.phaseGroups ->
+        name == "exMachina" || name in TfmRoutines.phaseGroups ->
             require(!entry.body.isNullOrEmpty()) { "$name requires a nonempty body" }
-        (routine != null && !routine.startsAction) || name == "Pass" ->
+        (routine != null && !routine.startsAction) || name == "pass" ->
             require(entry.body == null) { "$name does not take a body" }
         expectedArgs == null -> require(entry.body == null) { "Unknown block: $text" }
       }
       // A recipient's explicit request may include several pending NOW releases.
-      if (!topLevel && inherited != null && inherited !== agent && name != "ExMachina") {
-        require((expectedArgs == null || name == "Pay") && entry.body == null) {
-          "A recipient response must be a Pets task or Pay"
+      if (!topLevel && inherited != null && inherited !== agent && name != "exMachina") {
+        require((expectedArgs == null || name == "pay") && entry.body == null) {
+          "A recipient response must be a Pets task or pay"
         }
         require(context == null) { "VIA on a recipient response is not supported" }
-        if (name == "Pay")
-            routines.execute(agent, name, *args.toTypedArray(), releasedBy = inherited)
+        if (name == "pay") agent.doRoutine(name, *args.toTypedArray(), releasedBy = inherited)
         else agent.doTask(text, releasedBy = inherited)
         return
       }
       when {
-        name == "ExMachina" -> {
+        name == "exMachina" -> {
           require(entry.body!!.all { it.body == null }) {
-            "ExMachina requires flat Pets instructions"
+            "exMachina requires flat Pets instructions"
           }
-          routines.execute(agent, name, entry.body.joinToString(", ") { it.text })
+          agent.doRoutine(name, entry.body.joinToString(", ") { it.text })
           return
         }
-        routine != null -> routines.execute(agent, name, *args.toTypedArray())
-        name in TfmRoutines.phaseGroups -> routines.checkPhase(name)
+        routine != null -> agent.doRoutine(name, *args.toTypedArray())
+        name in TfmRoutines.phaseGroups -> TfmRoutines.checkPhase(agents, name)
         context == null -> agent.doTask(text)
         else -> agent.doTask(text, context)
       }

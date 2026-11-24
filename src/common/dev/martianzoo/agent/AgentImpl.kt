@@ -42,13 +42,27 @@ import kotlin.reflect.KClass
 
 /** Interprets an Actor's input and coordinates the call's engine calls and task handling. */
 internal class AgentImpl(
-    private val world: World,
+    private val agents: Agents,
     private val engine: ActorEngine,
     private val elaborator: PetElaborator,
     private val autoExecLoop: AutoExecLoop,
     private val validateApplication: () -> Unit,
     initialPolicy: AutoExecPolicy,
 ) : Agent {
+
+  private val world: World
+    get() = agents.world
+
+  override fun doRoutine(
+      name: String,
+      vararg arguments: String,
+      releasedBy: Agent?,
+  ): TaskResult {
+    val routine = requireNotNull(agents.routines[name]) { "Unknown routine: $name" }
+    return world.timeline.atomic {
+      routine.perform(agents, this, arguments.toList(), releasedBy)
+    }
+  }
 
   private val autoExecPolicyOverrides = mutableListOf<AutoExecPolicy>()
 

@@ -35,22 +35,22 @@ Me: Setup {
 }
 
 // Generation 1
-Me: PlayCard(PhoboLog) {
+Me: playCard(PhoboLog) {
     23 MC VIA PhoboLog
     10 Titanium
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
 // You drew Thorgate, Valley Trust, United Nations Mars Initiative and Robinson Industries
-Me: PlayCard(Merger) {
+Me: playCard(Merger) {
     4 CorporationCard<Selecting>
-    PlayCard(UnitedNationsMarsInitiative, Selecting)
+    playCard(UnitedNationsMarsInitiative, Selecting)
     -2 MC
 }
 // me placed ocean tile on row 3 position 6
 // me placed ocean tile on row 4 position 7
-Me: PlayCard(GreatAquifer) {
+Me: playCard(GreatAquifer) {
     OceanTile<Elysium_3_6>
     TerraformRating
     OceanTile<Elysium_4_7>
@@ -59,20 +59,20 @@ Me: PlayCard(GreatAquifer) {
     2 MC
 }
 
-Me: UseAction1(UnitedNationsMarsInitiative) {
-    Pay(3 MC)
+Me: useAction1(UnitedNationsMarsInitiative) {
+    pay(3 MC)
     TerraformRating
 }
 // no MC remainder
-Me: PlayCard(CallistoPenalMines) {
-    Pay(6 Titanium)
+Me: playCard(CallistoPenalMines) {
+    pay(6 Titanium)
     PROD[3 MC]
 }
-Me: PlayCard(Sponsors) {
-    Pay(6 MC)
+Me: playCard(Sponsors) {
+    pay(6 MC)
     PROD[2 MC]
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     20 MC
@@ -87,26 +87,26 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Me: PlayCard(AtmoCollectors) {
-    Pay(15 MC)
+Me: playCard(AtmoCollectors) {
+    pay(15 MC)
     2 Floater<AtmoCollectors>
 }
-Me: UseAction2(AtmoCollectors) {
+Me: useAction2(AtmoCollectors) {
     -Floater<AtmoCollectors>
     2 Titanium
 }
-Me: PlayCard(RotatorImpacts) {
-    Pay(1 Titanium, 2 MC)
+Me: playCard(RotatorImpacts) {
+    pay(1 Titanium, 2 MC)
 }
-Me: UseAction1(RotatorImpacts) {
-    Pay(1 Titanium, 2 MC)
+Me: useAction1(RotatorImpacts) {
+    pay(1 Titanium, 2 MC)
     Asteroid<RotatorImpacts>
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     20 MC
@@ -121,34 +121,34 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Me: UseAction2(RotatorImpacts) {
+Me: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
-Me: UseAction1(UnitedNationsMarsInitiative) {
-    Pay(3 MC)
+Me: useAction1(UnitedNationsMarsInitiative) {
+    pay(3 MC)
     TerraformRating
 }
-Me: UseAction2(AtmoCollectors) {
+Me: useAction2(AtmoCollectors) {
     -Floater<AtmoCollectors>
     2 Titanium
 }
-Me: PlayCard(ProjectInspection) {
-    UseAction1(UnitedNationsMarsInitiative)
-    Pay(3 MC)
+Me: playCard(ProjectInspection) {
+    useAction1(UnitedNationsMarsInitiative)
+    pay(3 MC)
     TerraformRating
 }
-Me: PlayCard(EnergyTapping) {
-    Pay(3 MC)
+Me: playCard(EnergyTapping) {
+    pay(3 MC)
     PROD[-Energy<SoloOpponent>]
     PROD[Energy]
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     23 MC
@@ -164,24 +164,24 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // UI says actions 2 because UNMI not currently playable
-Me: UseAction1(AtmoCollectors) {
+Me: useAction1(AtmoCollectors) {
     Floater<AtmoCollectors>
 }
-Me: UseAction1(RotatorImpacts) {
-    Pay(1 Titanium, 2 MC)
+Me: useAction1(RotatorImpacts) {
+    pay(1 Titanium, 2 MC)
     Asteroid<RotatorImpacts>
 }
-Me: PlayCard(NuclearPower) {
-    Pay(10 MC)
+Me: playCard(NuclearPower) {
+    pay(10 MC)
     PROD[-2 MC]
     PROD[3 Energy]
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     21 MC
@@ -198,52 +198,52 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Me: UseAction2(AtmoCollectors) {
+Me: useAction2(AtmoCollectors) {
     -Floater<AtmoCollectors>
     2 Titanium
 }
 // You drew Deep Well Heating
-Me: UseAction2(RotatorImpacts) {
+Me: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
     ProjectCard
 }
-Me: UseAction1(UnitedNationsMarsInitiative) {
-    Pay(3 MC)
+Me: useAction1(UnitedNationsMarsInitiative) {
+    pay(3 MC)
     TerraformRating
 }
 // "overpay" 1
 // no MC remainder
-Me: PlayCard(SolarReflectors) {
-    Pay(6 Titanium)
+Me: playCard(SolarReflectors) {
+    pay(6 Titanium)
     PROD[5 Heat]
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Ceres>
     8 Steel
 }
-Me: PlayCard(DeepWellHeating) {
-    Pay(6 Steel, 1 MC)
+Me: playCard(DeepWellHeating) {
+    pay(6 Steel, 1 MC)
     PROD[Energy]
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
-Me: PlayCard(CarbonateProcessing) {
-    Pay(2 Steel, 2 MC)
+Me: playCard(CarbonateProcessing) {
+    pay(2 Steel, 2 MC)
     PROD[-Energy]
     PROD[3 Heat]
 }
-Me: PlayCard(EarthOffice) {
-    Pay(1 MC)
+Me: playCard(EarthOffice) {
+    pay(1 MC)
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     24 MC
@@ -261,57 +261,57 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
-Me: UseAction1(UnitedNationsMarsInitiative) {
-    Pay(3 MC)
+Me: useAction1(UnitedNationsMarsInitiative) {
+    pay(3 MC)
     TerraformRating
 }
-Me: UseAction1(RotatorImpacts) {
-    Pay(1 Titanium, 2 MC)
+Me: useAction1(RotatorImpacts) {
+    pay(1 Titanium, 2 MC)
     Asteroid<RotatorImpacts>
 }
-Me: UseAction1(AtmoCollectors) {
+Me: useAction1(AtmoCollectors) {
     Floater<AtmoCollectors>
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Luna>
     17 MC
 }
-Me: PlayCard(ExtractorBalloons) {
-    Pay(21 MC)
+Me: playCard(ExtractorBalloons) {
+    pay(21 MC)
     3 Floater<ExtractorBalloons>
 }
-Me: UseAction2(ExtractorBalloons) {
+Me: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
-Me: PlayCard(MiningExpedition) {
-    Pay(12 MC)
+Me: playCard(MiningExpedition) {
+    pay(12 MC)
     OxygenStep
     2 Steel
     TerraformRating
     -2 Plant<SoloOpponent>
 }
 // me placed ocean tile on row 4 position 6
-Me: PlayCard(Flooding) {
-    Pay(7 MC)
+Me: playCard(Flooding) {
+    pay(7 MC)
     OceanTile<Elysium_4_6>
     TerraformRating
     Plant
     4 MC
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     29 MC
@@ -329,46 +329,46 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // UI says actions 3 because UNMI not currently playable
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: UseAction1(UnitedNationsMarsInitiative) {
-    Pay(3 MC)
+Me: useAction1(UnitedNationsMarsInitiative) {
+    pay(3 MC)
     TerraformRating
 }
-Me: UseAction1(ExtractorBalloons) {
+Me: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
-Me: PlayCard(CeosFavoriteProject) {
-    Pay(1 MC)
+Me: playCard(CeosFavoriteProject) {
+    pay(1 MC)
     Asteroid<RotatorImpacts>
 }
-Me: UseAction2(RotatorImpacts) {
+Me: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
-Me: UseAction2(AtmoCollectors) {
+Me: useAction2(AtmoCollectors) {
     -Floater<AtmoCollectors>
     2 Titanium
 }
-Me: PlayCard(GeothermalPower) {
-    Pay(2 Steel, 7 MC)
+Me: playCard(GeothermalPower) {
+    pay(2 Steel, 7 MC)
     PROD[2 Energy]
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Triton>
     5 Titanium
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     32 MC
@@ -386,46 +386,46 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Me: UseAction2(ExtractorBalloons) {
+Me: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     2 TerraformRating
 }
-Me: UseAction1(UnitedNationsMarsInitiative) {
-    Pay(3 MC)
+Me: useAction1(UnitedNationsMarsInitiative) {
+    pay(3 MC)
     TerraformRating
 }
-Me: UseAction2(RotatorImpacts) {
+Me: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
-Me: UseAction1(AtmoCollectors) {
+Me: useAction1(AtmoCollectors) {
     Floater<AtmoCollectors>
 }
-Me: PlayCard(InterplanetaryColonyShip) {
-    Pay(2 Titanium, 1 MC)
+Me: playCard(InterplanetaryColonyShip) {
+    pay(2 Titanium, 1 MC)
     Colony<Luna>
     PROD[2 MC]
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 // You drew Insects, Impactor Swarm and Solarnet
 // me placed greenery tile on row 3 position 7
-Me: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Me: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Elysium_3_7>
     OxygenStep
     3 ProjectCard
@@ -433,21 +433,21 @@ Me: UseStandardProject(GreeneryProject) {
     TerraformRating
 }
 // You drew Giant Solar Shade and Luna Governor
-Me: PlayCard(Solarnet) {
-    Pay(7 MC)
+Me: playCard(Solarnet) {
+    pay(7 MC)
     2 ProjectCard
 }
-Me: PlayCard(LunaGovernor) {
+Me: playCard(LunaGovernor) {
     PROD[2 MC]
 }
-Me: PlayCard(GiantSolarShade) {
-    Pay(5 Titanium, 7 MC)
+Me: playCard(GiantSolarShade) {
+    pay(5 Titanium, 7 MC)
     VenusStep
     VenusStep
     VenusStep
     3 TerraformRating
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     46 MC
@@ -465,63 +465,63 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Me: UseAction1(ExtractorBalloons) {
+Me: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
-Me: UseAction2(AtmoCollectors) {
+Me: useAction2(AtmoCollectors) {
     -Floater<AtmoCollectors>
     4 Heat
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: UseAction1(UnitedNationsMarsInitiative) {
-    Pay(3 MC)
+Me: useAction1(UnitedNationsMarsInitiative) {
+    pay(3 MC)
     TerraformRating
 }
-Me: UseAction1(RotatorImpacts) {
-    Pay(6 MC)
+Me: useAction1(RotatorImpacts) {
+    pay(6 MC)
     Asteroid<RotatorImpacts>
 }
-Me: PlayCard(Moss) {
-    Pay(4 MC)
+Me: playCard(Moss) {
+    pay(4 MC)
     PROD[Plant]
     -Plant
 }
 // me placed city tile on row 5 position 6
-Me: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Me: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Elysium_5_6>
     3 Plant
     2 MC
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Luna>
     9 MC
 }
 // me placed greenery tile on row 5 position 7
-Me: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Me: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Elysium_5_7>
     OxygenStep
     2 Plant
     4 MC
     TerraformRating
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     51 MC
@@ -540,42 +540,42 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // UI says actions 3 because UNMI not currently playable
-Me: PlayCard(DustSeals) {
-    Pay(2 MC)
+Me: playCard(DustSeals) {
+    pay(2 MC)
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: UseAction1(UnitedNationsMarsInitiative) {
-    Pay(3 MC)
+Me: useAction1(UnitedNationsMarsInitiative) {
+    pay(3 MC)
     TerraformRating
 }
-Me: UseAction1(ExtractorBalloons) {
+Me: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
-Me: UseAction1(AtmoCollectors) {
+Me: useAction1(AtmoCollectors) {
     Floater<AtmoCollectors>
 }
-Me: UseAction2(RotatorImpacts) {
+Me: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
 // me placed ocean tile on row 4 position 4
-Me: PlayCard(IceMoonColony) {
-    Pay(23 MC)
+Me: playCard(IceMoonColony) {
+    pay(23 MC)
     Colony<Triton>
     3 Titanium
     OceanTile<Elysium_4_4>
@@ -583,32 +583,32 @@ Me: PlayCard(IceMoonColony) {
     2 Plant
 }
 // me placed ocean tile on row 5 position 4
-Me: UseStandardProject(AquiferProject) {
-    Pay(18 MC)
+Me: useStandardProject(AquiferProject) {
+    pay(18 MC)
     OceanTile<Elysium_5_4>
     TerraformRating
     2 Plant
     2 MC
 }
 // me placed greenery tile on row 5 position 5
-Me: ConvertPlants {
-    Pay(8 Plant)
+Me: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_5_5>
     OxygenStep
     2 Plant
     4 MC
     TerraformRating
 }
-Me: PlayCard(Insects) {
-    Pay(9 MC)
+Me: playCard(Insects) {
+    pay(9 MC)
     PROD[Plant]
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Ceres>
     8 Steel
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     58 MC
@@ -628,53 +628,53 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: UseAction1(UnitedNationsMarsInitiative) {
-    Pay(3 MC)
+Me: useAction1(UnitedNationsMarsInitiative) {
+    pay(3 MC)
     TerraformRating
 }
-Me: UseAction2(ExtractorBalloons) {
+Me: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
-Me: PlayCard(VenusWaystation) {
-    Pay(2 Titanium, 1 MC)
+Me: playCard(VenusWaystation) {
+    pay(2 Titanium, 1 MC)
 }
-Me: PlayCard(ReleaseOfInertGases) {
-    Pay(14 MC)
+Me: playCard(ReleaseOfInertGases) {
+    pay(14 MC)
     2 TerraformRating
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Luna>
     9 MC
 }
-Me: UseAction2(AtmoCollectors) {
+Me: useAction2(AtmoCollectors) {
     -Floater<AtmoCollectors>
     4 Heat
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: PlayCard(Trees) {
-    Pay(13 MC)
+Me: playCard(Trees) {
+    pay(13 MC)
     PROD[3 Plant]
     Plant
 }
 // me placed ocean tile on row 3 position 5
-Me: UseStandardProject(AquiferProject) {
-    Pay(18 MC)
+Me: useStandardProject(AquiferProject) {
+    pay(18 MC)
     OceanTile<Elysium_3_5>
     TerraformRating
     Plant
@@ -683,8 +683,8 @@ Me: UseStandardProject(AquiferProject) {
 // You drew Interstellar Colony Ship
 // me placed greenery tile on row 4 position 5
 // me placed ocean tile on row 1 position 3
-Me: ConvertPlants {
-    Pay(8 Plant)
+Me: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_4_5>
     OxygenStep
     Plant
@@ -697,18 +697,18 @@ Me: ConvertPlants {
     ProjectCard
     2 MC
 }
-Me: UseAction1(RotatorImpacts) {
-    Pay(1 Titanium, 2 MC)
+Me: useAction1(RotatorImpacts) {
+    pay(1 Titanium, 2 MC)
     Asteroid<RotatorImpacts>
 }
 // me placed city tile on row 6 position 7
-Me: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Me: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Elysium_6_8>
     Plant
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     69 MC
@@ -727,58 +727,58 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 // UI says actions 3 because UNMI not currently playable
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: UseAction1(UnitedNationsMarsInitiative) {
-    Pay(3 MC)
+Me: useAction1(UnitedNationsMarsInitiative) {
+    pay(3 MC)
     TerraformRating
 }
-Me: UseAction2(RotatorImpacts) {
+Me: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
 // me placed greenery tile on row 6 position 6
-Me: ConvertPlants {
-    Pay(8 Plant)
+Me: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_6_7>
     OxygenStep
     Plant
     TerraformRating
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Luna>
     6 MC
 }
-Me: UseAction1(AtmoCollectors) {
+Me: useAction1(AtmoCollectors) {
     Floater<AtmoCollectors>
 }
-Me: UseAction1(ExtractorBalloons) {
+Me: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 // "overpay" 1
 // no MC remainder
-Me: PlayCard(SolarPower) {
-    Pay(6 Steel)
+Me: playCard(SolarPower) {
+    pay(6 Steel)
     PROD[Energy]
 }
 // me placed greenery tile on row 5 position 8
-Me: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Me: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Elysium_5_8>
     OxygenStep
     2 Plant
@@ -786,24 +786,24 @@ Me: UseStandardProject(GreeneryProject) {
     TerraformRating
 }
 // me placed city tile on row 7 position 5
-Me: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Me: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Elysium_7_7>
     Steel
 }
 // me placed greenery tile on row 6 position 5
-Me: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Me: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Elysium_6_6>
     OxygenStep
     Plant
     TerraformRating
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     77 MC
@@ -815,8 +815,8 @@ Me: Production {
 
 // Final greenery placement
 // me placed greenery tile on row 8 position 5
-Me: ConvertPlants {
-    Pay(8 Plant)
+Me: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_8_8>
     2 Steel
 }

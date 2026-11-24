@@ -130,7 +130,8 @@ public class ScriptSession(
       candidatePlayerCount: Int,
       purple: Boolean,
   ) {
-    val candidateAgents = Agents(candidateGame) { if (purple) EAGER else NONE }
+    val candidateAgents =
+        Agents(candidateGame, TfmRoutines.registered) { if (purple) EAGER else NONE }
     candidateAgents.transact {
       candidateGame
           .actorEngine(ADMIN)

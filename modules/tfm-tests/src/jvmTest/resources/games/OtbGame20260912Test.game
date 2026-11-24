@@ -75,38 +75,38 @@ Yellow: Setup {
 // Infrastructure."
 // "Septim Triboos [Septem Tribus]. I get 36 money, and then I buy 10 cards. Don't tell me I
 // bought 10."
-Green: PlayCard(SeptemTribus) {
+Green: playCard(SeptemTribus) {
     36 MC VIA SeptemTribus
-    Pay(30 MC)
+    pay(30 MC)
     10 ProjectCard<Hand FROM Selecting>
 }
 
 // "Pristar. I get 53 money. I lose two TR. Not super happy. And I buy seven cards."
-Yellow: PlayCard(Pristar) {
+Yellow: playCard(Pristar) {
     53 MC VIA Pristar
     -2 TerraformRating
-    Pay(21 MC)
+    pay(21 MC)
     7 ProjectCard<Hand FROM Selecting>
 }
 
 // "My corporation is Tycho Magnetics. I start with 42. Not 42 money production. But one
 // energy
 // production."
-Blue: PlayCard(TychoMagnetics) {
+Blue: playCard(TychoMagnetics) {
     42 MC VIA TychoMagnetics
     PROD[Energy]
-    Pay(24 MC)
+    pay(24 MC)
     8 ProjectCard<Hand FROM Selecting>
 }
 
 // "Nobel Prize. My second wild tag. I have no tags, but I have two wild tags."
-Green: PlayCard(NobelPrize) {
+Green: playCard(NobelPrize) {
     5 MC
     2 SearchForCard<RequirementFilter>
 }
 // "Experimental Forest. My greenery. I'm going to go on six two. For dos cardos. And for
 // moneyos."
-Green: PlayCard(ExperimentalForest) {
+Green: playCard(ExperimentalForest) {
     2 SearchForCard<TagFilter<Class<PlantTag>>>
     GreeneryTile<Vastitas_6_2>
     OxygenStep
@@ -114,7 +114,7 @@ Green: PlayCard(ExperimentalForest) {
     TerraformRating
     // The players acknowledged that paying the initial Greens policy during Prelude was a rule
     // mistake. Green nevertheless took 4 M€ here (transcript and Green ledger entry 6).
-    ExMachina {
+    exMachina {
         4 MC
     }
 }
@@ -124,49 +124,49 @@ Green: PlayCard(ExperimentalForest) {
 // SF Memorial's sentence is missing from the transcript. Green's first ledger segment and
 // every tableau photo place it in Head Start's first action. The newer transcript restores
 // the second action, quoted below.
-Green: PlayCard(FakeHeadStart) {
+Green: playCard(FakeHeadStart) {
     2 Steel
     32 MC
-    PlayCard(SfMemorial)
-    Pay(2 Steel, 3 MC)
+    playCard(SfMemorial)
+    pay(2 Steel, 3 MC)
     ProjectCard
     // "Let's just use my free delegate thingy ... put it in Scientists."
-    SendDelegate0
+    action(LobbyAction)
     PartyLeader<Scientists> FROM LobbyDelegate
 }
 
 // "Martian Industries." "Nice." "Gain energy production, steel production, and gain six
 // monies."
-Yellow: PlayCard(MartianIndustries) {
+Yellow: playCard(MartianIndustries) {
     PROD[Energy]
     PROD[Steel]
     6 MC
 }
 // "Applied Science is a wild tag, not that it counts for anything yet. I immediately add six
 // science resources, and it's going to let me gain stuff. Stuff and stuff."
-Yellow: PlayCard(AppliedScience) {
+Yellow: playCard(AppliedScience) {
     6 Science<AppliedScience>
 }
 // "Established methods. Gain 30 monies." "Wow."
-Yellow: PlayCard(EstablishedMethods) {
+Yellow: playCard(EstablishedMethods) {
     30 MC
     // "I'm gonna greenery for 23. I'm gonna put it here for two cards... And that gave me
     // the temperatura."
-    UseStandardProject(GreeneryProject)
-    Pay(23 MC)
+    useStandardProject(GreeneryProject)
+    pay(23 MC)
     GreeneryTile<Vastitas_5_9>
     OxygenStep
     2 ProjectCard
     TerraformRating
-    UseStandardProject(AsteroidProject)
-    Pay(14 MC)
+    useStandardProject(AsteroidProject)
+    pay(14 MC)
     TemperatureStep
     TerraformRating
 }
 
 // The players acknowledged this initial Greens-policy payout during Prelude as the same rule
 // mistake. Yellow nevertheless took 4 M€ here (transcript and Yellow ledger entry 15).
-Yellow: ExMachina {
+Yellow: exMachina {
     4 MC
 }
 
@@ -174,35 +174,35 @@ Yellow: ExMachina {
 // one." "I increased my money production by four and I give myself three loose monies. Dome
 // Farming. I increased my money production by two and plant production by one. And Power
 // Generator [Power Generation]. One, two, three energy production."
-Blue: PlayCard(AlliedBank) {
+Blue: playCard(AlliedBank) {
     PROD[4 MC]
     3 MC
 }
-Blue: PlayCard(DomeFarming) {
+Blue: playCard(DomeFarming) {
     PROD[Plant]
     PROD[2 MC]
 }
-Blue: PlayCard(PowerGeneration) {
+Blue: playCard(PowerGeneration) {
     PROD[3 Energy]
 }
 
 // "Artificial Photosynthesis. I spent twelve, and I get two energy production. Actually,
 // no, I'm going to also spend five to put another one of my dudes in Unity."
-Green: PlayCard(ArtificialPhotosynthesis) {
-    Pay(12 MC)
+Green: playCard(ArtificialPhotosynthesis) {
+    pay(12 MC)
     PROD[2 Energy]
 }
 // "Actually, no, I'm going to also spend five to put another one of my dudes in community
 // [Unity]."
-Green: SendDelegate5 {
-    Pay(5 MC)
+Green: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyLeader<Unity>
 }
 
 // "I'm going to lava flows for 18. Raise temperature, two steps. Oh, and I get the heat. Oh,
 // this is the lava. Two, six."
-Yellow: PlayCard(LavaFlows) {
-    Pay(18 MC)
+Yellow: playCard(LavaFlows) {
+    pay(18 MC)
     TemperatureStep
     TemperatureStep
     2 TerraformRating
@@ -213,14 +213,14 @@ Yellow: PlayCard(LavaFlows) {
 // "I'm also going to place my delegate in the Grens [Greens] since that's coming into power.
 // I was going to try and go for red since that would work better with Prestar [Pristar], but
 // now I've terraformed. I screwed that up."
-Yellow: SendDelegate0 {
+Yellow: action(LobbyAction) {
     PartyLeader<Greens> FROM LobbyDelegate
 }
 
 // "I'm going to pay five for Power Supply Consortium. I believe I'm increasing [Green's]
 // power production by one. And I gain one."
-Blue: PlayCard(PowerSupplyConsortium) {
-    Pay(5 MC)
+Blue: playCard(PowerSupplyConsortium) {
+    pay(5 MC)
     PROD[Energy]
     PROD[-Energy<Green>]
 }
@@ -228,43 +228,43 @@ Blue: PlayCard(PowerSupplyConsortium) {
 // "I'm not liking all of these options." "But I am liking this option." "So I pay seven for
 // that. The requirement is met and I get a plant production."
 // The latest photo identifies the otherwise unnamed card as Lichen.
-Green: PlayCard(Lichen) {
-    Pay(7 MC)
+Green: playCard(Lichen) {
+    pay(7 MC)
     PROD[Plant]
 }
 
 // "Hermetic Order of Mars. Pay 10. Oxygen must be 4% or lower." "Sure is." "Gain two money
 // production. Gain a money per empty area adjacent to my tiles. That is seven." "Heck yeah."
-Yellow: PlayCard(HermeticOrderOfMars) {
-    Pay(10 MC)
+Yellow: playCard(HermeticOrderOfMars) {
+    pay(10 MC)
     PROD[2 MC]
     7 MC
 }
 
 // "I am paying 13." "Blue paying 13 and two money production. In order to gain two heat
 // production and two more energy production." "My goodness." "On lunar beam."
-Blue: PlayCard(LunarBeam) {
-    Pay(13 MC)
+Blue: playCard(LunarBeam) {
+    pay(13 MC)
     PROD[-2 MC]
     PROD[2 Heat]
     PROD[2 Energy]
 }
 
 // "I think I'm going to pay five to put another doodage in red."
-Green: SendDelegate5 {
-    Pay(5 MC)
+Green: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyLeader<Reds>
 }
 
 // "Titanium mine. Pay seven, gain titanium production."
-Yellow: PlayCard(TitaniumMine) {
-    Pay(7 MC)
+Yellow: playCard(TitaniumMine) {
+    pay(7 MC)
     PROD[Titanium]
 }
 
 // "I like science. Put me in the scientist party."
 // "The ruler's blue lobbyist is in the science party."
-Blue: SendDelegate0 {
+Blue: action(LobbyAction) {
     PartyFollower<Scientists> FROM LobbyDelegate
 }
 
@@ -272,55 +272,55 @@ Blue: SendDelegate0 {
 // Blue's placement make Scientists the first party with two delegates.
 // "Well, that's good in some ways. I think I'll go ahead and use my Septim Tribus [Septem
 // Tribus] action now. And that means I get six money, right?" "Six McSeas."
-Green: UseAction1(SeptemTribus) {
+Green: useAction1(SeptemTribus) {
     6 MC
 }
 
 // "Soych for life [Search for Life] for three."
-Yellow: PlayCard(SearchForLife) {
-    Pay(3 MC)
+Yellow: playCard(SearchForLife) {
+    pay(3 MC)
 }
 
 // "Dang. You know what? I can't use it yet, but I can afford it right now. So I'm going to
 // pay one money for Directed Heat Usage."
-Blue: PlayCard(DirectedHeatUsage) {
-    Pay(1 MC)
+Blue: playCard(DirectedHeatUsage) {
+    pay(1 MC)
 }
 
 // "Play orbital cleanup. And I lose two money production."
-Green: PlayCard(OrbitalCleanup) {
-    Pay(14 MC)
+Green: playCard(OrbitalCleanup) {
+    pay(14 MC)
     PROD[-2 MC]
 }
 
 // "I use soych for life [Search for Life] for three."
 // No microbe tag was revealed.
-Yellow: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Yellow: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
 
-Blue: Pass
+Blue: pass
 
 // "I will use Orbital Cleanup to take three money." Artificial Photosynthesis supplies one
 // printed Science tag, and both wild tags are assigned Science for this action.
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     3 MC
 }
 
 // "Decisions, decisions." "You should take mine." "We're reducing blue's energy production
 // by one."
-Yellow: PlayCard(EnergyTapping) {
-    Pay(3 MC)
+Yellow: playCard(EnergyTapping) {
+    pay(3 MC)
     PROD[Energy]
     PROD[-Energy<Blue>]
 }
 
-Green: Pass
+Green: pass
 
-Yellow: Pass
+Yellow: pass
 
 // Production.
 Green: Production {
@@ -370,76 +370,76 @@ Green: Research {
     // Generation 2 Research: "I buy four"; Yellow buys two; Blue buys three.
     // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // "I will pay three for Supported Research. Requires scientists are in power. They sure
 // are. Draw two cards."
-Yellow: PlayCard(SupportedResearch) {
-    Pay(3 MC)
+Yellow: playCard(SupportedResearch) {
+    pay(3 MC)
     2 ProjectCard
 }
 
 // "Blue is paying six money ... to build Fuel Factory. So I'm going to lose one energy
 // production, but gain a titanium and a money production."
-Blue: PlayCard(FuelFactory) {
-    Pay(6 MC)
+Blue: playCard(FuelFactory) {
+    pay(6 MC)
     PROD[-Energy]
     PROD[Titanium]
     PROD[MC]
 }
 
 // "I will play Investment Loan for three and get 10 and lose the money production."
-Green: PlayCard(InvestmentLoan) {
-    Pay(3 MC)
+Green: playCard(InvestmentLoan) {
+    pay(3 MC)
     PROD[-MC]
     10 MC
 }
 
 // "I will play Local Shading for four."
-Yellow: PlayCard(LocalShading) {
-    Pay(4 MC)
+Yellow: playCard(LocalShading) {
+    pay(4 MC)
 }
 
 // "Put my blue lobbyist in the Unity party, please."
-Blue: SendDelegate0 {
+Blue: action(LobbyAction) {
     PartyFollower<Unity> FROM LobbyDelegate
 }
 
 // "I'm gonna use my free action to put a dude into Greens."
-Green: SendDelegate0 {
+Green: action(LobbyAction) {
     PartyFollower<Greens> FROM LobbyDelegate
 }
 
 // "I'll put my free guy in Reds."
-Yellow: SendDelegate0 {
+Yellow: action(LobbyAction) {
     PartyFollower<Reds> FROM LobbyDelegate
 }
 
 // "Blue's going to pay five money to put another delegate in Unity."
-Blue: SendDelegate5 {
-    Pay(5 MC)
+Blue: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyLeader<Unity>
 }
 
 // "Recruitment in the Greens ... I become the party leader. I paid two for that."
-Green: PlayCard(Recruitment) {
-    Pay(2 MC)
+Green: playCard(Recruitment) {
+    pay(2 MC)
     PartyLeader<Greens> FROM PartyFollower<Neutral, Greens>
 }
 
@@ -447,56 +447,56 @@ Green: PlayCard(Recruitment) {
 // This is Yellow's turn between Green's Recruitment and Blue's House Printing. Her ledger
 // includes the 5 M€ payment, board-12-18-40.jpg shows both Yellow delegates in Reds, and
 // she later cites those two delegates as satisfying Red Appeasement.
-Yellow: SendDelegate5 {
-    Pay(5 MC)
+Yellow: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyLeader<Reds>
 }
 
 // "Blue is paying ten for House Printing, which gives me a steel production."
-Blue: PlayCard(HousePrinting) {
-    Pay(10 MC)
+Blue: playCard(HousePrinting) {
+    pay(10 MC)
     PROD[Steel]
 }
 
 // "I'm gonna pay five and put a dude in Kelvinists."
-Green: SendDelegate5 {
-    Pay(5 MC)
+Green: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Kelvinists>
 }
 
 // "Local Shading, add floater."
-Yellow: UseAction1(LocalShading) {
+Yellow: useAction1(LocalShading) {
     Floater<LocalShading>
 }
 
-Blue: Pass
+Blue: pass
 
 // "Oh, right. It's your turn." "You're gonna pay five ... to maybe go to Scientists? Wow."
 // Green has six delegates deployed and the seventh still in reserve. The later photograph
 // shows Green represented in Scientists, and Green's aggregated ledger includes this 5 M€
 // payment along with Recruitment, Kelvinists, and Lobbyist.
-Green: SendDelegate5 {
-    Pay(5 MC)
+Green: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Scientists>
 }
 
 // "Search for Life. Pay one ... It was Public Celebrations."
 // No microbe tag was revealed.
-Yellow: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Yellow: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
 
 // "I am going to pay eight for the Lobbyist."
-Green: ClaimMilestone {
-    Pay(8 MC)
+Green: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Lobbyist
 }
 
 // "Applied Science floater onto Local Shading."
-Yellow: UseAction1(AppliedScience) {
+Yellow: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Floater<LocalShading>
 }
@@ -504,42 +504,42 @@ Yellow: UseAction1(AppliedScience) {
 // "I am going to use my Septem Tribus action to take ten money." Green is represented in
 // five parties; the recovered Generation 1 Scientist delegate became chairman rather than
 // remaining in Mars First.
-Green: UseAction1(SeptemTribus) {
+Green: useAction1(SeptemTribus) {
     10 MC
 }
 
-Yellow: Pass
+Yellow: pass
 
 // "I am going to play Event Analysts, which costs five. You have an extra influence
 // permanently."
-Green: PlayCard(EventAnalysts) {
-    Pay(5 MC)
+Green: playCard(EventAnalysts) {
+    pay(5 MC)
 }
 // "Use Orbital Cleanup to take four money."
 // Artificial Photosynthesis and Event Analysts supply two printed Science tags; Septem
 // Tribus and Nobel Prize supply the two chosen wild tags.
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     4 MC
 }
 // "Play Peroxide Power for seven money ... minus four [M€ production] ... two energy
 // production."
-Green: PlayCard(PeroxidePower) {
-    Pay(7 MC)
+Green: playCard(PeroxidePower) {
+    pay(7 MC)
     PROD[-MC]
     PROD[2 Energy]
 }
 // "Sell a card for money."
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 // "I'm going to play Lightning Harvest for all eight of my money. I do have the three
 // science tags I need." The same two wild tags satisfy the printed requirement.
-Green: PlayCard(LightningHarvest) {
-    Pay(8 MC)
+Green: playCard(LightningHarvest) {
+    pay(8 MC)
     PROD[Energy]
     PROD[MC]
 }
-Green: Pass
+Green: pass
 
 // Production.
 Green: Production {
@@ -604,40 +604,40 @@ Green: Research {
 
     // Generation 3 Research: all three players buy three projects.
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // "I'm definitely spending three heat in order to gain four money. And ... that was Blue."
-Blue: UseAction1(DirectedHeatUsage) {
-    Pay(3 Heat)
+Blue: useAction1(DirectedHeatUsage) {
+    pay(3 Heat)
     4 MC
 }
 
 // "I'm going to use my free action to put a dude into Mars First." The former Green chairman
 // and one non-leader Green delegate returned when Greens formed, so this placement is legal.
-Green: SendDelegate0 {
+Green: action(LobbyAction) {
     PartyFollower<MarsFirst> FROM LobbyDelegate
 }
 
 // "Sponsored Academies. I pay nine. I pitch a card and draw three and everyone else gets
 // one."
-Yellow: PlayCard(SponsoredAcademies) {
-    Pay(9 MC)
+Yellow: playCard(SponsoredAcademies) {
+    pay(9 MC)
     -ProjectCard
     EACH Other@Player(NOT Yellow) { ProjectCard<Other@Player>! }
     3 ProjectCard
@@ -645,100 +645,100 @@ Yellow: PlayCard(SponsoredAcademies) {
     ProjectCard<Blue>
 }
 // "I guess I have Local Shading. Remove floater to gain money production."
-Yellow: UseAction2(LocalShading) {
+Yellow: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 
 // "Blue ... spending eight money to get the Generalist."
-Blue: ClaimMilestone {
-    Pay(8 MC)
+Blue: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Generalist
 }
 
 // "I'm going to use my Septem Tribus action to take 10 money."
-Green: UseAction1(SeptemTribus) {
+Green: useAction1(SeptemTribus) {
     10 MC
 }
 
 // "I spend two titanium and six real on Space Hotels. Increase money production four
 // steps." Sponsored Academies supplies one Earth tag; Applied Science's wild tag is the
 // second Earth tag for the requirement.
-Yellow: PlayCard(SpaceHotels) {
-    Pay(2 Titanium, 6 MC)
+Yellow: playCard(SpaceHotels) {
+    pay(2 Titanium, 6 MC)
     PROD[4 MC]
 }
 
 // "Blue is spending one steel and seven money ... Natural Preserve ... up here for two
 // steel."
-Blue: PlayCard(NaturalPreserve) {
-    Pay(1 Steel, 7 MC)
+Blue: playCard(NaturalPreserve) {
+    pay(1 Steel, 7 MC)
     PROD[MC]
     NaturalPreserve_SpecialTile<Vastitas_4_1>
     2 Steel
 }
 // "For my second action, I'm going to pay eight money ... Producer."
-Blue: ClaimMilestone {
-    Pay(8 MC)
+Blue: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Producer
 }
 
 // "Water Splitting Plant. We have the two oceans. I pay the 12 money."
-Green: PlayCard(WaterSplittingPlant) {
-    Pay(12 MC)
+Green: playCard(WaterSplittingPlant) {
+    pay(12 MC)
 }
 
 // "Apply Science floater onto Local Shading. And I will pay two steel for Mine to get a
 // steel production."
-Yellow: UseAction1(AppliedScience) {
+Yellow: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Floater<LocalShading>
 }
 // No M€ needed after paying with steel.
-Yellow: PlayCard(Mine) {
-    Pay(2 Steel)
+Yellow: playCard(Mine) {
+    pay(2 Steel)
     PROD[Steel]
 }
 
 // "Blue, spending five energy for five cards. And I will keep one."
-Blue: UseAction1(TychoMagnetics) {
-    SelectTask(-5! Energy THEN (5! ProjectCard<Selecting>, ProjectCard<Blue, Hand FROM Selecting>!))
+Blue: useAction1(TychoMagnetics) {
+    selectTask(-5! Energy THEN (5! ProjectCard<Selecting>, ProjectCard<Blue, Hand FROM Selecting>!))
     -5 Energy
     5 ProjectCard<Selecting>
     ProjectCard<Hand FROM Selecting>
 }
 
 // "Use my Water Splitting Plant, spend three energy, raise oxygen to three, and get a TR."
-Green: UseAction1(WaterSplittingPlant) {
-    Pay(3 Energy)
+Green: useAction1(WaterSplittingPlant) {
+    pay(3 Energy)
     OxygenStep
     TerraformRating
 }
 
 // "I add a delegate in Unity ... for an influence."
-Yellow: SendDelegate0 {
+Yellow: action(LobbyAction) {
     PartyFollower<Unity> FROM LobbyDelegate
 }
 // "Red Appeasement for zero ... gain two money production and this counts as me passing."
-Yellow: PlayCard(RedAppeasement) {
+Yellow: playCard(RedAppeasement) {
     PROD[2 MC]
-    Pass
+    pass
 }
 
 // "Blue is going to send her lobbyist to ... Greens."
-Blue: SendDelegate0 {
+Blue: action(LobbyAction) {
     PartyFollower<Greens> FROM LobbyDelegate
 }
 
 // "I'm going to use Orbital Cleanup ... and get four money." Green again chooses both wild
 // tags as Science.
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     4 MC
 }
 
-Blue: Pass
+Blue: pass
 
-Green: Pass
+Green: pass
 
 // Production.
 Green: Production {
@@ -808,101 +808,101 @@ Green: Research {
 Yellow: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // "Cultural Metropolis, for 20. No discounts." The photographed city at Vastitas 6-9
 // supplies the recorded two titanium and two M€ placement bonuses.
-Green: PlayCard(CulturalMetropolis) {
-    Pay(20 MC)
+Green: playCard(CulturalMetropolis) {
+    pay(20 MC)
     PROD[-Energy]
     PROD[3 MC]
     NormalCityTile<Vastitas_6_9>
     2 Titanium
     2 MC
-    SelectTask(PartyFollower<Reds>! THEN PartyDelegate<Reds>!)
+    selectTask(PartyFollower<Reds>! THEN PartyDelegate<Reds>!)
     PartyFollower<Reds>
     PartyLeader<Reds>
 }
 
 // "I'm gonna go place my free delegate in Punity." The board photo shows that the otherwise
 // unlabeled speaker placed Yellow's delegate, not Green's.
-Yellow: SendDelegate0 {
+Yellow: action(LobbyAction) {
     PartyLeader<Unity> FROM LobbyDelegate
 }
 
 // "Mining Area. I'm going to pay two steel for it."
 // No M€ needed after paying with steel.
-Blue: PlayCard(MiningArea) {
-    Pay(2 Steel)
+Blue: playCard(MiningArea) {
+    pay(2 Steel)
     MiningArea_SpecialTile<Vastitas_4_2>
     PROD[Titanium]
     Titanium
 }
 
 // "I am going to design some microorganisms. Pay 16 ... two plant production."
-Green: PlayCard(DesignedMicroorganisms) {
-    Pay(16 MC)
+Green: playCard(DesignedMicroorganisms) {
+    pay(16 MC)
     PROD[2 Plant]
 }
 
 // "I'm gonna pay six for Archaebacteria, for a plant production."
-Yellow: PlayCard(Archaebacteria) {
-    Pay(6 MC)
+Yellow: playCard(Archaebacteria) {
+    pay(6 MC)
     PROD[Plant]
 }
 
 // "Asteroid Hollowing ... I need one titanium to actually put on the card, so I'll take one
 // back and pay four more money." Final payment was two titanium and eight M€.
-Blue: PlayCard(AsteroidHollowing) {
-    Pay(2 Titanium, 8 MC)
+Blue: playCard(AsteroidHollowing) {
+    pay(2 Titanium, 8 MC)
 }
 
 // "I will use Orbital Cleanup to get five money."
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     5 MC
 }
 
 // "Security Fleet for 12." "I'm gonna spend a titanium to put a fighter on it."
 // No titanium paid.
-Yellow: PlayCard(SecurityFleet) {
-    Pay(12 MC)
+Yellow: playCard(SecurityFleet) {
+    pay(12 MC)
 }
-Yellow: UseAction1(SecurityFleet) {
-    Pay(1 Titanium)
+Yellow: useAction1(SecurityFleet) {
+    pay(1 Titanium)
     Fighter<SecurityFleet>
 }
 
-Blue: UseAction1(AsteroidHollowing) {
-    Pay(1 Titanium)
+Blue: useAction1(AsteroidHollowing) {
+    pay(1 Titanium)
     Asteroid<AsteroidHollowing>
     PROD[MC]
 }
 
 // "Free lobby into Kelvinists"; then "Sponsored Mohole for five ... two heat production."
-Green: SendDelegate0 {
+Green: action(LobbyAction) {
     PartyLeader<Kelvinists> FROM LobbyDelegate
 }
-Green: PlayCard(SponsoredMohole) {
-    Pay(5 MC)
+Green: playCard(SponsoredMohole) {
+    pay(5 MC)
     PROD[2 Heat]
 }
 
 // "Research Coordination for four. And then Interplanetary Trade." Its nine-step increase
 // brings Yellow's M€ production from nine to the photographed 18.
-Yellow: PlayCard(ResearchCoordination) {
-    Pay(4 MC)
+Yellow: playCard(ResearchCoordination) {
+    pay(4 MC)
 }
-Yellow: PlayCard(InterplanetaryTrade) {
-    Pay(27 MC)
+Yellow: playCard(InterplanetaryTrade) {
+    pay(27 MC)
     EACH @WildTagElection { Tag<@WildTagElection>? }
     JovianTag<WildTagElection<WildTag<AppliedScience>, ActionScope>>
     PlantTag<WildTagElection<WildTag<ResearchCoordination>, ActionScope>>
@@ -910,78 +910,78 @@ Yellow: PlayCard(InterplanetaryTrade) {
 }
 
 // "Bioprinting Facility ... one steel and five money." "Spend two energy, gain two plants."
-Blue: PlayCard(BioPrintingFacility) {
-    Pay(1 Steel, 5 MC)
+Blue: playCard(BioPrintingFacility) {
+    pay(1 Steel, 5 MC)
 }
-Blue: UseAction1(BioPrintingFacility) {
-    Pay(2 Energy)
+Blue: useAction1(BioPrintingFacility) {
+    pay(2 Energy)
     2 Plant
 }
 
-Green: UseAction1(SeptemTribus) {
+Green: useAction1(SeptemTribus) {
     8 MC
 }
 
 // No microbe tag was revealed.
-Yellow: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Yellow: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
 
 // Blue's ledger separately records two energy for Bioprinting and one here for Tycho.
-Blue: UseAction1(TychoMagnetics) {
-    SelectTask(-Energy! THEN (ProjectCard<Selecting>!, ProjectCard<Blue, Hand FROM Selecting>!))
+Blue: useAction1(TychoMagnetics) {
+    selectTask(-Energy! THEN (ProjectCard<Selecting>!, ProjectCard<Blue, Hand FROM Selecting>!))
     -Energy
     ProjectCard<Selecting>
     ProjectCard<Hand FROM Selecting>
 }
 
-Green: UseAction1(WaterSplittingPlant) {
-    Pay(3 Energy)
+Green: useAction1(WaterSplittingPlant) {
+    pay(3 Energy)
     OxygenStep
     TerraformRating
 }
 
-Yellow: UseAction2(LocalShading) {
+Yellow: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 
-Blue: SendDelegate0 {
+Blue: action(LobbyAction) {
     PartyFollower<Greens> FROM LobbyDelegate
 }
 
-Green: Pass
+Green: pass
 
-Yellow: UseAction1(AppliedScience) {
+Yellow: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Fighter<SecurityFleet>
 }
 
-Blue: UseAction1(DirectedHeatUsage) {
-    Pay(3 Heat)
+Blue: useAction1(DirectedHeatUsage) {
+    pay(3 Heat)
     4 MC
 }
 
-Yellow: Pass
+Yellow: pass
 
 // "Business Contacts for seven"; the two retained projects are not named in the record.
-Blue: PlayCard(BusinessContacts) {
-    Pay(7 MC)
+Blue: playCard(BusinessContacts) {
+    pay(7 MC)
     4 ProjectCard<Selecting>
     2 ProjectCard<Hand FROM Selecting>
 }
-Blue: PlayCard(RadChemFactory) {
-    Pay(8 MC)
+Blue: playCard(RadChemFactory) {
+    pay(8 MC)
     PROD[-Energy]
     2 TerraformRating
 }
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
-Blue: Pass
+Blue: pass
 
 // Production.
 Green: Production {
@@ -1045,7 +1045,7 @@ Blue: GlobalEvent {
 Green: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1054,212 +1054,212 @@ Yellow: Research {
 
     // Generation 5 Research after the dinner break: Yellow and Green buy three; Blue buys one.
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 
     // Blue says she buys one, but Blue's continuous ledger has no 3 M€ purchase and every later
     // payment reaches the photographed balance only if that charge was missed physically.
-    ExMachina {
+    exMachina {
         3 MC
     }
 }
 
-Yellow: FundAward {
-    Pay(8 MC)
+Yellow: action(FundAwardAction) {
+    pay(8 MC)
     Collector
 }
 
 // "Blue is going to pay most of her money, 22, to build Stratopolis."
-Blue: PlayCard(Stratopolis) {
-    Pay(22 MC)
+Blue: playCard(Stratopolis) {
+    pay(22 MC)
     PROD[2 MC]
     NormalCityTile<Stratopolis_RemoteArea>
     // The physical game omitted Stratopolis's two M€ production; Blue's ledger and the
     // board-21-13-22.jpg production track both retain eight.
-    ExMachina {
+    exMachina {
         PROD[-2 MC]
     }
 }
 
 // "I'm going to put my free delegate in reds."
-Green: SendDelegate0 {
+Green: action(LobbyAction) {
     PartyLeader<Reds> FROM LobbyDelegate
 }
 
 // Dusk Laser Mining: one titanium and five M€. Satellites: three titanium and one M€.
-Yellow: PlayCard(DuskLaserMining) {
-    Pay(1 Titanium, 5 MC)
+Yellow: playCard(DuskLaserMining) {
+    pay(1 Titanium, 5 MC)
     PROD[-Energy]
     PROD[Titanium]
     4 Titanium
 }
-Yellow: PlayCard(Satellites) {
-    Pay(3 Titanium, 1 MC)
+Yellow: playCard(Satellites) {
+    pay(3 Titanium, 1 MC)
     PROD[7 MC]
 }
 
-Blue: UseAction1(AsteroidHollowing) {
-    Pay(1 Titanium)
+Blue: useAction1(AsteroidHollowing) {
+    pay(1 Titanium)
     Asteroid<AsteroidHollowing>
     PROD[MC]
 }
 
-Green: PlayCard(EarthCatapult) {
-    Pay(23 MC)
+Green: playCard(EarthCatapult) {
+    pay(23 MC)
 }
 
-Yellow: UseAction1(SecurityFleet) {
-    Pay(1 Titanium)
+Yellow: useAction1(SecurityFleet) {
+    pay(1 Titanium)
     Fighter<SecurityFleet>
 }
 
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
 
 // No titanium paid.
-Green: PlayCard(MercurianAlloys) {
-    Pay(1 MC)
+Green: playCard(MercurianAlloys) {
+    pay(1 MC)
 }
 
-Yellow: UseAction2(LocalShading) {
+Yellow: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 
-Blue: SendDelegate0 {
+Blue: action(LobbyAction) {
     PartyFollower<MarsFirst> FROM LobbyDelegate
 }
 
-Green: UseAction1(SeptemTribus) {
+Green: useAction1(SeptemTribus) {
     8 MC
 }
 
 // Symbiotic Fungus is revealed, so Search for Life succeeds.
-Yellow: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Yellow: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
 
-Blue: UseAction1(Stratopolis) {
+Blue: useAction1(Stratopolis) {
     2 Floater<Stratopolis>
 }
 
 // Earth Catapult reduces Deuterium Export to nine; Mercurian Alloys makes each titanium
 // worth four, so the recorded payment is two titanium and one M€.
-Green: PlayCard(DeuteriumExport) {
-    Pay(2 Titanium, 1 MC)
+Green: playCard(DeuteriumExport) {
+    pay(2 Titanium, 1 MC)
 }
 
-Yellow: UseAction1(AppliedScience) {
+Yellow: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Fighter<SecurityFleet>
 }
 
-Blue: PlayCard(AsteroidDeflectionSystem) {
-    Pay(1 Titanium, 1 Steel, 8 MC)
+Blue: playCard(AsteroidDeflectionSystem) {
+    pay(1 Titanium, 1 Steel, 8 MC)
     PROD[-Energy]
     // The physical game also omitted Asteroid Deflection System's energy-production decrease.
-    ExMachina {
+    exMachina {
         PROD[Energy]
     }
 }
 
-Green: UseAction1(DeuteriumExport) {
+Green: useAction1(DeuteriumExport) {
     Floater<DeuteriumExport>
 }
 
-Yellow: PlayCard(ImportOfAdvancedGhg) {
-    Pay(9 MC)
+Yellow: playCard(ImportOfAdvancedGhg) {
+    pay(9 MC)
     PROD[2 Heat]
 }
 
-Blue: PlayCard(DustSeals) {
-    Pay(2 MC)
+Blue: playCard(DustSeals) {
+    pay(2 MC)
 }
 
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     5 MC
 }
 
-Yellow: PlayCard(RedShips) {
-    Pay(2 MC)
+Yellow: playCard(RedShips) {
+    pay(2 MC)
 }
 
-Blue: UseAction1(DirectedHeatUsage) {
-    Pay(3 Heat)
+Blue: useAction1(DirectedHeatUsage) {
+    pay(3 Heat)
     4 MC
 }
 
-Green: PlayCard(HeatTrappers) {
-    Pay(4 MC)
+Green: playCard(HeatTrappers) {
+    pay(4 MC)
     PROD[Energy]
     PROD[-2 Heat<Yellow>]
 }
 
-Yellow: PlayCard(GhgFactories) {
-    Pay(4 Steel, 3 MC)
+Yellow: playCard(GhgFactories) {
+    pay(4 Steel, 3 MC)
     PROD[-Energy]
     PROD[4 Heat]
 }
 
 // Venus Shuttles has no Space tag, so the reveal adds no asteroid.
 // No space tag was revealed.
-Blue: UseAction1(AsteroidDeflectionSystem) {
+Blue: useAction1(AsteroidDeflectionSystem) {
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>
     -ProjectCard<Revealed>
 }
 
-Green: PlayCard(CarbonateProcessing) {
-    Pay(4 MC)
+Green: playCard(CarbonateProcessing) {
+    pay(4 MC)
     PROD[-Energy]
     PROD[3 Heat]
 }
 
-Yellow: UseAction1(RedShips) {
+Yellow: useAction1(RedShips) {
     MC
 }
 
-Blue: SendDelegate5 {
-    Pay(5 MC)
+Blue: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyLeader<MarsFirst>
 }
 
-Green: PlayCard(Supercapacitors) {
-    Pay(2 MC)
+Green: playCard(Supercapacitors) {
+    pay(2 MC)
     PROD[MC]
 }
 
-Yellow: SendDelegate0 {
+Yellow: action(LobbyAction) {
     PartyFollower<Greens> FROM LobbyDelegate
 }
 
-Blue: UseAction1(TychoMagnetics) {
-    SelectTask(-2! Energy THEN (2! ProjectCard<Selecting>, ProjectCard<Blue, Hand FROM Selecting>!))
+Blue: useAction1(TychoMagnetics) {
+    selectTask(-2! Energy THEN (2! ProjectCard<Selecting>, ProjectCard<Blue, Hand FROM Selecting>!))
     -2 Energy
     2 ProjectCard<Selecting>
     ProjectCard<Hand FROM Selecting>
 }
 
-Green: Pass
+Green: pass
 
-Yellow: Pass
+Yellow: pass
 
-Blue: UseAction1(BioPrintingFacility) {
-    Pay(2 Energy)
+Blue: useAction1(BioPrintingFacility) {
+    pay(2 Energy)
     2 Plant
 }
-Blue: Pass
+Blue: pass
 
 // Production.
 Green: Production {
@@ -1323,7 +1323,7 @@ Blue: GlobalEvent {
 // six money" for Blue's and Yellow's event awards; Blue's lone +10 row is exactly 4 + 6. The
 // likeliest entry mistake is therefore recording both announced event awards for Blue while
 // omitting Blue's own 2 M€ ruling bonus, a net overpayment of four.
-Blue: ExMachina {
+Blue: exMachina {
     4 MC
 }
 
@@ -1332,7 +1332,7 @@ Blue: ExMachina {
 Green: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1341,7 +1341,7 @@ Yellow: Research {
 
     // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1350,33 +1350,33 @@ Blue: Research {
 
     // Generation 6 Research: Blue buys two, Green three, and Yellow four.
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: UseAction1(AsteroidHollowing) {
-    Pay(1 Titanium)
+Blue: useAction1(AsteroidHollowing) {
+    pay(1 Titanium)
     Asteroid<AsteroidHollowing>
     PROD[MC]
     // Asteroid Hollowing should raise M€ production from eight to nine. The phone next records
     // Food Factory raising it directly from eight to twelve, so Blue added the asteroid and spent
     // the titanium but omitted this production step.
-    ExMachina {
+    exMachina {
         PROD[-MC]
     }
 }
 
 // "Which cost me five. And then I'm going to raise Venus to four percent."
-Green: PlayCard(OptimalAerobraking) {
-    Pay(5 MC)
+Green: playCard(OptimalAerobraking) {
+    pay(5 MC)
     // Green's phone omitted this spoken five-M€ payment; preserve its continuous balance.
-    ExMachina {
+    exMachina {
         5 MC
     }
 }
 // Do not remove another player’s M€.
-Green: PlayCard(CometForVenus) {
-    Pay(9 MC)
+Green: playCard(CometForVenus) {
+    pay(9 MC)
     VenusStep
     3 MC VIA OptimalAerobraking
     3 Heat
@@ -1384,20 +1384,20 @@ Green: PlayCard(CometForVenus) {
     -0 MC<Anyone(HAS VenusTag)>
 }
 
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
 
-Blue: ConvertHeat {
-    Pay(8 Heat)
+Blue: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
@@ -1407,8 +1407,8 @@ Blue: ConvertHeat {
 // remaining Green actions stay in their sourced order through the otherwise silent Toll
 // Station play.
 // "I'm gonna plant forest. Obviously here on 6-8 for one plant and four money."
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_6_8>
     OxygenStep
     Plant
@@ -1417,9 +1417,9 @@ Green: ConvertPlants {
 }
 
 // "I'm going to envoys from Venus ... put two delegates in one party ... unity."
-Yellow: PlayCard(EnvoysFromVenus) {
-    Pay(1 MC)
-    SelectTask(PartyFollower<Unity>! THEN PartyDelegate<Unity>!)
+Yellow: playCard(EnvoysFromVenus) {
+    pay(1 MC)
+    selectTask(PartyFollower<Unity>! THEN PartyDelegate<Unity>!)
     PartyFollower<Unity>
     PartyFollower<Unity>
     // board-21-13-22.jpg shows Yellow leading an otherwise empty player delegation in Unity
@@ -1427,22 +1427,22 @@ Yellow: PlayCard(EnvoysFromVenus) {
     // board-21-53-02.jpg instead shows Green as leader with another Green non-leader, while the
     // displaced original Yellow leader remains as Yellow's only Unity delegate. The exact color
     // counts show that the two Envoys cubes were physically taken from Green's supply.
-    ExMachina {
+    exMachina {
         -2 PartyFollower<Unity>
     }
 }
 
-Green: ExMachina {
+Green: exMachina {
     PartyFollower<Unity>
     PartyLeader<Unity>
 }
 
 // The table called Envoys free, and Yellow's ledger contains no payment.
-Yellow: ExMachina {
+Yellow: exMachina {
     MC
 }
-Yellow: PlayCard(EcologicalZone) {
-    Pay(12 MC)
+Yellow: playCard(EcologicalZone) {
+    pay(12 MC)
     Animal<EcologicalZone>
     Animal<EcologicalZone>
     EcologicalZone_SpecialTile<Vastitas_4_8>
@@ -1451,55 +1451,55 @@ Yellow: PlayCard(EcologicalZone) {
 }
 
 // "One steel as two money. And then 10 monies ... to play Food Factory."
-Blue: PlayCard(FoodFactory) {
-    Pay(1 Steel, 10 MC)
+Blue: playCard(FoodFactory) {
+    pay(1 Steel, 10 MC)
     PROD[-Plant]
     PROD[4 MC]
 }
 
-Green: PlayCard(MartianLumberCorp) {
-    Pay(4 MC)
+Green: playCard(MartianLumberCorp) {
+    pay(4 MC)
     PROD[Plant]
 }
 
 // Scientists' ruling policy: "I suppose I'll spend ten to draw three cards."
-Yellow: UsePolicy {
-    Pay(10 MC)
+Yellow: action(UsePolicyAction) {
+    pay(10 MC)
     3 ProjectCard
 }
 
-Blue: PlayCard(ReleaseOfInertGases) {
-    Pay(14 MC)
+Blue: playCard(ReleaseOfInertGases) {
+    pay(14 MC)
     2 TerraformRating
 }
 
-Green: SendDelegate0 {
+Green: action(LobbyAction) {
     PartyFollower<Scientists> FROM LobbyDelegate
 }
 
 // Summit Logistics: two steel, one titanium, three M€, then five planetary tags.
-Yellow: PlayCard(SummitLogistics) {
-    Pay(1 Titanium, 2 Steel, 3 MC)
+Yellow: playCard(SummitLogistics) {
+    pay(1 Titanium, 2 Steel, 3 MC)
     5 MC
     2 ProjectCard
 }
 
-Blue: UseAction1(BioPrintingFacility) {
-    Pay(2 Energy)
+Blue: useAction1(BioPrintingFacility) {
+    pay(2 Energy)
     2 Plant
 }
 
-Green: PlayCard(AdvancedEcosystems) {
-    Pay(9 MC)
+Green: playCard(AdvancedEcosystems) {
+    pay(9 MC)
 }
 
-Yellow: PlayCard(DiversitySupport) {
-    Pay(1 MC)
+Yellow: playCard(DiversitySupport) {
+    pay(1 MC)
     TerraformRating
 }
 
 // Stanford Tours has a Space tag, so the reveal adds an asteroid.
-Blue: UseAction1(AsteroidDeflectionSystem) {
+Blue: useAction1(AsteroidDeflectionSystem) {
     ProjectCard<Revealed>
     ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>
     -ProjectCard<Revealed>
@@ -1507,14 +1507,14 @@ Blue: UseAction1(AsteroidDeflectionSystem) {
 
 // "Remove a floater ... and gain an energy production." This is Deuterium Export's second
 // action; it supplies Green ledger entry 151 without any state repair.
-Green: UseAction2(DeuteriumExport) {
+Green: useAction2(DeuteriumExport) {
     -Floater<DeuteriumExport>
     PROD[Energy]
 }
 
 // "Moholy Lake, 31"; Yellow explicitly kept the two available steel.
-Yellow: PlayCard(MoholeLake) {
-    Pay(31 MC)
+Yellow: playCard(MoholeLake) {
+    pay(31 MC)
     TemperatureStep
     3 Plant
     TerraformRating
@@ -1524,93 +1524,93 @@ Yellow: PlayCard(MoholeLake) {
     2 MC
 }
 
-Blue: UseAction1(Stratopolis) {
+Blue: useAction1(Stratopolis) {
     2 Floater<Stratopolis>
 }
 
 // The wrong-color Envoys placement above supplies Green's photographed Unity representation
 // and the fifth party counted by this Septem Tribus action.
-Green: UseAction1(SeptemTribus) {
+Green: useAction1(SeptemTribus) {
     10 MC
 }
 
-Yellow: PlayCard(AstraMechanica) {
-    Pay(7 MC)
+Yellow: playCard(AstraMechanica) {
+    pay(7 MC)
     ProjectCard FROM PlayedEvent<Class<DiversitySupport>>
     ProjectCard FROM PlayedEvent<Class<EnvoysFromVenus>>
 }
-Yellow: PlayCard(DiversitySupport) {
-    Pay(1 MC)
+Yellow: playCard(DiversitySupport) {
+    pay(1 MC)
     TerraformRating
 }
 
-Blue: UseAction1(TychoMagnetics) {
-    SelectTask(-Energy! THEN (ProjectCard<Selecting>!, ProjectCard<Blue, Hand FROM Selecting>!))
+Blue: useAction1(TychoMagnetics) {
+    selectTask(-Energy! THEN (ProjectCard<Selecting>!, ProjectCard<Blue, Hand FROM Selecting>!))
     -Energy
     ProjectCard<Selecting>
     ProjectCard<Hand FROM Selecting>
 }
 
-Green: PlayCard(TransNeptuneProbe) {
-    Pay(4 MC)
+Green: playCard(TransNeptuneProbe) {
+    pay(4 MC)
 }
 
-Yellow: UseAction1(SecurityFleet) {
-    Pay(1 Titanium)
+Yellow: useAction1(SecurityFleet) {
+    pay(1 Titanium)
     Fighter<SecurityFleet>
 }
 
-Blue: SendDelegate0 {
+Blue: action(LobbyAction) {
     PartyFollower<Scientists> FROM LobbyDelegate
 }
 
 // "I'm going to spend sixteen on aquifer pumping"; Green kept its plants.
 // Keep the plants; pay with M€.
-Green: PlayCard(AquiferPumping) {
-    Pay(16 MC)
+Green: playCard(AquiferPumping) {
+    pay(16 MC)
 }
 
-Yellow: UseAction1(AppliedScience) {
+Yellow: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Fighter<SecurityFleet>
 }
 
-Blue: SendDelegate5 {
-    Pay(5 MC)
+Blue: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Unity>
 }
 
-Green: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Green: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Vastitas_5_6>
     TerraformRating
     2 Plant
     4 MC
 }
 
-Yellow: UseAction2(LocalShading) {
+Yellow: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 
-Blue: Pass
+Blue: pass
 
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     6 MC
 }
 // Toll Station is visible in board-21-53-02.jpg and its cost/production are the remaining
 // Green ledger changes, although the transcript does not name the play.
-Green: PlayCard(TollStation) {
-    Pay(10 MC)
+Green: playCard(TollStation) {
+    pay(10 MC)
     PROD[8 MC]
 }
 
-Yellow: UseAction1(MoholeLake) {
+Yellow: useAction1(MoholeLake) {
     Animal<EcologicalZone>
 }
 
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
@@ -1622,20 +1622,20 @@ Green: ConvertHeat {
 // the already-awarded -20°C threshold heat is the strongest candidate, but the surviving
 // records cannot exclude an earlier missed one-heat gain or manual correction in this
 // interval.
-Yellow: UseAction1(RedShips) {
+Yellow: useAction1(RedShips) {
     3 MC
 }
 Yellow {
     Ok
 }
 
-Yellow: ExMachina {
+Yellow: exMachina {
     Heat
 }
 
-Green: Pass
+Green: pass
 
-Yellow: Pass
+Yellow: pass
 
 // Production.
 Green: Production {
@@ -1665,7 +1665,7 @@ Blue: Production {
 
 // Blue's TR loss for Diversity was entered before production at the table, reducing the
 // physical M€ payout by one; the engine correctly applies the TR loss later in Solar.
-Blue: ExMachina {
+Blue: exMachina {
     -MC
 }
 
@@ -1695,7 +1695,7 @@ Blue: GlobalEvent {
 // Diversity resolves, Greens takes government, and Snow Cover is revealed.
 // The physical Greens delegation makes Yellow chairman; the engine retained the neutral
 // tie-break. The spoken transition awards Yellow the corresponding TR.
-Yellow: ExMachina {
+Yellow: exMachina {
     -Chairman<Neutral>
     Chairman
     TerraformRating
@@ -1704,7 +1704,7 @@ Yellow: ExMachina {
 // This is the table's explicit make-good for the one M€ Blue lost by entering the Diversity
 // TR reduction before production above: "I realized she hadn't produced ... and gave her a
 // money to compensate." It is not an unexplained political payout.
-Blue: ExMachina {
+Blue: exMachina {
     MC
 }
 
@@ -1715,7 +1715,7 @@ Green: Research {
 
     // Generation 7 Research: Green buys three, Yellow four, and Blue two.
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1724,24 +1724,24 @@ Yellow: Research {
 
     // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Green: UseAction1(WaterSplittingPlant) {
-    Pay(3 Energy)
+Green: useAction1(WaterSplittingPlant) {
+    pay(3 Energy)
     OxygenStep
     TerraformRating
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_7_9>
     OxygenStep
     4 MC
@@ -1750,10 +1750,10 @@ Green: ConvertPlants {
     TerraformRating
 }
 
-Yellow: PlayCard(WgProject) {
-    Pay(9 MC)
+Yellow: playCard(WgProject) {
+    pay(9 MC)
     3 PreludeCard<Selecting> VIA WgProject
-    PlayCard(CorporateArchives, Selecting)
+    playCard(CorporateArchives, Selecting)
     13 MC
     7 ProjectCard<Selecting>
     2 ProjectCard<Hand FROM Selecting>
@@ -1761,16 +1761,16 @@ Yellow: PlayCard(WgProject) {
 
 // The phone call obscures this play in the transcript. Blue's continuous ledger records its
 // exact cost and production, and the next photograph isolates its city at 7-8.
-Blue: PlayCard(CorporateStronghold) {
-    Pay(1 Steel, 9 MC)
+Blue: playCard(CorporateStronghold) {
+    pay(1 Steel, 9 MC)
     PROD[-Energy]
     PROD[3 MC]
     NormalCityTile<Vastitas_7_8>
     Plant
     2 MC
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_7_7>
     OxygenStep
     4 MC VIA GreensPolicy
@@ -1780,12 +1780,12 @@ Blue: ConvertPlants {
 }
 
 // Unlike Blue's later greeneries, the ledger omits this 4 M€ Greens ruling bonus.
-Blue: ExMachina {
+Blue: exMachina {
     -4 MC
 }
 
-Green: PlayCard(OrbitalReflectors) {
-    Pay(24 MC)
+Green: playCard(OrbitalReflectors) {
+    pay(24 MC)
     VenusStep
     VenusStep
     PROD[2 Heat]
@@ -1794,20 +1794,20 @@ Green: PlayCard(OrbitalReflectors) {
     TerraformRating
 }
 
-Yellow: PlayCard(AntiGravityTechnology) {
-    Pay(14 MC)
+Yellow: playCard(AntiGravityTechnology) {
+    pay(14 MC)
 }
 
-Blue: UseAction1(DirectedHeatUsage) {
-    Pay(3 Heat)
+Blue: useAction1(DirectedHeatUsage) {
+    pay(3 Heat)
     4 MC
 }
 
-Green: UseAction1(DeuteriumExport) {
+Green: useAction1(DeuteriumExport) {
     Floater<DeuteriumExport>
 }
-Green: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Green: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Vastitas_6_6>
     TerraformRating
     2 Heat
@@ -1815,42 +1815,42 @@ Green: UseAction1(AquiferPumping) {
     4 MC
 }
 
-Yellow: PlayCard(SpaceStation) {
-    Pay(1 Titanium, 5 MC)
+Yellow: playCard(SpaceStation) {
+    pay(1 Titanium, 5 MC)
 }
 
-Blue: UseAction1(AsteroidHollowing) {
-    Pay(1 Titanium)
+Blue: useAction1(AsteroidHollowing) {
+    pay(1 Titanium)
     Asteroid<AsteroidHollowing>
     PROD[MC]
 }
 
-Green: UseAction1(SeptemTribus) {
+Green: useAction1(SeptemTribus) {
     10 MC
 }
 
-Yellow: UseAction1(SecurityFleet) {
-    Pay(1 Titanium)
+Yellow: useAction1(SecurityFleet) {
+    pay(1 Titanium)
     Fighter<SecurityFleet>
 }
 
-Blue: PlayCard(MartianMediaCenter) {
-    Pay(7 MC)
+Blue: playCard(MartianMediaCenter) {
+    pay(7 MC)
     PROD[2 MC]
 }
 
-Green: PlayCard(Grass) {
-    Pay(9 MC)
+Green: playCard(Grass) {
+    pay(9 MC)
     PROD[Plant]
     3 Plant
 }
 
-Yellow: PlayCard(Virus) {
+Yellow: playCard(Virus) {
     -4 Plant<Green>
 }
 
-Blue: PlayCard(ProtectedValley) {
-    Pay(23 MC)
+Blue: playCard(ProtectedValley) {
+    pay(23 MC)
     PROD[2 MC]
     GreeneryTile<Vastitas_3_2>
     OxygenStep
@@ -1860,59 +1860,59 @@ Blue: PlayCard(ProtectedValley) {
     TerraformRating
 }
 
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     6 MC
 }
 // The name is lost under "brain says" in the transcript; Green's ledger records its exact
 // seven-M€ cost and production, and the next photograph shows Adapted Lichen in the tableau.
-Green: PlayCard(AdaptedLichen) {
-    Pay(7 MC)
+Green: playCard(AdaptedLichen) {
+    pay(7 MC)
     PROD[Plant]
 }
 
-Yellow: PlayCard(ImportOfAdvancedGhg) {
-    Pay(5 MC)
+Yellow: playCard(ImportOfAdvancedGhg) {
+    pay(5 MC)
     PROD[2 Heat]
 }
 
-Blue: UseAction1(Stratopolis) {
+Blue: useAction1(Stratopolis) {
     2 Floater<Stratopolis>
 }
-Blue: SendDelegate0 {
+Blue: action(LobbyAction) {
     PartyLeader<Greens> FROM LobbyDelegate
 }
 
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Yellow: UseAction1(AppliedScience) {
+Yellow: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Fighter<SecurityFleet>
 }
 
-Blue: UseAction1(MartianMediaCenter) {
-    Pay(3 MC)
+Blue: useAction1(MartianMediaCenter) {
+    pay(3 MC)
     PartyFollower<Unity>
 }
 
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Yellow: PlayCard(SnowAlgae) {
-    Pay(10 MC)
+Yellow: playCard(SnowAlgae) {
+    pay(10 MC)
     PROD[Plant]
     PROD[Heat]
     Animal<EcologicalZone>
 }
 
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_8_9>
     OxygenStep
     4 MC
@@ -1920,76 +1920,76 @@ Blue: ConvertPlants {
     TerraformRating
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Yellow: PlayCard(Moss) {
-    Pay(2 MC)
+Yellow: playCard(Moss) {
+    pay(2 MC)
     PROD[Plant]
     -Plant
     Animal<EcologicalZone>
 }
 
 // No space tag was revealed.
-Blue: UseAction1(AsteroidDeflectionSystem) {
+Blue: useAction1(AsteroidDeflectionSystem) {
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>
     -ProjectCard<Revealed>
 }
 
-Green: PlayCard(TopsoilContract) {
-    Pay(6 MC)
+Green: playCard(TopsoilContract) {
+    pay(6 MC)
     3 Plant
     // Topsoil costs six after Earth Catapult and its own Microbe tag refunds one, for a legal net
     // cost of five. The phone records both a five-M€ debit and a later one-M€ credit, so the
     // narrow mistake is double-crediting that self-trigger; no later Green Microbe tag exists in
     // the generation.
-    ExMachina {
+    exMachina {
         MC
     }
 }
 
-Yellow: UseAction1(MoholeLake) {
+Yellow: useAction1(MoholeLake) {
     Animal<EcologicalZone>
 }
 
-Blue: UseStandardProject(AirScrappingProject) {
-    Pay(15 MC)
+Blue: useStandardProject(AirScrappingProject) {
+    pay(15 MC)
     VenusStep
     TerraformRating
 }
 
-Green: Pass
+Green: pass
 
-Yellow: UseAction1(LocalShading) {
+Yellow: useAction1(LocalShading) {
     Floater<LocalShading>
 }
 
-Blue: UseAction1(TychoMagnetics) {
-    SelectTask(-Energy! THEN (ProjectCard<Selecting>!, ProjectCard<Blue, Hand FROM Selecting>!))
+Blue: useAction1(TychoMagnetics) {
+    selectTask(-Energy! THEN (ProjectCard<Selecting>!, ProjectCard<Blue, Hand FROM Selecting>!))
     -Energy
     ProjectCard<Selecting>
     ProjectCard<Hand FROM Selecting>
 }
 
-Yellow: PlayCard(EnergyMarket) {
-    Pay(1 MC)
+Yellow: playCard(EnergyMarket) {
+    pay(1 MC)
 }
 
-Blue: UseAction1(BioPrintingFacility) {
-    Pay(2 Energy)
+Blue: useAction1(BioPrintingFacility) {
+    pay(2 Energy)
     2 Plant
 }
 
 // No M€ needed after paying with steel.
-Yellow: PlayCard(Greenhouses) {
-    Pay(2 Steel)
+Yellow: playCard(Greenhouses) {
+    pay(2 Steel)
     3 Plant
     Animal<EcologicalZone>
 }
-Yellow: ConvertPlants {
-    Pay(8 Plant)
+Yellow: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_4_7>
     OxygenStep
     4 MC VIA GreensPolicy
@@ -1998,34 +1998,34 @@ Yellow: ConvertPlants {
     TerraformRating
 }
 
-Blue: PlayCard(OutdoorSports) {
-    Pay(8 MC)
+Blue: playCard(OutdoorSports) {
+    pay(8 MC)
     PROD[2 MC]
 }
 
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Yellow: UseAction1(RedShips) {
+Yellow: useAction1(RedShips) {
     4 MC
 }
 
-Blue: Pass
+Blue: pass
 
-Yellow: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Yellow: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
 }
-Yellow: PlayCard(Trees) {
-    Pay(11 MC)
+Yellow: playCard(Trees) {
+    pay(11 MC)
     PROD[3 Plant]
     Plant
     Animal<EcologicalZone>
 }
-Yellow: Pass
+Yellow: pass
 
 // Production.
 Green: Production {
@@ -2084,7 +2084,7 @@ Blue: GlobalEvent {
 Green: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -2093,35 +2093,35 @@ Yellow: Research {
 
     // Generation 8 Research: Yellow buys two projects, Blue one, and Green one.
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Blue: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Yellow: ConvertPlants {
-    Pay(8 Plant)
+Yellow: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_4_6>
     OxygenStep
     ProjectCard
     4 MC
     TerraformRating
 }
-Yellow: PlayCard(GiantSolarShade) {
-    Pay(1 Titanium, 19 MC)
+Yellow: playCard(GiantSolarShade) {
+    pay(1 Titanium, 19 MC)
     VenusStep
     VenusStep
     VenusStep
     4 TerraformRating
 }
 
-Blue: PlayCard(MagneticFieldGeneratorsPromo) {
-    Pay(1 Steel, 20 MC)
+Blue: playCard(MagneticFieldGeneratorsPromo) {
+    pay(1 Steel, 20 MC)
     PROD[-4 Energy]
     PROD[2 Plant]
     3 TerraformRating
@@ -2131,14 +2131,14 @@ Blue: PlayCard(MagneticFieldGeneratorsPromo) {
 }
 
 // Green says this is a Lobby delegate; the app stays at 57 M€ until Frontier Town.
-Green: SendDelegate0 {
+Green: action(LobbyAction) {
     PartyFollower<MarsFirst> FROM LobbyDelegate
 }
 // Frontier Town repeats the temperature/-4 M€ bonus printed at 5-5 and crosses the
 // zero-degree ocean threshold; the table placed that ocean at 3-3.
 // Keep the plants; pay with M€.
-Green: PlayCard(FrontierTown) {
-    Pay(9 MC)
+Green: playCard(FrontierTown) {
+    pay(9 MC)
     FrontierTownBonus
     PROD[-Energy]
     NormalCityTile<Vastitas_5_5>
@@ -2158,113 +2158,113 @@ Green: PlayCard(FrontierTown) {
     2 MC
 }
 
-Yellow: PlayCard(OpenCity) {
-    Pay(2 Steel, 17 MC)
+Yellow: playCard(OpenCity) {
+    pay(2 Steel, 17 MC)
     PROD[-Energy]
     PROD[4 MC]
     2 Plant
     NormalCityTile<Vastitas_3_6>
 }
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Blue: UseAction1(AsteroidHollowing) {
-    Pay(1 Titanium)
+Blue: useAction1(AsteroidHollowing) {
+    pay(1 Titanium)
     Asteroid<AsteroidHollowing>
     PROD[MC]
 }
-Blue: PlayCard(StratosphericBirds) {
-    Pay(12 MC)
+Blue: playCard(StratosphericBirds) {
+    pay(12 MC)
     -Floater<Stratopolis>
 }
 
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Green: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Green: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Vastitas_3_4>
     2 Plant
     2 MC
 }
 
-Yellow: PlayCard(Research) {
-    Pay(9 MC)
+Yellow: playCard(Research) {
+    pay(9 MC)
     2 ProjectCard
 }
 
-Blue: PlayCard(VenusianAnimals) {
-    Pay(15 MC)
+Blue: playCard(VenusianAnimals) {
+    pay(15 MC)
     Animal<VenusianAnimals>
 }
 
-Green: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Green: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Vastitas_5_3>
     TerraformRating
     Plant
     2 MC
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_4_4>
     0 OxygenStep
     Plant
     4 MC
 }
 
-Yellow: PlayCard(SolarWindPower) {
-    Pay(1 Titanium, 3 MC)
+Yellow: playCard(SolarWindPower) {
+    pay(1 Titanium, 3 MC)
     PROD[Energy]
     2 Titanium
 }
 
-Blue: UseAction1(Stratopolis) {
+Blue: useAction1(Stratopolis) {
     2 Floater<Stratopolis>
 }
 
-Green: UseAction1(SeptemTribus) {
+Green: useAction1(SeptemTribus) {
     8 MC
 }
 
-Yellow: UseAction1(SecurityFleet) {
-    Pay(1 Titanium)
+Yellow: useAction1(SecurityFleet) {
+    pay(1 Titanium)
     Fighter<SecurityFleet>
 }
 
 // The revealed project has a Space tag, so Asteroid Deflection System succeeds.
-Blue: UseAction1(AsteroidDeflectionSystem) {
+Blue: useAction1(AsteroidDeflectionSystem) {
     ProjectCard<Revealed>
     ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>
     -ProjectCard<Revealed>
 }
 
-Green: PlayCard(TundraFarming) {
-    Pay(14 MC)
+Green: playCard(TundraFarming) {
+    pay(14 MC)
     PROD[Plant]
     PROD[2 MC]
     Plant
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_4_5>
     0 OxygenStep
     2 MC
 }
 
-Yellow: PlayCard(DawnCity) {
-    Pay(1 Titanium, 7 MC)
+Yellow: playCard(DawnCity) {
+    pay(1 Titanium, 7 MC)
     PROD[-Energy]
     PROD[Titanium]
     NormalCityTile<DawnCity_RemoteArea>
 }
-Yellow: SendDelegate0 {
+Yellow: action(LobbyAction) {
     PartyLeader<Unity> FROM LobbyDelegate
 }
 
@@ -2272,92 +2272,92 @@ Yellow: SendDelegate0 {
 // turn. Advance that next Blue action here to preserve the legal turn sequence. It considers
 // Greens and Scientists without saying which was chosen; the next photograph shows Blue
 // leading Greens.
-Blue: UseAction1(MartianMediaCenter) {
-    Pay(3 MC)
+Blue: useAction1(MartianMediaCenter) {
+    pay(3 MC)
     PartyFollower<Greens>
 }
 
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     6 MC
 }
 
-Yellow: UseAction1(MoholeLake) {
+Yellow: useAction1(MoholeLake) {
     Animal<EcologicalZone>
 }
 
-Blue: UseAction1(StratosphericBirds) {
+Blue: useAction1(StratosphericBirds) {
     Animal<StratosphericBirds>
 }
 
-Green: UseAction2(DeuteriumExport) {
+Green: useAction2(DeuteriumExport) {
     -Floater<DeuteriumExport>
     PROD[Energy]
 }
 
-Yellow: UseAction1(AppliedScience) {
+Yellow: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Fighter<SecurityFleet>
 }
 
-Blue: UseAction1(TychoMagnetics) {
-    SelectTask(-Energy! THEN (ProjectCard<Selecting>!, ProjectCard<Blue, Hand FROM Selecting>!))
+Blue: useAction1(TychoMagnetics) {
+    selectTask(-Energy! THEN (ProjectCard<Selecting>!, ProjectCard<Blue, Hand FROM Selecting>!))
     -Energy
     ProjectCard<Selecting>
     ProjectCard<Hand FROM Selecting>
 }
 
-Green: PlayCard(ParliamentHall) {
-    Pay(6 MC)
+Green: playCard(ParliamentHall) {
+    pay(6 MC)
     PROD[4 MC]
 }
 
-Yellow: UseAction1(RedShips) {
+Yellow: useAction1(RedShips) {
     7 MC
 }
 
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     4 MC FROM ProjectCard
 }
 
-Green: PlayCard(LuxuryFoods) {
-    Pay(6 MC)
+Green: playCard(LuxuryFoods) {
+    pay(6 MC)
 }
 
-Yellow: PlayCard(Farming) {
-    Pay(14 MC)
+Yellow: playCard(Farming) {
+    pay(14 MC)
     PROD[2 MC]
     PROD[2 Plant]
     2 Plant
     Animal<EcologicalZone>
 }
 
-Blue: UseAction1(BioPrintingFacility) {
-    Pay(2 Energy)
+Blue: useAction1(BioPrintingFacility) {
+    pay(2 Energy)
     Animal<VenusianAnimals>
 }
 
-Green: Pass
+Green: pass
 
-Yellow: PlayCard(Heather) {
-    Pay(4 MC)
+Yellow: playCard(Heather) {
+    pay(4 MC)
     PROD[Plant]
     Plant
     Animal<EcologicalZone>
 }
 
-Blue: UseAction1(DirectedHeatUsage) {
-    Pay(3 Heat)
+Blue: useAction1(DirectedHeatUsage) {
+    pay(3 Heat)
     4 MC
 }
 
-Yellow: UseAction2(LocalShading) {
+Yellow: useAction2(LocalShading) {
     -Floater<LocalShading>
     PROD[MC]
 }
 
-Blue: Pass
+Blue: pass
 
-Yellow: Pass
+Yellow: pass
 
 // Production.
 Green: Production {
@@ -2411,11 +2411,11 @@ Blue: GlobalEvent {
 // separated from the project tableau. Green's omitted card cannot be isolated from the spoken
 // aggregate; SF Memorial is the strongest candidate because it was played during Head Start
 // and sits among the oldest stacked cards, while Parliament Hall is the latest alternative.
-Green: ExMachina {
+Green: exMachina {
     -MC
 }
 
-Yellow: ExMachina {
+Yellow: exMachina {
     -MC
 }
 
@@ -2424,14 +2424,14 @@ Yellow: ExMachina {
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -2440,12 +2440,12 @@ Blue: Research {
 
     // Generation 9 Research: Blue buys one project; Green and Yellow buy two each.
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Blue: UseStandardProject(AquiferProject) {
-    Pay(18 MC)
+Blue: useStandardProject(AquiferProject) {
+    pay(18 MC)
     OceanTile<Vastitas_7_6>
     TerraformRating
     Steel
@@ -2453,16 +2453,16 @@ Blue: UseStandardProject(AquiferProject) {
     2 MC
 }
 
-Green: SendDelegate0 {
+Green: action(LobbyAction) {
     PartyLeader<Scientists> FROM LobbyDelegate
 }
-Green: SendDelegate5 {
-    Pay(5 MC)
+Green: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyLeader<MarsFirst>
 }
 
-Yellow: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Yellow: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Vastitas_8_7>
     Steel VIA MarsFirstPolicy
@@ -2470,20 +2470,20 @@ Yellow: UseStandardProject(CityProject) {
     Steel
     2 MC
 }
-Yellow: ConvertPlants {
-    Pay(8 Plant)
+Yellow: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_9_7>
     0 OxygenStep
     Steel
     ProjectCard
 }
 
-Blue: UseAction1(DirectedHeatUsage) {
-    Pay(3 Heat)
+Blue: useAction1(DirectedHeatUsage) {
+    pay(3 Heat)
     2 Plant
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_2_2>
     0 OxygenStep
     Steel
@@ -2491,8 +2491,8 @@ Blue: ConvertPlants {
     2 MC
 }
 
-Green: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Green: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Vastitas_3_5>
     0 OxygenStep
     Steel
@@ -2500,44 +2500,44 @@ Green: UseStandardProject(GreeneryProject) {
 }
 // The transcript records one-ocean adjacency and no printed resource bonus; 5-2 is the
 // photographed legal space adjacent to Green's 6-2 greenery.
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_5_2>
     0 OxygenStep
     Steel
     2 MC
 }
 
-Yellow: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Yellow: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Vastitas_2_1>
     Steel
     2 Plant
 }
-Yellow: ConvertPlants {
-    Pay(8 Plant)
+Yellow: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_9_8>
     0 OxygenStep
     Steel
     Titanium
 }
 
-Blue: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Blue: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Vastitas_6_4>
     Steel
     Plant
     2 MC
     // Blue's phone and final production omit the standard city's production increase.
-    ExMachina {
+    exMachina {
         PROD[-MC]
     }
 }
 
-Green: PlayCard(LagrangeObservatory) {
-    Pay(7 MC)
+Green: playCard(LagrangeObservatory) {
+    pay(7 MC)
     ProjectCard
 }
 
@@ -2545,41 +2545,41 @@ Green: PlayCard(LagrangeObservatory) {
 // action order while advancing the next available action into the otherwise silent turns. The
 // final tableau and Yellow's combined 11 M€ debit assign Decomposers and Bactoviral Research
 // to Yellow despite the transcript's missing speaker labels.
-Yellow: PlayCard(Decomposers) {
-    Pay(3 MC)
+Yellow: playCard(Decomposers) {
+    pay(3 MC)
     Microbe<Decomposers>
 }
 
-Blue: UseAction1(AsteroidHollowing) {
-    Pay(1 Titanium)
+Blue: useAction1(AsteroidHollowing) {
+    pay(1 Titanium)
     Asteroid<AsteroidHollowing>
     PROD[MC]
 }
 
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     7 MC
 }
-Green: FundAward {
-    Pay(14 MC)
+Green: action(FundAwardAction) {
+    pay(14 MC)
     Landscaper
 }
 
 // 16:13:50: twelve Science tags including both wilds, plus Decomposers' printed-tag
 // reaction, give the spoken thirteen microbes.
-Yellow: PlayCard(BactoviralResearch) {
-    Pay(8 MC)
+Yellow: playCard(BactoviralResearch) {
+    pay(8 MC)
     ProjectCard
     Microbe<Decomposers> VIA Decomposers
     12 Microbe<Decomposers>
 }
 
-Blue: UseAction1(MartianMediaCenter) {
-    Pay(3 MC)
+Blue: useAction1(MartianMediaCenter) {
+    pay(3 MC)
     PartyFollower<Reds>
 }
 
-Green: PlayCard(Mangrove) {
-    Pay(10 MC)
+Green: playCard(Mangrove) {
+    pay(10 MC)
     GreeneryTile<Vastitas_6_5>
     0 OxygenStep
     Steel
@@ -2588,120 +2588,120 @@ Green: PlayCard(Mangrove) {
 }
 
 // No M€ needed after paying with steel.
-Yellow: PlayCard(NoctisFarming) {
-    Pay(4 Steel)
+Yellow: playCard(NoctisFarming) {
+    pay(4 Steel)
     PROD[MC]
     2 Plant
     Animal<EcologicalZone>
     Microbe<Decomposers>
 }
-Yellow: UseAction1(SecurityFleet) {
-    Pay(1 Titanium)
+Yellow: useAction1(SecurityFleet) {
+    pay(1 Titanium)
     Fighter<SecurityFleet>
 }
 
-Blue: PlayCard(DevelopmentCenter) {
-    Pay(4 Steel, 3 MC)
+Blue: playCard(DevelopmentCenter) {
+    pay(4 Steel, 3 MC)
     Animal<VenusianAnimals>
 }
-Blue: UseAction1(DevelopmentCenter) {
-    Pay(1 Energy)
+Blue: useAction1(DevelopmentCenter) {
+    pay(1 Energy)
     ProjectCard
 }
 
-Green: SendDelegate5 {
-    Pay(5 MC)
+Green: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Reds>
 }
 // Both physical wild tags are chosen as Jovian for MicrogravityHealthProblems Movement.
 // Together with the
 // card's own Jovian tag, they explain the spoken three-M€ payout.
-Green: PlayCard(DiasporaMovement) {
-    Pay(5 MC)
+Green: playCard(DiasporaMovement) {
+    pay(5 MC)
     3 MC
 }
 
-Yellow: UseAction1(LocalShading) {
+Yellow: useAction1(LocalShading) {
     Floater<LocalShading>
 }
 
-Blue: SendDelegate0 {
+Blue: action(LobbyAction) {
     PartyFollower<Unity> FROM LobbyDelegate
 }
 
-Green: UseAction1(SeptemTribus) {
+Green: useAction1(SeptemTribus) {
     8 MC
 }
 
-Yellow: UseAction2(EnergyMarket) {
+Yellow: useAction2(EnergyMarket) {
     PROD[-Energy]
     8 MC
 }
 
-Blue: UseAction1(AsteroidDeflectionSystem) {
+Blue: useAction1(AsteroidDeflectionSystem) {
     ProjectCard<Revealed>
     ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>
     -ProjectCard<Revealed>
 }
 
-Green: FundAward {
-    Pay(20 MC)
+Green: action(FundAwardAction) {
+    pay(20 MC)
     Politician
 }
 
-Yellow: PlayCard(PhobosSpaceHaven) {
-    Pay(3 Titanium, 12 MC)
+Yellow: playCard(PhobosSpaceHaven) {
+    pay(3 Titanium, 12 MC)
     PROD[Titanium]
     NormalCityTile<PhobosSpaceHaven_RemoteArea>
 }
 
-Blue: UseAction1(Stratopolis) {
+Blue: useAction1(Stratopolis) {
     2 Floater<Stratopolis>
 }
 
-Green: Pass
+Green: pass
 
-Yellow: UseStandardProject(SellPatentsProject) {
+Yellow: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Blue: PlayCard(UnexpectedApplication) {
-    Pay(4 MC)
+Blue: playCard(UnexpectedApplication) {
+    pay(4 MC)
     -ProjectCard
     VenusStep
     TerraformRating
 }
 
-Yellow: PlayCard(ArtificialLake) {
-    Pay(3 Steel, 7 MC)
+Yellow: playCard(ArtificialLake) {
+    pay(3 Steel, 7 MC)
     0 OceanTile<LandArea>
 }
 
-Blue: PlayCard(SubCrustMeasurements) {
-    Pay(20 MC)
+Blue: playCard(SubCrustMeasurements) {
+    pay(20 MC)
     Animal<VenusianAnimals>
     // The transcript and printed card both say 20 M€, while Blue's phone falls by 22 in this
     // interval. Every named intervening cost is already represented and none costs two. The
     // extra debit may nevertheless be a delayed correction of an earlier G9 entry; only if it
     // was not does this row represent a 22-M€ Sub-Crust payment. Preserve the bounded difference,
     // not the unproved local cause.
-    ExMachina {
+    exMachina {
         -2 MC
     }
 }
-Blue: UseAction1(SubCrustMeasurements) {
+Blue: useAction1(SubCrustMeasurements) {
     ProjectCard
 }
 
-Yellow: UseAction1(MoholeLake) {
+Yellow: useAction1(MoholeLake) {
     Animal<EcologicalZone>
 }
 
-Blue: UseAction1(StratosphericBirds) {
+Blue: useAction1(StratosphericBirds) {
     Animal<StratosphericBirds>
 }
 
-Yellow: UseStandardProject(SellPatentsProject) {
+Yellow: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 Yellow {
@@ -2714,44 +2714,44 @@ Yellow {
 // Deflection System minutes earlier: retaining that reveal instead of discarding it supplies
 // exactly the second patent. Stanford Tours (Generation 6) or the unnamed Generation 8
 // successful reveal are earlier alternatives.
-Blue: ExMachina {
+Blue: exMachina {
     ProjectCard
 }
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
 
-Yellow: UseAction1(RedShips) {
+Yellow: useAction1(RedShips) {
     9 MC
     // The table debates ten candidates, excludes the non-wet tile, and settles on nine. Yellow's
     // phone later groups 11 M€ where Red Ships plus the adjacent one-card patent sale explain
     // only ten. Entering ten despite the verbal correction is the strongest candidate, though a
     // delayed unrecorded one-M€ gain from earlier in the interval cannot be excluded.
-    ExMachina {
+    exMachina {
         MC
     }
 }
 
-Blue: SendDelegate5 {
-    Pay(5 MC)
+Blue: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Greens>
 }
 
-Yellow: SendDelegate0 {
+Yellow: action(LobbyAction) {
     PartyFollower<Greens> FROM LobbyDelegate
 }
-Yellow: SendDelegate5 {
-    Pay(5 MC)
+Yellow: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Greens>
 }
 
-Blue: Pass
+Blue: pass
 
-Yellow: SendDelegate5 {
-    Pay(5 MC)
+Yellow: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Kelvinists>
 }
-Yellow: Pass
+Yellow: pass
 
 // Production.
 Green: Production {
@@ -2793,7 +2793,7 @@ Green: Production {
     0 Energy FROM Heat
 }
 
-Yellow: ExMachina {
+Yellow: exMachina {
     -Animal<EcologicalZone>
 }
 
@@ -2809,8 +2809,8 @@ Green {
     Ok
 }
 
-Yellow: ConvertPlants {
-    Pay(8 Plant)
+Yellow: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Vastitas_8_6>
     Plant
     2 MC

@@ -12,9 +12,9 @@ internal class RoutineCommandTest {
     val repl = actionGame("2 Steel, 10 MC, ProjectCard")
     val productionBefore = repl.agent.count("PROD[Steel]")
 
-    repl.command("PlayCard(Mine)")
+    repl.command("playCard(Mine)")
     assertEquals(0, repl.agent.count("Mine"))
-    repl.command("Pay 1 Steel, 2 MC")
+    repl.command("pay 1 Steel, 2 MC")
 
     assertEquals(1, repl.agent.count("Mine"))
     assertEquals(1, repl.agent.count("Steel"))
@@ -29,7 +29,7 @@ internal class RoutineCommandTest {
     val repl = actionGame("PROD[Energy], AiCentral")
     val cardsBefore = repl.agent.count("ProjectCard")
 
-    repl.command("UseAction1(AiCentral)")
+    repl.command("useAction1(AiCentral)")
 
     assertEquals(1, repl.agent.count("ActionUsedMarker<AiCentral>"))
     assertEquals(cardsBefore, repl.agent.count("ProjectCard"))
@@ -40,9 +40,23 @@ internal class RoutineCommandTest {
   @Test
   internal fun correctionsUseTheSharedImplementation() {
     val repl = actionGame("")
-    repl.command("ExMachina(3 MC, 2 Steel)")
+    repl.command("exMachina(3 MC, 2 Steel)")
     assertEquals(3, repl.agent.count("MC"))
     assertEquals(2, repl.agent.count("Steel"))
+  }
+
+  @Test
+  internal fun aStandardActionUsesTheSharedRoutine() {
+    val repl = actionGame("8 Heat")
+
+    repl.command("action(ConvertHeatAction)")
+    assertEquals(8, repl.agent.count("Owed<Class<Heat>>"))
+    repl.command("pay(8 Heat)")
+    assertEquals(0, repl.agent.count("Heat"))
+    assertEquals(0, repl.agent.count("Owed"))
+    val before = repl.agent.count("TemperatureStep")
+    repl.command("task TemperatureStep")
+    assertEquals(before + 1, repl.agent.count("TemperatureStep"))
   }
 
   private fun actionGame(contents: String): ScriptSession {

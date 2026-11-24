@@ -78,13 +78,13 @@ internal class GameArchiveInferenceTest {
         roundTrip(
             "X Plant<Green> THEN 3X Heat<Green>",
             """
-            SelectTask(2 Plant THEN 6 Heat)
+            selectTask(2 Plant THEN 6 Heat)
             2 Plant
             6 Heat
             """
                 .trimIndent(),
         )
-    assertFalse("SelectTask" in text, text)
+    assertFalse("selectTask" in text, text)
     assertTrue("2 Plant" in text)
     assertTrue("6 Heat" in text)
   }
@@ -95,13 +95,13 @@ internal class GameArchiveInferenceTest {
         roundTrip(
             "(Plant<Green> THEN Heat<Green>) OR (Plant<Green> THEN Energy<Green>)",
             """
-            SelectTask(Plant THEN Heat)
+            selectTask(Plant THEN Heat)
             Plant
             Heat
             """
                 .trimIndent(),
         )
-    assertTrue("SelectTask" in text)
+    assertTrue("selectTask" in text)
   }
 
   @Test
@@ -110,12 +110,12 @@ internal class GameArchiveInferenceTest {
         roundTrip(
             "(Plant<Green>, Heat<Green>) OR Steel<Green>",
             """
-            SelectTask((Plant, Heat))
+            selectTask((Plant, Heat))
             Plant
             """
                 .trimIndent(),
         )
-    assertFalse("SelectTask" in text, text)
+    assertFalse("selectTask" in text, text)
     assertFalse("Heat" in text, text)
     assertTrue("Plant" in text)
   }
@@ -126,12 +126,12 @@ internal class GameArchiveInferenceTest {
         roundTrip(
             "Plant<Green>, EACH Player { Plant<Green> }",
             """
-            SelectTask(Plant)
+            selectTask(Plant)
             Plant
             """
                 .trimIndent(),
         )
-    assertTrue("SelectTask(Plant)" in text, text)
+    assertTrue("selectTask(Plant)" in text, text)
   }
 
   @Test
@@ -140,19 +140,19 @@ internal class GameArchiveInferenceTest {
         roundTrip(
             "Plant<Green> OR (Plant<Green> THEN Heat<Green>)",
             """
-            SelectTask(Plant)
+            selectTask(Plant)
             Plant
             """
                 .trimIndent(),
         )
-    assertTrue("SelectTask(Plant)" in text, text)
+    assertTrue("selectTask(Plant)" in text, text)
   }
 
   @Test
   fun refusesToLoseAnUnfinishedSelection() {
     val failure =
         assertFailsWith<IllegalStateException> {
-          roundTrip("Plant<Green> OR Heat<Green>", "SelectTask(Plant)")
+          roundTrip("Plant<Green> OR Heat<Green>", "selectTask(Plant)")
         }
     assertTrue("unfinished selection" in failure.message.orEmpty())
   }
@@ -160,7 +160,7 @@ internal class GameArchiveInferenceTest {
   @Test
   fun exportsBetweenActionsButRejectsAnActionStillInProgress() {
     val source = requireNotNull(javaClass.getResource("/games/Game20230521Test.game")).readText()
-    val prefix = source.substringBefore("Player2: PlayCard(ArcticAlgae)")
+    val prefix = source.substringBefore("Player2: playCard(ArcticAlgae)")
     val original = GameArchiveImporter(prefix).also { it.run() }.agents
     val player = original[original.world.actors.filterIsInstance<Player>().first()]
     val config =
@@ -212,7 +212,7 @@ internal class GameArchiveInferenceTest {
             "EACH @Player { 2 Plant<@Player> }, Plant<Green>, Plant<Green>",
             """
             EACH @Player { 2 Plant<@Player> }
-            SelectTask(2 Plant)
+            selectTask(2 Plant)
             2 Plant
             """
                 .trimIndent(),
@@ -226,11 +226,11 @@ internal class GameArchiveInferenceTest {
         roundTrip(
             "EACH @Player { Plant<@Player> / Heat<@Player> }",
             """
-            ExMachina {
+            exMachina {
                 Heat
             }
             EACH @Player { Plant<@Player> / Heat<@Player> }
-            ExMachina {
+            exMachina {
                 Heat
             }
             Plant

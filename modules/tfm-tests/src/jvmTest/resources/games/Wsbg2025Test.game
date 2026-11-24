@@ -55,70 +55,70 @@ Black: Setup {
 }
 
 // Generation 1
-Blue: PlayCard(CrediCor) {
+Blue: playCard(CrediCor) {
     57 MC VIA CrediCor
-    Pay(18 MC)
+    pay(18 MC)
     6 ProjectCard<Hand FROM Selecting>
 }
 
-Red: PlayCard(ValleyTrust) {
+Red: playCard(ValleyTrust) {
     37 MC VIA ValleyTrust
-    Pay(21 MC)
+    pay(21 MC)
     7 ProjectCard<Hand FROM Selecting>
 }
 
-Green: PlayCard(RobinsonIndustries) {
+Green: playCard(RobinsonIndustries) {
     47 MC VIA RobinsonIndustries
-    Pay(24 MC)
+    pay(24 MC)
     8 ProjectCard<Hand FROM Selecting>
 }
 
-Black: PlayCard(CheungShingMars) {
+Black: playCard(CheungShingMars) {
     44 MC VIA CheungShingMars
     PROD[3 MC]
-    Pay(21 MC)
+    pay(21 MC)
     7 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: PlayCard(UnmiContractor) {
+Blue: playCard(UnmiContractor) {
     3 TerraformRating
     ProjectCard
 }
-Blue: PlayCard(EarlySettlement) {
+Blue: playCard(EarlySettlement) {
     PROD[Plant]
     NormalCityTile<Elysium_3_7>
     3 ProjectCard
 }
 
 // visual confirmation
-Red: PlayCard(Biofuels) {
+Red: playCard(Biofuels) {
     PROD[Plant]
     PROD[Energy]
     2 Plant
 }
-Red: PlayCard(ResearchNetwork) {
+Red: playCard(ResearchNetwork) {
     PROD[MC]
     3 ProjectCard
 }
 
-Green: PlayCard(SelfSufficientSettlement) {
+Green: playCard(SelfSufficientSettlement) {
     PROD[2 MC]
     NormalCityTile<Elysium_8_8>
     2 Steel
 }
-Green: PlayCard(EcologyExperts) {
+Green: playCard(EcologyExperts) {
     PROD[Plant]
-    PlayCard(Predators)
+    playCard(Predators)
     // Hand the global-requirement waiver to Admin before playing Predators.
     -11 Required<Class<OxygenStep>>
-    Pay(14 MC)
+    pay(14 MC)
 }
 
-Black: PlayCard(AlliedBank) {
+Black: playCard(AlliedBank) {
     PROD[4 MC]
     3 MC
 }
-Black: PlayCard(AquiferTurbines) {
+Black: playCard(AquiferTurbines) {
     PROD[2 Energy]
     -3 MC
     OceanTile<Elysium_5_4>
@@ -126,60 +126,60 @@ Black: PlayCard(AquiferTurbines) {
     2 Plant
 }
 
-Blue: PlayCard(EarthCatapult) {
-    Pay(23 MC)
+Blue: playCard(EarthCatapult) {
+    pay(23 MC)
     4 MC
 }
-Blue: PlayCard(ArcticAlgae) {
-    Pay(10 MC)
+Blue: playCard(ArcticAlgae) {
+    pay(10 MC)
     Plant
 }
 
-Red: DoRequiredActions {
+Red: doRequiredActions {
     3 PreludeCard<Selecting> VIA ValleyTrust_RequiredAction
-    PlayCard(MoholeExcavation, Selecting)
+    playCard(MoholeExcavation, Selecting)
     PROD[Steel]
     PROD[2 Heat]
     2 Heat
 }
-Red: PlayCard(LandClaim) {
-    Pay(1 MC)
+Red: playCard(LandClaim) {
+    pay(1 MC)
     Community<Elysium_5_6>
 }
 
-Green: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Green: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Titanium]
 }
 
-Black: PlayCard(GhgFactories) {
-    Pay(9 MC)
+Black: playCard(GhgFactories) {
+    pay(9 MC)
     PROD[-Energy]
     PROD[4 Heat]
 }
 
-Blue: PlayCard(EnergyTapping) {
-    Pay(1 MC)
+Blue: playCard(EnergyTapping) {
+    pay(1 MC)
     PROD[Energy]
     PROD[-Energy<Red>]
 }
 
 // Provisional Sabotage target/payment: Blue loses 7 MC.
-Red: PlayCard(Sabotage) {
-    Pay(1 MC)
+Red: playCard(Sabotage) {
+    pay(1 MC)
     -7 MC<Blue>
 }
-Red: PlayCard(ResearchCoordination) {
-    Pay(4 MC)
+Red: playCard(ResearchCoordination) {
+    pay(4 MC)
 }
 
-Green: Pass
+Green: pass
 
-Black: Pass
+Black: pass
 
-Blue: Pass
+Blue: pass
 
-Red: Pass
+Red: pass
 
 // Generation 2
 Blue: Production {
@@ -212,21 +212,21 @@ Blue: Research {
 
     // Provisional Research count: three cards.
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Red: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -235,33 +235,33 @@ Black: Research {
     -4 ProjectCard<Selecting>
 }
 
-Red: PlayCard(Archaebacteria) {
-    Pay(6 MC)
+Red: playCard(Archaebacteria) {
+    pay(6 MC)
     PROD[Plant]
 }
-Red: ClaimMilestone {
-    Pay(8 MC)
+Red: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Ecologist
 }
 
 // no steel paid; payment allocation is provisional
-Green: PlayCard(IndustrialCenter) {
-    Pay(4 MC)
+Green: playCard(IndustrialCenter) {
+    pay(4 MC)
     IndustrialCenter_SpecialTile<Elysium_4_8>
     Plant
     Steel
 }
-Green: PlayCard(IndustrialMicrobes) {
-    Pay(3 Steel, 6 MC)
+Green: playCard(IndustrialMicrobes) {
+    pay(3 Steel, 6 MC)
     PROD[Energy]
     PROD[Steel]
 }
 
-Black: UseStandardProject(SellPatentsProject) {
+Black: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Black: PlayCard(TowingAComet) {
-    Pay(23 MC)
+Black: playCard(TowingAComet) {
+    pay(23 MC)
     2 Plant
     OxygenStep
     TerraformRating
@@ -274,24 +274,24 @@ Black: PlayCard(TowingAComet) {
     Blue: 2 Plant
 }
 
-Blue: PlayCard(ElectroCatapult) {
-    Pay(15 MC)
+Blue: playCard(ElectroCatapult) {
+    pay(15 MC)
     PROD[-Energy]
 }
-Blue: UseAction1(ElectroCatapult) {
-    Pay(1 Plant)
+Blue: useAction1(ElectroCatapult) {
+    pay(1 Plant)
     7 MC
 }
 
-Red: Pass
+Red: pass
 
-Green: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Green: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Heat]
 }
 
-Black: PlayCard(DomedCrater) {
-    Pay(22 MC)
+Black: playCard(DomedCrater) {
+    pay(22 MC)
     3 Plant
     PROD[-Energy]
     PROD[3 MC]
@@ -300,13 +300,13 @@ Black: PlayCard(DomedCrater) {
     2 MC
 }
 
-Blue: Pass
+Blue: pass
 
-Green: Pass
+Green: pass
 
 // Greenery timing inferred between 00:38:30 and 00:43:30.
-Black: ConvertPlants {
-    Pay(8 Plant)
+Black: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_4_3>
     OxygenStep
     TerraformRating
@@ -314,7 +314,7 @@ Black: ConvertPlants {
     4 MC
 }
 // visual confirmation
-Black: Pass
+Black: pass
 
 // Generation 3
 Blue: Production {
@@ -348,7 +348,7 @@ Black: Production {
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -357,7 +357,7 @@ Red: Research {
 
     // visual confirmation
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -371,51 +371,51 @@ Black: Research {
     -4 ProjectCard<Selecting>
 }
 
-Green: ClaimMilestone {
-    Pay(8 MC)
+Green: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Generalist
 }
-Green: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Green: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Titanium]
 }
 
 // visual confirmation
-Black: ClaimMilestone {
-    Pay(8 MC)
+Black: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Specialist
 }
-Black: ConvertHeat {
-    Pay(8 Heat)
+Black: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Blue: UseAction1(ElectroCatapult) {
-    Pay(1 Plant)
+Blue: useAction1(ElectroCatapult) {
+    pay(1 Plant)
     7 MC
 }
-Blue: PlayCard(OptimalAerobraking) {
-    Pay(5 MC)
+Blue: playCard(OptimalAerobraking) {
+    pay(5 MC)
 }
 
 // Provisional patent count: two.
-Red: UseStandardProject(SellPatentsProject) {
+Red: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
-Red: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Red: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Elysium_5_6>
     3 Plant
 }
 
-Green: PlayCard(MartianSurvey) {
-    Pay(9 MC)
+Green: playCard(MartianSurvey) {
+    pay(9 MC)
     2 ProjectCard
 }
-Green: PlayCard(MiningArea) {
-    Pay(1 Steel, 2 MC)
+Green: playCard(MiningArea) {
+    pay(1 Steel, 2 MC)
     MiningArea_SpecialTile<Elysium_5_9>
     PROD[Titanium]
     Plant
@@ -423,15 +423,15 @@ Green: PlayCard(MiningArea) {
 }
 
 // Secondary 00:27:48 identifies Mining Area; the primary commentary calls it Mining Rights.
-Black: PlayCard(LunarBeam) {
-    Pay(13 MC)
+Black: playCard(LunarBeam) {
+    pay(13 MC)
     PROD[-2 MC]
     PROD[2 Heat]
     PROD[2 Energy]
 }
 
-Blue: PlayCard(ConvoyFromEuropa) {
-    Pay(13 MC)
+Blue: playCard(ConvoyFromEuropa) {
+    pay(13 MC)
     ProjectCard
     3 MC
     3 Heat
@@ -439,8 +439,8 @@ Blue: PlayCard(ConvoyFromEuropa) {
     TerraformRating
     2 Plant
 }
-Blue: PlayCard(ImportedHydrogen) {
-    Pay(14 MC)
+Blue: playCard(ImportedHydrogen) {
+    pay(14 MC)
     3 MC
     3 Heat
     3 Plant
@@ -450,8 +450,8 @@ Blue: PlayCard(ImportedHydrogen) {
     2 MC
 }
 
-Red: ConvertPlants {
-    Pay(8 Plant)
+Red: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_5_5>
     OxygenStep
     2 Plant
@@ -459,32 +459,32 @@ Red: ConvertPlants {
     TerraformRating
 }
 
-Green: PlayCard(LagrangeObservatory) {
-    Pay(3 Titanium)
+Green: playCard(LagrangeObservatory) {
+    pay(3 Titanium)
     ProjectCard
 }
 
-Black: Pass
+Black: pass
 
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_2_6>
     OxygenStep
     2 Steel
     4 MC
     TerraformRating
 }
-Blue: PlayCard(NitrophilicMoss) {
-    Pay(6 MC)
+Blue: playCard(NitrophilicMoss) {
+    pay(6 MC)
     PROD[2 Plant]
     -2 Plant
 }
 
-Red: Pass
+Red: pass
 
-Green: Pass
+Green: pass
 
-Blue: Pass
+Blue: pass
 
 // Generation 4
 Blue: Production {
@@ -518,21 +518,21 @@ Black: Production {
 Blue: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Red: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -543,81 +543,81 @@ Black: Research {
     // visual confirmation
     // discard no Research cards
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Black: PlayCard(MarsUniversity) {
-    Pay(6 MC)
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+Black: playCard(MarsUniversity) {
+    pay(6 MC)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
 // visual confirmation
-Blue: UseAction2(ElectroCatapult) {
-    Pay(1 Steel)
+Blue: useAction2(ElectroCatapult) {
+    pay(1 Steel)
     7 MC
 }
 
 // visual confirmation
-Red: PlayCard(ProtectedHabitats) {
-    Pay(5 MC)
+Red: playCard(ProtectedHabitats) {
+    pay(5 MC)
 }
-Red: PlayCard(Decomposers) {
-    Pay(5 MC)
+Red: playCard(Decomposers) {
+    pay(5 MC)
     Microbe<Decomposers>
 }
 
-Green: PlayCard(ColonizerTrainingCamp) {
-    Pay(1 Steel, 6 MC)
+Green: playCard(ColonizerTrainingCamp) {
+    pay(1 Steel, 6 MC)
 }
-Green: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Green: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Steel]
 }
 
 // Robotic Workforce copies Cheung Shing Mars; commentary misidentifies it as Dome Farming.
-Black: PlayCard(RoboticWorkforce) {
-    Pay(9 MC)
+Black: playCard(RoboticWorkforce) {
+    pay(9 MC)
     CopyProductionBox<CheungShingMars>
     PROD[3 MC]
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
 // visual confirmation
 // Provisional grouping: Reservoir followed by heat conversion.
-Red: PlayCard(SubterraneanReservoir) {
-    Pay(11 MC)
+Red: playCard(SubterraneanReservoir) {
+    pay(11 MC)
     OceanTile<Elysium_3_5>
     TerraformRating
     Plant VIA Elysium_3_5
     4 MC
     Blue: 2 Plant
 }
-Red: ConvertHeat {
-    Pay(8 Heat)
+Red: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Green: Pass
+Green: pass
 
-Black: PlayCard(Algae) {
-    Pay(10 MC)
+Black: playCard(Algae) {
+    pay(10 MC)
     Plant
     PROD[2 Plant]
 }
 
 // 01:00:30: ocean order is inferred.
-Blue: PlayCard(GiantIceAsteroid) {
-    Pay(34 MC)
+Blue: playCard(GiantIceAsteroid) {
+    pay(34 MC)
     7 MC
     3 Heat
     TemperatureStep
@@ -635,8 +635,8 @@ Blue: PlayCard(GiantIceAsteroid) {
     4 MC
     -5 Plant<Black>
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_1_5>
     OxygenStep
     TerraformRating
@@ -646,13 +646,13 @@ Blue: ConvertPlants {
 
 // 01:01:50 track
 // steel allocation inferred from Mohole Excavation's production
-Red: PlayCard(Greenhouses) {
-    Pay(3 Steel)
+Red: playCard(Greenhouses) {
+    pay(3 Steel)
     4 Plant
     Microbe<Decomposers>
 }
-Red: ConvertPlants {
-    Pay(8 Plant)
+Red: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_4_5>
     OxygenStep
     TerraformRating
@@ -660,44 +660,44 @@ Red: ConvertPlants {
     4 MC
 }
 
-Black: PlayCard(Sponsors) {
-    Pay(6 MC)
+Black: playCard(Sponsors) {
+    pay(6 MC)
     PROD[2 MC]
 }
 
 // Steel allocation inferred.
-Blue: PlayCard(GeothermalPower) {
-    Pay(2 Steel, 5 MC)
+Blue: playCard(GeothermalPower) {
+    pay(2 Steel, 5 MC)
     PROD[2 Energy]
 }
 
-Red: PlayCard(SmallAnimals) {
-    Pay(6 MC)
+Red: playCard(SmallAnimals) {
+    pay(6 MC)
     PROD[-Plant<Blue>]
     Microbe<Decomposers>
 }
-Red: UseAction1(SmallAnimals) {
+Red: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
 // Search reveal unidentified; declining Mars University is provisional.
 // provisionally decline the Mars University exchange
-Black: PlayCard(SearchForLife) {
-    Pay(3 MC)
+Black: playCard(SearchForLife) {
+    pay(3 MC)
     Ok
 }
-Black: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Black: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
 
-Blue: Pass
+Blue: pass
 
-Red: Pass
+Red: pass
 
-Black: Pass
+Black: pass
 
 // Production, about 01:03:30.
 Blue: Production {
@@ -737,21 +737,21 @@ Blue: Research {
 
     // Generation 5. Blue/Green Research counts are provisional.
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Red: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -760,18 +760,18 @@ Black: Research {
 
     // keep all four Research cards
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: ConvertHeat {
-    Pay(8 Heat)
+Blue: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
-Blue: PlayCard(Capital) {
-    Pay(24 MC)
+Blue: playCard(Capital) {
+    pay(24 MC)
     4 MC
     CapitalTile<Elysium_3_4, Capital>
     6 MC
@@ -779,19 +779,19 @@ Blue: PlayCard(Capital) {
     PROD[5 MC]
 }
 
-Red: FundAward {
-    Pay(8 MC)
+Red: action(FundAwardAction) {
+    pay(8 MC)
     DesertSettler
 }
-Red: PlayCard(Worms) {
-    Pay(8 MC)
+Red: playCard(Worms) {
+    pay(8 MC)
     PROD[3 Plant]
     Microbe<Decomposers>
 }
 
 // Large Convoy payment inferred: six titanium and 18 MC.
-Green: PlayCard(LargeConvoy) {
-    Pay(6 Titanium, 18 MC)
+Green: playCard(LargeConvoy) {
+    pay(6 Titanium, 18 MC)
     2 ProjectCard
     4 Animal<Predators>
     OceanTile<Elysium_1_3>
@@ -800,8 +800,8 @@ Green: PlayCard(LargeConvoy) {
     4 MC
     Blue: 2 Plant
 }
-Green: PlayCard(NuclearZone) {
-    Pay(10 MC)
+Green: playCard(NuclearZone) {
+    pay(10 MC)
     NuclearZone_SpecialTile<Elysium_2_3>
     4 MC
     TemperatureStep
@@ -810,70 +810,70 @@ Green: PlayCard(NuclearZone) {
 }
 
 // Guild discard and Mars University exchanges are provisional.
-Black: PlayCard(InventorsGuild) {
-    Pay(9 MC)
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+Black: playCard(InventorsGuild) {
+    pay(9 MC)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Black: UseAction1(InventorsGuild) {
+Black: useAction1(InventorsGuild) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
 // Catapult timing and plant payment inferred.
-Blue: UseAction1(ElectroCatapult) {
-    Pay(1 Plant)
+Blue: useAction1(ElectroCatapult) {
+    pay(1 Plant)
     7 MC
 }
-Blue: PlayCard(AsteroidMining) {
-    Pay(28 MC)
+Blue: playCard(AsteroidMining) {
+    pay(28 MC)
     4 MC
     PROD[2 Titanium]
 }
 
 // Steel allocation and animal-action timing are provisional.
-Red: PlayCard(RoverConstruction) {
-    Pay(1 Steel, 6 MC)
+Red: playCard(RoverConstruction) {
+    pay(1 Steel, 6 MC)
 }
-Red: UseAction1(SmallAnimals) {
+Red: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
 // Robinson timing inferred from later plant production.
-Green: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Green: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Plant]
 }
 
 // Heat-conversion timing inferred from later 26 TR.
-Black: PlayCard(DesignedMicroorganisms) {
-    Pay(16 MC)
+Black: playCard(DesignedMicroorganisms) {
+    pay(16 MC)
     PROD[2 Plant]
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Black: ConvertHeat {
-    Pay(8 Heat)
+Black: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Blue: Pass
+Blue: pass
 
-Red: Pass
+Red: pass
 
-Green: Pass
+Green: pass
 
 // Search outcome provisionally a miss.
-Black: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Black: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
-Black: Pass
+Black: pass
 
 // Generation 6 production, about 01:18.
 Blue: Production {
@@ -914,41 +914,41 @@ Blue: Research {
 
     // Research counts are inferred, including Green keeping two before his confirmed patent sale.
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Red: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Black: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Southern greenery placement order is provisional.
-Red: ConvertPlants {
-    Pay(8 Plant)
+Red: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_6_6>
     OxygenStep
     TerraformRating
     Plant
 }
-Red: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Red: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Elysium_6_7>
     OxygenStep
     TerraformRating
@@ -957,13 +957,13 @@ Red: UseStandardProject(GreeneryProject) {
     TerraformRating
 }
 
-Green: PlayCard(Herbivores) {
-    Pay(12 MC)
+Green: playCard(Herbivores) {
+    pay(12 MC)
     Animal<Herbivores>
     PROD[-Plant<Blue>]
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_9_9>
     OxygenStep
     TerraformRating
@@ -973,25 +973,25 @@ Green: ConvertPlants {
 
 // Guild purchase and Mars University card identities remain unknown.
 // keep the Guild's card
-Black: UseAction1(InventorsGuild) {
+Black: useAction1(InventorsGuild) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
-Black: PlayCard(DevelopmentCenter) {
-    Pay(9 MC)
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+Black: playCard(DevelopmentCenter) {
+    pay(9 MC)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Blue: PlayCard(ArtificialPhotosynthesis) {
-    Pay(10 MC)
+Blue: playCard(ArtificialPhotosynthesis) {
+    pay(10 MC)
     PROD[2 Energy]
 }
-Blue: PlayCard(CupolaCity) {
-    Pay(14 MC)
+Blue: playCard(CupolaCity) {
+    pay(14 MC)
     NormalCityTile<Elysium_6_5>
     Plant
     2 MC VIA OceanTile
@@ -1001,29 +1001,29 @@ Blue: PlayCard(CupolaCity) {
 }
 
 // Small Animals turn grouping is provisional.
-Red: UseAction1(SmallAnimals) {
+Red: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
 // visual confirmation
-Green: PlayCard(HousePrinting) {
-    Pay(5 Steel)
+Green: playCard(HousePrinting) {
+    pay(5 Steel)
     PROD[Steel]
 }
 
-Black: UseAction1(DevelopmentCenter) {
-    Pay(1 Energy)
+Black: useAction1(DevelopmentCenter) {
+    pay(1 Energy)
     ProjectCard
 }
 
-Blue: PlayCard(KelpFarming) {
-    Pay(15 MC)
+Blue: playCard(KelpFarming) {
+    pay(15 MC)
     PROD[2 MC]
     PROD[3 Plant]
     2 Plant
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_3_3>
     OxygenStep
     TerraformRating
@@ -1032,89 +1032,89 @@ Blue: ConvertPlants {
 }
 
 // Investment Loan / Noctis Farming turn grouping is provisional.
-Red: PlayCard(InvestmentLoan) {
-    Pay(3 MC)
+Red: playCard(InvestmentLoan) {
+    pay(3 MC)
     10 MC
     PROD[-MC]
 }
 
-Green: PlayCard(SfMemorial) {
-    Pay(1 Steel, 5 MC)
+Green: playCard(SfMemorial) {
+    pay(1 Steel, 5 MC)
     ProjectCard
 }
 
-Black: PlayCard(MassConverter) {
-    Pay(8 MC)
+Black: playCard(MassConverter) {
+    pay(8 MC)
     PROD[6 Energy]
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Blue: PlayCard(Shuttles) {
-    Pay(2 Titanium, 2 MC)
+Blue: playCard(Shuttles) {
+    pay(2 Titanium, 2 MC)
     PROD[-Energy]
     PROD[2 MC]
 }
 // Catapult plant payment inferred.
-Blue: UseAction1(ElectroCatapult) {
-    Pay(1 Plant)
+Blue: useAction1(ElectroCatapult) {
+    pay(1 Plant)
     7 MC
 }
 
-Red: PlayCard(NoctisFarming) {
-    Pay(1 Steel, 8 MC)
+Red: playCard(NoctisFarming) {
+    pay(1 Steel, 8 MC)
     PROD[MC]
     2 Plant
     Microbe<Decomposers>
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Green: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Green: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Energy]
 }
 
-Black: PlayCard(Mine) {
-    Pay(2 MC)
+Black: playCard(Mine) {
+    pay(2 MC)
     PROD[Steel]
 }
-Black: PlayCard(TitaniumMine) {
-    Pay(5 MC)
+Black: playCard(TitaniumMine) {
+    pay(5 MC)
     PROD[Titanium]
 }
 
-Blue: PlayCard(Satellites) {
-    Pay(6 MC)
+Blue: playCard(Satellites) {
+    pay(6 MC)
     PROD[4 MC]
 }
 
-Red: Pass
+Red: pass
 
 // Predators target inferred: his own Herbivores.
-Green: UseAction1(Predators) {
+Green: useAction1(Predators) {
     -Animal<Herbivores>
     Animal<Predators>
 }
 
-Black: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Black: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
 
-Blue: Pass
+Blue: pass
 
-Green: Pass
+Green: pass
 
 // visual confirmation
 // visual confirmation
 // visual confirmation
 // visual confirmation
-Black: Pass
+Black: pass
 
 // Generation 7 production, about 01:31:24.
 // visual confirmation
@@ -1160,14 +1160,14 @@ Blue: Research {
 
     // Blue Research count is provisional.
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Red: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1176,7 +1176,7 @@ Green: Research {
 
     // discard no Research cards
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1185,17 +1185,17 @@ Black: Research {
 
     // discard no Research cards
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Green: PlayCard(MineralDeposit) {
-    Pay(5 MC)
+Green: playCard(MineralDeposit) {
+    pay(5 MC)
     5 Steel
 }
 // visual confirmation
-Green: PlayCard(UndergroundCity) {
-    Pay(8 Steel, 2 MC)
+Green: playCard(UndergroundCity) {
+    pay(8 Steel, 2 MC)
     NormalCityTile<Elysium_6_8>
     Plant
     PROD[-2 Energy]
@@ -1205,8 +1205,8 @@ Green: PlayCard(UndergroundCity) {
 }
 
 // 01:40:05 shows a greenery, despite commentary calling it a city spot.
-Black: ConvertPlants {
-    Pay(8 Plant)
+Black: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_6_4>
     OxygenStep
     TerraformRating
@@ -1214,30 +1214,30 @@ Black: ConvertPlants {
     2 MC
 }
 // keep the Guild's card
-Black: UseAction1(InventorsGuild) {
+Black: useAction1(InventorsGuild) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Blue: FundAward {
-    Pay(14 MC)
+Blue: action(FundAwardAction) {
+    pay(14 MC)
     Celebrity
 }
-Blue: FundAward {
-    Pay(20 MC)
+Blue: action(FundAwardAction) {
+    pay(20 MC)
     EstateDealer
 }
 
 // Immigrant City, corrected by primary commentary at 01:43:40.
-Red: PlayCard(PeroxidePower) {
-    Pay(1 Steel, 5 MC)
+Red: playCard(PeroxidePower) {
+    pay(1 Steel, 5 MC)
     PROD[-MC]
     PROD[2 Energy]
 }
-Red: PlayCard(ImmigrantCity) {
-    Pay(13 MC)
+Red: playCard(ImmigrantCity) {
+    pay(13 MC)
     PROD[-Energy]
     PROD[-2 MC]
     NormalCityTile<Elysium_7_4>
@@ -1246,56 +1246,56 @@ Red: PlayCard(ImmigrantCity) {
     PROD[MC]
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
-Green: PlayCard(MiningRights) {
-    Pay(9 MC)
+Green: playCard(MiningRights) {
+    pay(9 MC)
     MiningRights_SpecialTile<Elysium_7_3>
     Titanium
     PROD[Titanium]
 }
 
-Black: PlayCard(MediaGroup) {
-    Pay(6 MC)
+Black: playCard(MediaGroup) {
+    pay(6 MC)
 }
-Black: PlayCard(IndenturedWorkers) {
+Black: playCard(IndenturedWorkers) {
     IndenturedWorkers_NextCardEffect
     3 MC
 }
 
-Blue: PlayCard(CallistoPenalMines) {
-    Pay(2 Titanium, 14 MC)
+Blue: playCard(CallistoPenalMines) {
+    pay(2 Titanium, 14 MC)
     4 MC
     PROD[3 MC]
 }
 // Heat conversion / Bushes turn grouping is inferred.
-Blue: ConvertHeat {
-    Pay(8 Heat)
+Blue: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
 // Small Animals timing inferred.
-Red: ConvertPlants {
-    Pay(8 Plant)
+Red: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_8_4>
     OxygenStep
     TerraformRating
     2 Steel
 }
-Red: UseAction1(SmallAnimals) {
+Red: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
-Green: UseAction1(Predators) {
+Green: useAction1(Predators) {
     -Animal<Herbivores>
     Animal<Predators>
 }
 
 // Power Plant timing inferred before Medical Lab from building tags and energy production.
-Black: PlayCard(ProtectedValley) {
-    Pay(1 Steel, 11 MC)
+Black: playCard(ProtectedValley) {
+    pay(1 Steel, 11 MC)
     PROD[2 MC]
     GreeneryTile<Elysium_1_2>
     OxygenStep
@@ -1303,69 +1303,69 @@ Black: PlayCard(ProtectedValley) {
     Titanium
     2 MC
 }
-Black: PlayCard(PowerPlant) {
-    Pay(2 MC)
+Black: playCard(PowerPlant) {
+    pay(2 MC)
     PROD[Energy]
 }
 
 // Catapult plant payment inferred.
-Blue: UseAction1(ElectroCatapult) {
-    Pay(1 Plant)
+Blue: useAction1(ElectroCatapult) {
+    pay(1 Plant)
     7 MC
 }
-Blue: PlayCard(Bushes) {
-    Pay(8 MC)
+Blue: playCard(Bushes) {
+    pay(8 MC)
     PROD[2 Plant]
     2 Plant
 }
 
-Red: PlayCard(Insects) {
-    Pay(9 MC)
+Red: playCard(Insects) {
+    pay(9 MC)
     PROD[4 Plant]
     Microbe<Decomposers>
 }
 
-Green: Pass
+Green: pass
 
-Black: PlayCard(MedicalLab) {
-    Pay(11 MC)
+Black: playCard(MedicalLab) {
+    pay(11 MC)
     PROD[5 MC]
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 // Development Center timing is provisional.
-Black: UseAction1(DevelopmentCenter) {
-    Pay(1 Energy)
+Black: useAction1(DevelopmentCenter) {
+    pay(1 Energy)
     ProjectCard
 }
 
-Blue: Pass
+Blue: pass
 
-Red: Pass
+Red: pass
 
 // Both heat conversions grouped here provisionally.
-Black: ConvertHeat {
-    Pay(8 Heat)
+Black: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Black: ConvertHeat {
-    Pay(8 Heat)
+Black: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Black: PlayCard(MirandaResort) {
-    Pay(2 Titanium, 4 MC)
+Black: playCard(MirandaResort) {
+    pay(2 Titanium, 4 MC)
     PROD[4 MC]
 }
-Black: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Black: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
     // Intentional Miranda overpayment: Black misses Mass Converter's 2 MC discount.
-    ExMachina {
+    exMachina {
         -2 MC
     }
 }
@@ -1373,7 +1373,7 @@ Black: UseAction1(SearchForLife) {
 // visual confirmation
 // visual confirmation
 // visual confirmation
-Black: Pass
+Black: pass
 
 // Generation 8 production. Secondary 01:10:51 corrects Black to 24 MC / 1 steel production.
 Blue: Production {
@@ -1411,7 +1411,7 @@ Black: Production {
 }
 
 // 01:50:42-01:50:57: table agrees to refund Miranda's missed discount
-Black: ExMachina {
+Black: exMachina {
     2 MC
 }
 
@@ -1430,33 +1430,33 @@ Blue: Research {
 Red: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Black: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 // Mars University exchange unknown; retaining the hand is provisional.
 // provisionally decline the Mars University exchange
-Black: PlayCard(ViralEnhancers) {
-    Pay(9 MC)
+Black: playCard(ViralEnhancers) {
+    pay(9 MC)
     Plant
     Ok
 }
-Black: ConvertPlants {
-    Pay(8 Plant)
+Black: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_5_2>
     2 Plant
     OxygenStep
@@ -1464,36 +1464,36 @@ Black: ConvertPlants {
 }
 
 // Catapult timing/payment inferred.
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_7_6>
     0 OxygenStep
 }
-Blue: UseAction1(ElectroCatapult) {
-    Pay(1 Plant)
+Blue: useAction1(ElectroCatapult) {
+    pay(1 Plant)
     7 MC
 }
 
-Red: PlayCard(HiredRaiders) {
-    Pay(1 MC)
+Red: playCard(HiredRaiders) {
+    pay(1 MC)
     2 Steel FROM Steel<Green>
 }
 // visual confirmation
 // Commercial District payment inferred: six steel and 4 MC.
-Red: PlayCard(CommercialDistrict) {
-    Pay(6 Steel, 4 MC)
+Red: playCard(CommercialDistrict) {
+    pay(6 Steel, 4 MC)
     PROD[-Energy]
     PROD[4 MC]
     CommercialDistrict_SpecialTile<Elysium_7_8>
 }
 
 // Robinson energy increase inferred to fund Open City.
-Green: UseAction1(RobinsonIndustries) {
-    Pay(4 MC)
+Green: useAction1(RobinsonIndustries) {
+    pay(4 MC)
     PROD[Energy]
 }
-Green: PlayCard(OpenCity) {
-    Pay(3 Steel, 17 MC)
+Green: playCard(OpenCity) {
+    pay(3 Steel, 17 MC)
     PROD[-Energy]
     PROD[4 MC]
     2 Plant
@@ -1502,47 +1502,47 @@ Green: PlayCard(OpenCity) {
     Red: PROD[MC]
 }
 
-Black: UseAction1(DevelopmentCenter) {
-    Pay(1 Energy)
+Black: useAction1(DevelopmentCenter) {
+    pay(1 Energy)
     ProjectCard
 }
 
-Blue: PlayCard(StandardTechnology) {
-    Pay(4 MC)
+Blue: playCard(StandardTechnology) {
+    pay(4 MC)
 }
 
 // Final Small Animals activation timing inferred.
-Red: UseAction1(SmallAnimals) {
+Red: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
 // Immigration Shuttles titanium payment inferred.
-Green: PlayCard(ImmigrationShuttles) {
-    Pay(10 Titanium, 1 MC)
+Green: playCard(ImmigrationShuttles) {
+    pay(10 Titanium, 1 MC)
     PROD[5 MC]
 }
 
 // Guild discard is provisional.
-Black: UseAction1(InventorsGuild) {
+Black: useAction1(InventorsGuild) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
-Blue: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Blue: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     3 MC
     TemperatureStep
     TerraformRating
 }
 
 // 02:00:06: heat conversion then paid asteroid inferred from audio and bonus ocean.
-Red: ConvertHeat {
-    Pay(8 Heat)
+Red: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Red: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Red: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     OceanTile<Elysium_4_6>
@@ -1553,54 +1553,54 @@ Red: UseStandardProject(AsteroidProject) {
 }
 
 // Heat conversion evidenced by 24 -> 25 TR; grouping with patent sale is provisional.
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
 
 // Two heat conversions; turn grouping provisional.
-Black: ConvertHeat {
-    Pay(8 Heat)
+Black: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Black: ConvertHeat {
-    Pay(8 Heat)
+Black: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Blue: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Blue: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     3 MC
     TemperatureStep
     TerraformRating
 }
 
-Red: ConvertPlants {
-    Pay(8 Plant)
+Red: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_5_7>
     2 Plant
     2 MC
     0 OxygenStep
 }
 
-Green: Pass
+Green: pass
 
 // Search for Life timing inferred.
-Black: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Black: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
 
-Blue: PlayCard(TerraformingGanymede) {
-    Pay(2 Titanium, 23 MC)
+Blue: playCard(TerraformingGanymede) {
+    pay(2 Titanium, 23 MC)
     4 MC
     3 TerraformRating
 }
@@ -1609,19 +1609,19 @@ Blue: PlayCard(TerraformingGanymede) {
 // visual confirmation
 // visual confirmation
 // visual confirmation
-Red: PlayCard(MediaArchives) {
-    Pay(8 MC)
+Red: playCard(MediaArchives) {
+    pay(8 MC)
     13 MC
 }
-Red: PlayCard(Trees) {
-    Pay(13 MC)
+Red: playCard(Trees) {
+    pay(13 MC)
     PROD[3 Plant]
     Plant
     Microbe<Decomposers>
 }
 
-Black: PlayCard(EcologicalZone) {
-    Pay(12 MC)
+Black: playCard(EcologicalZone) {
+    pay(12 MC)
     EcologicalZone_SpecialTile<Elysium_3_2>
     Animal<EcologicalZone> VIA EcologicalZone
     Animal<EcologicalZone> VIA EcologicalZone
@@ -1629,8 +1629,8 @@ Black: PlayCard(EcologicalZone) {
     Animal<EcologicalZone>
 }
 // choose Viral Enhancers' plant
-Black: PlayCard(Farming) {
-    Pay(16 MC)
+Black: playCard(Farming) {
+    pay(16 MC)
     PROD[2 MC]
     PROD[2 Plant]
     2 Plant VIA Farming
@@ -1639,9 +1639,9 @@ Black: PlayCard(Farming) {
 }
 
 // visual confirmation
-Blue: PlayCard(ImportedNitrogen) {
+Blue: playCard(ImportedNitrogen) {
     // visual confirmation
-    Pay(19 MC)
+    pay(19 MC)
     7 MC
     3 Heat
     TerraformRating
@@ -1650,37 +1650,37 @@ Blue: PlayCard(ImportedNitrogen) {
     2* Animal
 }
 // visual confirmation
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_7_5>
     0 OxygenStep
 }
 
-Red: Pass
+Red: pass
 
 // Virus removes no animals; missed Viral Enhancers rebate recovered at 02:08:38.
-Black: PlayCard(Virus) {
-    Pay(1 MC)
+Black: playCard(Virus) {
+    pay(1 MC)
     -0 Plant<Anyone> VIA Virus
     Plant
     3 MC
 }
-Black: PlayCard(Zeppelins) {
-    Pay(13 MC)
+Black: playCard(Zeppelins) {
+    pay(13 MC)
     PROD[9 MC]
 }
 
 // Patent sale before Probe is provisional.
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Blue: PlayCard(TransNeptuneProbe) {
-    Pay(2 MC)
+Blue: playCard(TransNeptuneProbe) {
+    pay(2 MC)
 }
 
-Black: Pass
+Black: pass
 
-Blue: Pass
+Blue: pass
 
 // Final production and greenery, 02:10:45–02:12:25.
 Blue: Production {
@@ -1716,8 +1716,8 @@ Black: Production {
     6 Heat
 }
 
-Black: ConvertPlants {
-    Pay(8 Plant)
+Black: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_4_2>
     Plant
 }
@@ -1731,13 +1731,13 @@ Blue {
     Ok
 }
 
-Red: ConvertPlants {
-    Pay(8 Plant)
+Red: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_6_3>
     Plant
 }
-Red: ConvertPlants {
-    Pay(8 Plant)
+Red: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_8_5>
 }
 // decline final greenery

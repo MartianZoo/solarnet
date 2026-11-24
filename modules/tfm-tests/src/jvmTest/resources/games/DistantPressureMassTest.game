@@ -37,25 +37,25 @@ Been: Setup {
 }
 
 // Generation 1
-Keen: PlayCard(SagittaFrontierServices) {
+Keen: playCard(SagittaFrontierServices) {
     31 MC VIA SagittaFrontierServices
     PROD[Energy]
     PROD[2 MC]
     SearchForCard<NoTagsFilter>
     4 MC VIA SagittaFrontierServices
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Been: PlayCard(Polyphemos) {
+Been: playCard(Polyphemos) {
     50 MC VIA Polyphemos
     5 Titanium
     PROD[5 MC]
-    Pay(20 MC)
+    pay(20 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Keen: PlayCard(IndustrialComplex) {
+Keen: playCard(IndustrialComplex) {
     -18 MC VIA IndustrialComplex
     EACH Class<@StandardResource> { Production<Class<@StandardResource>>! / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>> } VIA IndustrialComplex
     MC
@@ -64,12 +64,12 @@ Keen: PlayCard(IndustrialComplex) {
     PROD[Plant]
     PROD[Heat]
 }
-Keen: PlayCard(AppliedScience) {
+Keen: playCard(AppliedScience) {
     6 Science<AppliedScience>
     4 MC
 }
 
-Been: PlayCard(StrategicBasePlanning) {
+Been: playCard(StrategicBasePlanning) {
     -3 MC
     Colony<Ganymede>
     PROD[Plant]
@@ -79,32 +79,32 @@ Been: PlayCard(StrategicBasePlanning) {
     TerraformRating
     ProjectCard
 }
-Been: PlayCard(EarlySettlement) {
+Been: playCard(EarlySettlement) {
     PROD[Plant]
     NormalCityTile<Hellas_2_6>
     Plant
 }
 
-Keen: UseAction1(AppliedScience) {
+Keen: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Titanium
 }
 
-Been: PlayCard(LunarExports) {
-    Pay(5 Titanium, 4 MC)
+Been: playCard(LunarExports) {
+    pay(5 Titanium, 4 MC)
     PROD[5 MC]
 }
 
-Keen: Pass
+Keen: pass
 
-Been: PlayCard(Flooding) {
-    Pay(7 MC)
+Been: playCard(Flooding) {
+    pay(7 MC)
     OceanTile<Hellas_5_7>
     TerraformRating
     3 Heat
     2 MC
 }
-Been: Pass
+Been: pass
 
 // Production.
 Keen: Production {
@@ -129,73 +129,73 @@ Keen: WorldGovernment {
 Keen: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(15 MC)
+    pay(15 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Been: PlayCard(ExtractorBalloons) {
-    Pay(21 MC)
+Been: playCard(ExtractorBalloons) {
+    pay(21 MC)
     3 Floater<ExtractorBalloons>
 }
 
-Keen: PlayCard(CuttingEdgeTechnology) {
-    Pay(12 MC)
+Keen: playCard(CuttingEdgeTechnology) {
+    pay(12 MC)
     MC
 }
 
-Been: UseAction2(ExtractorBalloons) {
+Been: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
 
-Keen: PlayCard(DustSeals) {
+Keen: playCard(DustSeals) {
     4 MC
 }
 
-Been: Pass
+Been: pass
 
-Keen: PlayCard(DirectedHeatUsage) {
-    Pay(1 MC)
+Keen: playCard(DirectedHeatUsage) {
+    pay(1 MC)
     4 MC
 }
-Keen: PlayCard(CommunityServices) {
-    Pay(13 MC)
+Keen: playCard(CommunityServices) {
+    pay(13 MC)
     PROD[5 MC]
     4 MC
 }
-Keen: PlayCard(BusinessNetwork) {
-    Pay(4 MC)
+Keen: playCard(BusinessNetwork) {
+    pay(4 MC)
     PROD[-MC]
     MC
 }
-Keen: UseAction1(BusinessNetwork) {
+Keen: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
-Keen: PlayCard(SearchForLife) {
-    Pay(1 MC)
+Keen: playCard(SearchForLife) {
+    pay(1 MC)
     MC
 }
 // No microbe tag on the revealed card.
-Keen: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Keen: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
-Keen: UseAction1(AppliedScience) {
+Keen: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Titanium
 }
-Keen: Pass
+Keen: pass
 
 // Production.
 Keen: Production {
@@ -223,7 +223,7 @@ Keen: Research {
 
     // Keep all four research cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -232,63 +232,63 @@ Been: Research {
 
     // Screenshot evidence: generation-3-research.png, after Keen's purchase and before Been's.
     -2 ProjectCard<Selecting>
-    Pay(10 MC)
+    pay(10 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Keen: UseAction1(AppliedScience) {
+Keen: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Energy
 }
-Keen: ClaimMilestone {
-    Pay(8 MC)
+Keen: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Merchant
 }
 
-Been: PlayCard(ForcedPrecipitation) {
-    Pay(8 MC)
+Been: playCard(ForcedPrecipitation) {
+    pay(8 MC)
 }
-Been: PlayCard(MiningColony) {
-    Pay(20 MC)
+Been: playCard(MiningColony) {
+    pay(20 MC)
     PROD[Titanium]
     Colony<Titan>
     3 Floater<ForcedPrecipitation>
 }
 
-Keen: PlayCard(MarsUniversity) {
-    Pay(2 Steel, 4 MC)
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+Keen: playCard(MarsUniversity) {
+    pay(2 Steel, 4 MC)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Keen: ClaimMilestone {
-    Pay(8 MC)
+Keen: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Researcher
 }
 
-Been: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Been: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
-Been: UseAction1(ExtractorBalloons) {
+Been: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
-Keen: UseAction1(DirectedHeatUsage) {
-    Pay(3 Heat)
+Keen: useAction1(DirectedHeatUsage) {
+    pay(3 Heat)
     4 MC
 }
 // Keep the offered card.
-Keen: UseAction1(BusinessNetwork) {
+Keen: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Been: Pass
+Been: pass
 
-Keen: Pass
+Keen: pass
 
 // Production.
 Keen: Production {
@@ -315,7 +315,7 @@ Keen: WorldGovernment {
 Keen: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -324,34 +324,34 @@ Been: Research {
 
     // Screenshot evidence: generation-4-research.png, before either player's purchase.
     -3 ProjectCard<Selecting>
-    Pay(5 MC)
+    pay(5 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Been: UseAction2(ExtractorBalloons) {
+Been: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
-Been: UseAction2(ForcedPrecipitation) {
+Been: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
     ProjectCard
 }
 
-Keen: UseAction1(DirectedHeatUsage) {
-    Pay(3 Heat)
+Keen: useAction1(DirectedHeatUsage) {
+    pay(3 Heat)
     4 MC
 }
 
-Been: Trade1 {
-    Pay(9 MC)
+Been: action(TradeAction) {
+    pay(9 MC)
     Trade<Ganymede>
     5 Plant
 }
-Been: ConvertPlants {
-    Pay(8 Plant)
+Been: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_3_7>
     OxygenStep
     Plant
@@ -359,47 +359,47 @@ Been: ConvertPlants {
     TerraformRating
 }
 
-Keen: PlayCard(EarthCatapult) {
-    Pay(23 MC)
+Keen: playCard(EarthCatapult) {
+    pay(23 MC)
     MC
 }
 
-Been: PlayCard(MiningRights) {
-    Pay(9 MC)
+Been: playCard(MiningRights) {
+    pay(9 MC)
     MiningRights_SpecialTile<Hellas_6_2>
     PROD[Titanium]
     Titanium
 }
 
-Keen: PlayCard(ResearchCoordination) {
-    Pay(2 MC)
+Keen: playCard(ResearchCoordination) {
+    pay(2 MC)
     4 MC
 }
 
-Been: UseStandardProject(PowerPlantProject) {
-    Pay(11 MC)
+Been: useStandardProject(PowerPlantProject) {
+    pay(11 MC)
     PROD[Energy]
 }
 
-Keen: UseAction1(BusinessNetwork) {
+Keen: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 // No microbe tag on the revealed card.
-Keen: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Keen: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
 
-Been: Pass
+Been: pass
 
-Keen: UseAction1(AppliedScience) {
+Keen: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Titanium
 }
-Keen: Pass
+Keen: pass
 
 // Production.
 Keen: Production {
@@ -427,102 +427,102 @@ Been: WorldGovernment {
 Keen: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(10 MC)
+    pay(10 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Keen: Trade3 {
-    Pay(3 Titanium)
+Keen: action(TradeAction, 3) {
+    pay(3 Titanium)
     Trade<Ceres>
     8 Steel
 }
 
-Been: PlayCard(CorporateStronghold) {
-    Pay(11 MC)
+Been: playCard(CorporateStronghold) {
+    pay(11 MC)
     PROD[-Energy]
     PROD[3 MC]
     NormalCityTile<Hellas_3_5>
     2 MC
 }
-Been: ClaimMilestone {
-    Pay(8 MC)
+Been: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Mayor
 }
 
-Keen: PlayCard(FueledGenerators) {
+Keen: playCard(FueledGenerators) {
     PROD[-MC]
     PROD[Energy]
 }
 
-Been: Trade3 {
-    Pay(3 Titanium)
+Been: action(TradeAction, 3) {
+    pay(3 Titanium)
     Trade<Titan>
     Floater<ExtractorBalloons>
     3 Floater<ForcedPrecipitation>
 }
 
-Keen: UseAction1(AppliedScience) {
+Keen: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Titanium
 }
 
-Been: UseAction1(ExtractorBalloons) {
+Been: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
-Keen: PlayCard(LunarMining) {
-    Pay(9 MC)
+Keen: playCard(LunarMining) {
+    pay(9 MC)
     PROD[2 Titanium]
     MC
 }
 
-Been: PlayCard(SisterPlanetSupport) {
-    Pay(7 MC)
+Been: playCard(SisterPlanetSupport) {
+    pay(7 MC)
     PROD[3 MC]
 }
 
 // No MC remainder.
-Keen: PlayCard(CupolaCity) {
-    Pay(6 Steel)
+Keen: playCard(CupolaCity) {
+    pay(6 Steel)
     PROD[-Energy]
     PROD[3 MC]
     NormalCityTile<Hellas_4_4>
     2 Steel
 }
 
-Been: UseAction2(ForcedPrecipitation) {
+Been: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
 
-Keen: UseAction1(BusinessNetwork) {
+Keen: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
-Been: Pass
+Been: pass
 
 // No microbe tag on the revealed card.
-Keen: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Keen: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
-Keen: PlayCard(MethaneFromTitan) {
-    Pay(5 Titanium, 9 MC)
+Keen: playCard(MethaneFromTitan) {
+    pay(5 Titanium, 9 MC)
     PROD[2 Heat]
     PROD[2 Plant]
 }
-Keen: Pass
+Keen: pass
 
 // Production.
 Keen: Production {
@@ -550,36 +550,36 @@ Keen: WorldGovernment {
 Keen: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(10 MC)
+    pay(10 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Been: UseAction2(ExtractorBalloons) {
+Been: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
-Been: UseAction2(ForcedPrecipitation) {
+Been: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     2 TerraformRating
 }
 
-Keen: Trade3 {
-    Pay(3 Titanium)
+Keen: action(TradeAction, 3) {
+    pay(3 Titanium)
     Trade<Io>
     13 Heat
 }
 
-Been: ConvertPlants {
-    Pay(8 Plant)
+Been: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_2_5>
     OxygenStep
     Plant
@@ -587,45 +587,45 @@ Been: ConvertPlants {
 }
 
 // Keep the offered card.
-Keen: UseAction1(BusinessNetwork) {
+Keen: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Been: PlayCard(EarthOffice) {
-    Pay(1 MC)
+Been: playCard(EarthOffice) {
+    pay(1 MC)
 }
 
-Keen: PlayCard(RestrictedArea) {
-    Pay(9 MC)
+Keen: playCard(RestrictedArea) {
+    pay(9 MC)
     MC
     RestrictedArea_SpecialTile<Hellas_3_6>
     2 Plant
     2 MC
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Been: PlayCard(LunaGovernor) {
+Been: playCard(LunaGovernor) {
     PROD[2 MC]
 }
 
-Keen: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Keen: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
 
 // Pay no titanium.
-Been: PlayCard(SolarReflectors) {
-    Pay(23 MC)
+Been: playCard(SolarReflectors) {
+    pay(23 MC)
     PROD[5 Heat]
 }
 
-Keen: ConvertPlants {
-    Pay(8 Plant)
+Keen: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_4_5>
     OxygenStep
     Steel
@@ -634,43 +634,43 @@ Keen: ConvertPlants {
 }
 
 // Pay no titanium.
-Been: PlayCard(SpaceMirrors) {
-    Pay(3 MC)
+Been: playCard(SpaceMirrors) {
+    pay(3 MC)
 }
 
-Keen: UseAction1(AppliedScience) {
+Keen: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Titanium
 }
 
-Been: UseAction1(SpaceMirrors) {
-    Pay(7 MC)
+Been: useAction1(SpaceMirrors) {
+    pay(7 MC)
     PROD[Energy]
 }
 
-Keen: PlayCard(LightningHarvest) {
-    Pay(4 MC)
+Keen: playCard(LightningHarvest) {
+    pay(4 MC)
     PROD[Energy]
     PROD[MC]
     MC
 }
 
-Been: Pass
+Been: pass
 
-Keen: PlayCard(OptimalAerobraking) {
-    Pay(1 Titanium, 2 MC)
+Keen: playCard(OptimalAerobraking) {
+    pay(1 Titanium, 2 MC)
     MC
 }
-Keen: ConvertHeat {
-    Pay(8 Heat)
+Keen: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Keen: UseStandardProject(PowerPlantProject) {
-    Pay(11 MC)
+Keen: useStandardProject(PowerPlantProject) {
+    pay(11 MC)
     PROD[Energy]
 }
-Keen: Pass
+Keen: pass
 
 // Production.
 Keen: Production {
@@ -701,41 +701,41 @@ Keen: Research {
 
     // Keep all four research cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(15 MC)
+    pay(15 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Keen: PlayCard(RadSuits) {
-    Pay(2 MC)
+Keen: playCard(RadSuits) {
+    pay(2 MC)
     PROD[MC]
     4 MC
 }
 // No MC remainder.
-Keen: PlayCard(WaterSplittingPlant) {
-    Pay(4 Steel)
+Keen: playCard(WaterSplittingPlant) {
+    pay(4 Steel)
     MC
 }
 
-Been: PlayCard(VenusianAnimals) {
-    Pay(15 MC)
+Been: playCard(VenusianAnimals) {
+    pay(15 MC)
     Animal<VenusianAnimals>
 }
-Been: PlayCard(InventionContest) {
-    Pay(2 MC)
+Been: playCard(InventionContest) {
+    pay(2 MC)
     3 ProjectCard<Selecting>
     ProjectCard<Hand FROM Selecting>
     Animal<VenusianAnimals>
 }
 
-Keen: PlayCard(GiantIceAsteroid) {
-    Pay(3 Titanium, 25 MC)
+Keen: playCard(GiantIceAsteroid) {
+    pay(3 Titanium, 25 MC)
     TemperatureStep
     TemperatureStep
     3 MC
@@ -752,102 +752,102 @@ Keen: PlayCard(GiantIceAsteroid) {
     2 Titanium
 }
 
-Been: PlayCard(BusinessContacts) {
-    Pay(4 MC)
+Been: playCard(BusinessContacts) {
+    pay(4 MC)
     4 ProjectCard<Selecting>
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Keen: ConvertHeat {
-    Pay(8 Heat)
+Keen: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Keen: ConvertHeat {
-    Pay(8 Heat)
+Keen: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
 
-Been: PlayCard(CorroderSuits) {
-    Pay(8 MC)
+Been: playCard(CorroderSuits) {
+    pay(8 MC)
     PROD[2 MC]
     Animal<VenusianAnimals>
 }
 
-Keen: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Keen: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
 
-Been: Trade3 {
-    Pay(3 Titanium)
+Been: action(TradeAction, 3) {
+    pay(3 Titanium)
     Trade<Ganymede>
     5 Plant
 }
 
-Keen: PlayCard(SterlingVents) {
-    Pay(1 Steel, 1 MC)
+Keen: playCard(SterlingVents) {
+    pay(1 Steel, 1 MC)
     PROD[-2 Heat]
     PROD[2 Energy]
 }
 
-Been: ConvertHeat {
-    Pay(8 Heat)
+Been: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Keen: UseAction1(WaterSplittingPlant) {
-    Pay(3 Energy)
+Keen: useAction1(WaterSplittingPlant) {
+    pay(3 Energy)
     OxygenStep
     TerraformRating
 }
 
-Been: PlayCard(FloaterPrototypes) {
-    Pay(2 MC)
+Been: playCard(FloaterPrototypes) {
+    pay(2 MC)
     Animal<VenusianAnimals>
     2 Floater<ForcedPrecipitation>
 }
 
 // No MC remainder.
-Keen: PlayCard(RadChemFactory) {
-    Pay(3 Steel)
+Keen: playCard(RadChemFactory) {
+    pay(3 Steel)
     PROD[-Energy]
     2 TerraformRating
     MC
 }
 
-Been: UseAction2(ForcedPrecipitation) {
+Been: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
 
 // Keep the offered card.
-Keen: UseAction1(BusinessNetwork) {
+Keen: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Been: UseAction1(ExtractorBalloons) {
+Been: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
 // No microbe tag on the revealed card.
-Keen: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Keen: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
 
-Been: Pass
+Been: pass
 
-Keen: Pass
+Keen: pass
 
 // Production.
 Keen: Production {
@@ -876,7 +876,7 @@ Keen: WorldGovernment {
 Keen: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -885,20 +885,20 @@ Been: Research {
 
     // Screenshot evidence: generation-8-research.png, before either player's purchase.
     -3 ProjectCard<Selecting>
-    Pay(5 MC)
+    pay(5 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Been: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Been: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Hellas_2_4>
     OxygenStep
     Plant
     Steel
     TerraformRating
 }
-Been: ConvertPlants {
-    Pay(8 Plant)
+Been: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_1_5>
     OxygenStep
     Plant
@@ -907,136 +907,136 @@ Been: ConvertPlants {
     TerraformRating
 }
 
-Keen: ConvertPlants {
-    Pay(8 Plant)
+Keen: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_5_4>
     OxygenStep
     2 Steel
     TerraformRating
 }
-Keen: FundAward {
-    Pay(8 MC)
+Keen: action(FundAwardAction) {
+    pay(8 MC)
     Scientist
 }
 
-Been: Trade3 {
-    Pay(3 Titanium)
+Been: action(TradeAction, 3) {
+    pay(3 Titanium)
     Trade<Titan>
     Floater<ExtractorBalloons>
     3 Floater<ForcedPrecipitation>
 }
-Been: PlayCard(SubterraneanReservoir) {
-    Pay(11 MC)
+Been: playCard(SubterraneanReservoir) {
+    pay(11 MC)
     OceanTile<Hellas_5_8>
     TerraformRating
     4 MC
 }
 
-Keen: PlayCard(Atmoscoop) {
-    Pay(5 Titanium, 3 MC)
+Keen: playCard(Atmoscoop) {
+    pay(5 Titanium, 3 MC)
     2* Floater
     VenusStep*, VenusStep*
     2 TerraformRating
 }
 
-Been: UseAction2(ExtractorBalloons) {
+Been: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
-Been: UseAction2(ForcedPrecipitation) {
+Been: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
 
-Keen: PlayCard(ProductiveOutpost) {
+Keen: playCard(ProductiveOutpost) {
     4 MC
 }
 
-Been: PlayCard(AstraMechanica) {
-    Pay(7 MC)
+Been: playCard(AstraMechanica) {
+    pay(7 MC)
     Animal<VenusianAnimals>
     ProjectCard FROM PlayedEvent<Class<InventionContest>>
     ProjectCard FROM PlayedEvent<Class<Flooding>>
 }
-Been: PlayCard(Flooding) {
-    Pay(7 MC)
+Been: playCard(Flooding) {
+    pay(7 MC)
     OceanTile<Hellas_6_8>
     TerraformRating
     Steel
     4 MC
 }
 
-Keen: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Keen: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
 
-Been: PlayCard(InventionContest) {
-    Pay(2 MC)
+Been: playCard(InventionContest) {
+    pay(2 MC)
     3 ProjectCard<Selecting>
     ProjectCard<Hand FROM Selecting>
     Animal<VenusianAnimals>
 }
-Been: PlayCard(DeepWellHeating) {
-    Pay(2 Steel, 9 MC)
+Been: playCard(DeepWellHeating) {
+    pay(2 Steel, 9 MC)
     PROD[Energy]
     TemperatureStep
     TerraformRating
 }
 
 // Keep the offered card.
-Keen: UseAction1(BusinessNetwork) {
+Keen: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Been: Pass
+Been: pass
 
-Keen: UseAction1(WaterSplittingPlant) {
-    Pay(3 Energy)
+Keen: useAction1(WaterSplittingPlant) {
+    pay(3 Energy)
     OxygenStep
     TerraformRating
 }
-Keen: PlayCard(MolecularPrinting) {
-    Pay(9 MC)
+Keen: playCard(MolecularPrinting) {
+    pay(9 MC)
     7 MC
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 // No microbe tag on the revealed card.
-Keen: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Keen: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
-Keen: PlayCard(Hackers) {
-    Pay(1 MC)
+Keen: playCard(Hackers) {
+    pay(1 MC)
     PROD[-Energy]
     PROD[2 MC]
     4 MC
     PROD[-2 MC<Been>]
 }
-Keen: PlayCard(BreathingFilters) {
-    Pay(7 MC)
+Keen: playCard(BreathingFilters) {
+    pay(7 MC)
     MC
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Keen: PlayCard(KelpFarming) {
-    Pay(13 MC)
+Keen: playCard(KelpFarming) {
+    pay(13 MC)
     PROD[2 MC]
     PROD[3 Plant]
     2 Plant
     MC
 }
-Keen: Pass
+Keen: pass
 
 // Production.
 Keen: Production {
@@ -1066,72 +1066,72 @@ Been: WorldGovernment {
 Keen: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(10 MC)
+    pay(10 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Keen: ConvertPlants {
-    Pay(8 Plant)
+Keen: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_5_5>
     OxygenStep
     2 MC
     TerraformRating
 }
-Keen: UseAction1(WaterSplittingPlant) {
-    Pay(3 Energy)
+Keen: useAction1(WaterSplittingPlant) {
+    pay(3 Energy)
     OxygenStep
     TerraformRating
 }
 
 // Screenshot evidence: generation-9-actions.png, after Keen's opening turn and before Been's.
-Been: PlayCard(RimFreighters) {
-    Pay(1 Titanium, 1 MC)
+Been: playCard(RimFreighters) {
+    pay(1 Titanium, 1 MC)
 }
-Been: Trade3 {
-    Pay(2 Titanium)
+Been: action(TradeAction, 3) {
+    pay(2 Titanium)
     Trade<Ceres>
     6 Steel
 }
 
-Keen: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Keen: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
 
-Been: PlayCard(UndergroundCity) {
-    Pay(6 Steel, 6 MC)
+Been: playCard(UndergroundCity) {
+    pay(6 Steel, 6 MC)
     PROD[-2 Energy]
     PROD[2 Steel]
     NormalCityTile<Hellas_1_4>
     Plant
     Steel
 }
-Been: FundAward {
-    Pay(14 MC)
+Been: action(FundAwardAction) {
+    pay(14 MC)
     Highlander
 }
 
-Keen: UseAction1(BusinessNetwork) {
+Keen: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
-Keen: PlayCard(AdvancedAlloys) {
-    Pay(7 MC)
+Keen: playCard(AdvancedAlloys) {
+    pay(7 MC)
     MC
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Been: PlayCard(LunarBeam) {
-    Pay(10 MC)
+Been: playCard(LunarBeam) {
+    pay(10 MC)
     PROD[-2 MC]
     PROD[2 Heat]
     PROD[2 Energy]
@@ -1139,23 +1139,23 @@ Been: PlayCard(LunarBeam) {
 
 // The archive pays Solar Probe entirely in M€ despite Keen retaining usable titanium.
 // Pay no titanium.
-Keen: PlayCard(SolarProbe) {
-    Pay(7 MC)
+Keen: playCard(SolarProbe) {
+    pay(7 MC)
     3 ProjectCard VIA SolarProbe
     3 MC
     3 Heat
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Been: PlayCard(AerialMappers) {
-    Pay(11 MC)
+Been: playCard(AerialMappers) {
+    pay(11 MC)
 }
 
 // No MC remainder.
-Keen: PlayCard(AsteroidCard) {
-    Pay(3 Titanium)
+Keen: playCard(AsteroidCard) {
+    pay(3 Titanium)
     TemperatureStep
     2 Titanium
     3 MC
@@ -1163,8 +1163,8 @@ Keen: PlayCard(AsteroidCard) {
     TerraformRating
     -3 Plant<Been>
 }
-Keen: PlayCard(IceMoonColony) {
-    Pay(2 Titanium, 13 MC)
+Keen: playCard(IceMoonColony) {
+    pay(2 Titanium, 13 MC)
     MC
     Colony<Ganymede>
     PROD[Plant]
@@ -1174,93 +1174,93 @@ Keen: PlayCard(IceMoonColony) {
 }
 
 // No card can receive microbes.
-Been: PlayCard(UrbanDecomposers) {
-    Pay(6 MC)
+Been: playCard(UrbanDecomposers) {
+    pay(6 MC)
     PROD[Plant]
     2* Microbe
 }
 
-Keen: PlayCard(Harvest) {
+Keen: playCard(Harvest) {
     12 MC
 }
 
-Been: UseAction1(AerialMappers) {
+Been: useAction1(AerialMappers) {
     Floater<AerialMappers>
 }
 
-Keen: PlayCard(VenusMagnetizer) {
-    Pay(3 MC)
+Keen: playCard(VenusMagnetizer) {
+    pay(3 MC)
     MC
 }
 
-Been: UseAction1(ExtractorBalloons) {
+Been: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
 // No microbe tag on the revealed card.
-Keen: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Keen: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
 
-Been: ConvertHeat {
-    Pay(8 Heat)
+Been: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Keen: ConvertHeat {
-    Pay(8 Heat)
+Keen: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Been: Pass
+Been: pass
 
-Keen: PlayCard(SpecialDesign) {
-    Pay(2 MC)
+Keen: playCard(SpecialDesign) {
+    pay(2 MC)
     SpecialDesign_NextCardEffect
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
-Keen: PlayCard(Trees) {
-    Pay(9 MC)
+Keen: playCard(Trees) {
+    pay(9 MC)
     PROD[3 Plant]
     Plant
     MC
 }
-Keen: PlayCard(Algae) {
-    Pay(6 MC)
+Keen: playCard(Algae) {
+    pay(6 MC)
     Plant
     PROD[2 Plant]
     MC
 }
-Keen: PlayCard(LocalHeatTrapping) {
+Keen: playCard(LocalHeatTrapping) {
     -5 Heat
     MC
     4 Plant
 }
-Keen: ConvertPlants {
-    Pay(8 Plant)
+Keen: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_3_3>
     OxygenStep
     Steel
     TerraformRating
 }
-Keen: UseStandardProject(SellPatentsProject) {
+Keen: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Keen: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Keen: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Hellas_4_3>
     OxygenStep
     Steel
     TerraformRating
 }
-Keen: Pass
+Keen: pass
 
 // Production.
 Keen: Production {
@@ -1290,72 +1290,72 @@ Keen: WorldGovernment {
 Keen: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(5 MC)
+    pay(5 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Been: PlayCard(FieldCappedCity) {
-    Pay(3 Steel, 23 MC)
+Been: playCard(FieldCappedCity) {
+    pay(3 Steel, 23 MC)
     PROD[2 MC]
     PROD[Energy]
     3 Plant
     NormalCityTile<Hellas_2_3>
     Plant
 }
-Been: PlayCard(UrbanizedArea) {
-    Pay(10 MC)
+Been: playCard(UrbanizedArea) {
+    pay(10 MC)
     PROD[-Energy]
     PROD[2 MC]
     NormalCityTile<Hellas_3_4>
     Steel
 }
 
-Keen: Trade2 {
-    Pay(3 Energy)
+Keen: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Io>
     8 Heat
 }
 // Oxygen is already maxed.
-Keen: ConvertPlants {
-    Pay(8 Plant)
+Keen: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_6_5>
     0 OxygenStep
 }
 
-Been: UseAction2(AerialMappers) {
+Been: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
-Been: Trade3 {
-    Pay(2 Titanium)
+Been: action(TradeAction, 3) {
+    pay(2 Titanium)
     Trade<Ganymede>
     5 Plant
     Keen: Plant
 }
 
-Keen: PlayCard(Capital) {
-    Pay(7 Steel, 1 MC)
+Keen: playCard(Capital) {
+    pay(7 Steel, 1 MC)
     PROD[-2 Energy]
     PROD[5 MC]
     CapitalTile<Hellas_6_6, Capital>
     4 MC
 }
 
-Been: ConvertPlants {
-    Pay(8 Plant)
+Been: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_9_6>
     0 OxygenStep
     2 Heat
 }
-Been: PlayCard(EcologyResearch) {
-    Pay(21 MC)
+Been: playCard(EcologyResearch) {
+    pay(21 MC)
     PROD[2 Plant]
     2* Microbe
     // Science-tag reward.
@@ -1364,85 +1364,85 @@ Been: PlayCard(EcologyResearch) {
     Animal<VenusianAnimals>
 }
 
-Keen: ConvertHeat {
-    Pay(8 Heat)
+Keen: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Been: ConvertHeat {
-    Pay(8 Heat)
+Been: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 // No ocean tiles remain.
-Been: ConvertHeat {
-    Pay(8 Heat)
+Been: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     OceanTile<WaterArea(HAS MAX 0 Tile)>*
 }
 
-Keen: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Keen: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
 
-Been: UseAction1(ExtractorBalloons) {
+Been: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
 // Keep the offered card.
-Keen: UseAction1(BusinessNetwork) {
+Keen: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
-Keen: PlayCard(Grass) {
-    Pay(7 MC)
+Keen: playCard(Grass) {
+    pay(7 MC)
     PROD[Plant]
     3 Plant
     MC
 }
 
-Been: Pass
+Been: pass
 
-Keen: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Keen: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Hellas_3_2>
     Plant
     2 MC
 }
-Keen: ConvertPlants {
-    Pay(8 Plant)
+Keen: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_4_2>
     0 OxygenStep
     Plant
 }
-Keen: PlayCard(PeroxidePower) {
-    Pay(1 Steel, 2 MC)
+Keen: playCard(PeroxidePower) {
+    pay(1 Steel, 2 MC)
     PROD[-MC]
     PROD[2 Energy]
 }
 // No microbe tag on the revealed card.
-Keen: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Keen: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
-Keen: PlayCard(LuxuryFoods) {
-    Pay(4 MC)
+Keen: playCard(LuxuryFoods) {
+    pay(4 MC)
     4 MC
 }
-Keen: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Keen: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
 }
-Keen: Pass
+Keen: pass
 
 // Production.
 Keen: Production {
@@ -1472,168 +1472,168 @@ Been: WorldGovernment {
 Keen: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Been: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(5 MC)
+    pay(5 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Keen: PlayCard(SubZeroSaltFish) {
-    Pay(1 MC)
+Keen: playCard(SubZeroSaltFish) {
+    pay(1 MC)
     MC
     PROD[-Plant<Been>]
 }
-Keen: Trade2 {
-    Pay(3 Energy)
+Keen: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Miranda>
     3 Animal<SubZeroSaltFish>
 }
 
-Been: ConvertHeat {
-    Pay(8 Heat)
+Been: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Been: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Been: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Hellas_5_3>
 }
 
-Keen: ConvertHeat {
-    Pay(8 Heat)
+Keen: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Keen: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Keen: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Hellas_7_5>
 }
 
-Been: Trade2 {
-    Pay(2 Energy)
+Been: action(TradeAction, 2) {
+    pay(2 Energy)
     Trade<Ganymede>
     4 Plant
     Keen: Plant
 }
-Been: ConvertPlants {
-    Pay(8 Plant)
+Been: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_1_3>
     0 OxygenStep
     2 Plant
 }
 
-Keen: ConvertPlants {
-    Pay(8 Plant)
+Keen: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_7_6>
     0 OxygenStep
     ProjectCard
 }
-Keen: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Keen: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Hellas_8_8>
     Titanium
 }
 
-Been: PlayCard(Plantation) {
-    Pay(15 MC)
+Been: playCard(Plantation) {
+    pay(15 MC)
     GreeneryTile<Hellas_1_2>
     0 OxygenStep
     2 Plant
 }
-Been: ConvertPlants {
-    Pay(8 Plant)
+Been: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_2_2>
     0 OxygenStep
     2 Plant
     2 MC
 }
 
-Keen: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Keen: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-Keen: ConvertPlants {
-    Pay(8 Plant)
+Keen: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_7_7>
     0 OxygenStep
     2 MC
 }
 
-Been: FundAward {
-    Pay(20 MC)
+Been: action(FundAwardAction) {
+    pay(20 MC)
     Investor
 }
-Been: UseAction1(AerialMappers) {
+Been: useAction1(AerialMappers) {
     Floater<AerialMappers>
 }
 
-Keen: PlayCard(InvestmentLoan) {
-    Pay(1 MC)
+Keen: playCard(InvestmentLoan) {
+    pay(1 MC)
     PROD[-MC]
     10 MC
 }
 
-Been: UseAction1(ExtractorBalloons) {
+Been: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
-Keen: UseAction1(SubZeroSaltFish) {
+Keen: useAction1(SubZeroSaltFish) {
     Animal<SubZeroSaltFish>
 }
 
-Been: UseStandardProject(SellPatentsProject) {
+Been: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Keen: PlayCard(Greenhouses) {
-    Pay(1 Steel, 1 MC)
+Keen: playCard(Greenhouses) {
+    pay(1 Steel, 1 MC)
     12 Plant
 }
-Keen: ConvertPlants {
-    Pay(8 Plant)
+Keen: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_7_8>
     0 OxygenStep
     4 MC
 }
 
 // The archive records Been passing as a second action; defer it to Been's next legal turn.
-Been: Pass
+Been: pass
 
 // No MC remainder.
 // No Jovian card can receive floaters.
-Keen: PlayCard(NitrogenFromTitan) {
-    Pay(6 Titanium)
+Keen: playCard(NitrogenFromTitan) {
+    pay(6 Titanium)
     2 TerraformRating
     2* Floater<CardFront(HAS JovianTag)>
 }
-Keen: UseStandardProject(SellPatentsProject) {
+Keen: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Keen: UseAction1(BusinessNetwork) {
+Keen: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 // No microbe tag on the revealed card.
-Keen: UseAction1(SearchForLife) {
-    Pay(1 MC)
+Keen: useAction1(SearchForLife) {
+    pay(1 MC)
     ProjectCard<Revealed>
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
 // Venus is already maxed.
-Keen: UseAction1(VenusMagnetizer) {
+Keen: useAction1(VenusMagnetizer) {
     PROD[-Energy]
     0 VenusStep
 }
-Keen: Pass
+Keen: pass
 
 // Production.
 Keen: Production {
@@ -1654,13 +1654,13 @@ Been: Production {
     2 Energy
 }
 
-Keen: ConvertPlants {
-    Pay(8 Plant)
+Keen: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_7_4>
     2 MC
 }
-Keen: ConvertPlants {
-    Pay(8 Plant)
+Keen: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_8_5>
     ProjectCard
 }
@@ -1669,8 +1669,8 @@ Keen {
     Ok
 }
 
-Been: ConvertPlants {
-    Pay(8 Plant)
+Been: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_6_3>
     2 MC
 }

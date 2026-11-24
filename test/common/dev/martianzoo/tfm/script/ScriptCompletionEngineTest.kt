@@ -48,16 +48,16 @@ internal class ScriptCompletionEngineTest {
   internal fun completesCardsInTheCurrentSetup() {
     repl.command("newgame BRVPX 2")
 
-    assertContainsAll(values("PlayCard Man"), "Mangrove", "Manutech")
-    assertEquals(listOf("AiCentral"), values("UseAction1 Ai"))
-    assertEquals(listOf("Titanium"), values("Pay T"))
+    assertContainsAll(values("playCard Man"), "Mangrove", "Manutech")
+    assertEquals(listOf("AiCentral"), values("useAction1 Ai"))
+    assertEquals(listOf("Titanium"), values("pay T"))
   }
 
   @Test
   internal fun completesPetsClassNamesInsideExpressions() {
     assertContainsAll(values("exec PROD[Pla"), "PROD[Plant", "PROD[PlantTag")
     assertTrue("Class<ProjectCard" in values("count Class<Pro"))
-    assertEquals(listOf("MC"), values("Pay M"))
+    assertEquals(listOf("MC"), values("pay M"))
   }
 
   @Test
