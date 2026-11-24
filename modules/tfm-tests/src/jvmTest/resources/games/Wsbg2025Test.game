@@ -90,6 +90,8 @@ Blue: playCard(EarlySettlement) {
     3 ProjectCard
 }
 
+Blue: assert(=1 EarlySettlement)
+
 // visual confirmation
 Red: playCard(Biofuels) {
     PROD[Plant]
@@ -207,6 +209,17 @@ Black: Production {
     4 Heat
 }
 
+Blue: assert(=23 TerraformRating, =25 MC, =0 Steel, =0 Titanium, =2 Plant, =1 Energy, =0 Heat)
+Blue: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =1 Energy, =0 Heat])
+Red: assert(=20 TerraformRating, =31 MC, =1 Steel, =0 Titanium, =3 Plant, =0 Energy, =4 Heat)
+Red: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =1 Plant, =0 Energy, =2 Heat])
+Red: assert(=1 Community)
+Green: assert(=20 TerraformRating, =27 MC, =2 Steel, =1 Titanium, =1 Plant, =0 Energy, =0 Heat)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =1 Plant, =0 Energy, =0 Heat])
+Black: assert(=21 TerraformRating, =42 MC, =0 Steel, =0 Titanium, =2 Plant, =1 Energy, =4 Heat)
+Black: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =1 Energy, =4 Heat])
+Blue: assert(=2 Generation)
+
 Blue: Research {
     4 ProjectCard<Selecting>
 
@@ -313,6 +326,8 @@ Black: action(ConvertPlantsAction) {
     Plant
     4 MC
 }
+
+Black: assert(=6 MC, =24 TerraformRating)
 // visual confirmation
 Black: pass
 
@@ -344,6 +359,17 @@ Black: Production {
     34 MC
     4 Heat
 }
+
+Blue: assert(=23 TerraformRating, =31 MC, =0 Steel, =0 Titanium, =4 Plant, =0 Energy, =1 Heat)
+Blue: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =0 Energy, =0 Heat])
+Red: assert(=20 TerraformRating, =32 MC, =2 Steel, =0 Titanium, =5 Plant, =0 Energy, =6 Heat)
+Red: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =2 Plant, =0 Energy, =2 Heat])
+Red: assert(=1 Community)
+Green: assert(=20 TerraformRating, =26 MC, =1 Steel, =2 Titanium, =3 Plant, =1 Energy, =1 Heat)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =1 Energy, =1 Heat])
+Black: assert(=24 TerraformRating, =40 MC, =0 Steel, =0 Titanium, =4 Plant, =0 Energy, =9 Heat)
+Black: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =0 Energy, =4 Heat])
+Blue: assert(=3 Generation)
 
 Blue: Research {
     4 ProjectCard<Selecting>
@@ -379,6 +405,9 @@ Green: useAction1(RobinsonIndustries) {
     pay(4 MC)
     PROD[Titanium]
 }
+
+Green: assert(PROD[=2 Titanium])
+Green: assert(=1 Generalist)
 
 // visual confirmation
 Black: action(ClaimMilestoneAction) {
@@ -515,6 +544,8 @@ Black: Production {
     2 Energy
 }
 
+Blue: assert(=29 MC)
+
 Blue: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
@@ -554,11 +585,15 @@ Black: playCard(MarsUniversity) {
     ProjectCard
 }
 
+Blue: assert(=26 MC)
+
 // visual confirmation
 Blue: useAction2(ElectroCatapult) {
     pay(1 Steel)
     7 MC
 }
+
+Blue: assert(=33 MC)
 
 // visual confirmation
 Red: playCard(ProtectedHabitats) {
@@ -587,9 +622,13 @@ Black: playCard(RoboticWorkforce) {
     ProjectCard
 }
 
+Black: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =2 Energy, =6 Heat])
+
 Blue: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
+
+Blue: assert(=34 MC)
 
 // visual confirmation
 // Provisional grouping: Reservoir followed by heat conversion.
@@ -643,6 +682,8 @@ Blue: action(ConvertPlantsAction) {
     ProjectCard
     4 MC
 }
+
+Blue: assert(=31 TerraformRating)
 
 // 01:01:50 track
 // steel allocation inferred from Mohole Excavation's production
@@ -731,6 +772,10 @@ Black: Production {
     6 Heat
     2 Energy
 }
+
+Red: assert(=1 Animal<SmallAnimals>, =3 Microbe<Decomposers>)
+Black: assert(=0 Science<SearchForLife>)
+Blue: assert(=5 Generation, =7 OceanTile, =6 OxygenStep, =4 TemperatureStep)
 
 Blue: Research {
     4 ProjectCard<Selecting>
@@ -909,6 +954,11 @@ Black: Production {
     6 Heat
 }
 
+Blue: assert(=32 TerraformRating)
+Green: assert(=4 Animal<Predators>)
+Red: assert(=2 Animal<SmallAnimals>)
+Blue: assert(=6 Generation, =8 OceanTile)
+
 Blue: Research {
     4 ProjectCard<Selecting>
 
@@ -1005,11 +1055,15 @@ Red: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
 
+Green: assert(=6 Steel)
+
 // visual confirmation
 Green: playCard(HousePrinting) {
     pay(5 Steel)
     PROD[Steel]
 }
+
+Green: assert(=1 Steel)
 
 Black: useAction1(DevelopmentCenter) {
     pay(1 Energy)
@@ -1069,6 +1123,8 @@ Red: playCard(NoctisFarming) {
     Microbe<Decomposers>
 }
 
+Green: assert(=3 MC)
+
 Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
@@ -1076,6 +1132,8 @@ Green: useAction1(RobinsonIndustries) {
     pay(4 MC)
     PROD[Energy]
 }
+
+Green: assert(=0 MC)
 
 Black: playCard(Mine) {
     pay(2 MC)
@@ -1110,11 +1168,21 @@ Blue: pass
 
 Green: pass
 
+Blue: assert(=33 TerraformRating, =6 MC, =0 Plant)
+Red: assert(=27 TerraformRating, =4 MC, =5 Plant)
+Green: assert(=24 TerraformRating, =3 Titanium, =0 MC)
+Black: assert(=26 TerraformRating, =7 MC)
+
 // visual confirmation
 // visual confirmation
 // visual confirmation
 // visual confirmation
 Black: pass
+
+Blue: assert(=21 PROD[MC], PROD[=0 Steel, =2 Titanium, =4 Plant, =0 Energy, =2 Heat])
+Red: assert(=7 PROD[MC], PROD[=1 Steel, =0 Titanium, =5 Plant, =0 Energy, =2 Heat])
+Green: assert(=7 PROD[MC], PROD[=3 Steel, =3 Titanium, =2 Plant, =2 Energy, =1 Heat])
+Black: assert(=18 PROD[MC], PROD[=1 Steel, =1 Titanium, =4 Plant, =8 Energy, =6 Heat])
 
 // Generation 7 production, about 01:31:24.
 // visual confirmation
@@ -1155,6 +1223,8 @@ Black: Production {
     6 Heat
 }
 
+Blue: assert(=7 Generation, =8 OceanTile, =10 OxygenStep, =9 TemperatureStep)
+
 Blue: Research {
     4 ProjectCard<Selecting>
 
@@ -1193,6 +1263,8 @@ Green: playCard(MineralDeposit) {
     pay(5 MC)
     5 Steel
 }
+
+Green: assert(=9 MC, =8 Steel)
 // visual confirmation
 Green: playCard(UndergroundCity) {
     pay(8 Steel, 2 MC)
@@ -1367,6 +1439,11 @@ Black: useAction1(SearchForLife) {
     // Intentional Miranda overpayment: Black misses Mass Converter's 2 MC discount.
     exMachina(-2 MC)
 }
+
+Blue: assert(=34 TerraformRating, =4 MC, =5 Plant)
+Red: assert(=28 TerraformRating, =1 MC, =3 Steel, =2 Plant)
+Black: assert(=30 TerraformRating, =1 MC)
+Green: assert(=0 MC)
 // visual confirmation
 // visual confirmation
 // visual confirmation
@@ -1410,6 +1487,12 @@ Black: Production {
 
 // 01:50:42-01:50:57: table agrees to refund Miranda's missed discount
 Black: exMachina(2 MC)
+
+Blue: assert(=24 PROD[MC], PROD[=0 Steel, =2 Titanium, =6 Plant, =0 Energy, =2 Heat])
+Red: assert(=5 PROD[MC], PROD[=1 Steel, =0 Titanium, =9 Plant, =1 Energy, =2 Heat])
+Green: assert(=7 PROD[MC], PROD[=5 Steel, =4 Titanium, =2 Plant, =0 Energy, =1 Heat])
+Black: assert(=24 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =4 Plant, =9 Energy, =6 Heat])
+Blue: assert(=8 Generation, =8 OceanTile, =13 OxygenStep, =12 TemperatureStep)
 
 Blue: Research {
     4 ProjectCard<Selecting>
@@ -1474,6 +1557,8 @@ Red: playCard(HiredRaiders) {
     pay(1 MC)
     2 Steel FROM Steel<Green>
 }
+
+Red: assert(=1 PlayedEvent<Class<HiredRaiders>>)
 // visual confirmation
 // Commercial District payment inferred: six steel and 4 MC.
 Red: playCard(CommercialDistrict) {
@@ -1634,6 +1719,8 @@ Black: playCard(Farming) {
     Animal<EcologicalZone>
 }
 
+Blue: assert(=19 MC)
+
 // visual confirmation
 Blue: playCard(ImportedNitrogen) {
     // visual confirmation
@@ -1645,6 +1732,8 @@ Blue: playCard(ImportedNitrogen) {
     3* Microbe
     2* Animal
 }
+
+Blue: assert(=7 MC)
 // visual confirmation
 Blue: action(ConvertPlantsAction) {
     pay(8 Plant)
@@ -1677,6 +1766,14 @@ Blue: playCard(TransNeptuneProbe) {
 Black: pass
 
 Blue: pass
+
+Blue: assert(=40 TerraformRating)
+Red: assert(=31 TerraformRating)
+Green: assert(=25 TerraformRating)
+Green: assert(=6 Animal<Predators>)
+Black: assert(=33 TerraformRating)
+Black: assert(=5 Animal<EcologicalZone>)
+Blue: assert(=9 OceanTile, =14 OxygenStep, =19 TemperatureStep)
 
 // Final production and greenery, 02:10:45–02:12:25.
 Blue: Production {
@@ -1762,3 +1859,12 @@ Green {
 Black {
     60 VictoryPoint
 }
+
+Blue: assert(=0 ProjectCard<Hand>)
+Blue: assert(=77 VictoryPoint, =1 Victory)
+Red: assert(=2 ProjectCard<Hand>)
+Red: assert(=70 VictoryPoint, =0 Victory)
+Green: assert(=6 ProjectCard<Hand>)
+Green: assert(=57 VictoryPoint, =0 Victory)
+Black: assert(=1 ProjectCard<Hand>)
+Black: assert(=60 VictoryPoint, =0 Victory)

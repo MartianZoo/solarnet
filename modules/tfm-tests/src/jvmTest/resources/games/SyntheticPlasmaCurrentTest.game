@@ -42,6 +42,8 @@ Bloo: Setup {
     -5 ProjectCard<Selecting>
 }
 
+Bloo: assert(=1 Coming<IndependenceMovement>, 1 PartyLeader<MarsFirst, Neutral>, =1 Distant<WorldGovernmentDirectives>, 1 PartyLeader<Unity, Neutral>)
+
 // Generation 1
 Bloo: playCard(PhoboLog) {
     23 MC VIA PhoboLog
@@ -94,6 +96,9 @@ Bloo: WorldGovernment {
     OceanTile<Tharsis_6_7>! BY Admin
 }
 
+Bloo: assert(=1 Ruling<MarsFirst>, =1 Current<IndependenceMovement>, =1 Coming<WorldGovernmentDirectives>, =1 Dominant<Reds>)
+Bloo: assert(1 PartyFollower<Reds, Neutral>, =1 Distant<ScienceSummit>, 1 PartyFollower<Scientists, Neutral>)
+
 // Generation 2
 Bloo: Research {
     4 ProjectCard<Selecting>
@@ -101,6 +106,10 @@ Bloo: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Bloo: assert(=13 MC, =0 Steel, =6 Titanium, =2 Plant, =0 Energy, =0 Heat, =16 TerraformRating)
+Bloo: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Bloo: assert(=2 Generation, =0 TemperatureStep, =1 OxygenStep, =2 OceanTile, =0 VenusStep)
 
 // Save 10: immediately after Research.
 Bloo: playCard(TitaniumMine) {
@@ -133,11 +142,18 @@ Bloo: GlobalEvent {
     -0* MC
 }
 
+Bloo: assert(=1 Ruling<Reds>, =1 Current<WorldGovernmentDirectives>, =1 Coming<ScienceSummit>, =1 Dominant<Scientists>, =1 Chairman<Bloo>)
+Bloo: assert(=0 IndependenceMovement, =1 PartyLeader<MarsFirst, Neutral>, =1 Distant<MoralMovement>, 1 PartyLeader<Reds, Neutral>)
+
 // Generation 3
 Bloo: Research {
     4 ProjectCard<Selecting>
     -4 ProjectCard<Selecting>
 }
+
+Bloo: assert(=18 MC, =0 Steel, =9 Titanium, =2 Plant, =0 Energy, =0 Heat, =17 TerraformRating)
+Bloo: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =3 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Bloo: assert(=3 Generation, =0 TemperatureStep, =1 OxygenStep, =3 OceanTile, =0 VenusStep)
 
 // Save 17: immediately after Research.
 Bloo: useAction2(LocalShading) {
@@ -175,6 +191,9 @@ Bloo: WorldGovernment {
     OceanTile<Tharsis_6_9>! BY Admin
 }
 
+Bloo: assert(=1 Ruling<Scientists>, =1 Current<ScienceSummit>, =1 Coming<MoralMovement>, =1 Dominant<Greens>, =0 WorldGovernmentDirectives)
+Bloo: assert(1 PartyFollower<Greens, Neutral>, =1 Distant<MoholeLakeGlobalEvent>, 1 PartyFollower<Kelvinists, Neutral>)
+
 // Generation 4
 Bloo: Research {
     4 ProjectCard<Selecting>
@@ -182,6 +201,11 @@ Bloo: Research {
     pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
+
+Bloo: assert(=13 MC, =0 Steel, =9 Titanium, =2 Plant, =3 Energy, =0 Heat, =17 TerraformRating)
+Bloo: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =3 Titanium, =1 Plant, =3 Energy, =0 Heat])
+Bloo: assert(=0 PartyDelegate<Anyone, Scientists>)
+Bloo: assert(=4 Generation, =0 TemperatureStep, =1 OxygenStep, =4 OceanTile, =0 VenusStep)
 
 // Save 25: immediately after Research.
 Bloo: useAction1(LocalShading) {
@@ -242,6 +266,9 @@ Bloo: GlobalEvent {
     2 ProjectCard
 }
 
+Bloo: assert(=1 Ruling<Greens>, =1 Current<MoralMovement>, =1 Coming<MoholeLakeGlobalEvent>, =1 Dominant<Kelvinists>, =0 ScienceSummit)
+Bloo: assert(1 PartyFollower<MarsFirst, Neutral>, =1 Distant<ExploreFirstDirective>, 1 PartyFollower<Reds, Neutral>)
+
 // Generation 5
 Bloo: Research {
     4 ProjectCard<Selecting>
@@ -251,6 +278,11 @@ Bloo: Research {
     pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
+
+Bloo: assert(=12 MC, =0 Steel, =4 Titanium, =5 Plant, =3 Energy, =3 Heat, =21 TerraformRating)
+Bloo: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =4 Titanium, =1 Plant, =3 Energy, =0 Heat])
+Bloo: assert(=1 PartyDelegate<Anyone, Scientists>)
+Bloo: assert(=5 Generation, =2 TemperatureStep, =1 OxygenStep, =5 OceanTile, =0 VenusStep)
 
 // Save 35: immediately after Research.
 Bloo: useAction2(LocalShading) {
@@ -303,6 +335,9 @@ Bloo: GlobalEvent {
     4 MC
 }
 
+Bloo: assert(=1 Ruling<Kelvinists>, =1 Current<MoholeLakeGlobalEvent>, =1 Coming<ExploreFirstDirective>, =1 Dominant<Reds>, =0 MoralMovement)
+Bloo: assert(=1 PartyLeader<Kelvinists, Neutral>, =1 Distant<RedResistance>, 1 PartyFollower<Reds, Neutral>)
+
 // Generation 6
 Bloo: Research {
     4 ProjectCard<Selecting>
@@ -310,6 +345,11 @@ Bloo: Research {
     pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
+
+Bloo: assert(=34 MC, =0 Steel, =6 Titanium, =9 Plant, =4 Energy, =6 Heat, =21 TerraformRating)
+Bloo: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =4 Titanium, =3 Plant, =4 Energy, =0 Heat])
+Bloo: assert(=1 PartyDelegate<Anyone, Scientists>)
+Bloo: assert(=6 Generation, =2 TemperatureStep, =1 OxygenStep, =5 OceanTile, =1 VenusStep)
 
 // Save 44: immediately after Research.
 Bloo: action(UsePolicyAction) {
@@ -377,9 +417,14 @@ Bloo: GlobalEvent {
     ProjectCard
 }
 
+Bloo: assert(=1 Ruling<Reds>, =1 Current<ExploreFirstDirective>, =1 Coming<RedResistance>, =1 Dominant<Scientists>, =1 Chairman<Neutral>)
+Bloo: assert(=0 MoholeLakeGlobalEvent)
+
 // FAQ v1.8 p.100 awards the solo Reds bonus only at 20 TR or below. The archived server
 // nevertheless awarded it at 21 after annual revision; retain that source result explicitly.
 Bloo: exMachina(TerraformRating)
+
+Bloo: assert(1 PartyFollower<Scientists, Neutral>, =1 Distant<ViralModificationsApproved>, 1 PartyFollower<Greens, Neutral>)
 
 // Generation 7
 Bloo: Research {
@@ -388,6 +433,11 @@ Bloo: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Bloo: assert(=25 MC, =0 Steel, =5 Titanium, =7 Plant, =6 Energy, =13 Heat, =22 TerraformRating)
+Bloo: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =4 Titanium, =5 Plant, =6 Energy, =3 Heat])
+Bloo: assert(=3 PartyDelegate<Anyone, Scientists>)
+Bloo: assert(=7 Generation, =0 TemperatureStep, =2 OxygenStep, =5 OceanTile, =2 VenusStep)
 
 // Save 55: immediately after Research.
 Bloo: useAction1(LocalShading) {
@@ -435,6 +485,9 @@ Bloo: GlobalEvent {
     18 MC
 }
 
+Bloo: assert(=1 Ruling<Scientists>, =1 Current<RedResistance>, =1 Coming<ViralModificationsApproved>, =1 Chairman<Bloo>, =0 ExploreFirstDirective)
+Bloo: assert(1 PartyFollower<Unity, Neutral>, =1 Distant<SolarnetGlobalEvent>)
+
 // Generation 8
 // Scientific Community pays 18 M€ for cards and influence; the Scientists bonus pays 4 M€.
 Bloo: Research {
@@ -443,6 +496,10 @@ Bloo: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Bloo: assert(=51 MC, =0 Steel, =9 Titanium, =12 Plant, =6 Energy, =22 Heat, =22 TerraformRating)
+Bloo: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =4 Titanium, =5 Plant, =6 Energy, =3 Heat])
+Bloo: assert(=8 Generation, =0 TemperatureStep, =2 OxygenStep, =5 OceanTile, =3 VenusStep)
 
 // Save 64: immediately after Research.
 Bloo: action(UsePolicyAction) {
@@ -553,6 +610,9 @@ Bloo: GlobalEvent {
     6 MC
 }
 
+Bloo: assert(=1 Ruling<Unity>, =1 Current<ViralModificationsApproved>, =1 Coming<SolarnetGlobalEvent>, =1 Dominant<Kelvinists>, =1 Chairman<Neutral>)
+Bloo: assert(=0 RedResistance, 1 PartyFollower<MarsFirst, Neutral>, =1 Distant<CharismaticWgPresident>, =1 PartyLeader<Unity, Neutral>)
+
 // Generation 9
 // Homeworld Support pays 6 M€; the Unity bonus pays 10 M€ for planetary tags.
 Bloo: Research {
@@ -561,6 +621,10 @@ Bloo: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Bloo: assert(=58 MC, =2 Steel, =5 Titanium, =9 Plant, =5 Energy, =11 Heat, =30 TerraformRating)
+Bloo: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =5 Titanium, =5 Plant, =5 Energy, =3 Heat])
+Bloo: assert(=9 Generation, =2 TemperatureStep, =6 OxygenStep, =5 OceanTile, =7 VenusStep)
 
 // _local/replays/Game20260908/game-g5625e0252c7c.sqlite; source save 83.
 // Save 83: immediately after Research.
@@ -683,6 +747,9 @@ Bloo: GlobalEvent {
     -9 MC
 }
 
+Bloo: assert(=1 Ruling<Kelvinists>, =1 Current<SolarnetGlobalEvent>, =1 Coming<CharismaticWgPresident>, =1 Dominant<Greens>, =1 Chairman<Bloo>)
+Bloo: assert(=0 ViralModificationsApproved, 1 PartyFollower<Greens, Neutral>, =1 Distant<BioengineeringBoom>, 1 PartyLeader<Greens, Neutral>)
+
 // Generation 10
 // Pandemic costs 9 M€; the Kelvinists bonus pays 5 M€ for heat production.
 Bloo: Research {
@@ -691,6 +758,10 @@ Bloo: Research {
     pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
+
+Bloo: assert(=54 MC, =6 Steel, =6 Titanium, =8 Plant, =5 Energy, =9 Heat, =40 TerraformRating)
+Bloo: assert(=26 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =5 Titanium, =6 Plant, =5 Energy, =5 Heat])
+Bloo: assert(=10 Generation, =4 TemperatureStep, =9 OxygenStep, =6 OceanTile, =9 VenusStep)
 
 // Save 107: immediately after Research.
 Bloo: action(ConvertHeatAction) {
@@ -827,6 +898,9 @@ Bloo: GlobalEvent {
     14 MC
 }
 
+Bloo: assert(=1 Ruling<Greens>, =1 Current<CharismaticWgPresident>, =1 Coming<BioengineeringBoom>, =1 Dominant<MarsFirst>, =1 Chairman<Neutral>)
+Bloo: assert(=0 SolarnetGlobalEvent, 1 PartyFollower<Unity, Neutral>, =1 Distant<LocalTerraformingSupport>, 1 PartyFollower<MarsFirst, Neutral>)
+
 // Generation 11
 // Celebrity Leaders pays 14 M€; the Greens bonus pays 7 M€ for bio tags.
 Bloo: Research {
@@ -835,6 +909,10 @@ Bloo: Research {
     pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
+
+Bloo: assert(=89 MC, =5 Steel, =9 Titanium, =6 Plant, =4 Energy, =13 Heat, =48 TerraformRating)
+Bloo: assert(=27 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =5 Titanium, =6 Plant, =4 Energy, =11 Heat])
+Bloo: assert(=11 Generation, =7 TemperatureStep, =11 OxygenStep, =7 OceanTile, =10 VenusStep)
 
 // Save 133: immediately after Research.
 Bloo: action(ConvertHeatAction) {
@@ -1029,6 +1107,9 @@ Bloo: GlobalEvent {
     10 MC
 }
 
+Bloo: assert(=1 Ruling<MarsFirst>, =1 Current<BioengineeringBoom>, =1 Coming<LocalTerraformingSupport>, =1 Dominant<Unity>, =0 CharismaticWgPresident)
+Bloo: assert(1 PartyFollower<Scientists, Neutral>, =1 Distant<PateraBoring>, 1 PartyLeader<Scientists, Neutral>)
+
 // Generation 12
 // Interplanetary Trade pays 10 M€; the Mars First bonus pays 18 M€ for building tags.
 Bloo: Research {
@@ -1037,6 +1118,10 @@ Bloo: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Bloo: assert(=120 MC, =3 Steel, =9 Titanium, =16 Plant, =1 Energy, =16 Heat, =59 TerraformRating)
+Bloo: assert(=33 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =5 Titanium, =12 Plant, =1 Energy, =11 Heat])
+Bloo: assert(=12 Generation, =10 TemperatureStep, =14 OxygenStep, =8 OceanTile, =12 VenusStep)
 
 // Save 168: immediately after Research.
 Bloo: action(ConvertHeatAction) {
@@ -1222,6 +1307,10 @@ Bloo: Production {
     3 Steel
 }
 
+Bloo: assert(=113 MC, =12 Steel, =8 Titanium, =16 Plant, =0 Energy, =11 Heat, =70 TerraformRating)
+Bloo: assert(=36 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =5 Titanium, =14 Plant, =0 Energy, =11 Heat])
+Bloo: assert(=12 Generation, =18 TemperatureStep, =14 OxygenStep, =9 OceanTile, =13 VenusStep)
+
 // Save 200: production completed and final greenery placement is pending.
 Bloo: action(ConvertPlantsAction) {
     pay(8 Plant)
@@ -1237,7 +1326,17 @@ Bloo {
     Ok
 }
 
+Bloo: assert(=0 ProjectCard)
+
 Bloo {
     150 VictoryPoint
 }
+
+Bloo: assert(=113 MC, =12 Steel, =8 Titanium, =2 Plant, =0 Energy, =11 Heat, =0 ProjectCard, =70 TerraformRating)
+Bloo: assert(=36 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =5 Titanium, =14 Plant, =0 Energy, =11 Heat])
+Bloo: assert(=150 VictoryPoint, =1 Victory, =4 CardResource<Tardigrades>, =4 CardResource<SmallAnimals>, =1 CardResource<OlympusConference>)
+Bloo: assert(=4 CardResource<NitriteReducingBacteria>, =3 CardResource<Extremophiles>, =1 CardResource<Fish>, =1 Current<BioengineeringBoom>)
+Bloo: assert(=1 Coming<LocalTerraformingSupport>, =1 Distant<PateraBoring>, =1 Ruling<MarsFirst>, =1 Dominant<Unity>, =1 Chairman<Neutral>)
+Bloo: assert(=1 PartyDelegate<MarsFirst>, =1 PartyDelegate<Scientists>, =1 PartyDelegate<Unity>, =2 PartyDelegate<Greens>, =1 PartyDelegate<Reds>)
+Bloo: assert(=1 PartyDelegate<Kelvinists>)
 // _local/replays/Game20260908/player-p145be84b9959.json; final Mars map.

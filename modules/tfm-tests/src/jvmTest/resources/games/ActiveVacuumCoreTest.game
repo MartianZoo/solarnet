@@ -270,6 +270,16 @@ Purple: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Blue: assert(=30 MC, =1 Steel, =1 Titanium, =1 Plant, =0 Energy, =0 Heat, =6 ProjectCard, =27 TerraformRating)
+Blue: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =1 Plant, =0 Energy, =0 Heat])
+Pink: assert(=34 MC, =1 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat, =6 ProjectCard, =20 TerraformRating)
+Pink: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Green: assert(=13 MC, =0 Steel, =2 Titanium, =0 Plant, =0 Energy, =0 Heat, =10 ProjectCard, =22 TerraformRating)
+Green: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Purple: assert(=35 MC, =1 Steel, =1 Titanium, =0 Plant, =2 Energy, =0 Heat, =6 ProjectCard, =27 TerraformRating)
+Purple: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =0 Plant, =2 Energy, =0 Heat])
+Blue: assert(=2 Generation, =0 TemperatureStep, =0 OxygenStep, =0 OceanTile, =7 VenusStep)
+
 // Database save 59: public player boards after generation 2 Research purchases.
 Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
@@ -415,6 +425,16 @@ Purple: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
+Blue: assert(=21 MC, =2 Steel, =1 Titanium, =7 Plant, =0 Energy, =0 Heat, =6 ProjectCard, =29 TerraformRating)
+Blue: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =1 Plant, =0 Energy, =0 Heat])
+Pink: assert(=25 MC, =2 Steel, =0 Titanium, =0 Plant, =1 Energy, =8 Heat, =6 ProjectCard, =20 TerraformRating)
+Pink: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =0 Plant, =1 Energy, =7 Heat])
+Green: assert(=18 MC, =0 Steel, =3 Titanium, =0 Plant, =0 Energy, =0 Heat, =11 ProjectCard, =24 TerraformRating)
+Green: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Purple: assert(=30 MC, =1 Steel, =2 Titanium, =1 Plant, =2 Energy, =2 Heat, =7 ProjectCard, =28 TerraformRating)
+Purple: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =2 Energy, =0 Heat])
+Blue: assert(=3 Generation, =0 TemperatureStep, =0 OxygenStep, =2 OceanTile, =8 VenusStep)
+
 // Database save 111: public player boards after generation 3 Research purchases.
 Green: playCard(LightningHarvest) {
     pay(6 MC)
@@ -555,6 +575,16 @@ Purple: Production {
 Green: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Blue: assert(=31 MC, =5 Steel, =4 Titanium, =6 Plant, =0 Energy, =0 Heat, =5 ProjectCard, =31 TerraformRating)
+Blue: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =1 Plant, =0 Energy, =0 Heat])
+Pink: assert(=42 MC, =3 Steel, =0 Titanium, =0 Plant, =0 Energy, =16 Heat, =5 ProjectCard, =20 TerraformRating)
+Pink: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =0 Plant, =0 Energy, =7 Heat])
+Green: assert(=27 MC, =0 Steel, =4 Titanium, =1 Plant, =1 Energy, =0 Heat, =9 ProjectCard, =24 TerraformRating)
+Green: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =1 Plant, =1 Energy, =0 Heat])
+Purple: assert(=33 MC, =1 Steel, =1 Titanium, =2 Plant, =2 Energy, =5 Heat, =4 ProjectCard, =32 TerraformRating)
+Purple: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =2 Plant, =2 Energy, =1 Heat])
+Blue: assert(=4 Generation, =3 TemperatureStep, =2 OxygenStep, =3 OceanTile, =8 VenusStep)
 
 // Database save 162: the public state at the start of generation 4 drafting. This checkpoint
 // precedes Research, so it neither names nor models cards that were still private then.
@@ -758,6 +788,16 @@ Purple: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Blue: assert(=40 MC, =1 Steel, =0 Titanium, =7 Plant, =0 Energy, =2 Heat, =5 ProjectCard, =33 TerraformRating)
+Blue: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =3 Plant, =0 Energy, =2 Heat])
+Pink: assert(=51 MC, =1 Steel, =0 Titanium, =0 Plant, =0 Energy, =9 Heat, =5 ProjectCard, =23 TerraformRating)
+Pink: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =0 Plant, =0 Energy, =9 Heat])
+Green: assert(=37 MC, =0 Steel, =3 Titanium, =3 Plant, =1 Energy, =2 Heat, =10 ProjectCard, =26 TerraformRating)
+Green: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =2 Plant, =1 Energy, =1 Heat])
+Purple: assert(=40 MC, =1 Steel, =2 Titanium, =4 Plant, =3 Energy, =9 Heat, =4 ProjectCard, =34 TerraformRating)
+Purple: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =2 Plant, =3 Energy, =2 Heat])
+Blue: assert(=5 Generation, =8 TemperatureStep, =3 OxygenStep, =4 OceanTile, =10 VenusStep)
+
 // Database save 237: the public state at the start of generation 5 drafting. This checkpoint
 // precedes Research, so it neither names nor models cards that are still private.
 // Research.
@@ -876,6 +916,16 @@ Green: useAction1(AppliedScience) {
     Titanium
 }
 
+Blue: assert(=23 MC, =1 Steel, =0 Titanium, =6 Plant, =0 Energy, =2 Heat, =6 ProjectCard, =33 TerraformRating)
+Blue: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =3 Plant, =0 Energy, =2 Heat])
+Pink: assert(=31 MC, =0 Steel, =0 Titanium, =1 Plant, =0 Energy, =1 Heat, =7 ProjectCard, =24 TerraformRating)
+Pink: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =0 Plant, =1 Energy, =7 Heat])
+Green: assert(=19 MC, =2 Steel, =4 Titanium, =3 Plant, =1 Energy, =2 Heat, =12 ProjectCard, =26 TerraformRating)
+Green: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =2 Plant, =1 Energy, =1 Heat])
+Purple: assert(=19 MC, =1 Steel, =0 Titanium, =4 Plant, =3 Energy, =1 Heat, =7 ProjectCard, =37 TerraformRating)
+Purple: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =2 Plant, =3 Energy, =2 Heat])
+Blue: assert(=5 Generation, =11 TemperatureStep, =3 OxygenStep, =5 OceanTile, =10 VenusStep)
+
 // Database save 282: complete public state after Green's Applied Science action. Private hands
 // are represented only by their public aggregate counts.
 Purple: playCard(PowerGrid) {
@@ -966,6 +1016,16 @@ Purple: Production {
 Blue: WorldGovernment {
     VenusStep! BY Admin
 }
+
+Blue: assert(=59 MC, =2 Steel, =0 Titanium, =9 Plant, =1 Energy, =4 Heat, =5 ProjectCard, =33 TerraformRating)
+Blue: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =3 Plant, =1 Energy, =2 Heat])
+Pink: assert(=41 MC, =1 Steel, =0 Titanium, =4 Plant, =2 Energy, =8 Heat, =6 ProjectCard, =24 TerraformRating)
+Pink: assert(=13 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =0 Plant, =2 Energy, =7 Heat])
+Green: assert(=30 MC, =3 Steel, =1 Titanium, =9 Plant, =1 Energy, =4 Heat, =10 ProjectCard, =29 TerraformRating)
+Green: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =1 Titanium, =6 Plant, =1 Energy, =1 Heat])
+Purple: assert(=39 MC, =2 Steel, =1 Titanium, =7 Plant, =8 Energy, =6 Heat, =6 ProjectCard, =37 TerraformRating)
+Purple: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =3 Plant, =8 Energy, =2 Heat])
+Blue: assert(=6 Generation, =12 TemperatureStep, =3 OxygenStep, =5 OceanTile, =11 VenusStep)
 
 // _local/replays/Game20260914/Heroku-g62d89e349c97/game-g62d89e349c97-save310.sqlite; source
 // save 310.
@@ -1247,6 +1307,16 @@ Pink: WorldGovernment {
 Blue: WorldGovernment {
     2 Plant
 }
+
+Blue: assert(=47 MC, =1 Steel, =1 Titanium, =12 Plant, =1 Energy, =7 Heat, =6 ProjectCard, =35 TerraformRating)
+Blue: assert(=12 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =3 Plant, =1 Energy, =2 Heat])
+Pink: assert(=43 MC, =1 Steel, =0 Titanium, =4 Plant, =2 Energy, =8 Heat, =5 ProjectCard, =29 TerraformRating)
+Pink: assert(=14 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =0 Plant, =2 Energy, =7 Heat])
+Green: assert(=31 MC, =2 Steel, =1 Titanium, =8 Plant, =3 Energy, =6 Heat, =6 ProjectCard, =32 TerraformRating)
+Green: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=2 Steel, =1 Titanium, =7 Plant, =3 Energy, =1 Heat])
+Purple: assert(=40 MC, =1 Steel, =2 Titanium, =11 Plant, =9 Energy, =16 Heat, =6 ProjectCard, =38 TerraformRating)
+Purple: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =4 Plant, =9 Energy, =2 Heat])
+Blue: assert(=7 Generation, =16 TemperatureStep, =5 OxygenStep, =8 OceanTile, =11 VenusStep)
 
 // Database save 414: complete public state at the start of generation 7 drafting.
 // Research.
@@ -1583,6 +1653,16 @@ Green: WorldGovernment {
     OxygenStep! BY Admin
 }
 
+Blue: assert(=61 MC, =1 Steel, =3 Titanium, =8 Plant, =0 Energy, =10 Heat, =2 ProjectCard, =38 TerraformRating)
+Blue: assert(=18 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =3 Plant, =0 Energy, =2 Heat])
+Pink: assert(=50 MC, =1 Steel, =0 Titanium, =9 Plant, =1 Energy, =16 Heat, =5 ProjectCard, =30 TerraformRating)
+Pink: assert(=20 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =4 Plant, =1 Energy, =7 Heat])
+Green: assert(=37 MC, =4 Steel, =3 Titanium, =15 Plant, =4 Energy, =10 Heat, =6 ProjectCard, =35 TerraformRating)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =1 Titanium, =15 Plant, =4 Energy, =1 Heat])
+Purple: assert(=46 MC, =1 Steel, =4 Titanium, =10 Plant, =8 Energy, =5 Heat, =5 ProjectCard, =42 TerraformRating)
+Purple: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =6 Plant, =8 Energy, =2 Heat])
+Blue: assert(=8 Generation, =19 TemperatureStep, =12 OxygenStep, =9 OceanTile, =11 VenusStep)
+
 // Database save 513: public state before generation 8 Research.
 // Research.
 Blue: Research {
@@ -1693,6 +1773,16 @@ Pink: useAction1(DevelopmentCenter) {
     pay(1 Energy)
     ProjectCard
 }
+
+Blue: assert(=60 MC, =0 Steel, =4 Titanium, =8 Plant, =0 Energy, =10 Heat, =4 ProjectCard, =38 TerraformRating)
+Blue: assert(=18 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =3 Plant, =0 Energy, =2 Heat])
+Pink: assert(=23 MC, =1 Steel, =0 Titanium, =2 Plant, =0 Energy, =16 Heat, =9 ProjectCard, =31 TerraformRating)
+Pink: assert(=22 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =4 Plant, =1 Energy, =7 Heat])
+Green: assert(=29 MC, =0 Steel, =4 Titanium, =10 Plant, =4 Energy, =10 Heat, =7 ProjectCard, =35 TerraformRating)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =1 Titanium, =15 Plant, =2 Energy, =1 Heat])
+Purple: assert(=25 MC, =1 Steel, =4 Titanium, =2 Plant, =2 Energy, =5 Heat, =5 ProjectCard, =43 TerraformRating)
+Purple: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =7 Plant, =7 Energy, =2 Heat])
+Blue: assert(=8 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =11 VenusStep)
 
 // Generation 8 (continued)
 // Database save 546: after Pink plays Stratospheric Expedition and uses Development Center.
@@ -1907,6 +1997,16 @@ Purple: Production {
     2 Heat
 }
 
+Blue: assert(=58 MC, =1 Steel, =3 Titanium, =5 Plant, =0 Energy, =12 Heat, =0 ProjectCard, =38 TerraformRating)
+Blue: assert(=18 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =3 Titanium, =4 Plant, =0 Energy, =2 Heat])
+Pink: assert(=56 MC, =2 Steel, =0 Titanium, =6 Plant, =0 Energy, =23 Heat, =0 ProjectCard, =32 TerraformRating)
+Pink: assert(=24 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =4 Plant, =0 Energy, =7 Heat])
+Green: assert(=45 MC, =4 Steel, =1 Titanium, =17 Plant, =2 Energy, =15 Heat, =0 ProjectCard, =35 TerraformRating)
+Green: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =1 Titanium, =15 Plant, =2 Energy, =1 Heat])
+Purple: assert(=50 MC, =2 Steel, =6 Titanium, =9 Plant, =7 Energy, =9 Heat, =0 ProjectCard, =43 TerraformRating)
+Purple: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =7 Plant, =7 Energy, =2 Heat])
+Blue: assert(=8 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =12 VenusStep)
+
 // Database save 622: final production, before the remaining greenery placements.
 Purple: action(ConvertPlantsAction) {
     pay(8 Plant)
@@ -1958,6 +2058,20 @@ Green {
 Purple {
     60 VictoryPoint
 }
+
+Blue: assert(=58 MC, =1 Steel, =3 Titanium, =5 Plant, =0 Energy, =12 Heat, =0 ProjectCard, =38 TerraformRating)
+Blue: assert(=18 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =3 Titanium, =4 Plant, =0 Energy, =2 Heat])
+Blue: assert(=74 VictoryPoint, =0 Victory)
+Pink: assert(=56 MC, =2 Steel, =0 Titanium, =6 Plant, =0 Energy, =23 Heat, =0 ProjectCard, =32 TerraformRating)
+Pink: assert(=24 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =4 Plant, =0 Energy, =7 Heat])
+Pink: assert(=78 VictoryPoint, =1 Victory)
+Green: assert(=47 MC, =4 Steel, =1 Titanium, =2 Plant, =2 Energy, =15 Heat, =0 ProjectCard, =35 TerraformRating)
+Green: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =1 Titanium, =15 Plant, =2 Energy, =1 Heat])
+Green: assert(=70 VictoryPoint, =0 Victory)
+Purple: assert(=54 MC, =2 Steel, =6 Titanium, =1 Plant, =7 Energy, =9 Heat, =0 ProjectCard, =43 TerraformRating)
+Purple: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =7 Plant, =7 Energy, =2 Heat])
+Purple: assert(=60 VictoryPoint, =0 Victory)
+Blue: assert(=8 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =12 VenusStep)
 // _local/replays/Game20260914/Heroku-g62d89e349c97/player-p6f50f47be7e8-save626.json; final
 // Mars map.
 // Database save 626 and the final player API record: completed public boards and scores.

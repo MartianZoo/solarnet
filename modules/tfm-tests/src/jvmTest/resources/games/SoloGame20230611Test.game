@@ -35,6 +35,10 @@ Me: playCard(ValleyTrust) {
     5 ProjectCard<Hand FROM Selecting>
 }
 
+Me: assert(=22 MC, =0 Steel, =0 Titanium, =0 Plant, =0 Energy, =0 Heat, =5 ProjectCard, =14 TerraformRating)
+Me: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Me: assert(=1 Generation, =0 TemperatureStep, =0 OxygenStep, =0 OceanTile, =0 VenusStep)
+
 // ...
 Me: playCard(Biolab) {
     PROD[Plant]
@@ -79,6 +83,10 @@ Me: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Me: assert(=22 MC, =1 Steel, =2 Titanium, =1 Plant, =1 Energy, =0 Heat, =8 ProjectCard, =14 TerraformRating)
+Me: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =1 Plant, =1 Energy, =0 Heat])
+Me: assert(=2 Generation, =0 TemperatureStep, =0 OxygenStep, =0 OceanTile, =0 VenusStep)
 
 // ...
 Me: playCard(AcquiredCompany) {
@@ -145,6 +153,10 @@ Me: Research {
     pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
+
+Me: assert(=29 MC, =1 Steel, =4 Titanium, =3 Plant, =3 Energy, =2 Heat, =8 ProjectCard, =15 TerraformRating)
+Me: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =1 Plant, =3 Energy, =0 Heat])
+Me: assert(=4 Generation, =1 TemperatureStep, =0 OxygenStep, =0 OceanTile, =0 VenusStep)
 
 // ...
 Me: playCard(RegolithEaters) {
@@ -230,6 +242,10 @@ Me: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Me: assert(=22 MC, =1 Steel, =5 Titanium, =6 Plant, =1 Energy, =9 Heat, =10 ProjectCard, =19 TerraformRating)
+Me: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =2 Plant, =1 Energy, =1 Heat])
+Me: assert(=6 Generation, =3 TemperatureStep, =0 OxygenStep, =0 OceanTile, =1 VenusStep)
 
 Me: action(ConvertHeatAction) {
     pay(8 Heat)
@@ -340,6 +356,10 @@ Me: Research {
     pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
+
+Me: assert(=33 MC, =1 Steel, =4 Titanium, =2 Plant, =5 Energy, =5 Heat, =14 ProjectCard, =27 TerraformRating)
+Me: assert(=14 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =2 Plant, =3 Energy, =1 Heat])
+Me: assert(=8 Generation, =4 TemperatureStep, =2 OxygenStep, =1 OceanTile, =1 VenusStep)
 
 Me: useAction1(SubCrustMeasurements) {
     ProjectCard
@@ -465,6 +485,10 @@ Me: Research {
     4 ProjectCard<Selecting>
     -4 ProjectCard<Selecting>
 }
+
+Me: assert(=56 MC, =1 Steel, =6 Titanium, =7 Plant, =6 Energy, =8 Heat, =10 ProjectCard, =32 TerraformRating)
+Me: assert(=17 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =3 Titanium, =3 Plant, =3 Energy, =5 Heat])
+Me: assert(=10 Generation, =5 TemperatureStep, =3 OxygenStep, =1 OceanTile, =2 VenusStep)
 
 Me: useAction1(AiCentral) {
     2 ProjectCard
@@ -697,6 +721,10 @@ Me: action(ConvertPlantsAction) {
     OxygenStep
     TerraformRating
 }
+
+Me: assert(=8 MC, =1 Steel, =0 Titanium, =0 Plant, =0 Energy, =1 Heat, =0 ProjectCard, =64 TerraformRating)
+Me: assert(=24 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =4 Titanium, =4 Plant, =2 Energy, =6 Heat])
+Me: assert(=12 Generation, =10 TemperatureStep, =11 OxygenStep, =2 OceanTile, =8 VenusStep)
 Me: pass
 
 Me: Production {
@@ -708,6 +736,9 @@ Me: Production {
     2 Energy
 }
 
+Me: assert(=4 Plant)
+Me: assert(1 Victory)
+
 // Final plant conversion would happen, but...
 // Decline the final greenery placement.
 // decline final greenery
@@ -718,4 +749,6 @@ Me {
 Me {
     78 VictoryPoint
 }
+
+Me: assert(=78 VictoryPoint)
 // wow that was not good

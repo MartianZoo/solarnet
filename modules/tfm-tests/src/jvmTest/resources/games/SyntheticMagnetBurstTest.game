@@ -40,6 +40,8 @@ Green: Setup {
     -6 ProjectCard<Selecting>
 }
 
+Pink: assert(=1 Generation)
+
 // Generation 1
 // Pink rejected CrediCor and Ecotec; Venus Contract and Focused Organization; and Windmills,
 // Open City, and Energy Saving.
@@ -173,22 +175,28 @@ Pink: WorldGovernment {
 }
 
 // Generation 2
-Pink: Research {
+Green: Research {
     4 ProjectCard<Selecting>
 
-    // Game20260820-dashboards-gen2.png was taken after Green's generation 2 purchase and
-    // before Pink's.
-    // You bought Invention Contest,Decomposers,Colonizer Training Camp,Imported Hydrogen
+    // You bought Giant Ice Asteroid,Investment Loan,Earth Office,Power Supply Consortium
     // Keep all four offered cards.
     -0 ProjectCard<Selecting>
     pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Green: Research {
+// Game20260820-dashboards-gen2.png was taken after Green's generation 2 purchase and
+// before Pink's.
+Pink: assert(=28 MC, =3 Steel, =0 Titanium, =0 Plant, =1 Energy, =1 Heat)
+Pink: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =0 Titanium, =0 Plant, =1 Energy, =1 Heat])
+Green: assert(=15 MC, =0 Steel, =2 Titanium, =1 Plant, =1 Energy, =0 Heat)
+Green: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =0 Titanium, =1 Plant, =1 Energy, =0 Heat])
+Pink: assert(=2 Generation, =0 TemperatureStep, =0 OxygenStep, =3 OceanTile, =0 VenusStep)
+
+Pink: Research {
     4 ProjectCard<Selecting>
 
-    // You bought Giant Ice Asteroid,Investment Loan,Earth Office,Power Supply Consortium
+    // You bought Invention Contest,Decomposers,Colonizer Training Camp,Imported Hydrogen
     // Keep all four offered cards.
     -0 ProjectCard<Selecting>
     pay(12 MC)
@@ -275,6 +283,12 @@ Green: Research {
     pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
+
+Pink: assert(=20 MC, =6 Steel, =0 Titanium, =2 Plant, =0 Energy, =3 Heat)
+Pink: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =0 Titanium, =2 Plant, =0 Energy, =1 Heat])
+Green: assert(=20 MC, =0 Steel, =0 Titanium, =2 Plant, =2 Energy, =4 Heat)
+Green: assert(=2 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =0 Titanium, =1 Plant, =2 Energy, =0 Heat])
+Pink: assert(=3 Generation, =0 TemperatureStep, =1 OxygenStep, =4 OceanTile, =0 VenusStep)
 
 // Game20260820-dashboards-gen3.png was taken after generation 3 purchases and before
 // the first action.
@@ -418,6 +432,12 @@ Green: Production {
 Green: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Pink: assert(=31 MC, =9 Steel, =2 Titanium, =8 Plant, =0 Energy, =7 Heat)
+Pink: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =2 Titanium, =3 Plant, =0 Energy, =3 Heat])
+Green: assert(=30 MC, =0 Steel, =0 Titanium, =5 Plant, =2 Energy, =8 Heat)
+Green: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =2 Energy, =0 Heat])
+Pink: assert(=5 Generation, =0 TemperatureStep, =2 OxygenStep, =5 OceanTile, =4 VenusStep)
 
 // Generation 5
 Pink: Research {
@@ -671,6 +691,12 @@ Green: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Pink: assert(=25 MC, =3 Steel, =5 Titanium, =4 Plant, =0 Energy, =9 Heat)
+Pink: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =3 Titanium, =3 Plant, =0 Energy, =4 Heat])
+Green: assert(=25 MC, =1 Steel, =2 Titanium, =7 Plant, =4 Energy, =3 Heat)
+Green: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =0 Titanium, =1 Plant, =4 Energy, =1 Heat])
+Pink: assert(=7 Generation, =6 TemperatureStep, =4 OxygenStep, =6 OceanTile, =5 VenusStep)
+
 // Game20260820-dashboards-gen7.png was taken after generation 7 purchases and before actions.
 Pink: playCard(DeimosDown) {
     pay(5 Titanium, 14 MC)
@@ -759,6 +785,12 @@ Green: Production {
 Pink: WorldGovernment {
     TemperatureStep! BY Admin
 }
+
+Pink: assert(=39 MC, =9 Steel, =3 Titanium, =7 Plant, =0 Energy, =5 Heat)
+Pink: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =3 Titanium, =3 Plant, =0 Energy, =4 Heat])
+Green: assert(=39 MC, =0 Steel, =0 Titanium, =1 Plant, =7 Energy, =4 Heat)
+Green: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =7 Energy, =1 Heat])
+Pink: assert(=8 Generation, =11 TemperatureStep, =5 OxygenStep, =7 OceanTile, =5 VenusStep)
 
 // Generation 8
 Pink: Research {
@@ -977,6 +1009,12 @@ Pink: useAction1(SpaceElevator) {
     5 MC
 }
 
+Pink: assert(=21 MC, =2 Steel, =3 Titanium, =0 Plant, =1 Energy, =6 Heat)
+Pink: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =3 Titanium, =4 Plant, =1 Energy, =7 Heat])
+Green: assert(=41 MC, =0 Steel, =0 Titanium, =2 Plant, =6 Energy, =0 Heat)
+Green: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =6 Energy, =1 Heat])
+Pink: assert(=9 Generation, =18 TemperatureStep, =8 OxygenStep, =9 OceanTile, =6 VenusStep)
+
 // Game20260820-dashboards-gen9-early.png was taken after Space Elevator and before Ironworks.
 Green: useAction1(Ironworks) {
     pay(4 Energy)
@@ -1087,6 +1125,12 @@ Green: Production {
     Heat VIA Production
     2 Heat FROM Energy
 }
+
+Pink: assert(=62 MC, =4 Steel, =4 Titanium, =4 Plant, =0 Energy, =7 Heat)
+Pink: assert(=13 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =4 Titanium, =4 Plant, =0 Energy, =6 Heat])
+Green: assert(=47 MC, =1 Steel, =0 Titanium, =5 Plant, =6 Energy, =3 Heat)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =3 Plant, =6 Energy, =1 Heat])
+Pink: assert(=9 Generation, =19 TemperatureStep, =9 OxygenStep, =9 OceanTile, =8 VenusStep)
 
 // Game20260820-dashboards-gen9-late.png was taken after production and before World Government.
 // World Government.
@@ -1263,6 +1307,12 @@ Green: Production {
     2 Heat FROM Energy
     Steel
 }
+
+Pink: assert(=76 MC, =3 Steel, =4 Titanium, =6 Plant, =1 Energy, =13 Heat)
+Pink: assert(=23 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =4 Titanium, =4 Plant, =1 Energy, =6 Heat])
+Green: assert(=54 MC, =1 Steel, =0 Titanium, =9 Plant, =5 Energy, =6 Heat)
+Green: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =4 Plant, =5 Energy, =1 Heat])
+Pink: assert(=10 Generation, =19 TemperatureStep, =12 OxygenStep, =9 OceanTile, =10 VenusStep)
 
 // Game20260820-dashboards-gen10.png was taken after production and before World Government.
 // World Government.
@@ -1455,6 +1505,8 @@ Green: Production {
     Steel
 }
 
+Pink: assert(=11 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =15 VenusStep)
+
 // Final greenery placement
 // Pink declines the final greenery placement.
 // decline final greenery
@@ -1468,6 +1520,9 @@ Green {
     Ok
 }
 
+Pink: assert(=0 ProjectCard)
+Green: assert(=0 ProjectCard)
+
 Pink {
     100 VictoryPoint
 }
@@ -1475,4 +1530,12 @@ Pink {
 Green {
     75 VictoryPoint
 }
+
+Pink: assert(=41 TerraformRating, =71 MC, =5 Steel, =7 Titanium, =5 Plant, =1 Energy, =20 Heat)
+Pink: assert(=25 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =4 Titanium, =4 Plant, =1 Energy, =6 Heat])
+Pink: assert(=100 VictoryPoint, =1 Victory, =9 CardResource<Decomposers>, =6 CardResource<EcologicalZone>, =4 CardResource<FloatingHabs>)
+Pink: assert(=3 CardResource<GhgProducingBacteria>, =4 CardResource<Herbivores>, =2 CardResource<Birds>)
+Green: assert(=51 TerraformRating, =69 MC, =1 Steel, =0 Titanium, =6 Plant, =3 Energy, =8 Heat)
+Green: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =2 Plant, =3 Energy, =1 Heat])
+Green: assert(=75 VictoryPoint, =0 Victory)
 // _local/replays/Game20260820/player.json; final Mars map.

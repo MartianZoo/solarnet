@@ -5,6 +5,7 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class RoutineCommandTest {
   @Test
@@ -57,6 +58,16 @@ internal class RoutineCommandTest {
     val before = repl.agent.count("TemperatureStep")
     repl.command("task TemperatureStep")
     assertEquals(before + 1, repl.agent.count("TemperatureStep"))
+  }
+
+  @Test
+  internal fun assertionsWorkThroughBothCommandSpellings() {
+    val repl = actionGame("2 Steel")
+    assertEquals(listOf("Assertion passed."), repl.command("assert(=2 Steel, MAX 0 OxygenStep)"))
+    assertEquals(listOf("Assertion passed."), repl.command("assert =2 Steel"))
+    val failure = repl.command("assert(=3 Steel)").single()
+    assertTrue("Assertion failed for Player1: =3 Steel" in failure)
+    assertTrue("Steel<Player1> = 2" in failure)
   }
 
   private fun actionGame(contents: String): ScriptSession {

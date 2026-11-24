@@ -50,6 +50,8 @@ Player3: Setup {
     -3 ProjectCard<Selecting>
 }
 
+Player1: assert(=1 Generation)
+
 // Generation 1
 Player1: playCard(Recyclon) {
     38 MC VIA Recyclon
@@ -164,6 +166,13 @@ Player3: Production {
     2 Heat
     Plant
 }
+
+Player1: assert(=38 MC, =1 Steel, =0 Titanium, =3 Plant, =2 Energy, =4 Heat)
+Player1: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=1 Steel, =0 Titanium, =2 Plant, =2 Energy, =1 Heat])
+Player2: assert(=26 MC, =1 Steel, =1 Titanium, =1 Plant, =0 Energy, =1 Heat)
+Player2: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =0 Energy, =1 Heat])
+Player3: assert(=23 MC, =1 Steel, =2 Titanium, =1 Plant, =0 Energy, =4 Heat)
+Player3: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =1 Plant, =0 Energy, =2 Heat])
 
 // Generation 2
 Player1: Research {
@@ -291,6 +300,13 @@ Player3: Production {
     2 Plant
 }
 
+Player1: assert(=36 MC, =1 Steel, =0 Titanium, =7 Plant, =0 Energy, =7 Heat)
+Player1: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=1 Steel, =0 Titanium, =4 Plant, =0 Energy, =1 Heat])
+Player2: assert(=24 MC, =1 Steel, =3 Titanium, =2 Plant, =1 Energy, =2 Heat)
+Player2: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =3 Titanium, =1 Plant, =1 Energy, =1 Heat])
+Player3: assert(=27 MC, =2 Steel, =2 Titanium, =3 Plant, =0 Energy, =6 Heat)
+Player3: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =2 Plant, =0 Energy, =2 Heat])
+
 // Generation 3
 Player1: Research {
     4 ProjectCard<Selecting>
@@ -357,6 +373,8 @@ Player3: playCard(CorporateStronghold) {
     Plant
     Steel
 }
+
+Player1: assert(=7 Plant)
 Player3: action(ClaimMilestoneAction) {
     pay(8 MC)
     Diversifier
@@ -370,6 +388,8 @@ Player1: playCard(IndustrialCenter) {
     -2 Microbe<Recyclon>
     PROD[Plant]
 }
+
+Player1: assert(=8 Plant)
 Player1: action(ConvertPlantsAction) {
     pay(8 Plant)
     GreeneryTile<Hellas_1_2>
@@ -429,6 +449,13 @@ Player3: Production {
     2 Heat
     2 Plant
 }
+
+Player1: assert(=30 MC, =1 Steel, =0 Titanium, =9 Plant, =1 Energy, =3 Heat)
+Player1: assert(=2 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=1 Steel, =0 Titanium, =5 Plant, =1 Energy, =1 Heat])
+Player2: assert(=25 MC, =2 Steel, =4 Titanium, =3 Plant, =0 Energy, =8 Heat)
+Player2: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =3 Titanium, =1 Plant, =0 Energy, =5 Heat])
+Player3: assert(=24 MC, =2 Steel, =4 Titanium, =6 Plant, =0 Energy, =8 Heat)
+Player3: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =2 Plant, =0 Energy, =2 Heat])
 
 // Generation 4
 Player1: Research {
@@ -580,6 +607,13 @@ Player3: Production {
     2 Plant
     2 Energy
 }
+
+Player1: assert(=33 MC, =1 Steel, =0 Titanium, =9 Plant, =1 Energy, =5 Heat)
+Player1: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=1 Steel, =0 Titanium, =5 Plant, =1 Energy, =1 Heat])
+Player2: assert(=24 MC, =4 Steel, =3 Titanium, =5 Plant, =0 Energy, =9 Heat)
+Player2: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =3 Titanium, =1 Plant, =0 Energy, =9 Heat])
+Player3: assert(=27 MC, =1 Steel, =4 Titanium, =8 Plant, =2 Energy, =10 Heat)
+Player3: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =2 Plant, =2 Energy, =2 Heat])
 
 // Generation 5
 Player1: Research {
@@ -747,6 +781,13 @@ Player3: Production {
     2 Energy VIA Production
     2 Heat FROM Energy
 }
+
+Player1: assert(=40 MC, =5 Steel, =0 Titanium, =6 Plant, =2 Energy, =7 Heat)
+Player1: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =5 Plant, =2 Energy, =1 Heat])
+Player2: assert(=28 MC, =7 Steel, =6 Titanium, =6 Plant, =1 Energy, =11 Heat)
+Player2: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =3 Titanium, =1 Plant, =1 Energy, =10 Heat])
+Player3: assert(=29 MC, =3 Steel, =0 Titanium, =3 Plant, =2 Energy, =6 Heat)
+Player3: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =2 Plant, =2 Energy, =2 Heat])
 
 // Generation 6
 Player1: Research {
@@ -921,6 +962,13 @@ Player3: Production {
     2 Plant
     2 Heat FROM Energy
 }
+
+Player1: assert(=49 MC, =2 Steel, =0 Titanium, =8 Plant, =2 Energy, =5 Heat)
+Player1: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =5 Plant, =2 Energy, =1 Heat])
+Player2: assert(=37 MC, =7 Steel, =9 Titanium, =2 Plant, =0 Energy, =16 Heat)
+Player2: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =3 Titanium, =2 Plant, =0 Energy, =10 Heat])
+Player3: assert(=39 MC, =2 Steel, =0 Titanium, =6 Plant, =0 Energy, =10 Heat)
+Player3: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =2 Plant, =0 Energy, =2 Heat])
 
 // Generation 7
 Player1: Research {
@@ -1129,6 +1177,13 @@ Player3: Production {
     5 Plant
     2 Energy
 }
+
+Player1: assert(=55 MC, =2 Steel, =0 Titanium, =10 Plant, =2 Energy, =6 Heat)
+Player1: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =6 Plant, =2 Energy, =1 Heat])
+Player2: assert(=39 MC, =10 Steel, =6 Titanium, =4 Plant, =0 Energy, =10 Heat)
+Player2: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =6 Titanium, =2 Plant, =0 Energy, =10 Heat])
+Player3: assert(=41 MC, =1 Steel, =2 Titanium, =8 Plant, =2 Energy, =2 Heat, =9 ProjectCard)
+Player3: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =5 Plant, =2 Energy, =0 Heat])
 
 // Generation 8
 Player1: Research {
@@ -1360,6 +1415,13 @@ Player3: Production {
     6 Plant
     2 Heat FROM Energy
 }
+
+Player1: assert(=62 MC, =2 Steel, =0 Titanium, =12 Plant, =4 Energy, =7 Heat)
+Player1: assert(=12 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =7 Plant, =4 Energy, =1 Heat])
+Player2: assert(=48 MC, =15 Steel, =7 Titanium, =7 Plant, =1 Energy, =15 Heat)
+Player2: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =7 Titanium, =2 Plant, =1 Energy, =10 Heat])
+Player3: assert(=41 MC, =1 Steel, =2 Titanium, =9 Plant, =0 Energy, =4 Heat, =5 ProjectCard)
+Player3: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =6 Plant, =0 Energy, =0 Heat])
 
 // Generation 9
 Player1: Research {
@@ -1602,6 +1664,16 @@ Player2 {
     Ok
 }
 
+Player1: assert(=0 ProjectCard, =56 MC, =5 Steel, =0 Titanium, =6 Plant, =4 Energy, =13 Heat)
+Player1: assert(=13 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =0 Titanium, =8 Plant, =4 Energy, =1 Heat])
+Player1: assert(=1 FirstPlace<Player1>, =0 SecondPlace<Player1>)
+Player2: assert(=0 ProjectCard, =63 MC, =5 Steel, =7 Titanium, =3 Plant, =0 Energy, =29 Heat)
+Player2: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =7 Titanium, =4 Plant, =0 Energy, =13 Heat])
+Player2: assert(=1 FirstPlace<Player2>, =1 SecondPlace<Player2>)
+Player3: assert(=0 ProjectCard, =57 MC, =1 Steel, =3 Titanium, =1 Plant, =0 Energy, =4 Heat)
+Player3: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =6 Plant, =0 Energy, =0 Heat])
+Player3: assert(=1 FirstPlace<Player3>, =2 SecondPlace<Player3>)
+
 Player1 {
     74 VictoryPoint
 }
@@ -1613,4 +1685,11 @@ Player2 {
 Player3 {
     67 VictoryPoint
 }
+
+Player1: assert(=42 TerraformRating)
+Player1: assert(=74 VictoryPoint, =0 Victory)
+Player2: assert(=44 TerraformRating)
+Player2: assert(=74 VictoryPoint, =1 Victory)
+Player3: assert(=34 TerraformRating)
+Player3: assert(=67 VictoryPoint, =0 Victory)
 // _local/replays/Game20260811/Game20260811-herokuapp-player.json; final Mars map.

@@ -70,6 +70,8 @@ Yellow: Setup {
     -3 ProjectCard<Selecting>
 }
 
+Green: assert(=1 Coming<ThawMining>, 1 PartyLeader<Kelvinists, Neutral>, =1 Distant<MartianProtectionism>, 1 PartyLeader<MarsFirst, Neutral>)
+
 // Generation 1
 // "Our coming global event is Mud Slides, and our distant global event is Venus
 // Infrastructure."
@@ -340,12 +342,26 @@ Blue: Production {
     2 Heat
 }
 
+Green: assert(=29 MC, =0 Steel, =0 Titanium, =1 Plant, =1 Energy, =0 Heat, =21 TerraformRating)
+Yellow: assert(=24 MC, =1 Steel, =1 Titanium, =0 Plant, =2 Energy, =1 Heat, =22 TerraformRating)
+Blue: assert(=29 MC, =0 Steel, =0 Titanium, =1 Plant, =6 Energy, =2 Heat, =23 TerraformRating)
+
 // Complete phone-ledger resource checkpoint after Generation 1 production. World Government
 // is pending, so the Turmoil TR revision must not have happened yet.
 // "I will world government." "Five, eight." "So just increase oceans by one?"
 Green: WorldGovernment {
     OceanTile<Vastitas_5_8>! BY Admin
 }
+
+Green: assert(=30 MC, =0 Steel, =0 Titanium, =1 Plant, =1 Energy, =0 Heat, =21 TerraformRating)
+Green: assert(=2 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =0 Titanium, =1 Plant, =1 Energy, =0 Heat])
+Green: assert(=1 Ruling<Scientists>, =1 Dominant<Greens>, =1 Current<ThawMining>, =1 Coming<MartianProtectionism>, =1 Distant<ScienceSummit>)
+Yellow: assert(=25 MC, =1 Steel, =1 Titanium, =0 Plant, =2 Energy, =1 Heat, =21 TerraformRating)
+Yellow: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =0 Plant, =2 Energy, =1 Heat])
+Yellow: assert(=1 ScienceTag)
+Blue: assert(=30 MC, =0 Steel, =0 Titanium, =1 Plant, =6 Energy, =2 Heat, =22 TerraformRating)
+Blue: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =6 Energy, =2 Heat])
+Green: assert(=2 Generation, =3 TemperatureStep, =2 OxygenStep, =1 OceanTile, =0 VenusStep)
 
 // "Oh, turmoil." "Walk us through it." "TR Revision, all players lose one TR." "Boo."
 // "New Government. The dominant party now becomes ruling. Change policy title to Scientists."
@@ -565,6 +581,14 @@ Blue: Production {
     Steel
 }
 
+Green: assert(=18 MC, =0 Steel, =0 Titanium, =2 Plant, =4 Energy, =1 Heat, =21 TerraformRating)
+Green: assert(=3 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =0 Titanium, =1 Plant, =4 Energy, =0 Heat])
+Green: assert(=3 PartyDelegate<Anyone, Reds>, =3 PartyDelegate<Anyone, Greens>, =3 PartyDelegate<Anyone, Unity>, =1 Dominant<Greens>)
+Yellow: assert(=35 MC, =2 Steel, =2 Titanium, =0 Plant, =2 Energy, =4 Heat, =21 TerraformRating)
+Yellow: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =0 Plant, =2 Energy, =1 Heat])
+Blue: assert(=27 MC, =1 Steel, =1 Titanium, =2 Plant, =5 Energy, =10 Heat, =22 TerraformRating)
+Blue: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =5 Energy, =2 Heat])
+
 // Reds, Greens, and Unity each have three delegates. The existing marker therefore remains on
 // Greens, matching the spoken government formation and board-12-18-40.jpg.
 // Complete phone-ledger checkpoint after Generation 2 production. Pristar's preservation
@@ -587,6 +611,16 @@ Yellow: GlobalEvent {
 Blue: GlobalEvent {
     -0* MC
 }
+
+Green: assert(=20 MC, =0 Steel, =0 Titanium, =2 Plant, =4 Energy, =1 Heat, =21 TerraformRating)
+Green: assert(=3 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =0 Titanium, =1 Plant, =4 Energy, =0 Heat])
+Green: assert(=3 PartyDelegate<Anyone, Reds>, =4 PartyDelegate<Anyone, Unity>, =1 Ruling<Greens>, =1 Dominant<Unity>, =1 Current<MartianProtectionism>)
+Green: assert(=1 Coming<ScienceSummit>, =1 Distant<BioengineeringBoom>)
+Yellow: assert(=35 MC, =2 Steel, =2 Titanium, =0 Plant, =2 Energy, =4 Heat, =20 TerraformRating)
+Yellow: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =0 Plant, =2 Energy, =1 Heat])
+Blue: assert(=28 MC, =1 Steel, =1 Titanium, =2 Plant, =5 Energy, =10 Heat, =21 TerraformRating)
+Blue: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =5 Energy, =2 Heat])
+Green: assert(=3 Generation, =3 TemperatureStep, =2 OxygenStep, =2 OceanTile, =0 VenusStep)
 
 // Mud Slides charges nobody because influence covers every adjacent owned tile. Greens forms
 // the government and Green becomes chairman.
@@ -763,6 +797,14 @@ Blue: Production {
     Steel
 }
 
+Green: assert(=32 MC, =0 Steel, =0 Titanium, =3 Plant, =4 Energy, =2 Heat, =22 TerraformRating)
+Green: assert(=3 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =0 Titanium, =1 Plant, =4 Energy, =0 Heat])
+Yellow: assert(=46 MC, =2 Steel, =1 Titanium, =0 Plant, =2 Energy, =7 Heat, =20 TerraformRating)
+Yellow: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =1 Titanium, =0 Plant, =2 Energy, =1 Heat])
+Blue: assert(=27 MC, =3 Steel, =2 Titanium, =3 Plant, =5 Energy, =9 Heat, =21 TerraformRating)
+Blue: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =5 Energy, =2 Heat])
+Green: assert(=3 Generation, =3 TemperatureStep, =3 OxygenStep, =2 OceanTile, =0 VenusStep)
+
 // board-12-36-50.jpg and the phone histories show these complete physical ledgers after
 // production and before World Government or Turmoil. Yellow's phone still reads 40 M€ because
 // its 6 M€ Pristar reward is entered later with the Solar payouts; the engine has already
@@ -785,6 +827,16 @@ Yellow: GlobalEvent {
 Blue: GlobalEvent {
     4 MC
 }
+
+Green: assert(=39 MC, =0 Steel, =0 Titanium, =3 Plant, =4 Energy, =2 Heat, =21 TerraformRating)
+Green: assert(=3 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =0 Titanium, =1 Plant, =4 Energy, =0 Heat])
+Green: assert(=1 Ruling<Unity>, =1 Dominant<Reds>, =1 Current<ScienceSummit>, =1 Coming<BioengineeringBoom>, =1 Distant<FreeAcademiaTreaty>)
+Green: assert(1 PartyFollower<Greens, Neutral>, 1 PartyFollower<Scientists, Neutral>)
+Yellow: assert(=53 MC, =2 Steel, =1 Titanium, =0 Plant, =2 Energy, =7 Heat, =19 TerraformRating)
+Yellow: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =1 Titanium, =0 Plant, =2 Energy, =1 Heat])
+Blue: assert(=33 MC, =3 Steel, =2 Titanium, =3 Plant, =5 Energy, =9 Heat, =21 TerraformRating)
+Blue: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =5 Energy, =2 Heat])
+Green: assert(=4 Generation, =3 TemperatureStep, =3 OxygenStep, =2 OceanTile, =1 VenusStep)
 
 // Generation 4
 // Venus Infrastructure pays Green 6 M€, Yellow 4 M€, and Blue 4 M€ from their recorded
@@ -1010,6 +1062,14 @@ Blue: Production {
     2 Heat FROM Energy
 }
 
+Green: assert(=35 MC, =0 Steel, =2 Titanium, =6 Plant, =3 Energy, =5 Heat, =22 TerraformRating)
+Green: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =3 Plant, =3 Energy, =2 Heat])
+Yellow: assert(=44 MC, =4 Steel, =1 Titanium, =1 Plant, =2 Energy, =10 Heat, =19 TerraformRating)
+Yellow: assert(=19 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =1 Titanium, =1 Plant, =2 Energy, =1 Heat])
+Blue: assert(=32 MC, =1 Steel, =2 Titanium, =6 Plant, =4 Energy, =10 Heat, =23 TerraformRating)
+Blue: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =1 Plant, =4 Energy, =2 Heat])
+Green: assert(=4 Generation, =3 TemperatureStep, =4 OxygenStep, =2 OceanTile, =1 VenusStep)
+
 // Photographed post-production phone ledgers, with Yellow's separately logged Pristar
 // reward included below. The board photograph still shows oxygen at four.
 // yellow-applog-04.jpg row 95 has 38 MC before Pristar;
@@ -1033,6 +1093,14 @@ Yellow: GlobalEvent {
 Blue: GlobalEvent {
     ProjectCard
 }
+
+Yellow: assert(=6 ProjectCard)
+Yellow: assert(=0 CardResource<SearchForLife>)
+Green: assert(=14 ProjectCard)
+Green: assert(=1 Ruling<Reds>, =1 Dominant<Scientists>, =1 Current<BioengineeringBoom>, =1 Coming<FreeAcademiaTreaty>, =1 Distant<SecondEnergyCrisis>)
+Green: assert(1 PartyFollower<Scientists, Neutral>)
+Blue: assert(=10 ProjectCard)
+Green: assert(=5 Generation, =3 TemperatureStep, =5 OxygenStep, =2 OceanTile, =1 VenusStep)
 
 // Generation 5
 // At 6:38:48 pm, the table notes that Search for Life has no science to receive a bonus.
@@ -1284,6 +1352,14 @@ Green: Production {
     0 Energy FROM Heat
 }
 
+Green: assert(=27 MC, =0 Steel, =0 Titanium, =9 Plant, =3 Energy, =13 Heat, =22 TerraformRating)
+Green: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =3 Plant, =3 Energy, =5 Heat])
+Yellow: assert(=59 MC, =2 Steel, =2 Titanium, =2 Plant, =0 Energy, =17 Heat, =19 TerraformRating)
+Yellow: assert(=27 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =1 Plant, =0 Energy, =5 Heat])
+Blue: assert(=31 MC, =1 Steel, =2 Titanium, =9 Plant, =4 Energy, =9 Heat, =22 TerraformRating)
+Blue: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =1 Plant, =4 Energy, =2 Heat])
+Green: assert(=5 Generation, =3 TemperatureStep, =5 OxygenStep, =2 OceanTile, =1 VenusStep)
+
 // yellow-applog-06.jpg row 131 has 53 MC before Pristar;
 // row 139 records its separate 6 MC, bringing the balance to 59.
 // _local/replays/Game20260912/board-21-13-22.jpg; before World Government Terraforming.
@@ -1312,6 +1388,12 @@ Blue: GlobalEvent {
 // likeliest entry mistake is therefore recording both announced event awards for Blue while
 // omitting Blue's own 2 M€ ruling bonus, a net overpayment of four.
 Blue: exMachina(4 MC)
+
+Green: assert(=42 MC, =0 Steel, =0 Titanium, =9 Plant, =3 Energy, =13 Heat, =21 TerraformRating)
+Green: assert(=1 PartyLeader<Scientists, Neutral>, =1 Distant<WorldGovernmentDirectives>, 1 PartyFollower<Unity, Neutral>)
+Yellow: assert(=68 MC, =2 Steel, =2 Titanium, =2 Plant, =0 Energy, =17 Heat, =18 TerraformRating)
+Blue: assert(=41 MC, =1 Steel, =2 Titanium, =9 Plant, =4 Energy, =9 Heat, =21 TerraformRating)
+Green: assert(=6 Generation, =3 TemperatureStep, =5 OxygenStep, =3 OceanTile, =1 VenusStep)
 
 // Generation 6
 // Research.
@@ -1645,6 +1727,14 @@ Green: Production {
     0 Energy FROM Heat
 }
 
+Green: assert(=34 MC, =0 Steel, =0 Titanium, =8 Plant, =4 Energy, =16 Heat, =25 TerraformRating)
+Green: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =4 Plant, =4 Energy, =5 Heat])
+Yellow: assert(=55 MC, =2 Steel, =2 Titanium, =6 Plant, =0 Energy, =8 Heat, =24 TerraformRating)
+Yellow: assert(=28 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =1 Plant, =0 Energy, =6 Heat])
+Blue: assert(=41 MC, =1 Steel, =3 Titanium, =11 Plant, =4 Energy, =4 Heat, =24 TerraformRating)
+Blue: assert(=12 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =4 Energy, =2 Heat])
+Green: assert(=6 Generation, =8 TemperatureStep, =6 OxygenStep, =5 OceanTile, =2 VenusStep)
+
 // The Turmoil phase's TR revision follows World Government at once and costs Blue one TR.
 Blue: WorldGovernment {
     VenusStep! BY Admin
@@ -1671,6 +1761,13 @@ Yellow: exMachina(-Chairman<Neutral>, Chairman, TerraformRating)
 // TR reduction before production above: "I realized she hadn't produced ... and gave her a
 // money to compensate." It is not an unexplained political payout.
 Blue: exMachina(MC)
+
+Green: assert(=51 MC, =0 Steel, =0 Titanium, =8 Plant, =4 Energy, =16 Heat, =24 TerraformRating)
+Green: assert(=1 Ruling<Greens>, =1 Dominant<Unity>, =1 Chairman<Yellow>, 1 PartyFollower<Kelvinists, Neutral>, =1 Distant<MoholeLakeGlobalEvent>)
+Green: assert(1 PartyLeader<Kelvinists, Neutral>)
+Yellow: assert(=68 MC, =2 Steel, =2 Titanium, =6 Plant, =0 Energy, =8 Heat, =24 TerraformRating)
+Blue: assert(=53 MC, =1 Steel, =3 Titanium, =11 Plant, =4 Energy, =4 Heat, =23 TerraformRating)
+Green: assert(=7 Generation, =8 TemperatureStep, =6 OxygenStep, =5 OceanTile, =3 VenusStep)
 
 // Generation 7
 // Research.
@@ -2017,6 +2114,14 @@ Green: Production {
     0 Energy FROM Heat
 }
 
+Green: assert(=55 MC, =0 Steel, =0 Titanium, =9 Plant, =4 Energy, =10 Heat, =32 TerraformRating)
+Green: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =6 Plant, =4 Energy, =7 Heat])
+Yellow: assert(=65 MC, =2 Steel, =2 Titanium, =8 Plant, =0 Energy, =9 Heat, =27 TerraformRating)
+Yellow: assert(=28 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =6 Plant, =0 Energy, =9 Heat])
+Blue: assert(=49 MC, =1 Steel, =4 Titanium, =3 Plant, =3 Energy, =4 Heat, =27 TerraformRating)
+Blue: assert(=22 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =3 Energy, =2 Heat])
+Green: assert(=7 Generation, =13 TemperatureStep, =12 OxygenStep, =6 OceanTile, =6 VenusStep)
+
 Green: WorldGovernment {
     OxygenStep! BY Admin
 }
@@ -2032,6 +2137,16 @@ Yellow: GlobalEvent {
 Blue: GlobalEvent {
     PROD[2 Energy]
 }
+
+Green: assert(=60 MC, =0 Steel, =0 Titanium, =9 Plant, =4 Energy, =10 Heat, =32 TerraformRating)
+Green: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =6 Plant, =8 Energy, =7 Heat])
+Green: assert(=1 Ruling<Unity>, =1 Dominant<Kelvinists>, =1 Chairman<Green>, 1 PartyFollower<MarsFirst, Neutral>, =1 Distant<ExperimentalLifeforms>)
+Green: assert(1 PartyFollower<Greens, Neutral>)
+Yellow: assert(=69 MC, =2 Steel, =2 Titanium, =8 Plant, =0 Energy, =9 Heat, =26 TerraformRating)
+Yellow: assert(=28 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =6 Plant, =2 Energy, =9 Heat])
+Blue: assert(=53 MC, =1 Steel, =4 Titanium, =3 Plant, =3 Energy, =4 Heat, =26 TerraformRating)
+Blue: assert(=22 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =5 Energy, =2 Heat])
+Green: assert(=8 Generation, =13 TemperatureStep, =13 OxygenStep, =6 OceanTile, =6 VenusStep)
 
 // Generation 8
 // The two wrong-color Envoys cubes make Green Unity leader with a Green non-leader still in the
@@ -2350,6 +2465,14 @@ Green: Production {
     0 Energy FROM Heat
 }
 
+Green: assert(=61 MC, =0 Steel, =0 Titanium, =7 Plant, =8 Energy, =13 Heat, =38 TerraformRating)
+Green: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =7 Plant, =8 Energy, =7 Heat])
+Yellow: assert(=68 MC, =2 Steel, =3 Titanium, =14 Plant, =1 Energy, =10 Heat, =32 TerraformRating)
+Yellow: assert(=35 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =3 Titanium, =9 Plant, =1 Energy, =9 Heat])
+Blue: assert(=62 MC, =1 Steel, =5 Titanium, =7 Plant, =1 Energy, =3 Heat, =29 TerraformRating)
+Blue: assert(=23 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =2 Plant, =1 Energy, =2 Heat])
+Green: assert(=8 Generation, =18 TemperatureStep, =14 OxygenStep, =8 OceanTile, =9 VenusStep)
+
 Yellow: WorldGovernment {
     TemperatureStep! BY Admin
 }
@@ -2372,6 +2495,13 @@ Blue: GlobalEvent {
 Green: exMachina(-MC)
 
 Yellow: exMachina(-MC)
+
+Green: assert(=72 MC, =0 Steel, =0 Titanium, =7 Plant, =8 Energy, =13 Heat, =35 TerraformRating)
+Green: assert(=1 Ruling<MarsFirst>, =1 Dominant<Kelvinists>, =1 Chairman<Blue>, 1 PartyFollower<Kelvinists, Neutral>, =1 Distant<CharismaticWgPresident>)
+Green: assert(1 PartyFollower<Unity, Neutral>)
+Yellow: assert(=75 MC, =2 Steel, =3 Titanium, =14 Plant, =1 Energy, =10 Heat, =31 TerraformRating)
+Blue: assert(=75 MC, =1 Steel, =5 Titanium, =7 Plant, =1 Energy, =3 Heat, =28 TerraformRating)
+Green: assert(=9 Generation, =19 TemperatureStep, =14 OxygenStep, =8 OceanTile, =9 VenusStep)
 
 // Generation 9
 // Research.
@@ -2740,6 +2870,14 @@ Green: Production {
 
 Yellow: exMachina(-Animal<EcologicalZone>)
 
+Green: assert(=52 MC, =3 Steel, =0 Titanium, =7 Plant, =8 Energy, =30 Heat, =35 TerraformRating)
+Green: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =7 Plant, =8 Energy, =7 Heat])
+Yellow: assert(=76 MC, =2 Steel, =4 Titanium, =12 Plant, =0 Energy, =20 Heat, =31 TerraformRating)
+Yellow: assert(=38 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =4 Titanium, =9 Plant, =0 Energy, =9 Heat])
+Blue: assert(=54 MC, =1 Steel, =6 Titanium, =6 Plant, =1 Energy, =4 Heat, =30 TerraformRating)
+Blue: assert(=24 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =2 Plant, =1 Energy, =2 Heat])
+Green: assert(=9 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =10 VenusStep)
+
 // Final greenery placement in start-player order. Blue and Green each have fewer than eight
 // plants; Yellow's photographed greenery is adjacent to Dawn City at 8-6.
 // decline final greenery
@@ -2774,6 +2912,11 @@ Yellow {
 Blue {
     74 VictoryPoint
 }
+
+Yellow: assert(=15 CardResource<Decomposers>, =12 CardResource<EcologicalZone>, =12 CardResource<SecurityFleet>, =1 CardResource<SearchForLife>)
+Yellow: assert(=109 VictoryPoint, =1 Victory)
+Green: assert(=89 VictoryPoint, =0 Victory)
+Blue: assert(=74 VictoryPoint, =0 Victory)
 // The photograph gives Green eight greeneries and nine city points, and assigns the
 // Decomposers tableau to Yellow. Those rule-correct categories total 89, not the spoken 90.
 // Green and Yellow each have a six-tile largest group in the final photograph, so both win

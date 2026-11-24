@@ -1,10 +1,12 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.Routine
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Deferral.NOW
@@ -15,6 +17,8 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.cardBack
 import dev.martianzoo.tfm.state.tfmCatalog
@@ -26,7 +30,9 @@ import dev.martianzoo.tfm.state.tfmCatalog
  * REPL and Kotlin callers use the same definitions. Routines supply only the requested decisions;
  * model declarations determine costs, permissions and effects. Card placement belongs to the model.
  * Ordinary Agent automatic-execution rules remain in force; pay pauses participating Players only
- * during its complete allocation and runs their enclosing policies before returning.
+ * during its complete allocation and runs their enclosing policies before returning. `assert` only
+ * observes a Pets requirement in the Player's context. It never handles tasks and throws
+ * [RequirementException] with the condition and observed values when the requirement fails.
  */
 public object TfmRoutines {
   /** Checks a group label's phase without performing any phase work. */
@@ -183,7 +189,7 @@ public object TfmRoutines {
   internal constructor(
       public val argumentCount: IntRange,
       internal val startsAction: Boolean = false,
-      private val instructionGroup: Boolean = false,
+      private val wholeArgument: Boolean = false,
       private val submit: (Agent, List<String>, Agent?) -> Unit,
   ) : Routine {
     override fun perform(
@@ -204,10 +210,10 @@ public object TfmRoutines {
       submit(agent, arguments, releasedBy)
     }
 
-    /** Parses this routine's argument text; instruction-group arguments retain their commas. */
+    /** Parses argument text; whole Pets instructions and requirements retain their commas. */
     public fun arguments(text: String): List<String> =
         if (text.isBlank()) emptyList()
-        else if (instructionGroup) listOf(text.trim()) else splitArguments(text)
+        else if (wholeArgument) listOf(text.trim()) else splitArguments(text)
   }
 
   /** The complete fixed set of executable routine names, shared by all callers. */
@@ -218,16 +224,31 @@ public object TfmRoutines {
                 playCard(a, args[0], args.getOrElse(1) { "Hand" })
               },
           "pay" to Definition(1..Int.MAX_VALUE) { a, args, sender -> pay(a, args, sender) },
+          "assert" to
+              Definition(1..1, wholeArgument = true) { a, args, _ ->
+                val condition = args.single()
+                val requirement = a.parse<Requirement>(condition)
+                val observed = linkedMapOf<Metric, Int>()
+                val satisfied = requirement.isMetBy { metric ->
+                  a.reader.count(metric).also { observed[metric] = it }
+                }
+                if (!satisfied) {
+                  throw RequirementException(
+                      "Assertion failed for ${a.actor}: $condition; actual: " +
+                          observed.entries.joinToString { (metric, value) -> "$metric = $value" }
+                  )
+                }
+              },
           "selectTask" to
-              Definition(1..1, instructionGroup = true) { a, args, _ ->
+              Definition(1..1, wholeArgument = true) { a, args, _ ->
                 a.selectTask(args.single())
               },
           "exMachina" to
-              Definition(1..1, instructionGroup = true) { a, args, _ ->
+              Definition(1..1, wholeArgument = true) { a, args, _ ->
                 a.exMachina(args.single())
               },
           "exMachinaDropTask" to
-              Definition(1..1, instructionGroup = true) { a, args, sender ->
+              Definition(1..1, wholeArgument = true) { a, args, sender ->
                 if (sender == null) a.exMachinaDropTask(args.single())
                 else a.exMachinaDropTask(args.single(), sender)
               },

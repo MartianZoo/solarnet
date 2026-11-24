@@ -47,9 +47,11 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 
 ## Human-readable game archive prototype
 
-Replay scenarios have commented `.game` fixtures; the replay suites check fixture import, and
-export runs also verify fresh export/re-import. See [archive verification](docs/agents/EXPORT.md#migration-verification).
+Active and archived replay scenarios have commented `.game` fixtures, with checks for fixture
+imports and fresh export/re-import. See [archive verification](docs/agents/EXPORT.md#migration-verification).
 
+- Low priority: consider optional exporter-generated assertion stanzas at generation breaks.
+  Define the observations and exact checkpoint first; preserve reviewed assertions in authored files.
 - Pursue the [arithmetic inventory direction](docs/agents/EXPORT.md#arithmetic-inventory-direction):
   move all six ruling bonuses to explicit player tasks, preserving Reds' eligibility before chairman
   TR; also audit annual TR loss, chairman TR, immediate delegate changes, and constructed card tags.
@@ -60,7 +62,7 @@ export runs also verify fresh export/re-import. See [archive verification](docs/
 - Cover source-qualified recipient responses: the exporter can emit a recipient-prefixed line
   with `VIA`, which the importer currently rejects. Resolve this through the shared matching contract.
 - Add a direct archive round-trip for Self-Replicating Robots' staged card source. Tracked games,
-  plays from Selecting, and card-held payments now have replay coverage. REPL work is deferred.
+  plays from Selecting, and card-held payments now have replay coverage.
 - Resolve how an archive should state the actual zero outcome of `4* Microbe`: changing its limit
   to `0 Microbe` currently fails shared task matching. Do not hide this with an importer-only rule.
 - Leave AUTO unimplemented until it can prove identical outcomes across all allowed execution

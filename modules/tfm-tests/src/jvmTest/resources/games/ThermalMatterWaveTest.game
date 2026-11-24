@@ -1058,7 +1058,15 @@ Player1 {
     Ok
 }
 
+Player1: assert(=0 ProjectCard, =106 MC, =4 Steel, =6 Titanium, =4 Plant, =1 Energy, =17 Heat)
+Player1: assert(=27 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =6 Titanium, =4 Plant, =1 Energy, =9 Heat])
+Player1: assert(=1 Colony)
+Player1: assert(=12 Generation, =19 TemperatureStep, =10 OxygenStep, =9 OceanTile, =15 VenusStep)
+
 Player1 {
     131 VictoryPoint
 }
+
+Player1: assert(=75 TerraformRating)
+Player1: assert(=131 VictoryPoint, =1 Victory)
 // _local/replays/Game20260730/Game20260730-herokuapp-player.json; final Mars map.

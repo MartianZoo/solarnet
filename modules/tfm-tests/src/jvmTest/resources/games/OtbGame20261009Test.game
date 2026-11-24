@@ -69,6 +69,9 @@ Aqua: playCard(DoubleDown) {
     Steel
 }
 
+Aqua: assert(PROD[=4 Titanium])
+Aqua: assert(=2 ResourceValue<Class<Titanium>>)
+
 // "That has altered my plans. This is a little wild." "Yeah, that's why I bought a bunch."
 Pink: playCard(AquiferTurbines) {
     OceanTile<Vastitas_5_6>
@@ -96,6 +99,10 @@ Pink: playCard(ProjectEden) {
     TerraformRating
     -3 ProjectCard
 }
+
+Pink: assert(=37 MC, =0 Steel, =0 Titanium, =3 Plant, =0 Energy, =2 Heat, =23 TerraformRating, =5 ProjectCard)
+Pink: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =2 Energy, =0 Heat])
+Aqua: assert(=1 Generation, =1 TemperatureStep, =0 OxygenStep, =2 OceanTile, =0 VenusStep)
 
 // board-13-53-05.jpg, after Preludes.
 Aqua: doRequiredActions {
@@ -175,6 +182,12 @@ Pink: Production {
 Aqua: WorldGovernment {
     VenusStep! BY Admin
 }
+
+Aqua: assert(=46 MC, =0 Steel, =6 Titanium, =1 Plant, =2 Energy, =0 Heat)
+Aqua: assert(=3 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =4 Titanium, =0 Plant, =2 Energy, =0 Heat])
+Pink: assert(=29 MC, =0 Steel, =0 Titanium, =5 Plant, =2 Energy, =3 Heat)
+Pink: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =2 Energy, =0 Heat])
+Aqua: assert(=2 Generation, =3 TemperatureStep, =0 OxygenStep, =4 OceanTile, =1 VenusStep)
 
 // board-13-59-21.jpg; app logs: Aqua 25–30, Pink 30–35. Break before Research.
 // Generation 2. Evening 21:55:19–21:55:55; drafting is represented by its kept counts.
@@ -256,6 +269,13 @@ Pink: WorldGovernment {
     OceanTile<Vastitas_3_3>! BY Admin
 }
 
+Aqua: assert(=28 MC, =1 Steel, =4 Titanium, =1 Plant, =5 Energy, =2 Heat)
+Aqua: assert(=2 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =4 Titanium, =0 Plant, =5 Energy, =0 Heat])
+Pink: assert(=39 MC, =0 Steel, =0 Titanium, =4 Plant, =0 Energy, =5 Heat)
+Pink: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Pink: assert(=2 Animal<Pets>)
+Aqua: assert(=3 Generation, =3 TemperatureStep, =0 OxygenStep, =5 OceanTile, =1 VenusStep)
+
 // board-22-02-46.jpg; Aqua entries 46–51, Pink 49–54.
 // Generation 3, 22:05:39–22:11:19.
 // "It is now round three. That was a really fast generation."
@@ -329,6 +349,12 @@ Pink: Production {
 Aqua: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Aqua: assert(=36 MC, =1 Steel, =8 Titanium, =1 Plant, =5 Energy, =12 Heat)
+Aqua: assert(=2 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =4 Titanium, =0 Plant, =5 Energy, =0 Heat])
+Pink: assert(=57 MC, =2 Steel, =0 Titanium, =3 Plant, =0 Energy, =5 Heat)
+Pink: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Aqua: assert(=4 Generation, =3 TemperatureStep, =1 OxygenStep, =5 OceanTile, =1 VenusStep)
 
 // board-22-11-07.jpg; Aqua entries 62–67, Pink 68–73.
 // Generation 4, 22:13:17–22:22:15.
@@ -418,6 +444,8 @@ Pink: pass
 Aqua: useAction1(TitanFloatingLaunchPad) {
     Floater<TitanFloatingLaunchPad>
 }
+
+Pink: assert(=24 MC, =2 Steel, =0 Titanium, =3 Plant, =0 Energy, =5 Heat)
 // Pink's phone in board-22-21-43.jpg still displays this pre-production balance.
 Aqua: pass
 
@@ -437,6 +465,14 @@ Pink: Production {
 Pink: WorldGovernment {
     OceanTile<Vastitas_4_3>! BY Admin
 }
+
+Aqua: assert(=23 MC, =1 Steel, =18 Titanium, =1 Plant, =5 Energy, =14 Heat)
+Aqua: assert(=2 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =4 Titanium, =0 Plant, =5 Energy, =0 Heat])
+Aqua: assert(=3 Floater<TitanFloatingLaunchPad>)
+Pink: assert(=55 MC, =4 Steel, =0 Titanium, =3 Plant, =0 Energy, =5 Heat)
+Pink: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Pink: assert(=1 Diversifier)
+Aqua: assert(=5 Generation, =3 TemperatureStep, =1 OxygenStep, =6 OceanTile, =1 VenusStep)
 
 // Aqua entries 77–82; Pink 88–93. Spoken production is at 22:20:10;
 // Pink's app timestamps this at 22:12:12 and its photographed display lags the ledger.
@@ -575,6 +611,14 @@ Aqua: WorldGovernment {
     TemperatureStep! BY Admin
 }
 
+Aqua: assert(=24 MC, =1 Steel, =22 Titanium, =1 Plant, =5 Energy, =24 Heat, =22 TerraformRating, =3 ProjectCard<Hand>)
+Aqua: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =4 Titanium, =0 Plant, =5 Energy, =0 Heat])
+Aqua: assert(=2 Floater<TitanFloatingLaunchPad>, =1 Colony<Triton>, =0 Milestone, =0 ProjectCard<Selecting>, =1 ResearchPhase, =0 End)
+Pink: assert(=51 MC, =3 Steel, =0 Titanium, =4 Plant, =0 Energy, =5 Heat, =28 TerraformRating, =5 ProjectCard<Hand>)
+Pink: assert(=14 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =0 Titanium, =3 Plant, =0 Energy, =0 Heat])
+Pink: assert(=3 Animal<Pets>, =0 Floater<LocalShading>, =1 Diversifier, =1 Forester, =0 ProjectCard<Selecting>)
+Aqua: assert(=6 Generation, =6 TemperatureStep, =3 OxygenStep, =6 OceanTile, =1 VenusStep)
+
 // board-22-32-56.jpg; Aqua entries 102–107; Pink 126–131. No generation-6 draws yet.
 // Counts from the recorded purchases, draws, discards, and plays; identities are incomplete.
 // October 10, before generation 6 Research: the players apply the agreed corrections.
@@ -584,6 +628,9 @@ Aqua: exMachina(PROD[Heat], Heat)
 // Project Eden's generation-1 TR missed five productions; Pink's -24 C bonus was
 // entered as one heat resource rather than production, missing four further heat.
 Pink: exMachina(TerraformRating, 5 MC, PROD[Heat], 4 Heat)
+
+Aqua: assert(=24 MC, =1 Steel, =22 Titanium, =1 Plant, =5 Energy, =25 Heat)
+Pink: assert(=56 MC, =3 Steel, =0 Titanium, =4 Plant, =0 Energy, =9 Heat)
 
 // "I pay 11 for research. I get two cards."
 // "I believe I have 1, 2, 3, 4 science tags. Yep. So I'd also spend eight to claim Risocha."
@@ -730,6 +777,12 @@ Pink: Production {
 Pink: WorldGovernment {
     VenusStep! BY Admin
 }
+
+Aqua: assert(=33 MC, =1 Steel, =11 Titanium, =1 Plant, =6 Energy, =12 Heat, =26 TerraformRating)
+Aqua: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =4 Titanium, =0 Plant, =6 Energy, =4 Heat])
+Pink: assert(=45 MC, =5 Steel, =5 Titanium, =7 Plant, =0 Energy, =2 Heat, =30 TerraformRating)
+Pink: assert(=14 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =2 Titanium, =3 Plant, =0 Energy, =1 Heat])
+Aqua: assert(=7 Generation, =11 TemperatureStep, =3 OxygenStep, =6 OceanTile, =2 VenusStep)
 
 // board-11-23-10.jpg; phone logs at the generation 7 checkpoint.
 // "They're all reasonable." "How terrible. I think I'll buy one." "I'm buying them all."
@@ -969,6 +1022,12 @@ Aqua: WorldGovernment {
     OxygenStep! BY Admin
 }
 
+Aqua: assert(=36 MC, =1 Steel, =10 Titanium, =0 Plant, =5 Energy, =7 Heat, =29 TerraformRating)
+Aqua: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =4 Titanium, =0 Plant, =5 Energy, =4 Heat])
+Pink: assert(=53 MC, =7 Steel, =2 Titanium, =5 Plant, =0 Energy, =5 Heat, =39 TerraformRating)
+Pink: assert(=14 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =2 Titanium, =3 Plant, =0 Energy, =3 Heat])
+Aqua: assert(=8 Generation, =19 TemperatureStep, =5 OxygenStep, =9 OceanTile, =2 VenusStep)
+
 // _local/replays/Game20261009/board-11-44-28.jpg.
 // board-11-44-28.jpg; the logs show these balances before generation 8 Research.
 // "Show me greenery tiles." "Show me the greenery."
@@ -1167,6 +1226,12 @@ Pink: Production {
 Pink: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Aqua: assert(=50 MC, =1 Steel, =9 Titanium, =1 Plant, =4 Energy, =15 Heat, =35 TerraformRating)
+Aqua: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =4 Titanium, =1 Plant, =4 Energy, =6 Heat])
+Pink: assert(=67 MC, =7 Steel, =3 Titanium, =10 Plant, =4 Energy, =8 Heat, =40 TerraformRating)
+Pink: assert(=23 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =2 Titanium, =4 Plant, =4 Energy, =3 Heat])
+Aqua: assert(=9 Generation, =19 TemperatureStep, =6 OxygenStep, =9 OceanTile, =8 VenusStep)
 
 // board-12-00-57.jpg; before generation 9 Research.
 // Generation 9. Both players buy three of the drafted cards.
@@ -1373,6 +1438,10 @@ Pink: Production {
 Aqua: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Aqua: assert(=56 MC, =1 Steel, =4 Titanium, =5 Plant, =3 Energy, =22 Heat)
+Pink: assert(=73 MC, =5 Steel, =2 Titanium, =9 Plant, =4 Energy, =14 Heat)
+Aqua: assert(=10 Generation, =19 TemperatureStep, =9 OxygenStep, =9 OceanTile, =10 VenusStep)
 
 // board-16-04-56.jpg, before generation 10 Research.
 // Generation 10. Aqua says "I'm buying one card"; Pink's phone log records two purchases.
@@ -1583,6 +1652,10 @@ Pink: Production {
 Pink: WorldGovernment {
     VenusStep! BY Admin
 }
+
+Aqua: assert(=65 MC, =6 Steel, =7 Titanium, =8 Plant, =2 Energy, =31 Heat)
+Pink: assert(=80 MC, =7 Steel, =2 Titanium, =8 Plant, =4 Energy, =20 Heat)
+Aqua: assert(=11 Generation, =19 TemperatureStep, =12 OxygenStep, =9 OceanTile, =15 VenusStep)
 
 // board-16-22-18.jpg, before generation 11 Research.
 // "This will surely be the last generation." "These are all so bad."
@@ -1916,6 +1989,10 @@ Pink: Production {
     5 Heat
 }
 
+Aqua: assert(=69 MC, =6 Steel, =11 Titanium, =3 Plant, =1 Energy, =39 Heat)
+Pink: assert(=87 MC, =3 Steel, =2 Titanium, =8 Plant, =0 Energy, =26 Heat)
+Aqua: assert(=11 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =15 VenusStep)
+
 // The phone app advances its display to generation 12; Solarnet keeps the final played
 // generation.
 // only three plants; no final greenery
@@ -1935,6 +2012,8 @@ Pink {
     Ok
 }
 
+Pink: assert(=56 TerraformRating)
+
 // board-16-47-03.jpg, after final greenery.
 // "Almost completely shut me out, but not quite."
 // "Wow, this is a really meager pile of cards I've got." "It was a fun game." "Always is."
@@ -1947,5 +2026,8 @@ Aqua {
 Pink {
     139 VictoryPoint
 }
+
+Aqua: assert(=83 VictoryPoint, =0 Victory)
+Pink: assert(=139 VictoryPoint, =1 Victory)
 // Engine categories total 139: 56 TR, 15 milestones, 10 awards, 7 greeneries,
 // 11 cities, and 40 card points. The spoken 138 has no supplied category breakdown.

@@ -1,6 +1,6 @@
 # Human-readable game archives
 
-> **Agent information:** Current game export/import design and migration status.
+> **Agent information:** Current game export/import behavior and planned work.
 > **Read when:** changing archives, event reconstruction, or recorded card identities.
 
 The language's priorities and accepted decisions are in the human-facing
@@ -24,13 +24,14 @@ GameConfig keeps card pools compact rather than listing the entire resolved cata
 checked-in fixture through the same catalog and compares final inventory and pending tasks while
 ignoring task IDs and event ordinals. The opt-in export hook additionally writes and verifies a fresh
 uncommented export. `dumpEventlog` imports `.game` files before producing TSV. There is no JSON
-fallback. Old JSON exports are removed when an export run refreshes the directory.
+fallback. Active replay export tasks remove old JSON files from the export directory before running.
 
-Replay scenarios have fixtures under `modules/tfm-tests/src/jvmTest/resources/games/`, named
-for their Kotlin test class. Source comments, dialogue, corrections, uncertainty, and named-card
-evidence are retained near the relevant entries; Kotlin-only TaskForm helper explanations remain
-in the test source.
-Generation methods supply headings where the source otherwise had no heading. The Kotlin tests
+Replay fixtures live under `modules/tfm-tests/src/jvmTest/resources/games/`, named for their
+Kotlin test class. `activeReplayClasses` in `modules/tfm-tests/build.gradle.kts` selects the ordinary
+replay suite; other replay classes run through the opt-in `archivedReplayTest`. Partial games are
+included. Source comments, dialogue, corrections, uncertainty, and named-card evidence are
+retained near the relevant entries; Kotlin-only TaskForm helper explanations remain in the test
+source. Generation methods supply headings where the source otherwise had no heading. The Kotlin tests
 retain their assertions and original commentary. Normal exports never overwrite these fixtures.
 When a replay changes, update its fixture deliberately and preserve the surrounding comments.
 
@@ -42,33 +43,18 @@ action order and choices, and repeat-export stability. It also checks malformed 
 incomplete/incorrect tasks. Optional paths are `-ParchiveFile=/absolute/input.game` and
 `-ParchiveOutput=/absolute/output.game`; supplied input uses the current archive syntax.
 
-The user approved `VIA` for explicit source qualification through the normal task matcher.
-`selectTask(...)` preserves choices such as Flooding's ocean-and-attack option. The approved
-CardTracking callback supplies names from the header during validation. Invalid names still fail
-and roll back the Agent command; ordinary games have no tracker. Flat nested card plays,
-card-held payments, granted actions, and recipient-prefixed payments are implemented.
-The replay scenarios passed both checked-in-fixture import and fresh export/re-import with
-equal final component counts and pending tasks. Replays that relied on test-only New Holland were
-later removed. Older solo replays explicitly submit their existing expected VP totals. Pharmacy
-Union also verifies a linked choice whose System first step executes through Admin during selection;
-the exporter records that selection without a second execution.
-The local archive verification covered every November 11 generation, all inventory changes, action
-order, stable repeated export, source qualification, invalid-source failures, payment/card-name
-failure behavior, trailing turn declines, and persistent
-deferred priorities. Verification command:
+The maintained checks are `ReplayExportExtension` for fixture/fresh-export final inventories and
+pending tasks, `ArchiveDraftTest` for generation checkpoints and detailed round trips,
+`GameArchiveInferenceTest` for preparation and ambiguity, and `GameArchiveResearchTest` for
+research grouping. `TfmRoutinesTest` and `RoutineCommandTest` cover the shared operations and
+REPL dispatch. Their sources and current runs establish coverage; historical suite counts do not
+describe the current checkout.
+
+The combined archive/replay verification command is:
 `./gradlew :tfm-tests:archiveDraftTest :tfm-tests:replayTest :tfm-tests:archivedReplayTest -PreplayExports`.
-The full build passed after the turn-rule merge with `./gradlew build --max-workers=1`.
-An initial Wasm incremental-cache failure cleared after cleaning the affected Pets build outputs; the parallel retry hit browser
-timeouts. The successful serial build used the existing tests and time limits unchanged.
+`GameArchiveAssertionTest` separately exercises in-file observations and their failure behavior.
 
-The request-directed matching work was checked with all 643 engine and 85 Agent JVM tests,
-the full TFM JVM suite (1,368 cases, 26 existing skips), and then the final 10 focused archive
-cases after adding the exporter total check. Fixture imports, fresh export/re-imports, local archive
-checks, and the active Web browser tests also passed. Engine, Agent, and TFM JavaScript compiled.
-The generated engine/Agent browser tasks are intentionally inert;
-they are not counted as executed browser tests.
-
-### Current draft syntax and ownership
+## Current syntax and ownership
 
 `Setup` and `Research` are phase-checked groups of explicit tasks; no discard counts are inferred.
 `useAction1/2(Name)` is for action cards. It uses an already granted card action when present,
@@ -93,8 +79,8 @@ OceanTile<Amazonis_05_10>
 ```
 
 The exporter obtains these choices from task edits that introduce a selected THEN continuation.
-Action invocations already handled by `PlayCard`/`UseAction` macros do not get duplicate selection
-lines. Player autoexecution remains disabled; normal Admin handling still applies.
+Modeled `PlayCard`/`UseAction` invocations already represented by shared routines do not get
+duplicate selection lines. Player autoexecution remains disabled; normal Admin handling still applies.
 The importer no longer accepts the superseded research-count, unqualified setup-discard, or
 card-only action spellings. Blank lines group turns visually; they have no execution semantics.
 When a different player's action begins while the previous player still holds the Baton, the
@@ -108,8 +94,8 @@ discard, payment, and purchase transfer. An explicit NOW release splits this gro
 release before its recipient's response. Explicit corrections stay nested as `exMachina(...)` calls
 in that player's block. This intentionally collects each player's research even when the recording
 interleaves players' draws and purchases; source comments retain the original observations and
-timing. The importer needs no special handling for this grouping. Fixture imports and fresh
-programmatic exports verify the grouped research; the transformation is not a general claim that
+timing. The importer needs no special handling for this grouping. `GameArchiveResearchTest` and
+replay import/export comparisons exercise it; the transformation is not a general claim that
 arbitrary pending tasks commute.
 
 ### Request-directed preparation
@@ -124,7 +110,7 @@ separate from later amount aggregation so the proof still describes the text act
 
 Group children are exported as the actual performed steps, not hidden behind a whole-group
 instruction that would execute unperformed siblings in a partial game. The exporter retains
-SelectTask for different continuations with an equal first step, or to distinguish an exposed
+`selectTask` for different continuations with an equal first step, or to distinguish an exposed
 task from a compatible task behind EACH. Selection refinement without intervening changes is
 rendered as the final choice. Export allows a stop between actions with the usual action offer
 still pending. It rejects an unfinished action, payment, or selected task.
@@ -239,6 +225,52 @@ lines in the importer, adding hidden `exMachina` adjustments, or enabling player
 Routing and automatic-effect changes belong in the shared model/engine; task matching belongs in
 the shared matcher. Admin's automatic operation remains required for work still assigned to it.
 
+## Assertions
+
+The [language design](../GAME_ARCHIVE_LANGUAGE.md#assertions-and-executable-scenarios) owns the
+observation semantics, scope limits, and distinction between authored and generated checks.
+`TfmRoutines.registered` supplies `assert`; Kotlin callers, importer, and REPL share it. Its single
+argument is a complete Pets `Requirement`, including commas and grouped alternatives. The routine
+uses the same actor-context parsing and requirement evaluation as `Agent.has`, collecting the
+queried metric values for a `RequirementException` if the check fails. It does no task handling.
+The importer adds the source line; the REPL reports success or the failure details.
+
+Checks use a named or inherited Player. A different Player's assertion inside an action is an
+observation, not a recipient response: it releases no tasks and does not change turns. Admin has no
+Agent, so global state is checked through a Player instead of an `Admin:` prefix.
+
+`ActiveProtonFlowTest.game` contains intermediate and endpoint checks from original database saves
+28 and 37. Resource, production, TR, and global-parameter values were checked against the preserved
+JSON files under `_local/replays/Game20260920/Heroku-gadeac80e6446/`. Displayed MC production uses the
+existing `PROD[MC] - ProdOffset<Class<MC>>` metric; no assertion-specific production rule was added.
+The checked-in replay archives keep compact checkpoints for resources, production, TR, hand
+counts, global parameters, notable card resources and events, and final outcomes. Combine related
+checks at the same position; keep broad tag tallies, card-category totals, and unused-action counts
+in Kotlin. A targeted tag or card check can still be useful when it explains the recorded play.
+These expectations come from the existing tests, rather than observations generated from the
+importing engine. Kotlin retains the full checks, named-hand tracking, board-rendering comparisons,
+and checks whose exact intermediate action state is not reproduced by an archive statement. Direct `EVAL` award-metric
+queries also remain in Kotlin: submitted Pets requirements currently reject `EVAL`.
+
+Place each check at the corresponding stage of production, research, or play. Research groups can
+have a different purchase order from the Kotlin replay: `SyntheticMagnetBurstTest.game` orders Green
+before Pink in generation 2 to preserve the dashboard checkpoint between their purchases. When a
+Kotlin Admin query counts owned components across the game, spell out that scope in the Player
+assertion, such as `PartyDelegate<Anyone, Scientists>` or `TradeFleet<Player>`.
+
+`GameArchiveAssertionTest` runs the file directly, and covers inherited/cross-player queries,
+grouped alternatives, malformed conditions, source-line diagnostics, stopping before later entries,
+and unchanged inventory, tasks, and history even when Player automatic execution is configured.
+`RoutineCommandTest` checks both REPL spellings and the failure message. Many tests may remain in
+Kotlin; making every test expressible is not a requirement.
+
+Optional exporter-generated assertion stanzas at generation breaks remain low priority.
+The exporter reads game events, not routine invocations; recording assertion calls is not part of
+this design. A future option can use its reconstructed World and generation tracking. Define the
+exact checkpoint first, including how phase grouping and automatic Admin work affect the observed
+state. Generated checks must agree with the state reached at their emitted position during
+re-import. No exporter option names or observation profiles are selected yet.
+
 ## Regenerating archives
 
 Run `./gradlew :tfm-tests:replayTest :tfm-tests:archivedReplayTest -PreplayExports` to regenerate
@@ -248,11 +280,12 @@ A specific replay may be selected with `--tests 'fully.qualified.TestClass'`. Fi
 `tfm-tests` module's `generated/replay-event-logs` build directory, relocated beneath
 `~/.gradle/solarnet-builds/` locally. Successful export runs must also pass live re-import checks.
 Ordinary replay runs verify the checked-in fixtures and leave generated exports untouched.
-Fresh exports are a starting point for fixture updates, not permission to discard authored comments.
+Fresh exports are a starting point for fixture updates, not permission to discard authored comments
+or reviewed assertions.
 
 Regenerate after changing rules, replay choices, configuration, corrections, card identities, or
 archive behavior. Preserve original source evidence separately; generated archives are not new
 independent evidence. Comments are supported in authored archives, but generated exports omit them.
 State-dependent requests such as `4* Microbe` still prevent a complete arithmetic inventory;
 spelling an actual resolved amount is a shared matcher/model issue, not permission for an import
-correction. REPL work and AUTO remain deferred.
+correction. Shared routine calls are available in the REPL; AUTO remains deferred.

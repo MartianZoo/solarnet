@@ -425,25 +425,31 @@ internal class ArchiveDraftTest {
   @Test
   fun deferredPrioritiesSurviveExportAndStillBlockLaterWork() {
     val source = File(requireNotNull(System.getProperty("archive.file"))).readText()
+    // This scenario adds pending end work, so victory must wait until those tasks finish.
     val withRules =
-        source.replaceFirst(
-            "Green: Setup {",
-            """
-            SetupRules {
-              CLASS Green : Player {
-                End: LATER Green { ArchiveFirst<Green>, ArchiveRemaining<Green> }, FINALLY Green { ArchiveDone<Green> }
-              }
-              CLASS ArchiveFirst : Owned<Player> {
-                This: ArchiveCoin?
-              }
-              CLASS ArchiveCoin : Owned<Player>
-              CLASS ArchiveRemaining : Owned<Player>
-              CLASS ArchiveDone : Owned<Player>
-            }
-            Green: Setup {
-            """
-                .trimIndent(),
-        )
+        source
+            .replace(
+                "Green: assert(=92 VictoryPoint, =1 Victory)",
+                "Green: assert(=92 VictoryPoint, =0 Victory)",
+            )
+            .replaceFirst(
+                "Green: Setup {",
+                """
+                SetupRules {
+                  CLASS Green : Player {
+                    End: LATER Green { ArchiveFirst<Green>, ArchiveRemaining<Green> }, FINALLY Green { ArchiveDone<Green> }
+                  }
+                  CLASS ArchiveFirst : Owned<Player> {
+                    This: ArchiveCoin?
+                  }
+                  CLASS ArchiveCoin : Owned<Player>
+                  CLASS ArchiveRemaining : Owned<Player>
+                  CLASS ArchiveDone : Owned<Player>
+                }
+                Green: Setup {
+                """
+                    .trimIndent(),
+            )
     val original = importer(withRules)
     original.run()
     val actor =
@@ -470,6 +476,7 @@ internal class ArchiveDraftTest {
     assertEquals(0, player.count("ArchiveCoin"))
     assertEquals(1, player.count("ArchiveRemaining"))
     assertEquals(1, player.count("ArchiveDone"))
+    assertEquals(1, player.count("Victory"))
     assertTrue(restored.agents.world.tasks.isEmpty())
   }
 

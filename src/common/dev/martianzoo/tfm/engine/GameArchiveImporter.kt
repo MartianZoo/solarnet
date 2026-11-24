@@ -21,6 +21,8 @@ import dev.martianzoo.tfm.canon.TfmCatalog
  * disabled. [catalogForConfig] supplies custom content when required; ordinary imports use Canon.
  * Construction validates headers and creates the game. Call [run] once to execute the entries.
  * Missing Cards headers mean untracked play; supplied names are checked by [CardTracking].
+ * `assert(requirement)` observes the named or inherited Player's state without performing work,
+ * including when it names another Player inside an action. Failed checks stop at their source line.
  */
 public class GameArchiveImporter(
     source: String,
@@ -164,7 +166,13 @@ public class GameArchiveImporter(
         expectedArgs == null -> require(entry.body == null) { "Unknown block: $text" }
       }
       // A recipient's explicit request may include several pending NOW releases.
-      if (!topLevel && inherited != null && inherited !== agent && name != "exMachina") {
+      if (
+          !topLevel &&
+              inherited != null &&
+              inherited !== agent &&
+              name != "exMachina" &&
+              name != "assert"
+      ) {
         require(
             (expectedArgs == null || name in setOf("pay", "exMachinaDropTask")) &&
                 entry.body == null

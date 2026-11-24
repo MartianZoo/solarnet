@@ -52,6 +52,8 @@ Me: playCard(MetalsCompany) {
     PROD[Titanium]
 }
 
+Me: assert(=0 MC)
+
 Me: pass
 
 Me: Production {
@@ -71,6 +73,8 @@ Me: Research {
     pay(1 MC)
     ProjectCard<Hand FROM Selecting>
 }
+
+Me: assert(=17 MC)
 
 Me: pass
 
@@ -116,6 +120,8 @@ Me: playCard(VestaShipyard) {
     pay(2 Titanium, 9 MC)
     PROD[Titanium]
 }
+
+Me: assert(=0 MC)
 Me: pass
 
 Me: Production {
@@ -148,6 +154,8 @@ Me: playCard(GeothermalPower) {
     pay(1 Steel, 9 MC)
     PROD[2 Energy]
 }
+
+Me: assert(=0 MC)
 Me: pass
 
 Me: Production {
@@ -229,6 +237,8 @@ Me: playCard(Extremophiles) {
 Me: useAction1(Extremophiles) {
     Microbe<Extremophiles>
 }
+
+Me: assert(=0 MC)
 Me: pass
 
 Me: Production {
@@ -310,6 +320,8 @@ Me: useAction1(SulphurEatingBacteria) {
 Me: useAction1(Extremophiles) {
     Microbe<SulphurEatingBacteria>
 }
+
+Me: assert(=0 MC)
 Me: pass
 
 Me: Production {
@@ -397,6 +409,8 @@ Me: playCard(LunaGovernor) {
     pay(4 MC)
     PROD[2 MC]
 }
+
+Me: assert(=2 MC)
 Me: pass
 
 Me: Production {
@@ -510,6 +524,8 @@ Me: playCard(Worms) {
 Me: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
+
+Me: assert(=2 MC)
 Me: pass
 
 Me: Production {
@@ -615,6 +631,8 @@ Me: playCard(Thermophiles) {
 Me: useAction1(Thermophiles) {
     Microbe<Thermophiles>
 }
+
+Me: assert(=0 MC)
 Me: pass
 
 Me: Production {
@@ -745,6 +763,8 @@ Me: playCard(Windmills) {
     pay(3 Steel)
     PROD[Energy]
 }
+
+Me: assert(=6 MC)
 Me: pass
 
 Me: Production {
@@ -878,6 +898,8 @@ Me: useAction2(ExtractorBalloons) {
     VenusStep
     TerraformRating
 }
+
+Me: assert(=0 MC)
 Me: pass
 
 Me: Production {
@@ -1073,6 +1095,8 @@ Me: useStandardProject(AsteroidProject) {
     TemperatureStep
     TerraformRating
 }
+
+Me: assert(=3 MC)
 Me: pass
 
 Me: Production {
@@ -1091,10 +1115,18 @@ Me {
     Ok
 }
 
+Me: assert(=0 ProjectCard, =70 MC, =1 Steel, =4 Titanium, =4 Plant, =11 Energy, =14 Heat, =64 TerraformRating)
+Me: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =4 Plant, =11 Energy, =13 Heat])
+Me: assert(=12 Generation, =19 TemperatureStep, =14 OxygenStep, =8 OceanTile, =15 VenusStep)
+
 // Final state and score come from /api/player?id=pb64886c6e682.
+Me: assert(1 Victory)
+
 Me {
     84 VictoryPoint
 }
+
+Me: assert(=84 VictoryPoint)
 // _local/replays/Game20260817/player-pb64886c6e682.json; final Mars map.
 // Implementation note: complete Research deck order from the earlier source-game clone:
 //

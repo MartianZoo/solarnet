@@ -216,3 +216,8 @@ Me: playCard(Shuttles) {
     PROD[-Energy]
     PROD[2 MC]
 }
+
+Me: assert(=9 MC, =0 Steel, =3 Titanium, =2 Plant, =0 Energy, =15 Heat, =16 TerraformRating, =2 ProjectCard)
+Me: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =1 Plant, =9 Energy, =3 Heat])
+Me: assert(=1 Science)
+Me: assert(=1 Generation, =0 TemperatureStep, =1 OxygenStep, =1 OceanTile)

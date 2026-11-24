@@ -168,6 +168,11 @@ Me: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
+Me: assert(=16 MC, =0 Steel, =6 Titanium, =1 Plant, =1 Energy, =0 Heat, =5 ProjectCard, =20 TerraformRating)
+Me: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Me: assert(=0 Colony)
+Me: assert(=4 Generation, =1 TemperatureStep, =0 OxygenStep, =2 OceanTile, =3 VenusStep)
+
 // UI says actions 2 because UNMI not currently playable
 Me: useAction1(AtmoCollectors) {
     Floater<AtmoCollectors>
@@ -332,6 +337,11 @@ Me: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Me: assert(=32 MC, =2 Steel, =0 Titanium, =2 Plant, =4 Energy, =14 Heat, =3 ProjectCard, =28 TerraformRating)
+Me: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =4 Energy, =10 Heat])
+Me: assert(=0 Colony)
+Me: assert(=7 Generation, =5 TemperatureStep, =2 OxygenStep, =3 OceanTile, =5 VenusStep)
 
 // UI says actions 3 because UNMI not currently playable
 Me: action(ConvertHeatAction) {
@@ -544,6 +554,11 @@ Me: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
+Me: assert(=49 MC, =0 Steel, =0 Titanium, =7 Plant, =6 Energy, =18 Heat, =7 ProjectCard, =45 TerraformRating)
+Me: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =6 Energy, =10 Heat])
+Me: assert(=1 Colony)
+Me: assert(=10 Generation, =10 TemperatureStep, =6 OxygenStep, =3 OceanTile, =12 VenusStep)
+
 // UI says actions 3 because UNMI not currently playable
 Me: playCard(DustSeals) {
     pay(2 MC)
@@ -731,6 +746,11 @@ Me: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
+Me: assert(=68 MC, =8 Steel, =0 Titanium, =8 Plant, =6 Energy, =16 Heat, =4 ProjectCard, =62 TerraformRating)
+Me: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =5 Plant, =6 Energy, =10 Heat])
+Me: assert(=2 Colony)
+Me: assert(=12 Generation, =15 TemperatureStep, =9 OxygenStep, =8 OceanTile, =14 VenusStep)
+
 // UI says actions 3 because UNMI not currently playable
 Me: action(ConvertHeatAction) {
     pay(8 Heat)
@@ -813,6 +833,8 @@ Me: Production {
     5 Plant
 }
 
+Me: assert(1 Victory)
+
 // Final greenery placement
 // me placed greenery tile on row 8 position 5
 Me: action(ConvertPlantsAction) {
@@ -826,7 +848,15 @@ Me {
     Ok
 }
 
+Me: assert(=82 MC, =5 Steel, =0 Titanium, =1 Plant, =7 Energy, =13 Heat, =0 ProjectCard, =69 TerraformRating)
+Me: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =5 Plant, =7 Energy, =10 Heat])
+Me: assert(=2 Colony)
+Me: assert(=12 Generation, =17 TemperatureStep, =12 OxygenStep, =8 OceanTile, =15 VenusStep)
+
 Me {
     95 VictoryPoint
 }
+
+Me: assert(=82 MC)
+Me: assert(=95 VictoryPoint)
 // Legacy comments claim 99 VP and report 111 on herokuapp; the discrepancy is unresolved.
