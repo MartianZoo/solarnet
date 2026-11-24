@@ -21,7 +21,9 @@ internal class RoutineCommand(
   override fun withArgs(args: String): List<String> {
     val arguments = routine.arguments(args)
     if (arguments.size !in routine.argumentCount) throw UsageException()
-    return repl.describeExecutionResults(repl.agent.doRoutine(name, *arguments.toTypedArray()))
+    val result = repl.agent.doRoutine(name, *arguments.toTypedArray())
+    return if (name == "assert") listOf("Assertion passed.")
+    else repl.describeExecutionResults(result)
   }
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =

@@ -9,6 +9,12 @@ the generic Agent layer knows no Terraforming Mars names or rules. `TfmRoutines.
 outside the Pets model, which owns legality, costs, requirements, and effects. Registration has no
 catalog or bundle contribution mechanism.
 
+`assert` observes a complete Pets requirement without task execution or other changes. Kotlin
+callers pass the whole condition as a single argument, for example
+`player.doRoutine("assert", "=23 TerraformRating, =2 OxygenStep")`. A false condition throws
+`RequirementException` with the Player, condition, and queried metric values. Its archive use and
+verification live in the [assertion notes](EXPORT.md#assertions).
+
 Kotlin callers install the definitions when creating the session:
 
 ```kotlin

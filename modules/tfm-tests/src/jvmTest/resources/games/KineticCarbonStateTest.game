@@ -174,6 +174,8 @@ Blue: WorldGovernment {
     TemperatureStep! BY Admin
 }
 
+Blue: assert(=2 Generation, =1 TemperatureStep, =0 OxygenStep, =0 OceanTile, =0 VenusStep)
+
 Blue: Research {
     4 ProjectCard<Selecting>
 
@@ -209,6 +211,8 @@ Blue: Production {
 Blue: WorldGovernment {
     TemperatureStep! BY Admin
 }
+
+Blue: assert(=3 Generation, =2 TemperatureStep, =0 OxygenStep, =0 OceanTile, =0 VenusStep)
 
 Blue: Research {
     4 ProjectCard<Selecting>
@@ -266,6 +270,8 @@ Blue: Production {
 Blue: WorldGovernment {
     OceanTile<Hellas_6_7>! BY Admin
 }
+
+Blue: assert(=4 Generation, =2 TemperatureStep, =0 OxygenStep, =1 OceanTile, =0 VenusStep)
 
 Blue: Research {
     4 ProjectCard<Selecting>
@@ -325,6 +331,8 @@ Blue: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Blue: assert(=5 Generation, =2 TemperatureStep, =0 OxygenStep, =2 OceanTile, =1 VenusStep)
+
 Blue: Research {
     4 ProjectCard<Selecting>
 
@@ -376,6 +384,8 @@ Blue: Production {
 Blue: WorldGovernment {
     VenusStep! BY Admin
 }
+
+Blue: assert(=6 Generation, =2 TemperatureStep, =0 OxygenStep, =2 OceanTile, =3 VenusStep)
 
 Blue: Research {
     4 ProjectCard<Selecting>
@@ -449,6 +459,8 @@ Blue: WorldGovernment {
 Blue: WorldGovernment {
     2 Plant
 }
+
+Blue: assert(=7 Generation, =2 TemperatureStep, =0 OxygenStep, =3 OceanTile, =3 VenusStep)
 
 Blue: Research {
     4 ProjectCard<Selecting>
@@ -531,6 +543,8 @@ Blue: WorldGovernment {
     OxygenStep! BY Admin
 }
 
+Blue: assert(=8 Generation, =5 TemperatureStep, =1 OxygenStep, =4 OceanTile, =3 VenusStep)
+
 Blue: Research {
     4 ProjectCard<Selecting>
 
@@ -609,6 +623,8 @@ Blue: WorldGovernment {
 Blue: WorldGovernment {
     2 Plant
 }
+
+Blue: assert(=9 Generation, =6 TemperatureStep, =1 OxygenStep, =6 OceanTile, =4 VenusStep)
 
 Blue: Research {
     4 ProjectCard<Selecting>
@@ -692,6 +708,8 @@ Blue: Production {
 Blue: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Blue: assert(=10 Generation, =7 TemperatureStep, =4 OxygenStep, =6 OceanTile, =5 VenusStep)
 
 Blue: Research {
     4 ProjectCard<Selecting>
@@ -815,6 +833,8 @@ Blue: WorldGovernment {
     OxygenStep! BY Admin
 }
 
+Blue: assert(=11 Generation, =8 TemperatureStep, =7 OxygenStep, =6 OceanTile, =7 VenusStep)
+
 Blue: Research {
     4 ProjectCard<Selecting>
 
@@ -926,6 +946,8 @@ Blue: Production {
 Blue: WorldGovernment {
     VenusStep! BY Admin
 }
+
+Blue: assert(=12 Generation, =11 TemperatureStep, =9 OxygenStep, =7 OceanTile, =9 VenusStep)
 
 Blue: Research {
     4 ProjectCard<Selecting>
@@ -1070,6 +1092,11 @@ Blue: Production {
     3 Titanium
     7 Heat
 }
+
+Blue: assert(=82 MC, =0 Steel, =3 Titanium, =17 Plant, =0 Energy, =13 Heat, =60 TerraformRating)
+Blue: assert(=22 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =3 Titanium, =10 Plant, =0 Energy, =7 Heat])
+Blue: assert(=3 Animal<Pets>, =2 Floater<FloatingRefinery>, =5 CardResource, =1 WildTag, =0 Victory)
+Blue: assert(=12 Generation, =16 TemperatureStep, =14 OxygenStep, =9 OceanTile, =11 VenusStep)
 // Player-record evidence: final production completed, final greenery skipped after solo loss.
 // The source displays 90 VP (60 TR + 10 greenery + 12 cities + 8 cards).
 // Solarnet skips scoring on a solo loss. Do not inject End or final greenery.

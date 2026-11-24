@@ -45,6 +45,8 @@ ER: Setup {
     -5 ProjectCard<Selecting>
 }
 
+JR: assert(=1 Generation)
+
 // Generation 1
 // Player-record evidence: JR rejected Teractor and one unsupported corporation; UNMI
 // Contractor and Acquired Space Agency; Crash Site Cleanup, Outdoor Sports, Interstellar
@@ -537,6 +539,8 @@ KB: playCard(Hackers) {
 ER: playCard(WaterImportFromEuropa) {
     pay(8 Titanium, 1 MC)
 }
+
+ER: assert(=11 MC, =0 Titanium)
 ER: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
@@ -796,6 +800,14 @@ JR: action(ConvertPlantsAction) {
     4 MC
     TerraformRating
 }
+
+JR: assert(=18 MC, =0 Steel, =1 Titanium, =4 Plant, =1 Energy, =0 Heat, =25 TerraformRating)
+JR: assert(=24 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =3 Plant, =2 Energy, =0 Heat])
+ER: assert(=23 MC, =3 Steel, =0 Titanium, =2 Plant, =0 Energy, =0 Heat, =25 TerraformRating)
+ER: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =4 Titanium, =0 Plant, =3 Energy, =0 Heat])
+KB: assert(=17 MC, =0 Steel, =1 Titanium, =4 Plant, =14 Energy, =18 Heat, =23 TerraformRating)
+KB: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =1 Plant, =14 Energy, =1 Heat])
+JR: assert(=6 Generation, =3 TemperatureStep, =5 OxygenStep, =4 OceanTile)
 // Screenshot: Game20260819-dashboard-gen6.png, after JR's greenery and before Zeppelins.
 JR: playCard(Zeppelins) {
     pay(13 MC)
@@ -1024,6 +1036,8 @@ ER: playCard(AsteroidCard) {
 }
 
 JR: pass
+
+JR: assert(=8 TemperatureStep)
 
 KB: playCard(DesignedMicroorganisms) {
     pay(15 MC)
@@ -1608,6 +1622,8 @@ ER: pass
 KB: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
+
+JR: assert(=9 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile)
 KB: pass
 
 // Production.
@@ -1670,6 +1686,13 @@ KB {
     Ok
 }
 
+JR: assert(=1 ProjectCard, =81 MC, =1 Steel, =4 Titanium, =3 Plant, =5 Energy, =10 Heat)
+JR: assert(=42 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =6 Plant, =5 Energy, =0 Heat])
+KB: assert(=0 ProjectCard, =59 MC, =1 Steel, =1 Titanium, =1 Plant, =9 Energy, =28 Heat)
+KB: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =10 Plant, =9 Energy, =2 Heat])
+ER: assert(=0 ProjectCard, =54 MC, =9 Steel, =5 Titanium, =3 Plant, =0 Energy, =8 Heat)
+ER: assert(=15 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=5 Steel, =5 Titanium, =1 Plant, =0 Energy, =8 Heat])
+
 JR {
     84 VictoryPoint
 }
@@ -1681,4 +1704,11 @@ KB {
 ER {
     67 VictoryPoint
 }
+
+JR: assert(=33 TerraformRating)
+JR: assert(=84 VictoryPoint, =1 Victory)
+KB: assert(=43 TerraformRating)
+KB: assert(=75 VictoryPoint, =0 Victory)
+ER: assert(=38 TerraformRating)
+ER: assert(=67 VictoryPoint, =0 Victory)
 // _local/replays/Game20260819/Game20260819-herokuapp-player.json; final Mars map.

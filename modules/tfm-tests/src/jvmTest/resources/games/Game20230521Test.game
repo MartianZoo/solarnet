@@ -153,6 +153,12 @@ Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Player1: assert(=23 MC, =5 Steel, =0 Titanium, =0 Plant, =0 Energy, =1 Heat, =7 ProjectCard, =23 TerraformRating)
+Player1: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =0 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Player2: assert(=15 MC, =1 Steel, =3 Titanium, =2 Plant, =0 Energy, =3 Heat, =5 ProjectCard, =20 TerraformRating)
+Player2: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =0 Energy, =3 Heat])
+Player1: assert(=2 Generation, =0 TemperatureStep, =0 OxygenStep, =0 OceanTile, =0 VenusStep)
+
 Player2: useAction2(Factorum) {
     pay(3 MC)
     SearchForCard<TagFilter<Class<BuildingTag>>>
@@ -236,6 +242,12 @@ Player2: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Player1: assert(=27 MC, =3 Steel, =0 Titanium, =0 Plant, =1 Energy, =1 Heat, =7 ProjectCard, =23 TerraformRating)
+Player1: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Player2: assert(=21 MC, =1 Steel, =4 Titanium, =3 Plant, =0 Energy, =6 Heat, =7 ProjectCard, =21 TerraformRating)
+Player2: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =0 Energy, =3 Heat])
+Player1: assert(=3 Generation, =0 TemperatureStep, =0 OxygenStep, =0 OceanTile, =1 VenusStep)
 
 Player1: useAction1(DevelopmentCenter) {
     pay(1 Energy)
@@ -329,6 +341,12 @@ Player2: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Player1: assert(=44 MC, =3 Steel, =0 Titanium, =1 Plant, =1 Energy, =10 Heat, =6 ProjectCard, =23 TerraformRating)
+Player1: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =0 Titanium, =0 Plant, =1 Energy, =1 Heat])
+Player2: assert(=29 MC, =2 Steel, =1 Titanium, =4 Plant, =1 Energy, =9 Heat, =7 ProjectCard, =22 TerraformRating)
+Player2: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =1 Energy, =3 Heat])
+Player1: assert(=4 Generation, =1 TemperatureStep, =0 OxygenStep, =0 OceanTile, =1 VenusStep)
 
 Player2: useAction2(Factorum) {
     pay(3 MC)
@@ -447,6 +465,12 @@ Player2: Research {
     pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
+
+Player1: assert(=28 MC, =3 Steel, =0 Titanium, =1 Plant, =4 Energy, =11 Heat, =9 ProjectCard, =27 TerraformRating)
+Player1: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =0 Titanium, =0 Plant, =4 Energy, =2 Heat])
+Player2: assert(=15 MC, =1 Steel, =2 Titanium, =7 Plant, =1 Energy, =13 Heat, =11 ProjectCard, =24 TerraformRating)
+Player2: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =1 Energy, =3 Heat])
+Player1: assert(=5 Generation, =3 TemperatureStep, =0 OxygenStep, =1 OceanTile, =4 VenusStep)
 
 Player1: action(ConvertHeatAction) {
     pay(8 Heat)
@@ -569,6 +593,12 @@ Player2: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Player1: assert(=31 MC, =3 Steel, =0 Titanium, =4 Plant, =5 Energy, =15 Heat, =11 ProjectCard, =29 TerraformRating)
+Player1: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =0 Titanium, =0 Plant, =5 Energy, =3 Heat])
+Player2: assert(=21 MC, =1 Steel, =1 Titanium, =8 Plant, =1 Energy, =9 Heat, =12 ProjectCard, =27 TerraformRating)
+Player2: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =1 Energy, =3 Heat])
+Player1: assert(=6 Generation, =6 TemperatureStep, =0 OxygenStep, =2 OceanTile, =5 VenusStep)
 
 Player2: action(ConvertPlantsAction) {
     pay(8 Plant)
@@ -734,6 +764,12 @@ Player2: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
+Player1: assert(=40 MC, =7 Steel, =1 Titanium, =5 Plant, =4 Energy, =14 Heat, =10 ProjectCard, =30 TerraformRating)
+Player1: assert(=19 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=5 Steel, =1 Titanium, =1 Plant, =4 Energy, =3 Heat])
+Player2: assert(=32 MC, =2 Steel, =1 Titanium, =3 Plant, =2 Energy, =5 Heat, =13 ProjectCard, =31 TerraformRating)
+Player2: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =1 Titanium, =1 Plant, =2 Energy, =3 Heat])
+Player1: assert(=7 Generation, =8 TemperatureStep, =1 OxygenStep, =3 OceanTile, =6 VenusStep)
+
 Player1: action(ClaimMilestoneAction) {
     pay(8 MC)
     Builder8
@@ -857,6 +893,12 @@ Player2: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Player1: assert(=44 MC, =12 Steel, =2 Titanium, =6 Plant, =8 Energy, =16 Heat, =10 ProjectCard, =31 TerraformRating)
+Player1: assert(=19 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=5 Steel, =1 Titanium, =1 Plant, =8 Energy, =3 Heat])
+Player2: assert(=25 MC, =2 Steel, =3 Titanium, =6 Plant, =4 Energy, =8 Heat, =11 ProjectCard, =31 TerraformRating)
+Player2: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =1 Plant, =4 Energy, =3 Heat])
+Player1: assert(=8 Generation, =9 TemperatureStep, =1 OxygenStep, =3 OceanTile, =6 VenusStep)
+
 Player2: playCard(AdvancedAlloys) {
     pay(7 MC)
     selectTask(-ProjectCard! THEN ProjectCard!)
@@ -880,6 +922,8 @@ Player1: useAction1(DevelopmentCenter) {
     ProjectCard
 }
 
+Player1: assert(=23 MC)
+
 Player2: useAction1(AiCentral) {
     2 ProjectCard
 }
@@ -887,6 +931,8 @@ Player2: useAction1(DirectedImpactors) {
     pay(1 Titanium, 2 MC)
     Asteroid<RotatorImpacts>
 }
+
+Player1: assert(=6 VenusStep)
 
 Player1: playCard(SulphurExports) {
     pay(2 Titanium, 13 MC)
@@ -1010,6 +1056,12 @@ Player2: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Player1: assert(=56 MC, =5 Steel, =1 Titanium, =4 Plant, =8 Energy, =18 Heat, =12 ProjectCard, =38 TerraformRating)
+Player1: assert(=27 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=5 Steel, =1 Titanium, =1 Plant, =8 Energy, =3 Heat])
+Player2: assert(=28 MC, =2 Steel, =5 Titanium, =3 Plant, =3 Energy, =5 Heat, =13 ProjectCard, =34 TerraformRating)
+Player2: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =3 Titanium, =1 Plant, =3 Energy, =3 Heat])
+Player1: assert(=9 Generation, =12 TemperatureStep, =3 OxygenStep, =4 OceanTile, =9 VenusStep)
 
 Player1: useAction1(DevelopmentCenter) {
     pay(1 Energy)
@@ -1239,6 +1291,12 @@ Player2: Research {
     pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
+
+Player1: assert(=66 MC, =5 Steel, =1 Titanium, =10 Plant, =9 Energy, =16 Heat, =8 ProjectCard, =42 TerraformRating)
+Player1: assert(=28 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=5 Steel, =1 Titanium, =4 Plant, =9 Energy, =3 Heat])
+Player2: assert(=36 MC, =3 Steel, =3 Titanium, =10 Plant, =3 Energy, =9 Heat, =13 ProjectCard, =41 TerraformRating)
+Player2: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =3 Titanium, =4 Plant, =3 Energy, =3 Heat])
+Player1: assert(=10 Generation, =17 TemperatureStep, =4 OxygenStep, =6 OceanTile, =12 VenusStep)
 
 Player2: playCard(HiredRaiders) {
     2 Steel FROM Steel<Player1>
@@ -1624,6 +1682,8 @@ Player2: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
 
+Player1: assert(=9 OceanTile)
+
 // oceans full
 Player1: playCard(LargeConvoy) {
     pay(31 MC)
@@ -1768,3 +1828,6 @@ Player1 {
 Player2 {
     92 VictoryPoint
 }
+
+Player1: assert(=126 VictoryPoint, =1 Victory)
+Player2: assert(=92 VictoryPoint, =0 Victory)

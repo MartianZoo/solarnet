@@ -196,6 +196,9 @@ Pink: playCard(AerobrakedAmmoniaAsteroid) {
     // Database save 9, after the last generation 1 action and before passing.
     2* Microbe
 }
+
+Pink: assert(=4 MC, =0 Steel, =0 Titanium, =4 Plant, =0 Energy, =3 Heat, =17 TerraformRating)
+Pink: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =0 Energy, =3 Heat])
 Pink: pass
 
 Pink: Production {
@@ -211,6 +214,9 @@ Pink: WorldGovernment {
 Pink: WorldGovernment {
     PROD[MC]
 }
+
+Pink: assert(=28 MC, =0 Steel, =0 Titanium, =5 Plant, =0 Energy, =6 Heat, =17 TerraformRating)
+Pink: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =0 Energy, =3 Heat])
 
 // Database save 10, before generation 2 Research.
 Pink: Research {
@@ -250,6 +256,9 @@ Pink: action(PaidLobbyAction) {
     pay(5 MC)
     PartyLeader<Greens>
 }
+
+Pink: assert(=4 MC, =2 Steel, =1 Titanium, =7 Plant, =0 Energy, =1 Heat, =20 TerraformRating)
+Pink: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =0 Energy, =3 Heat])
 // Database save 17, after the last generation 2 action.
 Pink: pass
 
@@ -270,6 +279,9 @@ Pink: WorldGovernment {
 Pink: GlobalEvent {
     10 MC
 }
+
+Pink: assert(=41 MC, =2 Steel, =1 Titanium, =8 Plant, =0 Energy, =4 Heat, =20 TerraformRating)
+Pink: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =0 Energy, =3 Heat])
 
 // Database save 18, before generation 3 Research.
 Pink: Research {
@@ -323,6 +335,9 @@ Pink: useAction1(AerialMappers) {
 Pink: action(LobbyAction) {
     PartyLeader<Greens> FROM LobbyDelegate
 }
+
+Pink: assert(=5 MC, =2 Steel, =0 Titanium, =1 Plant, =0 Energy, =4 Heat, =22 TerraformRating)
+Pink: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =2 Plant, =0 Energy, =3 Heat])
 // Database save 29, after the last generation 3 action.
 Pink: pass
 
@@ -345,6 +360,9 @@ Pink: WorldGovernment {
 Pink: GlobalEvent {
     4 Plant
 }
+
+Pink: assert(=37 MC, =2 Steel, =0 Titanium, =7 Plant, =0 Energy, =7 Heat, =21 TerraformRating)
+Pink: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =2 Plant, =0 Energy, =3 Heat])
 
 Pink: Research {
     4 ProjectCard<Selecting>
@@ -380,6 +398,9 @@ Pink: useAction2(NitriteReducingBacteria) {
 Pink: action(LobbyAction) {
     PartyFollower<Reds> FROM LobbyDelegate
 }
+
+Pink: assert(=9 MC, =2 Steel, =0 Titanium, =7 Plant, =0 Energy, =7 Heat, =23 TerraformRating)
+Pink: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =2 Plant, =0 Energy, =3 Heat])
 // Database save 39, after the last generation 4 action.
 Pink: pass
 
@@ -398,6 +419,9 @@ Pink: WorldGovernment {
 Pink: GlobalEvent {
     -0* MC
 }
+
+Pink: assert(=44 MC, =2 Steel, =0 Titanium, =9 Plant, =0 Energy, =10 Heat, =22 TerraformRating)
+Pink: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =2 Plant, =0 Energy, =3 Heat])
 
 Pink: Research {
     4 ProjectCard<Selecting>
@@ -474,6 +498,9 @@ Pink: playCard(TitaniumMine) {
 Pink: action(LobbyAction) {
     PartyLeader<MarsFirst> FROM LobbyDelegate
 }
+
+Pink: assert(=2 MC, =1 Steel, =0 Titanium, =1 Plant, =2 Energy, =2 Heat, =25 TerraformRating)
+Pink: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =2 Plant, =0 Energy, =4 Heat])
 // Database save 55, after the last generation 5 action.
 Pink: pass
 
@@ -496,6 +523,9 @@ Pink: WorldGovernment {
 Pink: GlobalEvent {
     10 MC
 }
+
+Pink: assert(=47 MC, =1 Steel, =1 Titanium, =3 Plant, =0 Energy, =8 Heat, =25 TerraformRating)
+Pink: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =2 Plant, =0 Energy, =4 Heat])
 
 // Database save 56, before generation 6 Research.
 Pink: Research {
@@ -543,6 +573,9 @@ Pink: useAction1(GhgProducingBacteria) {
 Pink: action(LobbyAction) {
     PartyLeader<Scientists> FROM LobbyDelegate
 }
+
+Pink: assert(=6 MC, =1 Steel, =1 Titanium, =3 Plant, =0 Energy, =8 Heat, =28 TerraformRating)
+Pink: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =2 Plant, =0 Energy, =4 Heat])
 // Database save 67, after the last generation 6 action.
 Pink: pass
 
@@ -562,6 +595,9 @@ Pink: WorldGovernment {
 Pink: GlobalEvent {
     -0* MC
 }
+
+Pink: assert(=57 MC, =1 Steel, =2 Titanium, =5 Plant, =0 Energy, =12 Heat, =27 TerraformRating)
+Pink: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =2 Plant, =0 Energy, =4 Heat])
 
 Pink: Research {
     4 ProjectCard<Selecting>
@@ -654,6 +690,9 @@ Pink: playCard(IshtarMining) {
     pay(3 MC)
     PROD[Titanium]
 }
+
+Pink: assert(=0 MC, =1 Steel, =0 Titanium, =5 Plant, =0 Energy, =5 Heat, =34 TerraformRating)
+Pink: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =5 Plant, =0 Energy, =8 Heat])
 // Database save 88, after the last generation 7 action.
 Pink: pass
 
@@ -673,6 +712,9 @@ Pink: WorldGovernment {
 Pink: GlobalEvent {
     -2 TerraformRating
 }
+
+Pink: assert(=56 MC, =1 Steel, =2 Titanium, =10 Plant, =0 Energy, =13 Heat, =32 TerraformRating)
+Pink: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =5 Plant, =0 Energy, =8 Heat])
 
 // Database save 89, before generation 8 Research.
 Pink: Research {
@@ -794,6 +836,9 @@ Pink: useStandardProject(GreeneryProject) {
     OxygenStep
     TerraformRating
 }
+
+Pink: assert(=12 MC, =1 Steel, =2 Titanium, =1 Plant, =0 Energy, =0 Heat, =42 TerraformRating)
+Pink: assert(=18 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =7 Plant, =1 Energy, =8 Heat])
 // Database save 112, after the last generation 8 action.
 Pink: pass
 
@@ -816,6 +861,9 @@ Pink: GlobalEvent {
     // Database save 113, before generation 9 Research.
     -0* MC
 }
+
+Pink: assert(=76 MC, =1 Steel, =4 Titanium, =8 Plant, =1 Energy, =0 Heat, =42 TerraformRating)
+Pink: assert(=18 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =7 Plant, =1 Energy, =8 Heat])
 
 Pink: Research {
     4 ProjectCard<Selecting>
@@ -909,6 +957,9 @@ Pink: action(PaidLobbyAction) {
     pay(5 MC)
     PartyLeader<Greens>
 }
+
+Pink: assert(=1 MC, =1 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat, =45 TerraformRating)
+Pink: assert(=41 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =7 Plant, =0 Energy, =8 Heat])
 // Database save 133, after the last generation 9 action.
 Pink: pass
 
@@ -929,6 +980,9 @@ Pink: WorldGovernment {
 Pink: GlobalEvent {
     -Plant
 }
+
+Pink: assert(=95 MC, =1 Steel, =2 Titanium, =6 Plant, =0 Energy, =9 Heat, =44 TerraformRating)
+Pink: assert(=41 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =7 Plant, =0 Energy, =8 Heat])
 
 Pink: Research {
     4 ProjectCard<Selecting>
@@ -1044,6 +1098,9 @@ Pink: action(LobbyAction) {
 Pink: useStandardProject(SellPatentsProject) {
     4 MC FROM ProjectCard
 }
+
+Pink: assert(=9 MC, =0 Steel, =0 Titanium, =13 Plant, =0 Energy, =4 Heat, =55 TerraformRating)
+Pink: assert(=45 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =0 Energy, =10 Heat])
 // Database save 159, after the last generation 10 action.
 Pink: pass
 
@@ -1065,6 +1122,9 @@ Pink: GlobalEvent {
     // Database save 160, before generation 11 Research.
     -0 ProjectCard
 }
+
+Pink: assert(=125 MC, =0 Steel, =2 Titanium, =21 Plant, =0 Energy, =14 Heat, =55 TerraformRating)
+Pink: assert(=45 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =0 Energy, =10 Heat])
 
 Pink: Research {
     4 ProjectCard<Selecting>
@@ -1219,6 +1279,9 @@ Pink: playCard(SmallAnimals) {
 Pink: useAction1(SmallAnimals) {
     Animal<SmallAnimals>
 }
+
+Pink: assert(=6 MC, =1 Steel, =2 Titanium, =0 Plant, =0 Energy, =1 Heat, =66 TerraformRating)
+Pink: assert(=48 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =0 Energy, =10 Heat])
 // Database save 188, after the last generation 11 action.
 Pink: pass
 
@@ -1238,6 +1301,9 @@ Pink: WorldGovernment {
 Pink: GlobalEvent {
     -0* MC
 }
+
+Pink: assert(=129 MC, =1 Steel, =4 Titanium, =8 Plant, =0 Energy, =11 Heat, =66 TerraformRating)
+Pink: assert(=48 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =0 Energy, =10 Heat])
 
 Pink: Research {
     4 ProjectCard<Selecting>
@@ -1389,6 +1455,9 @@ Pink: action(PaidLobbyAction) {
 Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
+
+Pink: assert(=1 MC, =4 Steel, =0 Titanium, =1 Plant, =0 Energy, =3 Heat, =77 TerraformRating)
+Pink: assert(=51 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =0 Energy, =10 Heat])
 // Database save 217, after the last generation 12 action.
 Pink: pass
 
@@ -1398,6 +1467,8 @@ Pink: Production {
     8 Plant
     10 Heat
 }
+
+Pink: assert(=129 MC, =4 Steel, =2 Titanium, =9 Plant, =0 Energy, =13 Heat)
 
 // Database save 218, after final production.
 Pink: action(ConvertPlantsAction) {
@@ -1411,7 +1482,13 @@ Pink {
     Ok
 }
 
+Pink: assert(=129 MC, =4 Steel, =2 Titanium, =1 Plant, =0 Energy, =13 Heat)
+Pink: assert(=51 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =0 Energy, =10 Heat])
+
 Pink {
     160 VictoryPoint
 }
+
+Pink: assert(=77 TerraformRating)
+Pink: assert(=160 VictoryPoint, =1 Victory)
 // _local/replays/Game20261102/player-pf66ef32d2f75.json; final Mars map.

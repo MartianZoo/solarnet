@@ -366,6 +366,12 @@ Vin: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Nor: assert(=36 MC, =1 Steel, =0 Titanium, =8 Plant, =0 Energy, =6 Heat, =7 ProjectCard, =22 TerraformRating)
+Nor: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =3 Plant, =0 Energy, =0 Heat])
+Vin: assert(=51 MC, =0 Steel, =1 Titanium, =0 Plant, =0 Energy, =3 Heat, =7 ProjectCard, =20 TerraformRating)
+Vin: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =0 Energy, =3 Heat])
+Nor: assert(=2 Generation, =0 TemperatureStep, =1 OxygenStep, =1 OceanTile, =1 VenusStep)
+
 // Database save 18: immediately after both Research purchases in generation 2.
 // Research Network's wild tag supplies Cloud Tourism's missing Earth tag.
 Vin: playCard(CloudTourism) {
@@ -449,6 +455,12 @@ Vin: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Nor: assert(=32 MC, =0 Steel, =0 Titanium, =5 Plant, =0 Energy, =6 Heat, =8 ProjectCard, =24 TerraformRating)
+Nor: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =3 Plant, =0 Energy, =0 Heat])
+Vin: assert(=33 MC, =0 Steel, =2 Titanium, =0 Plant, =0 Energy, =6 Heat, =5 ProjectCard, =23 TerraformRating)
+Vin: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =0 Energy, =3 Heat])
+Nor: assert(=3 Generation, =0 TemperatureStep, =3 OxygenStep, =2 OceanTile, =2 VenusStep)
+
 // Database save 47: immediately after both Research purchases in generation 3.
 Nor: useAction1(AquiferPumping) {
     pay(8 MC)
@@ -530,6 +542,12 @@ Vin: Research {
     pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
+
+Nor: assert(=30 MC, =0 Steel, =0 Titanium, =9 Plant, =1 Energy, =6 Heat, =6 ProjectCard, =25 TerraformRating)
+Nor: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =3 Plant, =1 Energy, =0 Heat])
+Vin: assert(=39 MC, =0 Steel, =3 Titanium, =0 Plant, =0 Energy, =9 Heat, =8 ProjectCard, =23 TerraformRating)
+Vin: assert(=12 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =0 Energy, =3 Heat])
+Nor: assert(=4 Generation, =1 TemperatureStep, =3 OxygenStep, =3 OceanTile, =2 VenusStep)
 
 // Database save 75: immediately after both Research purchases in generation 4.
 Vin: playCard(OptimalAerobraking) {
@@ -659,6 +677,12 @@ Vin: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
+Nor: assert(=27 MC, =0 Steel, =0 Titanium, =6 Plant, =0 Energy, =10 Heat, =7 ProjectCard, =28 TerraformRating)
+Nor: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =5 Plant, =0 Energy, =0 Heat])
+Vin: assert(=32 MC, =0 Steel, =1 Titanium, =2 Plant, =1 Energy, =16 Heat, =8 ProjectCard, =28 TerraformRating)
+Vin: assert(=12 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =1 Energy, =4 Heat])
+Nor: assert(=5 Generation, =3 TemperatureStep, =5 OxygenStep, =5 OceanTile, =5 VenusStep)
+
 // Database save 117: immediately after both Research purchases in generation 5.
 Nor: useAction1(AquiferPumping) {
     pay(8 MC)
@@ -771,6 +795,12 @@ Vin: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
+Nor: assert(=31 MC, =0 Steel, =0 Titanium, =6 Plant, =0 Energy, =2 Heat, =9 ProjectCard, =31 TerraformRating)
+Nor: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =4 Plant, =0 Energy, =0 Heat])
+Vin: assert(=43 MC, =0 Steel, =2 Titanium, =2 Plant, =1 Energy, =6 Heat, =8 ProjectCard, =31 TerraformRating)
+Vin: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =1 Energy, =5 Heat])
+Nor: assert(=6 Generation, =7 TemperatureStep, =6 OxygenStep, =6 OceanTile, =6 VenusStep)
+
 // Database save 160: immediately after both Research purchases in generation 6.
 Vin: playCard(Sabotage) {
     pay(1 MC)
@@ -878,6 +908,12 @@ Vin: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Nor: assert(=38 MC, =0 Steel, =1 Titanium, =6 Plant, =0 Energy, =5 Heat, =6 ProjectCard, =35 TerraformRating)
+Nor: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =4 Plant, =0 Energy, =0 Heat])
+Vin: assert(=49 MC, =0 Steel, =3 Titanium, =2 Plant, =1 Energy, =12 Heat, =8 ProjectCard, =34 TerraformRating)
+Vin: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =1 Energy, =5 Heat])
+Nor: assert(=7 Generation, =8 TemperatureStep, =8 OxygenStep, =8 OceanTile, =8 VenusStep)
 
 // _local/replays/Game20260912/Heroku-g1212dda978b8/game-g1212dda978b8.sqlite; source save 201.
 // Database save 201: immediately after both Research purchases in generation 7.
@@ -998,6 +1034,12 @@ Vin: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Nor: assert(=45 MC, =0 Steel, =1 Titanium, =5 Plant, =0 Energy, =5 Heat, =8 ProjectCard, =37 TerraformRating)
+Nor: assert(=14 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =4 Plant, =0 Energy, =0 Heat])
+Vin: assert(=52 MC, =0 Steel, =1 Titanium, =4 Plant, =1 Energy, =12 Heat, =6 ProjectCard, =36 TerraformRating)
+Vin: assert(=18 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =2 Plant, =1 Energy, =7 Heat])
+Nor: assert(=8 Generation, =10 TemperatureStep, =9 OxygenStep, =9 OceanTile, =9 VenusStep)
+
 // Database save 246: immediately after both Research purchases in generation 8.
 Vin: useStandardProject(CityProject) {
     pay(25 MC)
@@ -1104,6 +1146,12 @@ Vin: Research {
     pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
+
+Nor: assert(=47 MC, =0 Steel, =2 Titanium, =10 Plant, =1 Energy, =5 Heat, =7 ProjectCard, =37 TerraformRating)
+Nor: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =4 Plant, =1 Energy, =0 Heat])
+Vin: assert(=56 MC, =0 Steel, =2 Titanium, =10 Plant, =1 Energy, =12 Heat, =6 ProjectCard, =37 TerraformRating)
+Vin: assert(=19 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =4 Plant, =1 Energy, =7 Heat])
+Nor: assert(=9 Generation, =11 TemperatureStep, =10 OxygenStep, =9 OceanTile, =9 VenusStep)
 
 // Database save 293: immediately after both Research purchases in generation 9.
 Nor: useStandardProject(CityProject) {
@@ -1287,6 +1335,12 @@ Vin: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
+Nor: assert(=53 MC, =0 Steel, =2 Titanium, =9 Plant, =0 Energy, =4 Heat, =7 ProjectCard, =44 TerraformRating)
+Nor: assert(=18 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =0 Energy, =0 Heat])
+Vin: assert(=64 MC, =0 Steel, =3 Titanium, =6 Plant, =1 Energy, =12 Heat, =7 ProjectCard, =41 TerraformRating)
+Vin: assert(=20 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =4 Plant, =1 Energy, =7 Heat])
+Nor: assert(=10 Generation, =13 TemperatureStep, =14 OxygenStep, =9 OceanTile, =15 VenusStep)
+
 // Database save 357: immediately after both Research purchases in generation 10.
 Vin: useStandardProject(CityProject) {
     pay(25 MC)
@@ -1439,6 +1493,12 @@ Vin: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Nor: assert(=64 MC, =0 Steel, =4 Titanium, =14 Plant, =1 Energy, =4 Heat, =5 ProjectCard, =45 TerraformRating)
+Nor: assert(=21 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =1 Energy, =0 Heat])
+Vin: assert(=61 MC, =0 Steel, =4 Titanium, =8 Plant, =1 Energy, =12 Heat, =8 ProjectCard, =42 TerraformRating)
+Vin: assert(=21 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =6 Plant, =1 Energy, =7 Heat])
+Nor: assert(=11 Generation, =16 TemperatureStep, =14 OxygenStep, =9 OceanTile, =15 VenusStep)
 
 // Database save 417: immediately after both Research purchases in generation 11.
 Nor: useAction2(AerialMappers) {
@@ -1645,6 +1705,8 @@ Vin: Production {
     6 Plant
 }
 
+Nor: assert(=11 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =15 VenusStep)
+
 Nor: action(ConvertPlantsAction) {
     pay(7 Plant)
     GreeneryTile<Tharsis_7_6>
@@ -1671,4 +1733,13 @@ Nor {
 Vin {
     107 VictoryPoint
 }
+
+Nor: assert(=88 MC, =0 Steel, =2 Titanium, =5 Plant, =1 Energy, =5 Heat, =47 TerraformRating)
+Nor: assert(=22 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =1 Energy, =0 Heat])
+Nor: assert(=6 CardResource<EcologicalZone>, =0 CardResource<AerialMappers>, =0 CardResource<LocalShading>, =1 CardResource<OlympusConference>)
+Nor: assert(=1 CardResource<GhgProducingBacteria>, =1 CardResource<WeatherBalloons>, =104 VictoryPoint, =0 Victory)
+Vin: assert(=78 MC, =0 Steel, =1 Titanium, =1 Plant, =0 Energy, =15 Heat, =43 TerraformRating)
+Vin: assert(=28 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =6 Plant, =0 Energy, =7 Heat])
+Vin: assert(=12 CardResource<CloudTourism>, =7 CardResource<SmallAnimals>, =2 CardResource<Thermophiles>, =6 CardResource<VenusianAnimals>)
+Vin: assert(=107 VictoryPoint, =1 Victory)
 // _local/replays/Game20260912/Heroku-g1212dda978b8/player-pe1c5cff0c611.json; final Mars map.

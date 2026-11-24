@@ -113,6 +113,10 @@ Pink: playCard(OldMiningColony) {
     -ProjectCard
 }
 
+Pink: assert(=21 MC, =0 Steel, =0 Titanium, =0 Plant, =0 Energy, =0 Heat)
+Pink: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =3 Energy, =3 Heat])
+Green: assert(=1 Generation, =0 TemperatureStep, =0 OxygenStep, =0 OceanTile, =0 VenusStep)
+
 // (11:58:53 AM) "Now it's time for a picture. I hope that's got everything in the frame."
 // board-11-59-13.jpg, before action play. Helion's heat production was entered late.
 // (11:59:26 AM) "Even though it's a building tag, it's probably worth it. Research Outpost,
@@ -191,6 +195,8 @@ Pink: Production {
     7 Heat
 }
 
+Green: assert(=26 MC, =2 Steel, =4 Titanium, =0 Plant, =0 Energy, =0 Heat)
+
 // (12:04:39 PM) "Then I choose world governmentation. I think I'll stick an ocean at 5.3.
 // Oceans plus one. Then we start moving all the colonies."
 // 12:04:45: World Government ocean at 5,3, with no player placement bonus or TR. Turmoil
@@ -223,6 +229,11 @@ Green: WorldGovernment {
 Green: exMachina {
     PROD[-MC]
 }
+
+Green: assert(=26 MC, =2 Steel, =4 Titanium, =0 Plant, =0 Energy, =0 Heat, =19 TerraformRating, =5 ProjectCard)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Pink: assert(=38 MC, =0 Steel, =1 Titanium, =0 Plant, =3 Energy, =7 Heat, =20 TerraformRating, =4 ProjectCard)
+Pink: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =3 Energy, =7 Heat])
 
 // (12:08:06 PM) "Generation becomes two, button moves to Pink. We would take cubes off cards if
 // we had them, and we've done all our colony stuff already. We're good for research. Two for
@@ -351,6 +362,12 @@ Pink: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Green: assert(=27 MC, =3 Steel, =3 Titanium, =0 Plant, =1 Energy, =3 Heat, =8 ProjectCard)
+Green: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =1 Energy, =1 Heat])
+Green: assert(=1 Asteroid<AsteroidRights>)
+Pink: assert(=24 MC, =0 Steel, =1 Titanium, =0 Plant, =4 Energy, =18 Heat, =7 ProjectCard)
+Pink: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =4 Energy, =8 Heat])
+
 // board-12-16-00.jpg: resource/tableau snapshot after Venus WGT, before event payouts.
 // (12:16:08 PM) "All players lose one TR. Perform the current global event: gain one money for
 // each card in hand, no limit, and influence."
@@ -374,6 +391,9 @@ Pink: GlobalEvent {
     8 MC
 }
 
+Green: assert(=37 MC, =3 Steel, =3 Titanium, =0 Plant, =1 Energy, =3 Heat, =18 TerraformRating, =8 ProjectCard)
+Pink: assert(=33 MC, =0 Steel, =1 Titanium, =0 Plant, =4 Energy, =18 Heat, =19 TerraformRating, =7 ProjectCard)
+
 // Both app logs briefly missed the Scientists bonus; keep it here.
 // (12:18:18 PM) "Generation moves, button moves, cubes come off cards."
 // Correct Green's accidental MC-production decrease and its missed production.
@@ -381,6 +401,10 @@ Green: exMachina {
     PROD[MC]
     MC
 }
+
+Pink: assert(=33 MC)
+Green: assert(=38 MC)
+Green: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =1 Energy, =1 Heat])
 
 // (12:56:15 PM) "Green has eight cards in hand. Pink has seven cards in hand. We're ready to
 // draft."
@@ -570,6 +594,8 @@ Pink: playCard(CeosFavoriteProject) {
 // (1:17:42 PM) "I don't have many options left. I think I'm prepared to pass."
 Green: pass
 
+Pink: assert(=0 MC)
+
 // (1:17:52 PM) Pink: "Whoops, wait. I forgot to buy my freaking cards."
 // Green: "We're making it so that you did not use Martian Media Center."
 // Pink: "I just don't use this."
@@ -601,6 +627,13 @@ Green: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Green: assert(=30 MC, =4 Steel, =4 Titanium, =1 Plant, =0 Energy, =5 Heat)
+Green: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =0 Energy, =1 Heat])
+Green: assert(=0 Asteroid<AsteroidRights>)
+Pink: assert(=28 MC, =0 Steel, =1 Titanium, =0 Plant, =4 Energy, =10 Heat)
+Pink: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =4 Energy, =9 Heat])
+Pink: assert(=2 Asteroid<RotatorImpacts>)
+
 // board-13-19-37.jpg and both app logs, before Global Dust Storm. Green's 30 MC is the
 // photographed/logged 33 MC less the retconned research payment.
 // (1:19:54 PM) "All players lose one TR. Perform the current global event."
@@ -625,6 +658,9 @@ Pink: GlobalEvent {
     // Funding."
     -4 MC
 }
+
+Green: assert(=28 MC, =4 Steel, =4 Titanium, =1 Plant, =0 Energy, =0 Heat, =19 TerraformRating, =11 ProjectCard)
+Pink: assert(=24 MC, =0 Steel, =1 Titanium, =0 Plant, =4 Energy, =0 Heat, =21 TerraformRating)
 
 // (1:21:47 PM) "I have so little TR. Generation marker moves, the button moves, cubes come off
 // cards. We would be ready to draft, but we're pausing. I have 11 cards in hand."
@@ -698,6 +734,8 @@ Pink: useAction2(RotatorImpacts) {
     TerraformRating
 }
 
+Green: assert(=8 MC)
+
 // (5:00:06 PM) "Indentured Workers."
 Green: playCard(IndenturedWorkers) {
     IndenturedWorkers_NextCardEffect
@@ -708,6 +746,8 @@ Green: action(ClaimMilestoneAction) {
     pay(8 MC)
     Legend
 }
+
+Green: assert(=0 MC)
 
 // (5:01:36 PM) "I will use Lobby to send a guy to Greens."
 Pink: action(LobbyAction) {
@@ -768,12 +808,22 @@ Pink: Production {
     9 Heat
 }
 
+Green: assert(=21 TerraformRating)
+Pink: assert(=22 TerraformRating)
+
 // (5:05:45 PM) "You must world governmentalize."
 // "I think I will oxygenate."
 // "Oxygen is up to one percent."
 Pink: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Green: assert(=32 MC, =5 Steel, =5 Titanium, =1 Plant, =1 Energy, =2 Heat)
+Green: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =1 Energy, =1 Heat])
+Green: assert(=1 SolarWindPower, =0 TectonicStressPower, =1 Legend, =0 Asteroid<AsteroidRights>, =2 ScienceTag)
+Pink: assert(=38 MC, =0 Steel, =8 Titanium, =0 Plant, =4 Energy, =10 Heat)
+Pink: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =4 Energy, =9 Heat])
+Pink: assert(=1 Asteroid<RotatorImpacts>)
 
 // (5:06:02 PM) "Now it's time for the picture, then colonies. Oops, why did I move it down? Up,
 // up, up. Luna is on the 10 money spot now. Walk us through Turmoil."
@@ -800,6 +850,9 @@ Green: GlobalEvent {
 Pink: GlobalEvent {
     0 MC
 }
+
+Green: assert(=45 MC, =5 Steel, =5 Titanium, =1 Plant, =1 Energy, =2 Heat, =20 TerraformRating, =9 ProjectCard)
+Pink: assert(=40 MC, =0 Steel, =8 Titanium, =0 Plant, =4 Energy, =10 Heat, =22 TerraformRating)
 
 // Corrected hand count: 11 before Research + 2 purchases + 2 draws - 4 plays - 2 sales.
 // (5:08:08 PM) "Kelvinists become dominant. Nope, Unity. That was the point. Unity becomes
@@ -1030,6 +1083,12 @@ Green: WorldGovernment {
     OceanTile<Vastitas_5_8>! BY Admin
 }
 
+Green: assert(=38 MC, =3 Steel, =8 Titanium, =1 Plant, =4 Energy, =5 Heat)
+Green: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =4 Energy, =1 Heat])
+Green: assert(=1 Asteroid<AsteroidRights>, =0 Floater<FloatingRefinery>)
+Pink: assert(=38 MC, =0 Steel, =9 Titanium, =0 Plant, =4 Energy, =20 Heat)
+Pink: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =4 Energy, =9 Heat])
+
 // (3:58:06 PM) "Oceans are at four now. Picture time. Colonies: two boats return, everything
 // has slid up. Then Turmoil: all players lose one TR."
 // board-15-58-19.jpg: after production/WGT, before Pandemic and the Reds government.
@@ -1047,6 +1106,9 @@ Green: GlobalEvent {
 Pink: GlobalEvent {
     -3 MC
 }
+
+Green: assert(=29 MC, =3 Steel, =8 Titanium, =1 Plant, =4 Energy, =5 Heat, =22 TerraformRating)
+Pink: assert(=35 MC, =0 Steel, =9 Titanium, =0 Plant, =4 Energy, =20 Heat, =26 TerraformRating)
 
 // The spoken "21 TR" conflicts with green-applog-06 entry 156: two TR gained, ending at 22.
 // (4:00:19 PM) "Move the event, add neutral Unity. It is still dominant. Shift over and reveal
@@ -1229,6 +1291,12 @@ Pink: WorldGovernment {
     OxygenStep! BY Admin
 }
 
+Green: assert(=50 MC, =1 Steel, =10 Titanium, =1 Plant, =2 Energy, =10 Heat)
+Green: assert(=19 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =2 Energy, =1 Heat])
+Green: assert(=1 Builder, =0 Asteroid<AsteroidRights>, =1 Floater<FloatingRefinery>)
+Pink: assert(=36 MC, =0 Steel, =10 Titanium, =2 Plant, =7 Energy, =17 Heat)
+Pink: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =7 Energy, =12 Heat])
+
 // (4:11:47 PM) "Then picture time, then colonies. Take my ship back. Then walk us through
 // Turmoil."
 // _local/replays/Game20261111/board-16-11-57.jpg.
@@ -1245,6 +1313,9 @@ Green: GlobalEvent {
 Pink: GlobalEvent {
     4 MC
 }
+
+Green: assert(=63 MC, =1 Steel, =10 Titanium, =1 Plant, =2 Energy, =10 Heat, =22 TerraformRating)
+Pink: assert(=44 MC, =0 Steel, =10 Titanium, =2 Plant, =7 Energy, =17 Heat, =28 TerraformRating)
 
 // (4:13:09 PM) "Perform the ruling bonus."
 // Green: "I think I get five."
@@ -1640,6 +1711,13 @@ Pink: Production {
     12 Heat
 }
 
+Green: assert(=53 MC, =2 Steel, =4 Titanium, =8 Plant, =4 Energy, =13 Heat, =29 TerraformRating, =4 ProjectCard)
+Green: assert(=22 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =4 Titanium, =1 Plant, =4 Energy, =6 Heat])
+Green: assert(=2 Asteroid<AsteroidRights>, =0 Floater<FloatingRefinery>)
+Pink: assert(=50 MC, =0 Steel, =2 Titanium, =6 Plant, =5 Energy, =16 Heat, =33 TerraformRating, =1 ProjectCard)
+Pink: assert(=17 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =5 Energy, =12 Heat])
+Pink: assert(=1 Merchant, =1 Camp<RefugeeCamps>, =0 Asteroid<RotatorImpacts>)
+
 // board-16-40-53.jpg is after production, before WGT and Turmoil; boats are still out.
 // (4:40:21 PM) "I will world governmentalize Venus to 20. This game needs to end sometime; I'm
 // gonna do oxygen to four instead. Then colonies: three boats go back. Everyone loses a TR."
@@ -1668,6 +1746,9 @@ Pink: GlobalEvent {
     0 Steel
 }
 
+Green: assert(=60 MC, =5 Steel, =4 Titanium, =11 Plant, =4 Energy, =13 Heat, =29 TerraformRating)
+Pink: assert(=54 MC, =0 Steel, =2 Titanium, =6 Plant, =5 Energy, =16 Heat, =32 TerraformRating)
+
 // (4:42:13 PM) "Restore lobby. Election moves into current, and we get a Mars First leader. We
 // reveal Solar Flare, which adds a leader for Unity. Generation becomes eight."
 // (4:43:01 PM) Green: "Button moves. I'm removing three cubes from cards. We're adjourning with
@@ -1688,6 +1769,10 @@ Green: exMachina {
 Pink: exMachina {
     Steel
 }
+
+Green: assert(=61 MC, =6 Steel, =4 Titanium, =11 Plant, =3 Energy, =13 Heat)
+Green: assert(=22 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =4 Titanium, =1 Plant, =3 Energy, =6 Heat])
+Pink: assert(=54 MC, =1 Steel, =2 Titanium, =6 Plant, =5 Energy, =16 Heat)
 
 // (6:43:59 PM) Green: "I've got four cards in hand. To put things right, because I forgot Solar
 // Logistics, I get to draw a free card. Then we're ready to draft. Two for you, two for me, two
@@ -2026,6 +2111,9 @@ Pink: Production {
     14 Heat
 }
 
+Green: assert(=65 MC, =1 Steel, =6 Titanium, =4 Plant, =3 Energy, =11 Heat, =37 TerraformRating, =1 ProjectCard)
+Pink: assert(=52 MC, =3 Steel, =1 Titanium, =3 Plant, =5 Energy, =15 Heat, =36 TerraformRating)
+
 // (7:10:25 PM) Pink: "Part of me wants to raise Venus and see if we can keep the game going. I
 // don't feel confident about my chances of winning."
 // Green: "Nor do I. What's it going to be? Oxygen is at 11 now. It looks like I accidentally
@@ -2049,6 +2137,9 @@ Green: GlobalEvent {
 Pink: GlobalEvent {
     TerraformRating
 }
+
+Green: assert(=66 MC, =1 Steel, =6 Titanium, =4 Plant, =3 Energy, =11 Heat, =38 TerraformRating)
+Pink: assert(=52 MC, =3 Steel, =1 Titanium, =3 Plant, =5 Energy, =15 Heat, =37 TerraformRating)
 
 // (7:14:01 PM) "All players lose one TR, but we've already done the current event. New
 // government: dominant party becomes ruling, Greens."
@@ -2355,6 +2446,14 @@ Pink: Production {
     14 Heat
 }
 
+Green: assert(=69 MC, =4 Steel, =4 Titanium, =4 Plant, =4 Energy, =9 Heat, =41 TerraformRating, =0 ProjectCard)
+Green: assert(=25 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =4 Titanium, =1 Plant, =4 Energy, =6 Heat])
+Green: assert(=4 PartyLeader)
+Pink: assert(=68 MC, =0 Steel, =1 Titanium, =6 Plant, =5 Energy, =15 Heat, =42 TerraformRating, =0 ProjectCard)
+Pink: assert(=15 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =2 Plant, =5 Energy, =14 Heat])
+Pink: assert(=2 PartyLeader, =1 Chairman)
+Green: assert(=9 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =11 VenusStep)
+
 // (7:30:41 PM) Pink: "I have six plants."
 // Green: "I have less than that, so no greeneries to place."
 // Neither player has eight plants. There is no final Turmoil phase.
@@ -2397,4 +2496,7 @@ Green {
 Pink {
     75 VictoryPoint
 }
+
+Green: assert(=92 VictoryPoint, =1 Victory)
+Pink: assert(=75 VictoryPoint, =0 Victory)
 // The table counts Capital and camp resources separately from printed card points.

@@ -96,6 +96,11 @@ Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Me: assert(=11 MC, =3 Steel, =0 Titanium, =0 Plant, =1 Energy, =1 Heat, =10 ProjectCard, =19 TerraformRating)
+Me: assert(=2 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=2 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Me: assert(=0 Colony)
+Me: assert(=2 Generation, =0 TemperatureStep, =0 OxygenStep, =0 OceanTile, =1 VenusStep)
+
 // The app was showing tagless = 3, so... solarnet found its very first herokuapp bug!
 // https://github.com/terraforming-mars/terraforming-mars/issues/5847
 // no MC remainder
@@ -125,6 +130,11 @@ Me: Research {
     pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
+
+Me: assert(=25 MC, =3 Steel, =0 Titanium, =0 Plant, =0 Energy, =8 Heat, =10 ProjectCard, =19 TerraformRating)
+Me: assert(=2 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=2 Steel, =0 Titanium, =0 Plant, =0 Energy, =3 Heat])
+Me: assert(=0 Colony)
+Me: assert(=3 Generation, =0 TemperatureStep, =0 OxygenStep, =0 OceanTile, =2 VenusStep)
 
 Me: playCard(DeepWellHeating) {
     pay(3 Steel, 4 MC)
@@ -205,6 +215,11 @@ Me: Research {
     pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
+
+Me: assert(=26 MC, =4 Steel, =0 Titanium, =2 Plant, =4 Energy, =16 Heat, =8 ProjectCard, =21 TerraformRating)
+Me: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =0 Plant, =4 Energy, =3 Heat])
+Me: assert(=0 Colony)
+Me: assert(=5 Generation, =2 TemperatureStep, =0 OxygenStep, =1 OceanTile, =3 VenusStep)
 
 Me: action(ConvertHeatAction) {
     pay(8 Heat)
@@ -319,6 +334,11 @@ Me: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Me: assert(=40 MC, =2 Steel, =0 Titanium, =5 Plant, =7 Energy, =10 Heat, =9 ProjectCard, =28 TerraformRating)
+Me: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =0 Plant, =7 Energy, =5 Heat])
+Me: assert(=1 Colony)
+Me: assert(=7 Generation, =5 TemperatureStep, =1 OxygenStep, =2 OceanTile, =7 VenusStep)
 
 Me: playCard(AsteroidRights) {
     pay(10 MC)
@@ -441,6 +461,11 @@ Me: Research {
     pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
+
+Me: assert(=44 MC, =4 Steel, =0 Titanium, =6 Plant, =10 Energy, =14 Heat, =10 ProjectCard, =40 TerraformRating)
+Me: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =1 Plant, =10 Energy, =5 Heat])
+Me: assert(=1 Colony)
+Me: assert(=9 Generation, =10 TemperatureStep, =4 OxygenStep, =4 OceanTile, =7 VenusStep)
 
 Me: action(ConvertHeatAction) {
     pay(8 Heat)
@@ -635,6 +660,11 @@ Me: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
+Me: assert(=55 MC, =4 Steel, =1 Titanium, =7 Plant, =8 Energy, =27 Heat, =7 ProjectCard, =57 TerraformRating)
+Me: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =1 Titanium, =2 Plant, =8 Energy, =5 Heat])
+Me: assert(=2 Colony)
+Me: assert(=11 Generation, =15 TemperatureStep, =10 OxygenStep, =8 OceanTile, =9 VenusStep)
+
 Me: action(ConvertHeatAction) {
     pay(8 Heat)
     TemperatureStep
@@ -754,6 +784,11 @@ Me: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Me: assert(=68 MC, =4 Steel, =3 Titanium, =2 Plant, =6 Energy, =13 Heat, =4 ProjectCard, =65 TerraformRating)
+Me: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =2 Titanium, =2 Plant, =6 Energy, =5 Heat])
+Me: assert(=2 Colony)
+Me: assert(=12 Generation, =18 TemperatureStep, =12 OxygenStep, =9 OceanTile, =11 VenusStep)
+
 // (but = 15, spt = 6, ...)
 Me: action(ConvertHeatAction) {
     pay(8 Heat)
@@ -853,6 +888,8 @@ Me: Production {
     2 Titanium
 }
 
+Me: assert(1 Victory)
+
 // Decline another final greenery placement.
 // decline final greenery
 // Check the summary data on the you-won page
@@ -860,6 +897,11 @@ Me {
     Ok
 }
 
+Me: assert(=70 TerraformRating)
+
 Me {
     121 VictoryPoint
 }
+
+Me: assert(=82 MC)
+Me: assert(=121 VictoryPoint)

@@ -572,6 +572,15 @@ Yellow: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Blue: assert(=32 MC, =0 Steel, =1 Titanium, =5 Plant, =1 Energy, =2 Heat)
+Blue: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =5 Plant, =1 Energy, =1 Heat])
+Yellow: assert(=34 MC, =0 Steel, =3 Titanium, =4 Plant, =1 Energy, =13 Heat)
+Yellow: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =1 Energy, =6 Heat])
+Green: assert(=48 MC, =4 Steel, =7 Titanium, =0 Plant, =0 Energy, =4 Heat)
+Green: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =0 Plant, =0 Energy, =2 Heat])
+Purple: assert(=36 MC, =2 Steel, =1 Titanium, =1 Plant, =1 Energy, =2 Heat)
+Purple: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =1 Energy, =1 Heat])
+
 // Database save 108: generation 3, before Research purchases.
 Yellow: Research {
     4 ProjectCard<Selecting>
@@ -748,6 +757,15 @@ Green: WorldGovernment {
 Green: WorldGovernment {
     2 Plant
 }
+
+Blue: assert(=38 MC, =0 Steel, =2 Titanium, =7 Plant, =1 Energy, =4 Heat)
+Blue: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =5 Plant, =1 Energy, =1 Heat])
+Yellow: assert(=46 MC, =0 Steel, =0 Titanium, =5 Plant, =1 Energy, =20 Heat)
+Yellow: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =1 Energy, =6 Heat])
+Green: assert(=34 MC, =3 Steel, =7 Titanium, =5 Plant, =1 Energy, =6 Heat)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =0 Titanium, =0 Plant, =1 Energy, =2 Heat])
+Purple: assert(=35 MC, =3 Steel, =2 Titanium, =4 Plant, =1 Energy, =4 Heat)
+Purple: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =1 Plant, =1 Energy, =1 Heat])
 
 // Database save 174: generation 4, before Research purchases.
 Yellow: Research {
@@ -958,6 +976,15 @@ Purple: Production {
 Purple: WorldGovernment {
     TemperatureStep! BY Admin
 }
+
+Blue: assert(=37 MC, =2 Steel, =6 Titanium, =6 Plant, =1 Energy, =8 Heat)
+Blue: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =6 Plant, =1 Energy, =1 Heat])
+Yellow: assert(=34 MC, =0 Steel, =0 Titanium, =6 Plant, =4 Energy, =14 Heat)
+Yellow: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =4 Energy, =9 Heat])
+Green: assert(=40 MC, =7 Steel, =2 Titanium, =3 Plant, =1 Energy, =9 Heat)
+Green: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =2 Titanium, =0 Plant, =1 Energy, =2 Heat])
+Purple: assert(=43 MC, =2 Steel, =2 Titanium, =4 Plant, =1 Energy, =6 Heat)
+Purple: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =1 Plant, =1 Energy, =1 Heat])
 
 // Database save 239: generation 5, before Research purchases.
 Yellow: Research {
@@ -1223,6 +1250,15 @@ Blue: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Blue: assert(=36 MC, =0 Steel, =6 Titanium, =13 Plant, =0 Energy, =3 Heat)
+Blue: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =0 Energy, =1 Heat])
+Yellow: assert(=41 MC, =0 Steel, =0 Titanium, =3 Plant, =2 Energy, =19 Heat)
+Yellow: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =2 Energy, =9 Heat])
+Green: assert(=43 MC, =5 Steel, =2 Titanium, =2 Plant, =2 Energy, =4 Heat)
+Green: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =2 Titanium, =0 Plant, =2 Energy, =2 Heat])
+Purple: assert(=37 MC, =4 Steel, =4 Titanium, =9 Plant, =3 Energy, =8 Heat)
+Purple: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =2 Plant, =3 Energy, =1 Heat])
+
 // _local/replays/CosmicProtonTrace/game-g26b33667e4ba.sqlite; source save 315.
 // Database save 315: generation 6, before Research purchases.
 // no cards discarded
@@ -1472,6 +1508,15 @@ Yellow: WorldGovernment {
 Green: WorldGovernment {
     2 Plant
 }
+
+Blue: assert(=41 MC, =2 Steel, =8 Titanium, =10 Plant, =2 Energy, =6 Heat)
+Blue: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =2 Energy, =1 Heat])
+Yellow: assert(=46 MC, =0 Steel, =0 Titanium, =8 Plant, =2 Energy, =14 Heat)
+Yellow: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =2 Energy, =9 Heat])
+Green: assert(=45 MC, =7 Steel, =4 Titanium, =9 Plant, =1 Energy, =6 Heat)
+Green: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =2 Titanium, =0 Plant, =1 Energy, =2 Heat])
+Purple: assert(=42 MC, =6 Steel, =8 Titanium, =3 Plant, =3 Energy, =6 Heat)
+Purple: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =3 Titanium, =2 Plant, =3 Energy, =2 Heat])
 
 // Generation 7
 Green: Research {
@@ -1779,6 +1824,15 @@ Purple: Production {
 Green: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Blue: assert(=45 MC, =2 Steel, =10 Titanium, =12 Plant, =2 Energy, =9 Heat)
+Blue: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =2 Energy, =1 Heat])
+Yellow: assert(=53 MC, =0 Steel, =1 Titanium, =2 Plant, =0 Energy, =25 Heat)
+Yellow: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =0 Energy, =9 Heat])
+Green: assert(=49 MC, =13 Steel, =2 Titanium, =4 Plant, =1 Energy, =8 Heat)
+Green: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =2 Titanium, =3 Plant, =1 Energy, =2 Heat])
+Purple: assert(=52 MC, =3 Steel, =11 Titanium, =3 Plant, =2 Energy, =11 Heat)
+Purple: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =3 Titanium, =3 Plant, =2 Energy, =2 Heat])
 
 // Database save 474: generation 8, before Research purchases.
 Blue: Research {
@@ -2091,6 +2145,20 @@ Green {
 Purple {
     72 VictoryPoint
 }
+
+Blue: assert(=47 MC, =2 Steel, =12 Titanium, =4 Plant, =2 Energy, =12 Heat, =39 TerraformRating)
+Blue: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =8 Plant, =2 Energy, =1 Heat])
+Blue: assert(=74 VictoryPoint, =1 Victory, =1 NomadsMarker<Amazonis_05_09>)
+Yellow: assert(=51 MC, =0 Steel, =0 Titanium, =3 Plant, =0 Energy, =34 Heat, =37 TerraformRating)
+Yellow: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =0 Energy, =9 Heat])
+Yellow: assert(=69 VictoryPoint, =0 Victory, =5 Animal<Pets>)
+Green: assert(=53 MC, =6 Steel, =4 Titanium, =0 Plant, =0 Energy, =10 Heat, =38 TerraformRating)
+Green: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=6 Steel, =2 Titanium, =3 Plant, =0 Energy, =2 Heat])
+Green: assert(=73 VictoryPoint, =0 Victory)
+Purple: assert(=64 MC, =6 Steel, =6 Titanium, =6 Plant, =2 Energy, =16 Heat, =37 TerraformRating)
+Purple: assert(=15 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=3 Steel, =3 Titanium, =3 Plant, =2 Energy, =3 Heat])
+Purple: assert(=72 VictoryPoint, =0 Victory, =4 Animal<Fish>)
+Blue: assert(=8 Generation, =22 TemperatureStep, =18 OxygenStep, =11 OceanTile, =8 VenusStep)
 // _local/replays/CosmicProtonTrace/player-pc6e0fc6151eb.json; final Mars map.
 // Player-record evidence: final resources, production, rating, and score.
 // Player-record evidence: every occupied Mars area and the final global parameters.

@@ -229,6 +229,12 @@ Purple: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
+Pink: assert(=20 MC, =0 Steel, =0 Titanium, =0 Plant, =0 Energy, =2 Heat)
+Pink: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =0 Energy, =2 Heat])
+Purple: assert(=30 MC, =0 Steel, =0 Titanium, =1 Plant, =1 Energy, =0 Heat)
+Purple: assert(=14 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Pink: assert(=2 Generation, =0 TemperatureStep, =1 OxygenStep, =3 OceanTile, =2 VenusStep)
+
 // _local/replays/Game20260905/game-g1ddd59fe5633.sqlite; source save 42.
 // Database save 42: immediately after both Research purchases.
 Purple: action(ClaimMilestoneAction) {
@@ -325,6 +331,11 @@ Purple: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
+Pink: assert(=21 MC, =1 Steel, =0 Titanium, =0 Plant, =1 Energy, =5 Heat)
+Pink: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =0 Plant, =1 Energy, =3 Heat])
+Purple: assert(=35 MC, =0 Steel, =0 Titanium, =1 Plant, =1 Energy, =1 Heat)
+Purple: assert(=16 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat])
+
 // Database save 74: immediately after both Research purchases.
 Pink: useAction1(TitanShuttles) {
     2 Floater<TitanShuttles>
@@ -339,6 +350,14 @@ Purple: action(ClaimMilestoneAction) {
     pay(8 MC)
     Producer
 }
+
+Pink: assert(=21 MC, =1 Steel, =0 Titanium, =0 Plant, =1 Energy, =5 Heat, =23 TerraformRating)
+Pink: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =0 Plant, =1 Energy, =3 Heat])
+Pink: assert(=2 CardResource<TitanShuttles>, =2 CardResource<SulphurEatingBacteria>)
+Purple: assert(=0 MC, =0 Steel, =0 Titanium, =1 Plant, =1 Energy, =1 Heat, =22 TerraformRating)
+Purple: assert(=25 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Purple: assert(=1 Fundraiser, =1 Diversifier, =1 Producer, =3 CardResource<Tardigrades>, =1 CardResource<LocalShading>)
+Pink: assert(=3 Generation, =0 TemperatureStep, =2 OxygenStep, =3 OceanTile, =2 VenusStep)
 // _local/replays/Game20260905/final-save-079.json; final Mars map.
 // Save 79 is the last retained state. User recollection supplies the subsequent resignation;
 // the database contains no resignation save or log entry.

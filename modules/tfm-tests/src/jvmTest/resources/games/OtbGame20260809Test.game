@@ -39,6 +39,9 @@ Green: Setup {
     -6 ProjectCard<Selecting>
 }
 
+Yellow: assert(=3 ColonyTile, =5 ColonyTileSelection, =1 CorporationPhase)
+Yellow: assert(=1 Generation)
+
 // "Miranda and Enceladus are currently out of play."
 // (11:28 am) "The game is beginning. It is Generation 1."
 // "It's the corporation phase."
@@ -64,6 +67,8 @@ Green: playCard(MorningStarInc) {
     4 ProjectCard<Hand FROM Selecting>
 }
 
+Yellow: assert(=1 PreludePhase)
+
 // "It is now the Prelude phase."
 // "I got Dome Farming."
 // "That is, I gain a plant production and two money production."
@@ -87,6 +92,8 @@ Green: playCard(NitrogenShipment) {
     PROD[Plant]
     5 MC
 }
+
+Green: assert(=43 MC)
 // ledger entry 7
 // (11:30 am) "Then I play Great Aquifer."
 // "Place on the one-card spot..."
@@ -101,6 +108,8 @@ Green: playCard(GreatAquifer) {
     Plant
     2 MC
 }
+
+Yellow: assert(=1 ActionPhase)
 
 // "That concludes the Prelude phase. It is now time for the action phase."
 // "I play Aquifer Pumping for 18."
@@ -138,6 +147,8 @@ Yellow: playCard(RoboticWorkforce) {
     PROD[2 MC]
 }
 
+Yellow: assert(=0 MC)
+
 // ledger entry 17
 // "I can play Moss. I pay four, bringing me down to 41."
 // "I satisfy the three-ocean requirement."
@@ -148,8 +159,12 @@ Green: playCard(Moss) {
     -Plant
 }
 
+Green: assert(=41 MC)
+
 // ledger entry 11
 Yellow: pass
+
+Green: assert(=41 MC)
 
 // "I'm passing with 41 money."
 // ledger entry 11
@@ -174,6 +189,14 @@ Green: Production {
 Yellow: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Green: assert(=62 MC, =0 Steel, =0 Titanium, =2 Plant, =0 Energy, =0 Heat)
+Green: assert(=2 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=0 Steel, =0 Titanium, =2 Plant, =0 Energy, =0 Heat])
+Green: assert(=1 StartToken<Green>, =4 CardFront)
+Yellow: assert(=28 MC, =0 Steel, =0 Titanium, =3 Plant, =1 Energy, =4 Heat)
+Yellow: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =3 Plant, =1 Energy, =1 Heat])
+Yellow: assert(=5 CardFront)
+Yellow: assert(=2 Generation, =0 TemperatureStep, =1 OxygenStep, =3 OceanTile)
 
 // Generation 2
 // (11:36 am)
@@ -220,6 +243,8 @@ Yellow: useAction1(AquiferPumping) {
     4 MC
 }
 
+Yellow: assert(=18 MC)
+
 // ledger entry 37
 // "I'm going to play Terraforming Contract because I can."
 // "So that costs me eight, bringing me down to 34."
@@ -228,6 +253,9 @@ Green: playCard(TerraformingContract) {
     pay(8 MC)
     PROD[4 MC]
 }
+
+Green: assert(=34 MC)
+Green: assert(=7 PROD[MC])
 
 // ledger entry 28; 7 really means 2
 // "I think I'll pass. Requirements."
@@ -257,6 +285,12 @@ Green: Production {
 Green: WorldGovernment {
     VenusStep! BY Admin
 }
+
+Green: assert(=61 MC, =0 Steel, =0 Titanium, =4 Plant, =0 Energy, =0 Heat)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =2 Plant, =0 Energy, =0 Heat])
+Yellow: assert(=47 MC, =0 Steel, =0 Titanium, =7 Plant, =1 Energy, =6 Heat)
+Yellow: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =3 Plant, =1 Energy, =1 Heat])
+Yellow: assert(=3 Generation, =0 TemperatureStep, =1 OxygenStep, =4 OceanTile)
 
 // "Then we raise all of our colonies again, of which we still have only three."
 // "I give the start marker to [Yellow]."
@@ -304,6 +338,8 @@ Yellow: action(ConvertPlantsAction) {
     TerraformRating
 }
 
+Yellow: assert(=2 OxygenStep)
+
 // 11:49 am
 // "Giant Solar Shade. That cost me 27 full real money, bringing me down to 25."
 // "I raise Venus three steps and get three TR and a card."
@@ -315,6 +351,8 @@ Green: playCard(GiantSolarShade) {
     3 TerraformRating
     ProjectCard
 }
+
+Green: assert(=25 MC)
 
 // ledger entry 41
 // "I think I gave myself minus four because I was thinking of placing next to oceans, but then
@@ -341,6 +379,9 @@ Yellow: playCard(Comet) {
     -3 Plant<Green>
     3 MC<Green> FROM MC
 }
+
+Yellow: assert(=14 MC)
+Green: assert(=28 MC)
 
 // ledger entry 69
 // ledger entry 46
@@ -376,6 +417,8 @@ Green: useAction1(VenusianInsects) {
     Microbe<VenusianInsects>
     MC
 }
+
+Green: assert(=16 MC)
 // ledger entry 49
 // "I'm going to play Venus Governor because I have three Venus tags and it requires two."
 // "That costs me four, but gets me two money production, bringing me up to four money"
@@ -398,6 +441,8 @@ Green: useAction1(SearchForLife) {
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
+
+Green: assert(=8 MC)
 // ledger entry 52
 // "I think we're at the point where I've done everything. So, I pass."
 Green: pass
@@ -421,6 +466,14 @@ Green: Production {
 Yellow: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Green: assert(=40 MC, =0 Steel, =0 Titanium, =6 Plant, =0 Energy, =0 Heat)
+Green: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =2 Plant, =0 Energy, =0 Heat])
+Green: assert(=10 CardFront)
+Yellow: assert(=37 MC, =0 Steel, =0 Titanium, =8 Plant, =1 Energy, =11 Heat)
+Yellow: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =5 Plant, =1 Energy, =1 Heat])
+Yellow: assert(=7 CardFront)
+Yellow: assert(=4 Generation, =1 TemperatureStep, =3 OxygenStep, =6 OceanTile)
 
 // Generation 4
 // "Then the colonies each go up. This time there are four colony tracks to increase."
@@ -447,6 +500,8 @@ Green: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
+Yellow: assert(=28 MC)
+
 // ledger entry 85
 // "I'm going to use Venusian Insects to take a microbe on Venusian Insects and gain one money"
 // "and forgo my second action."
@@ -469,6 +524,8 @@ Yellow: playCard(ImportedHydrogen) {
     Steel
     4 MC
 }
+
+Yellow: assert(=19 MC)
 // ledger entry 93
 // "I may as well use Aquifer Pumping."
 // "I'm gonna spend that steel and six real to place an ocean in the six-money
@@ -489,6 +546,8 @@ Green: playCard(PeroxidePower) {
     PROD[2 Energy]
 }
 
+Green: assert(=25 MC)
+
 // ledger entry 65
 // "I'm gonna buzz buzz. Sponsorize some academies. That's nine to discard a card from hand."
 // "Draw three cards and you get one card."
@@ -500,6 +559,8 @@ Yellow: playCard(SponsoredAcademies) {
     ProjectCard<Green>
 }
 
+Yellow: assert(=10 MC)
+
 // ledger entry 100
 // "I'm going to use the Power Plant standard project."
 // "That brings me up to three energy production."
@@ -507,6 +568,8 @@ Green: useStandardProject(PowerPlantProject) {
     pay(11 MC)
     PROD[Energy]
 }
+
+Green: assert(=14 MC)
 
 // ledger entry 69
 // (12:40 pm) "I will convert eight plants to a greenery."
@@ -519,6 +582,9 @@ Yellow: action(ConvertPlantsAction) {
     4 MC
     TerraformRating
 }
+
+Yellow: assert(=29 TerraformRating, =14 MC)
+Yellow: assert(=4 OxygenStep)
 // "Oxygen goes to 4%. I'm at 29 TR."
 // ledger entry 105
 // ledger entry 108
@@ -541,6 +607,8 @@ Green: playCard(MartianSurvey) {
     2 ProjectCard
 }
 
+Green: assert(=5 MC)
+
 // derived from ledger entry 72 before Industrial Center
 // (12:43 pm) "I believe I pass."
 Yellow: pass
@@ -559,6 +627,8 @@ Green: useAction1(SearchForLife) {
         MC
     }
 }
+
+Green: assert(=5 MC)
 // derived from ledger entry 72 before Industrial Center
 // "Sure. Let us play Industrial Center for four."
 // "Let's just get in your business over here. So I'm placing row two, column five, and"
@@ -568,6 +638,8 @@ Green: playCard(IndustrialCenter) {
     IndustrialCenter_SpecialTile<Hellas_2_5>
     Plant
 }
+
+Green: assert(=1 MC)
 // ledger entry 72
 // "I don't have enough money to take its action. I pass."
 Green: pass
@@ -593,6 +665,13 @@ Green: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Yellow: assert(=42 MC, =0 Steel, =0 Titanium, =11 Plant, =0 Energy, =16 Heat)
+Yellow: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =5 Plant, =0 Energy, =1 Heat])
+Yellow: assert(=5 ColonyProduction<Callisto>, =5 ColonyProduction<Luna>, =5 ColonyProduction<Triton>, =3 ColonyProduction<Enceladus>, =0 Miranda)
+Green: assert(=32 MC, =0 Steel, =0 Titanium, =9 Plant, =3 Energy, =0 Heat)
+Green: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =2 Plant, =3 Energy, =0 Heat])
+Yellow: assert(=5 Generation, =1 TemperatureStep, =4 OxygenStep, =8 OceanTile)
+
 // "Then we move all the colony tracks up one."
 // "Most of them are on the penultimate space on the track, but Enceladus still generates only"
 // "three microbes. Miranda is still out of play."
@@ -608,6 +687,8 @@ Yellow: Research {
     pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
+
+Yellow: assert(=33 MC)
 
 Green: Research {
     4 ProjectCard<Selecting>
@@ -639,6 +720,8 @@ Yellow: exMachina {
     -3 MC
 }
 
+Yellow: assert(=21 MC)
+
 // ledger entry 130
 // (12:51 pm) "I'm gonna spend three energy to fly my little ship to Luna."
 // "And I simply take 13 money. The track goes all the way down. And the track zoops."
@@ -667,6 +750,8 @@ Yellow: exMachina {
     6 MC
 }
 
+Yellow: assert(=21 MC)
+
 // ledger entry 130
 // "Earth Catapult for 23."
 Green: playCard(EarthCatapult) {
@@ -686,6 +771,8 @@ Green: playCard(LunarMining) {
     pay(9 MC)
     PROD[2 Titanium]
 }
+
+Green: assert(=4 MC)
 
 // ledger entry 85
 // "I raise the temperature twice because I have 16 heat."
@@ -733,6 +820,8 @@ Yellow: useAction1(Ironworks) {
     TerraformRating
 }
 
+Yellow: assert(=5 OxygenStep)
+
 // "I am passing."
 Green: pass
 
@@ -746,6 +835,8 @@ Yellow: action(ConvertPlantsAction) {
     Plant
     TerraformRating
 }
+
+Yellow: assert(=6 OxygenStep)
 // "I spend four money and no steel on Biomass Combustors."
 // "Decrease any plant production one step." "That's me."
 // "Because I'm Mons, I have to pay you, but I only have one. Sorry, that was
@@ -759,6 +850,8 @@ Yellow: playCard(BiomassCombustors) {
     PROD[-Plant<Green>]
     MC<Green> FROM MC
 }
+
+Green: assert(=5 MC)
 // ledger entry 92
 Yellow: pass
 
@@ -785,6 +878,12 @@ Yellow: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Green: assert(=36 MC, =0 Steel, =2 Titanium, =10 Plant, =3 Energy, =0 Heat)
+Green: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =1 Plant, =3 Energy, =0 Heat])
+Yellow: assert(=44 MC, =1 Steel, =1 Titanium, =11 Plant, =2 Energy, =8 Heat)
+Yellow: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =5 Plant, =2 Energy, =2 Heat])
+Yellow: assert(=6 Generation, =3 TemperatureStep, =6 OxygenStep, =9 OceanTile)
+
 // Generation 6
 // "I take the start player marker. Generation goes to six."
 // Research.
@@ -805,6 +904,9 @@ Green: Research {
     -4 ProjectCard<Selecting>
 }
 
+Green: assert(=14 CardFront)
+Yellow: assert(=13 CardFront)
+
 // See board-13-04-48-corrected.png - verified
 // "I'm going to fly my ship to Triton by paying three energy."
 // "That lets me take five titanium, bringing me up to seven titanium."
@@ -813,6 +915,8 @@ Green: action(TradeAction, 2) {
     Trade<Triton>
     5 Titanium
 }
+
+Green: assert(=7 Titanium)
 // Green uses his unusual second action because Cupola City's maximum-oxygen requirement is at
 // risk: "while I still can."
 // "And I'm gonna play Cupola City while I still can, although there's still some time."
@@ -841,12 +945,17 @@ Yellow: playCard(EcologicalZone) {
     Plant
     4 MC
 }
+
+Yellow: assert(=30 MC)
 // ledger entry 169
 // "Landshaper." "I was just gonna get that. I hate you."
 Yellow: action(ClaimMilestoneAction) {
     pay(8 MC)
     Landshaper
 }
+
+Yellow: assert(=2 Animal<EcologicalZone>)
+Green: assert(=22 MC)
 
 // (1:08 pm) "That makes me so sad." "I should also add two animals to EcoZone because of
 // its effect."
@@ -863,6 +972,8 @@ Green: action(ConvertPlantsAction) {
     4 MC
     TerraformRating
 }
+
+Yellow: assert(=7 OxygenStep)
 
 // "I will do my plant forest."
 // "I'm going to put it at row five, column nine."
@@ -905,6 +1016,8 @@ Yellow: playCard(KelpFarming) {
     Animal<EcologicalZone>
 }
 
+Yellow: assert(=7 MC)
+
 // ledger entry 186
 // "I'm going to play Nuclear Power, which costs eight. I spend one steel and six money."
 // "I lose two money production and gain three energy production."
@@ -913,6 +1026,8 @@ Green: playCard(NuclearPower) {
     PROD[-2 MC]
     PROD[3 Energy]
 }
+
+Green: assert(=19 MC)
 
 // ledger entry 122
 // (1:15 pm) "Energy Market: pay four money, gain two energy."
@@ -929,6 +1044,8 @@ Yellow: useAction1(Ironworks) {
     OxygenStep
     TerraformRating
 }
+
+Yellow: assert(=9 OxygenStep)
 
 // "I... I... I... I am going to spend eight to get Venophile funded."
 Green: action(FundAwardAction) {
@@ -973,6 +1090,8 @@ Green: useAction1(SearchForLife) {
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
+
+Green: assert(=1 MC)
 // ledger entry 130
 // "I pass. We do production."
 Green: pass
@@ -998,6 +1117,14 @@ Green: Production {
 Green: WorldGovernment {
     TemperatureStep! BY Admin
 }
+
+Green: assert(=35 MC, =0 Steel, =6 Titanium, =5 Plant, =5 Energy, =0 Heat)
+Green: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =1 Plant, =5 Energy, =0 Heat])
+Green: assert(=18 CardFront)
+Yellow: assert(=53 MC, =2 Steel, =2 Titanium, =15 Plant, =2 Energy, =3 Heat)
+Yellow: assert(=12 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =8 Plant, =2 Energy, =3 Heat])
+Yellow: assert(=15 CardFront)
+Yellow: assert(=7 Generation, =6 TemperatureStep, =9 OxygenStep, =9 OceanTile)
 
 // "We raise the colonies one step each. We give you the start player marker."
 // "It becomes Generation 7. We take cubes off cards."
@@ -1033,6 +1160,8 @@ Yellow: useStandardProject(CityProject) {
     2 Plant
     2 MC
 }
+
+Yellow: assert(=21 MC)
 // ledger entry 213
 // "I spend eight plants on a greenery at row one, column three, for two plants."
 // "Oxygen goes up to 10%. I get a TR."
@@ -1043,6 +1172,8 @@ Yellow: action(ConvertPlantsAction) {
     2 Plant
     TerraformRating
 }
+
+Yellow: assert(=10 OxygenStep)
 
 // "Big ass... toroid. Big Asteroid!"
 // "I'm gonna spend all six titanium, plus seven real."
@@ -1075,6 +1206,8 @@ Green: playCard(TitanFloatingLaunchPad) {
     2 Floater<TitanFloatingLaunchPad>
 }
 
+Green: assert(=0 MC)
+
 // ledger entry 145
 // (6:27 pm) "I will spend four money to gain two energy using Energy Market."
 Yellow: useAction1(EnergyMarket) {
@@ -1097,6 +1230,8 @@ Yellow: useAction1(Ironworks) {
     TerraformRating
 }
 
+Yellow: assert(=11 OxygenStep)
+
 // "I'm playing a trans card for four money, which I'm going to do as one titanium, one
 // money."
 // "It's Trans-Neptune Probe and that's it. It just—that's it."
@@ -1109,6 +1244,8 @@ Green: playCard(TransNeptuneProbe) {
 Yellow: playCard(MercurianAlloys) {
     pay(3 MC)
 }
+
+Yellow: assert(=6 MC)
 // ledger entry 230
 // "I play Solar Wind Power for two titanium and three money."
 // "I increase energy production one step and gain two titanium."
@@ -1127,6 +1264,8 @@ Green: useAction2(RotatorImpacts) {
     2 TerraformRating
 }
 
+Yellow: assert(=8 VenusStep)
+
 // "I pass."
 Yellow: pass
 
@@ -1144,6 +1283,8 @@ Green: useAction1(VenusianInsects) {
     Microbe<VenusianInsects>
     MC
 }
+
+Green: assert(=5 MC)
 // ledger entry 152
 // "I use Search for Life, spend one, and flip Research Coordination."
 // "Which, even though it's a wild tag, it does not count."
@@ -1178,6 +1319,12 @@ Green: Production {
 Yellow: WorldGovernment {
     TemperatureStep! BY Admin
 }
+
+Green: assert(=42 MC, =0 Steel, =5 Titanium, =6 Plant, =5 Energy, =5 Heat)
+Green: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =1 Plant, =5 Energy, =0 Heat])
+Yellow: assert(=56 MC, =3 Steel, =3 Titanium, =15 Plant, =3 Energy, =6 Heat)
+Yellow: assert(=13 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =10 Plant, =3 Energy, =3 Heat])
+Yellow: assert(=8 Generation, =9 TemperatureStep, =11 OxygenStep, =9 OceanTile)
 
 // Generation 8
 // "Then we're gonna give me the start thingy. We're gonna raise the generation to eight."
@@ -1230,12 +1377,16 @@ Yellow: useAction1(Ironworks) {
     TerraformRating
 }
 
+Yellow: assert(=12 OxygenStep)
+
 // (7:54 pm) "Let us finally play Strato Birds. That cost me ten."
 // "I lose a floater from Titan Floating Launch-Pad to do that."
 Green: playCard(StratosphericBirds) {
     pay(10 MC)
     -Floater<TitanFloatingLaunchPad>
 }
+
+Green: assert(=21 MC)
 
 // ledger entry 171
 // "I'm going to use the City standard project."
@@ -1246,6 +1397,8 @@ Yellow: useStandardProject(CityProject) {
     NormalCityTile<Hellas_3_5>
     2 MC
 }
+
+Yellow: assert(=27 MC)
 // ledger entry 257
 // "I convert eight plants to a greenery."
 // "I place it at row two, column four, where I get a plant and steel."
@@ -1258,6 +1411,8 @@ Yellow: action(ConvertPlantsAction) {
     Steel
     TerraformRating
 }
+
+Yellow: assert(=13 OxygenStep)
 
 // (7:56 pm) "Boids. I played boids for eight, bringing me down to 13."
 // "That lowers [Yellow]'s plant production by two."
@@ -1278,6 +1433,8 @@ Yellow: action(ConvertPlantsAction) {
     4 MC
     TerraformRating
 }
+
+Yellow: assert(=14 OxygenStep)
 // "Before I forget, I'm going to claim Mayor for eight."
 Yellow: action(ClaimMilestoneAction) {
     pay(8 MC)
@@ -1301,6 +1458,8 @@ Green: useAction1(VenusianInsects) {
     Microbe<VenusianInsects>
     MC
 }
+
+Green: assert(=13 MC)
 
 // ledger entry 176
 // (7:59 pm) "I'm going to pay 14 for Botanist. Botanist is funded."
@@ -1352,6 +1511,8 @@ Green: useAction1(SearchForLife) {
     0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>
     -ProjectCard<Revealed>
 }
+
+Green: assert(=5 MC)
 // ledger entry 181
 // "I pass. We do production."
 Green: pass
@@ -1378,6 +1539,12 @@ Green: Production {
 Green: WorldGovernment {
     TemperatureStep! BY Admin
 }
+
+Green: assert(=47 MC, =0 Steel, =2 Titanium, =7 Plant, =5 Energy, =10 Heat)
+Green: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =1 Plant, =5 Energy, =0 Heat])
+Yellow: assert(=58 MC, =6 Steel, =4 Titanium, =8 Plant, =3 Energy, =10 Heat)
+Yellow: assert(=14 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =8 Plant, =3 Energy, =3 Heat])
+Yellow: assert(=9 Generation, =10 TemperatureStep, =14 OxygenStep, =9 OceanTile)
 
 // "I'm giving [Yellow] the start marker. It's now Generation 9. Cubes come off cards."
 // Research.
@@ -1410,6 +1577,8 @@ Yellow: useStandardProject(CityProject) {
     Plant
     Steel
 }
+
+Yellow: assert(=34 MC)
 
 // ledger entry 288
 // "I'm going to play Eos Chasma National Park, which costs 14."
@@ -1456,6 +1625,8 @@ Yellow: playCard(IndustrialMicrobes) {
     PROD[Steel]
 }
 
+Yellow: assert(PROD[=4 Energy])
+
 // ledger entry 294
 // "I'm going to pay 20 to fund the only award that I have a chance at, which is
 // Magnate."
@@ -1488,6 +1659,8 @@ Yellow: action(ConvertHeatAction) {
     TerraformRating
 }
 
+Yellow: assert(=11 TemperatureStep)
+
 // "I use Maxwell Base to add a Stratospheric Bird."
 Green: useAction1(MaxwellBase) {
     Animal<StratosphericBirds>
@@ -1499,6 +1672,8 @@ Yellow: playCard(NitriteReducingBacteria) {
     3 Microbe<NitriteReducingBacteria>
 }
 
+Yellow: assert(=1 MC)
+
 // ledger entry 304
 // "I use Rotator Impacts to remove an asteroid and raise Venus to 18%."
 // "That gives me a TR, taking me to 35 TR."
@@ -1507,6 +1682,8 @@ Green: useAction2(RotatorImpacts) {
     VenusStep
     TerraformRating
 }
+
+Yellow: assert(=9 VenusStep)
 
 // "I use Nitrite Reducing Bacteria to remove three microbes and get a TR."
 Yellow: useAction2(NitriteReducingBacteria) {
@@ -1519,6 +1696,8 @@ Green: useAction1(Extremophiles) {
     Microbe<VenusianInsects>
     MC
 }
+
+Green: assert(=1 MC)
 
 // ledger entry 201
 // "I pass."
@@ -1558,6 +1737,8 @@ Green: action(ConvertHeatAction) {
     TemperatureStep
     TerraformRating
 }
+
+Yellow: assert(=12 TemperatureStep)
 // "We do production. You get to do World Government Terraforming."
 Green: pass
 
@@ -1583,6 +1764,12 @@ Green: Production {
 Yellow: WorldGovernment {
     TemperatureStep! BY Admin
 }
+
+Green: assert(=46 MC, =0 Steel, =4 Titanium, =4 Plant, =4 Energy, =7 Heat)
+Green: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =1 Plant, =4 Energy, =0 Heat])
+Yellow: assert(=61 MC, =4 Steel, =1 Titanium, =19 Plant, =4 Energy, =7 Heat)
+Yellow: assert(=15 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =10 Plant, =4 Energy, =5 Heat])
+Yellow: assert(=10 Generation, =13 TemperatureStep, =14 OxygenStep, =9 OceanTile)
 
 // Generation 10
 // "We raise all the colony tracks and take the fleets back."
@@ -1622,6 +1809,8 @@ Yellow: useStandardProject(CityProject) {
     NormalCityTile<Hellas_5_5>
     2 MC
 }
+
+Yellow: assert(=32 MC)
 // ledger entry 322
 // "Then I'll convert plants to a greenery at row six, column six, for four money."
 Yellow: action(ConvertPlantsAction) {
@@ -1642,6 +1831,8 @@ Green: playCard(RestrictedArea) {
     ProjectCard
 }
 
+Green: assert(=31 MC)
+
 Yellow: playCard(SubZeroSaltFish) {
     pay(5 MC)
     Animal<EcologicalZone>
@@ -1659,6 +1850,9 @@ Yellow {
 Green: exMachina {
     3 MC<Yellow> FROM MC
 }
+
+Green: assert(=31 MC)
+Yellow: assert(=31 MC)
 // "I use Restricted Area to draw a card."
 Green: useAction1(RestrictedArea) {
     pay(2 MC)
@@ -1675,6 +1869,8 @@ Green: exMachina {
     2 MC
 }
 
+Green: assert(=31 MC)
+
 // ledger entry 217
 // "I play Medical Lab. I'll spend my four steel as 12 money plus one money."
 // "I increase money production one step for every two building tags."
@@ -1684,6 +1880,8 @@ Yellow: playCard(MedicalLab) {
     PROD[4 MC]
 }
 
+Yellow: assert(=25 PROD[MC])
+
 // ledger entry 328; 25 really means 20
 // (8:24 pm) "I'm gonna play Atalanta Planitia Lab for eight money,"
 // "because I can now finally. Finally."
@@ -1692,6 +1890,8 @@ Green: playCard(AtalantaPlanitiaLab) {
     pay(8 MC)
     2 ProjectCard
 }
+
+Green: assert(=23 MC)
 
 // ledger entry 221
 // "I'm going to play Venus Soils for 20. I raise Venus one step, which gives me a TR."
@@ -1705,6 +1905,8 @@ Yellow: playCard(VenusSoils) {
     TerraformRating
     2 Microbe<NitriteReducingBacteria>
 }
+
+Yellow: assert(=10 MC)
 
 // ledger entry 329
 // "I play Invention Contest for free and choose this card."
@@ -1720,6 +1922,9 @@ Green: playCard(LawSuit) {
     selectTask(3! MC FROM MC<Yellow> THEN PlayedEvent<Yellow, Class<LawSuit>> FROM LawSuit!)
     3 MC FROM MC<Yellow>
 }
+
+Green: assert(=26 MC)
+Yellow: assert(=7 MC)
 
 // ledger entry 222
 // ledger entry 332
@@ -1737,6 +1942,8 @@ Green: useStandardProject(GreeneryProject) {
     Steel
 }
 
+Yellow: assert(=7 MC)
+
 // ledger entry 332
 // (8:28 pm) "I add a Nitrite Reducing Bacterium."
 Yellow: useAction1(NitriteReducingBacteria) {
@@ -1748,6 +1955,8 @@ Green: playCard(Harvest) {
     pay(2 MC)
     12 MC
 }
+
+Green: assert(=13 MC)
 
 // ledger entry 226
 // "I'll spend three energy to trade with Miranda for one measly animal, which I'll"
@@ -1798,6 +2007,8 @@ Green: useAction1(FloatingHabs) {
     pay(2 MC)
     Floater<FloatingHabs>
 }
+
+Green: assert(=9 MC)
 // ledger entry 229
 // "I'm going to use Maxwell Base to add an animal to Penguins."
 // Maxwell Base can only target a Venus card; no later resource assertion establishes that the
@@ -1854,6 +2065,14 @@ Green: WorldGovernment {
     TemperatureStep! BY Admin
 }
 
+Green: assert(=55 MC, =1 Steel, =4 Titanium, =4 Plant, =4 Energy, =8 Heat)
+Green: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =0 Plant, =4 Energy, =0 Heat])
+Green: assert(=30 CardFront)
+Yellow: assert(=67 MC, =1 Steel, =2 Titanium, =22 Plant, =4 Energy, =16 Heat)
+Yellow: assert(=20 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =11 Plant, =4 Energy, =5 Heat])
+Yellow: assert(=25 CardFront)
+Yellow: assert(=11 Generation, =14 TemperatureStep, =14 OxygenStep, =9 OceanTile)
+
 // Generation 11
 // "We will move all the dinguses on the colonies and send the fleets back."
 // "We move the generation to 11 and the start player marker to [Yellow]."
@@ -1863,6 +2082,8 @@ Green: WorldGovernment {
 Green: exMachina {
     Plant
 }
+
+Green: assert(=5 Plant)
 
 // ledger entry 242
 // Research.
@@ -1886,6 +2107,8 @@ Green: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
+Green: assert(=43 MC)
+
 // ledger entry 243
 // "I'm gonna heat boop twice. So we're at two temp."
 // All nine oceans are already placed.
@@ -1900,6 +2123,8 @@ Yellow: action(ConvertHeatAction) {
     TemperatureStep
     TerraformRating
 }
+
+Yellow: assert(=16 TemperatureStep)
 
 // (8:38 pm) "I'm going to use Restricted Area to draw a card."
 Green: useAction1(RestrictedArea) {
@@ -1918,6 +2143,8 @@ Green: action(TradeAction, 2) {
 Green: exMachina {
     2 MC
 }
+
+Green: assert(=43 MC)
 
 // ledger entry 243
 // "I'm going to convert eight plants to a greenery."
@@ -1952,6 +2179,8 @@ Green: useAction1(VenusianInsects) {
     MC
 }
 
+Green: assert(=44 MC)
+
 // ledger entry 247
 // "I remove three Nitrite Reducing Bacteria to gain a TR."
 Yellow: useAction2(NitriteReducingBacteria) {
@@ -1966,6 +2195,9 @@ Green: useAction2(RotatorImpacts) {
     VenusStep
     TerraformRating
 }
+
+Green: assert(=37 TerraformRating)
+Yellow: assert(=11 VenusStep)
 
 // "I'm going to pay three energy to trade with Enceladus and get one microbe."
 // "It goes to Nitrite Reducing Bacteria."
@@ -1991,6 +2223,8 @@ Green: exMachina {
     MC
 }
 
+Green: assert(=27 MC)
+
 // ledger entry 249
 // "I sell a card for one money."
 Yellow: useStandardProject(SellPatentsProject) {
@@ -2005,6 +2239,8 @@ Green: playCard(TerraformingGanymede) {
     pay(7 Titanium, 10 MC)
     3 TerraformRating
 }
+
+Green: assert(=17 MC)
 // ledger entry 260
 // "Since you haven't done anything, I'mma go ahead and do a heat boop."
 Green: action(ConvertHeatAction) {
@@ -2023,12 +2259,16 @@ Yellow {
     Ok
 }
 
+Yellow: assert(=48 MC)
+
 // ledger entry 365
 // (8:48 pm) "I think I forgot one mc of cost, so I'll correct that."
 // ... but she hadn't ...
 Yellow: exMachina {
     -MC
 }
+
+Yellow: assert(=47 MC)
 
 // ledger entry 366
 // "I'm going to use Jovian Lanterns to spend a titanium and put two more floaters on Jovian"
@@ -2053,11 +2293,15 @@ Yellow: useStandardProject(AsteroidProject) {
     TerraformRating
 }
 
+Yellow: assert(=19 TemperatureStep)
+
 // "I am going to spend one on Floater Leasing, which gives me two money production."
 Green: playCard(FloaterLeasing) {
     pay(1 MC)
     PROD[2 MC]
 }
+
+Green: assert(=16 MC)
 
 // ledger entry 262
 // "I'm not quite sure what I meant by this. Gonna pitch two cards."
@@ -2077,6 +2321,8 @@ Yellow: playCard(EcologyResearch) {
     Animal<SubZeroSaltFish>
     2 Microbe<NitriteReducingBacteria>
 }
+
+Yellow: assert(=0 MC)
 
 // ledger entry 376
 // "I'm starting to have tough decisions, so I'll just stall more by taking a Penguin."
@@ -2122,6 +2368,8 @@ Yellow: useAction2(EnergyMarket) {
     8 MC
 }
 
+Yellow: assert(=8 MC)
+
 // ledger entry 382
 // (8:55 pm) "Sixteen. I think I can do it. Let's find out."
 // "Be brave. Try playing Viral Enhancers first. That cost me seven. And it gives me a plant,
@@ -2138,6 +2386,8 @@ Green: playCard(AdvancedEcosystems) {
     Plant
     Plant
 }
+
+Green: assert(=1 MC)
 
 // ledger entry 266
 // Yellow has no further actions after retracting her earlier pass.
@@ -2169,6 +2419,8 @@ Green: useAction1(FloatingHabs) {
     pay(2 MC)
     Floater<FloatingHabs>
 }
+
+Green: assert(=0 MC)
 // ledger entry 274
 // "I'm gonna use Maxwell Base to put a microbe on Venusian Insects and give me a money back."
 // "Give me my money back."
@@ -2189,6 +2441,8 @@ Green: useAction1(SearchForLife) {
         2 MC
     }
 }
+
+Green: assert(=2 MC)
 // ledger entry 275
 // "So now I must pass. And so we hit production."
 Green: pass
@@ -2211,6 +2465,12 @@ Green: Production {
     Heat FROM Energy
     2 Steel
 }
+
+Green: assert(=56 MC, =3 Steel, =2 Titanium, =1 Plant, =4 Energy, =1 Heat)
+Green: assert(=12 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =0 Plant, =4 Energy, =0 Heat])
+Yellow: assert(=80 MC, =1 Steel, =3 Titanium, =18 Plant, =3 Energy, =6 Heat)
+Yellow: assert(=20 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =11 Plant, =3 Energy, =5 Heat])
+Yellow: assert(=11 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile)
 
 // The app labels final production as Generation 12; the engine keeps the completed action
 // generation at 11 once the game enters Victory.
@@ -2247,6 +2507,11 @@ Yellow {
 Green {
     109 VictoryPoint
 }
+
+Green: assert(=42 TerraformRating)
+Green: assert(=109 VictoryPoint, =0 Victory)
+Yellow: assert(=52 TerraformRating)
+Yellow: assert(=113 VictoryPoint, =1 Victory)
 // "I think my TR was 52."
 // "You get 15 points for milestones, which puts you at 67."
 // "I get Venophile and Magnate, so green gets ten, putting me on 52."

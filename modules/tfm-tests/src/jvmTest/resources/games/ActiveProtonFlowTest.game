@@ -161,6 +161,13 @@ KB: Research {
 }
 
 // Database save 28: immediately after both generation 2 Research purchases.
+// generation-2-research-save-028.json in the source archive above.
+KB: assert(=18 MC, =1 Steel, =1 Titanium, =1 Plant, =4 Energy, =4 Heat, =21 TerraformRating, =11 ProjectCard)
+KB: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =4 Energy, =1 Heat])
+ER: assert(=15 MC, =5 Steel, =1 Titanium, =4 Plant, =2 Energy, =1 Heat, =20 TerraformRating, =6 ProjectCard)
+ER: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =1 Titanium, =1 Plant, =2 Energy, =1 Heat])
+KB: assert(=2 Generation, =0 TemperatureStep, =0 OxygenStep, =1 OceanTile)
+
 ER: playCard(BlackPolarDust) {
     pay(15 MC)
     OceanTile<Tharsis_9_9>
@@ -203,3 +210,10 @@ ER: Production {
 // Database save 37: generation 3 Research, immediately after generation 2 production.
 // _local/replays/Game20260920/Heroku-gadeac80e6446/game-gadeac80e6446.sqlite; source save 37,
 // replay endpoint.
+
+// after-generation-2-save-037.json in the source archive above.
+KB: assert(=33 MC, =2 Steel, =2 Titanium, =2 Plant, =5 Energy, =9 Heat, =21 TerraformRating)
+KB: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =5 Energy, =1 Heat])
+ER: assert(=20 MC, =8 Steel, =4 Titanium, =7 Plant, =2 Energy, =7 Heat, =21 TerraformRating)
+ER: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=3 Steel, =1 Titanium, =1 Plant, =2 Energy, =4 Heat])
+KB: assert(=3 Generation, =0 TemperatureStep, =0 OxygenStep, =2 OceanTile)

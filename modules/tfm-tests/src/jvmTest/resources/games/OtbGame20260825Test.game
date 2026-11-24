@@ -194,6 +194,12 @@ Yellow: WorldGovernment {
     2 Plant
 }
 
+Green: assert(=20 MC, =2 Steel, =1 Titanium, =0 Plant, =0 Energy, =0 Heat, =19 TerraformRating)
+Green: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Yellow: assert(=32 MC, =0 Steel, =5 Titanium, =4 Plant, =0 Energy, =0 Heat, =23 TerraformRating)
+Yellow: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Green: assert(=2 Generation, =0 TemperatureStep, =1 OxygenStep, =3 OceanTile, =0 VenusStep)
+
 // Generation 2
 // ledger shows 2 plants, mistake
 // Research.
@@ -296,6 +302,12 @@ Yellow: Production {
 Yellow: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Green: assert(=31 MC, =2 Steel, =1 Titanium, =0 Plant, =0 Energy, =0 Heat, =19 TerraformRating)
+Green: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Yellow: assert(=41 MC, =0 Steel, =1 Titanium, =5 Plant, =0 Energy, =2 Heat, =26 TerraformRating)
+Yellow: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =2 Plant, =0 Energy, =2 Heat])
+Green: assert(=3 Generation, =0 TemperatureStep, =3 OxygenStep, =5 OceanTile, =0 VenusStep)
 
 // Generation 3
 // Research.
@@ -436,6 +448,13 @@ Green: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Green: assert(=21 MC, =1 Steel, =0 Titanium, =3 Plant, =1 Energy, =0 Heat, =19 TerraformRating)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Yellow: assert(=35 MC, =0 Steel, =2 Titanium, =7 Plant, =2 Energy, =4 Heat, =29 TerraformRating)
+Yellow: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =2 Plant, =2 Energy, =2 Heat])
+Yellow: assert(=2 CardResource<NeptunianPowerConsultants>)
+Green: assert(=4 Generation, =0 TemperatureStep, =4 OxygenStep, =7 OceanTile, =1 VenusStep)
+
 // Generation 4
 // Research.
 Green: Research {
@@ -570,6 +589,14 @@ Yellow: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Green: assert(=28 MC, =0 Steel, =0 Titanium, =3 Plant, =1 Energy, =4 Heat, =21 TerraformRating)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Green: assert(=2 CardResource<SulphurEatingBacteria>)
+Yellow: assert(=35 MC, =0 Steel, =4 Titanium, =2 Plant, =4 Energy, =10 Heat, =33 TerraformRating)
+Yellow: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =2 Plant, =4 Energy, =4 Heat])
+Yellow: assert(=4 CardResource<NeptunianPowerConsultants>)
+Green: assert(=5 Generation, =0 TemperatureStep, =6 OxygenStep, =9 OceanTile, =4 VenusStep)
+
 // Generation 5
 // Research.
 Green: Research {
@@ -701,12 +728,27 @@ Green: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Green: assert(=32 MC, =0 Steel, =0 Titanium, =4 Plant, =1 Energy, =4 Heat, =21 TerraformRating, =14 ProjectCard)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Green: assert(=1 Philantropist, =2 CardResource<Pets>, =0 CardResource<SulphurEatingBacteria>, =1 TerraLabsResearch, =1 FakeHeadStart)
+Green: assert(=1 FocusedOrganization, =1 Advertising, =1 OptimalAerobraking, =1 ViralEnhancers, =1 RoverConstruction, =1 SulphurEatingBacteria)
+Green: assert(=1 SpaceElevator, =1 ExtremeColdFungus, =1 SponsoredAcademies, =1 LightningHarvest, =1 MeatIndustry, =1 Pets)
+Yellow: assert(=40 MC, =0 Steel, =1 Titanium, =13 Plant, =4 Energy, =18 Heat, =34 TerraformRating)
+Yellow: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =5 Plant, =4 Energy, =4 Heat])
+Yellow: assert(=1 Farmer, =3 CardResource<GhgProducingBacteria>, =4 CardResource<NeptunianPowerConsultants>, =1 Viron, =1 SupplyDrop, =1 TerraformingDeal)
+Yellow: assert(=1 HomeostasisBureau, =1 GhgProducingBacteria, =1 ArcticAlgae, =1 NeptunianPowerConsultants, =1 AquiferPumping, =1 MiningArea, =1 Sponsors)
+Yellow: assert(=1 MethaneFromTitan, =1 KelpFarming)
+Green: assert(=6 Generation, =1 TemperatureStep, =6 OxygenStep, =9 OceanTile, =5 VenusStep)
+
 // Before Generation 6 Research, Green's app entries 116–117 correct the Generation 1 entry to
 // titanium production and add the four net titanium resources it should have produced.
 Green: exMachina {
     PROD[Titanium]
     4 Titanium
 }
+
+Green: assert(=32 MC, =0 Steel, =4 Titanium, =4 Plant, =1 Energy, =4 Heat)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =1 Energy, =0 Heat])
 
 // Research.
 Green: Research {
@@ -951,6 +993,14 @@ Yellow: exMachina {
     10 MC
 }
 
+Green: assert(=23 MC, =0 Steel, =2 Titanium, =4 Plant, =1 Energy, =4 Heat, =21 TerraformRating)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Green: assert(=1 Philantropist, =2 CardResource<Pets>, =3 CardResource<SulphurEatingBacteria>)
+Yellow: assert(=63 MC, =2 Steel, =2 Titanium, =10 Plant, =4 Energy, =8 Heat, =41 TerraformRating)
+Yellow: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =0 Titanium, =5 Plant, =4 Energy, =6 Heat])
+Yellow: assert(=1 Farmer, =1 Producer, =2 CardResource<GhgProducingBacteria>, =4 CardResource<NeptunianPowerConsultants>)
+Green: assert(=7 Generation, =6 TemperatureStep, =8 OxygenStep, =9 OceanTile, =6 VenusStep)
+
 // Generation 7
 // Research.
 Green: Research {
@@ -1149,6 +1199,14 @@ Yellow: Production {
 Green: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Green: assert(=30 MC, =0 Steel, =2 Titanium, =4 Plant, =1 Energy, =4 Heat, =26 TerraformRating)
+Green: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Green: assert(=1 Philantropist, =3 CardResource<Pets>, =1 CardResource<JetStreamMicroscrappers>)
+Yellow: assert(=57 MC, =2 Steel, =0 Titanium, =7 Plant, =4 Energy, =6 Heat, =48 TerraformRating)
+Yellow: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =5 Plant, =4 Energy, =6 Heat])
+Yellow: assert(=1 Farmer, =1 Producer, =1 Suburbian, =0 CardResource<GhgProducingBacteria>)
+Green: assert(=8 Generation, =8 TemperatureStep, =11 OxygenStep, =9 OceanTile, =13 VenusStep)
 
 // 1:08 pm app-log checkpoint and 1:08:17 pm board photograph, before Generation 8 Research.
 // 5:35:25 pm on Aug 26: "We just did a reconciliation where I took one more money and you
@@ -1411,6 +1469,12 @@ Yellow: WorldGovernment {
     TemperatureStep! BY Admin
 }
 
+Green: assert(=30 MC, =0 Steel, =2 Titanium, =8 Plant, =0 Energy, =7 Heat, =26 TerraformRating)
+Green: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =1 Plant, =0 Energy, =0 Heat])
+Yellow: assert(=69 MC, =4 Steel, =2 Titanium, =8 Plant, =2 Energy, =12 Heat, =53 TerraformRating)
+Yellow: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =6 Plant, =2 Energy, =6 Heat])
+Green: assert(=9 Generation, =9 TemperatureStep, =14 OxygenStep, =9 OceanTile, =15 VenusStep)
+
 // 5:58:31 pm app-log checkpoint, before Generation 9 Research.
 // Research.
 Green: Research {
@@ -1478,6 +1542,8 @@ Green: useAction1(SpaceElevator) {
     pay(1 Steel)
     5 MC
 }
+
+Yellow: assert(=21 MC)
 
 // "I will... oh yeah, pay 11, which will be... I think it's kind of a hard question of
 // which to pay. Damn, how dare. Three steel. Lose energy product.Okay."
@@ -1686,6 +1752,12 @@ Green: WorldGovernment {
     TemperatureStep! BY Admin
 }
 
+Green: assert(=36 MC, =0 Steel, =6 Titanium, =3 Plant, =0 Energy, =7 Heat, =29 TerraformRating)
+Green: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =2 Plant, =0 Energy, =0 Heat])
+Yellow: assert(=72 MC, =3 Steel, =5 Titanium, =5 Plant, =1 Energy, =10 Heat, =54 TerraformRating)
+Yellow: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =5 Plant, =1 Energy, =4 Heat])
+Green: assert(=10 Generation, =11 TemperatureStep, =14 OxygenStep, =9 OceanTile, =15 VenusStep)
+
 // 6:19:26 pm app-log checkpoint, before Generation 10 Research.
 // Research.
 Green: Research {
@@ -1853,6 +1925,8 @@ Green {
 Yellow: exMachina {
     TerraformRating
 }
+
+Yellow: assert(=1 GameEndBarrier)
 // "I guess I just gotta take that last temp raise. And I gain five moolahs. Temp is maxed."
 Yellow: useStandardProject(AsteroidProject) {
     pay(14 MC)
@@ -1860,6 +1934,8 @@ Yellow: useStandardProject(AsteroidProject) {
     TerraformRating
     5 MC
 }
+
+Yellow: assert(=0 GameEndBarrier)
 
 // "I need to place a microbe onto Sulphur-Eating using Symbiotic Fungus ... so I'm just
 // going to use Sulphur-Eating Bacteria to get 18 money."
@@ -2077,6 +2153,12 @@ Yellow: Production {
     2 Titanium
 }
 
+Green: assert(=42 MC, =1 Steel, =3 Titanium, =8 Plant, =0 Energy, =0 Heat, =32 TerraformRating)
+Green: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =5 Plant, =0 Energy, =0 Heat])
+Yellow: assert(=61 TerraformRating)
+Yellow: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =4 Plant, =0 Energy, =4 Heat])
+Green: assert(=10 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =15 VenusStep)
+
 // Both app logs after final production and before final greenery.
 // "Do you get to plant a forest?" "I do not because you took me down to seven."
 // decline final greenery
@@ -2099,6 +2181,9 @@ Green {
     Ok
 }
 
+Green: assert(=42 MC, =2 Steel, =3 Titanium, =0 Plant, =0 Energy, =0 Heat)
+Yellow: assert(=72 MC, =3 Steel, =2 Titanium, =7 Plant, =0 Energy, =6 Heat)
+
 // "You will agree, I assume, that I have three, six, four, and three. That's sixteen. And I
 // have fifteen out here." "All right, so I got 122." "What was your score?" "83 points." The
 // loose fourth Fish cube in the final photograph makes Green's rule-correct score 84; the
@@ -2110,3 +2195,6 @@ Green {
 Yellow {
     122 VictoryPoint
 }
+
+Green: assert(=84 VictoryPoint, =0 Victory)
+Yellow: assert(=122 VictoryPoint, =1 Victory)

@@ -370,6 +370,17 @@ Yellow: WorldGovernment {
     OceanTile<Amazonis_08_04>! BY Admin
 }
 
+Yellow: assert(=28 MC, =2 Steel, =0 Titanium, =6 Plant, =0 Energy, =1 Heat, =23 TerraformRating)
+Yellow: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =3 Plant, =0 Energy, =1 Heat])
+Rainbow: assert(=36 MC, =2 Steel, =4 Titanium, =0 Plant, =0 Energy, =0 Heat, =26 TerraformRating)
+Rainbow: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Rainbow: assert(=1 CardResource<FloatingRefinery>, =6 CardResource<AppliedScience>)
+Blue: assert(=24 MC, =0 Steel, =2 Titanium, =0 Plant, =1 Energy, =5 Heat, =22 TerraformRating)
+Blue: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =1 Energy, =5 Heat])
+Green: assert(=37 MC, =1 Steel, =2 Titanium, =0 Plant, =1 Energy, =1 Heat, =22 TerraformRating)
+Green: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =1 Energy, =1 Heat])
+Yellow: assert(=2 Generation, =7 TemperatureStep, =0 OxygenStep, =1 OceanTile, =0 VenusStep)
+
 // board-14-37-01.jpg and all four app histories: Generation 2 before Research.
 // 2:39:49 PM — Blue: "I will buy two. It occurs to me I maybe could have kept a different,
 // but it's probably too expensive to actually be worth. I'll buy two cards. Did I ever actually
@@ -569,6 +580,18 @@ Green: Production {
 Rainbow: WorldGovernment {
     VenusStep! BY Admin
 }
+
+Yellow: assert(=40 MC, =4 Steel, =0 Titanium, =9 Plant, =1 Energy, =2 Heat, =23 TerraformRating)
+Yellow: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =3 Plant, =1 Energy, =1 Heat])
+Rainbow: assert(=34 MC, =2 Steel, =1 Titanium, =0 Plant, =0 Energy, =0 Heat, =27 TerraformRating)
+Rainbow: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Rainbow: assert(=2 CardResource<FloatingRefinery>, =2 CardResource<SulphurEatingBacteria>, =5 CardResource<AppliedScience>)
+Blue: assert(=28 MC, =0 Steel, =2 Titanium, =2 Plant, =1 Energy, =9 Heat, =24 TerraformRating)
+Blue: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =1 Energy, =5 Heat])
+Green: assert(=37 MC, =2 Steel, =4 Titanium, =0 Plant, =1 Energy, =3 Heat, =22 TerraformRating)
+Green: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =1 Energy, =1 Heat])
+Green: assert(=1 CardResource<Pets>)
+Yellow: assert(=3 Generation, =9 TemperatureStep, =0 OxygenStep, =1 OceanTile, =2 VenusStep)
 
 // board-14-55-23.jpg and all four app histories: Generation 3 before Research.
 // Research.
@@ -856,6 +879,19 @@ Blue: WorldGovernment {
     Hydroelectric<NeptunianPowerConsultants>
 }
 
+Yellow: assert(=31 MC, =4 Steel, =0 Titanium, =5 Plant, =0 Energy, =4 Heat, =26 TerraformRating)
+Yellow: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =0 Titanium, =3 Plant, =0 Energy, =1 Heat])
+Rainbow: assert(=37 MC, =0 Steel, =2 Titanium, =0 Plant, =0 Energy, =0 Heat, =28 TerraformRating)
+Rainbow: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =0 Energy, =0 Heat])
+Rainbow: assert(=4 CardResource<SulphurEatingBacteria>, =4 CardResource<AppliedScience>)
+Blue: assert(=27 MC, =0 Steel, =2 Titanium, =3 Plant, =3 Energy, =9 Heat, =25 TerraformRating)
+Blue: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =4 Energy, =7 Heat])
+Blue: assert(=1 CardResource<NeptunianPowerConsultants>)
+Green: assert(=25 MC, =3 Steel, =6 Titanium, =0 Plant, =1 Energy, =5 Heat, =23 TerraformRating)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =1 Energy, =1 Heat])
+Green: assert(=2 CardResource<Pets>, =3 CardResource<CloudTourism>)
+Yellow: assert(=4 Generation, =10 TemperatureStep, =2 OxygenStep, =3 OceanTile, =4 VenusStep)
+
 // board-15-20-29.jpg and all four app histories: Generation 4 before Research.
 // Research.
 Yellow: Research {
@@ -1061,6 +1097,19 @@ Green: Production {
 Green: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Yellow: assert(=34 MC, =8 Steel, =0 Titanium, =9 Plant, =1 Energy, =5 Heat, =26 TerraformRating)
+Yellow: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =0 Titanium, =4 Plant, =1 Energy, =1 Heat])
+Rainbow: assert(=36 MC, =0 Steel, =3 Titanium, =0 Plant, =1 Energy, =0 Heat, =28 TerraformRating)
+Rainbow: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =0 Plant, =1 Energy, =0 Heat])
+Rainbow: assert(=3 CardResource<SulphurEatingBacteria>, =3 CardResource<AppliedScience>)
+Blue: assert(=30 MC, =0 Steel, =4 Titanium, =4 Plant, =4 Energy, =10 Heat, =26 TerraformRating)
+Blue: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =4 Energy, =7 Heat])
+Blue: assert(=1 Landshaper, =1 CardResource<NeptunianPowerConsultants>)
+Green: assert(=25 MC, =1 Steel, =8 Titanium, =3 Plant, =1 Energy, =7 Heat, =23 TerraformRating)
+Green: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =1 Energy, =1 Heat])
+Green: assert(=1 Diversifier, =2 CardResource<Pets>, =4 CardResource<CloudTourism>)
+Yellow: assert(=5 Generation, =10 TemperatureStep, =4 OxygenStep, =3 OceanTile, =4 VenusStep)
 
 // board-15-42-48.jpg and all four app histories: Generation 5 before Research.
 // Research.
@@ -1294,6 +1343,8 @@ Green: playCard(RadChemFactory) {
     2 TerraformRating
 }
 
+Rainbow: assert(=0 CardResource<FloatingRefinery>)
+
 Rainbow: useAction1(FloatingRefinery) {
     Floater<FloatingRefinery>
 }
@@ -1303,12 +1354,16 @@ Rainbow {
     Ok
 }
 
+Rainbow: assert(=1 CardResource<FloatingRefinery>)
+
 // No recording or app entry supplies another action between this one-cube result and the
 // 16:07:06 photograph, which visibly has two cubes. The extra floater's earliest possible point
 // is the preceding Generation 5 checkpoint and its latest is that photograph.
 Rainbow: exMachina {
     Floater<FloatingRefinery>
 }
+
+Rainbow: assert(=2 CardResource<FloatingRefinery>)
 
 Blue: pass
 
@@ -1412,6 +1467,9 @@ Yellow: WorldGovernment {
     TemperatureStep! BY Admin
 }
 
+Rainbow: assert(=40 MC)
+Green: assert(=30 MC)
+
 // Generation 6
 // 2:59:17 PM — Green confirms 45 M€ for Rainbow and 33 M€ for Green before Research. Rainbow's
 // entries 103/113 remain at 40 despite entry 113 saying -5, then entry 114 adds 5 to reach 45.
@@ -1424,6 +1482,21 @@ Rainbow: exMachina {
 Green: exMachina {
     3 MC
 }
+
+Rainbow: assert(=45 MC, =1 Steel, =2 Titanium, =2 Plant, =1 Energy, =1 Heat, =33 TerraformRating)
+Rainbow: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =1 Plant, =1 Energy, =0 Heat])
+Rainbow: assert(=12 CardBack, =1 Tactician, =2 CardResource<FloatingRefinery>, =1 CardResource<SulphurEatingBacteria>, =2 CardResource<AppliedScience>)
+Green: assert(=33 MC, =1 Steel, =2 Titanium, =3 Plant, =0 Energy, =9 Heat, =25 TerraformRating)
+Green: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =0 Plant, =0 Energy, =1 Heat])
+Green: assert(=1 Diversifier, =9 CardBack, =2 CardResource<Pets>, =5 CardResource<CloudTourism>, =2 CardResource<IcyImpactors>)
+Green: assert(=1 CardResource<OlympusConference>)
+Yellow: assert(=29 MC, =12 Steel, =0 Titanium, =4 Plant, =1 Energy, =7 Heat, =26 TerraformRating)
+Yellow: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =0 Titanium, =4 Plant, =1 Energy, =1 Heat])
+Yellow: assert(=8 CardBack)
+Blue: assert(=45 MC, =0 Steel, =0 Titanium, =5 Plant, =10 Energy, =13 Heat, =29 TerraformRating)
+Blue: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =10 Energy, =7 Heat])
+Blue: assert(=6 CardBack, =1 Landshaper, =4 CardResource<NeptunianPowerConsultants>)
+Yellow: assert(=6 Generation, =16 TemperatureStep, =4 OxygenStep, =6 OceanTile, =4 VenusStep)
 
 // 2:59:32–2:59:45 PM — Spoken counts are Green 9, then machine-labeled Yellow 6, Blue 8, and
 // Rainbow 11. The later complete card flows establish Yellow 8, Blue 6, and Rainbow 12 here;
@@ -1542,6 +1615,8 @@ Rainbow: useAction1(Ants) {
     Microbe<Ants>
 }
 
+Rainbow: assert(=26 MC)
+
 // 3:13:39 PM — Blue: "Okay, I'm gonna convert my heat."
 // 3:13:42 PM — Blue: "Raise temperature."
 // 3:13:45 PM — Blue: "Oh, and I get five money."
@@ -1632,6 +1707,8 @@ Rainbow: useAction1(Fish) {
     Animal<Fish>
 }
 
+Rainbow: assert(=19 MC)
+
 // 3:18:48 PM — Blue: "Uh-huh. I guess I will play water splitting plant."
 // 3:19:10 PM — Blue: "Um Mm-hmm. So yeah and that cost me twelve money."
 // No heat paid.
@@ -1673,6 +1750,8 @@ Rainbow: useAction2(FloatingRefinery) {
     2 MC
 }
 
+Rainbow: assert(=21 MC)
+
 // 3:22:14 PM — Blue: "Okay, um, I pass."
 // 3:22:18 PM — Green: "I'm probably going to sell a card. [Yellow]'s turn."
 // 3:22:27 PM — Blue: "Oh, hmm. I forgot about my water splitting plan actually."
@@ -1712,6 +1791,8 @@ Rainbow: playCard(CloudSeeding) {
     PROD[-Heat<Blue>]
 }
 
+Rainbow: assert(=10 MC)
+
 // 3:24:09 PM — Yellow: "My pass."
 // 3:24:09 PM — Green: "No, you passed. That's right. Alright, um now I'm going to sell a card.
 // At least turn."
@@ -1733,6 +1814,8 @@ Rainbow: useAction2(SulphurEatingBacteria) {
     9 MC
 }
 
+Rainbow: assert(=19 MC)
+
 // 3:25:33 PM — Green: "Am gonna play nitrophilic moss Meets the requirement, I lose two
 // plants, gain two plant production which gives me two money, and then I get a decompositor
 // which gives me one more money. Did I pay for that? I did not. I did not pay for that, which
@@ -1748,11 +1831,15 @@ Green {
     Ok
 }
 
+Green: assert(=3 MC)
+
 // The engine charged the card immediately; restore that 8 M€ to preserve the spoken missed
 // payment until Green corrects it below.
 Green: exMachina {
     8 MC
 }
+
+Green: assert(=11 MC)
 // 3:26:07–3:26:42 PM — Green audits the app: Yellow's sabotage left 7 M€, a patent sale made
 // 8, Nitrophilic Moss spent all 8, then Suitable Infrastructure and Decomposers should leave
 // 3. He enters that correction after initially forgetting the payment.
@@ -1778,6 +1865,8 @@ Rainbow: playCard(LavaTubeSettlement) {
     Green: Animal<Pets>
     4 MC
 }
+
+Rainbow: assert(=12 MC)
 
 // 3:28:52 PM — Green: "Um, now I'm going to use my business network to look at a shitty
 // card."
@@ -1861,6 +1950,19 @@ Green: Production {
 Rainbow: WorldGovernment {
     VenusStep! BY Admin
 }
+
+Yellow: assert(=37 MC, =4 Steel, =0 Titanium, =11 Plant, =0 Energy, =9 Heat, =27 TerraformRating)
+Yellow: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =0 Titanium, =3 Plant, =0 Energy, =1 Heat])
+Rainbow: assert(=54 MC, =1 Steel, =4 Titanium, =5 Plant, =0 Energy, =2 Heat, =33 TerraformRating)
+Rainbow: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =3 Plant, =0 Energy, =0 Heat])
+Rainbow: assert(=1 Tactician, =1 CardResource<Ants>, =1 CardResource<Fish>, =1 CardResource<AppliedScience>)
+Blue: assert(=41 MC, =0 Steel, =0 Titanium, =7 Plant, =12 Energy, =15 Heat, =35 TerraformRating)
+Blue: assert(=4 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =2 Plant, =12 Energy, =6 Heat])
+Blue: assert(=1 Landshaper, =6 CardResource<NeptunianPowerConsultants>)
+Green: assert(=35 MC, =1 Steel, =4 Titanium, =3 Plant, =2 Energy, =10 Heat, =27 TerraformRating)
+Green: assert(=5 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =2 Plant, =2 Energy, =1 Heat])
+Green: assert(=1 Diversifier, =4 CardResource<Pets>, =6 CardResource<CloudTourism>, =1 CardResource<IcyImpactors>, =1 CardResource<OlympusConference>)
+Yellow: assert(=7 Generation, =18 TemperatureStep, =5 OxygenStep, =9 OceanTile, =5 VenusStep)
 
 // _local/replays/Game20260904/board-15-31-15.jpg.
 // board-15-31-15.jpg and all four app histories: Generation 7 before Research.
@@ -2109,6 +2211,8 @@ Yellow {
     Ok
 }
 
+Rainbow: assert(=0 CardResource<SulphurEatingBacteria>)
+
 // Applied Science only accepts a card that already has a resource; the table put its science
 // onto the now-empty Sulphur-Eating Bacteria anyway. Seed and remove a witness resource so the
 // sourced illegal target can pass through the card's real action.
@@ -2120,6 +2224,8 @@ Yellow {
 Rainbow: exMachina {
     Microbe<SulphurEatingBacteria>
 }
+
+Rainbow: assert(=1 CardResource<SulphurEatingBacteria>)
 Rainbow: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Microbe<SulphurEatingBacteria>
@@ -2127,9 +2233,13 @@ Rainbow: useAction1(AppliedScience) {
         -Microbe<SulphurEatingBacteria>
     }
 }
+
+Rainbow: assert(=1 CardResource<SulphurEatingBacteria>)
 Rainbow: useAction1(Thermophiles) {
     Microbe<SulphurEatingBacteria>
 }
+
+Rainbow: assert(=2 CardResource<SulphurEatingBacteria>)
 
 // 3:49:07 PM — Green: "Then I should know what to do. So I'm going to play Venus Magnetizer."
 // 3:49:24 PM — Green: "It costs me seven."
@@ -2289,6 +2399,20 @@ Blue: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Yellow: assert(=40 MC, =7 Steel, =0 Titanium, =8 Plant, =2 Energy, =2 Heat, =32 TerraformRating)
+Yellow: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =0 Titanium, =7 Plant, =2 Energy, =1 Heat])
+Yellow: assert(=3 CardResource<EcologicalZone>)
+Rainbow: assert(=54 MC, =1 Steel, =5 Titanium, =3 Plant, =0 Energy, =2 Heat, =36 TerraformRating)
+Rainbow: assert(=15 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =2 Plant, =0 Energy, =0 Heat])
+Rainbow: assert(=1 Tactician, =2 CardResource<Ants>, =2 CardResource<Fish>, =2 CardResource<StratosphericBirds>, =2 CardResource<SulphurEatingBacteria>)
+Blue: assert(=54 MC, =0 Steel, =0 Titanium, =3 Plant, =13 Energy, =25 Heat, =37 TerraformRating)
+Blue: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =13 Energy, =6 Heat])
+Blue: assert(=1 Landshaper, =8 CardResource<NeptunianPowerConsultants>)
+Green: assert(=42 MC, =2 Steel, =6 Titanium, =7 Plant, =0 Energy, =13 Heat, =28 TerraformRating)
+Green: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =2 Plant, =0 Energy, =1 Heat])
+Green: assert(=1 Diversifier, =6 CardResource<Pets>, =7 CardResource<CloudTourism>, =1 CardResource<IcyImpactors>)
+Yellow: assert(=8 Generation, =22 TemperatureStep, =9 OxygenStep, =11 OceanTile, =7 VenusStep)
+
 // board-15-57-46.jpg and all four app histories: Generation 8 before Research.
 // The table broke here on 2026-09-05 and resumed on 2026-09-09 at 5:25 PM, opening with two
 // corrections Green had worked out in between.
@@ -2299,6 +2423,9 @@ Green: exMachina {
     PROD[-2 MC]
     -4 MC
 }
+
+Rainbow: assert(=54 MC)
+Rainbow: assert(=0 Science<AppliedScience>)
 
 // 5:26:20 PM — Rainbow: "So, um, I certainly used the... Applied science thing for three money.
 // Should I take away three money? I mean it might have been okay"
@@ -2487,11 +2614,15 @@ Yellow {
     Ok
 }
 
+Rainbow: assert(=36 MC)
+
 // Rainbow paid 7 M€ for Venus Waystation and 14 M€ for Maxwell Base. Both debits reached her
 // physical/app balance before she found Maxwell's missing energy-production prerequisite.
 Rainbow: exMachina {
     -21 MC
 }
+
+Rainbow: assert(=15 MC)
 // She canceled both plays and restored the full 21 M€, having spent no titanium.
 Rainbow: exMachina {
     21 MC
@@ -2715,6 +2846,8 @@ Green: playCard(MediaArchives) {
     pay(5 MC)
     16 MC
 }
+
+Green: assert(=5 PlayedEvent<Yellow>)
 Green: pass
 
 // Production.
@@ -2758,6 +2891,16 @@ Green: WorldGovernment {
     OxygenStep! BY Admin
 }
 
+Yellow: assert(=42 MC, =11 Steel, =0 Titanium, =9 Plant, =3 Energy, =5 Heat, =33 TerraformRating)
+Yellow: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =0 Titanium, =7 Plant, =3 Energy, =1 Heat])
+Rainbow: assert(=56 MC, =1 Steel, =6 Titanium, =5 Plant, =0 Energy, =2 Heat, =37 TerraformRating)
+Rainbow: assert(=17 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =2 Plant, =0 Energy, =0 Heat])
+Blue: assert(=51 MC, =0 Steel, =0 Titanium, =4 Plant, =13 Energy, =34 Heat, =40 TerraformRating)
+Blue: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =13 Energy, =13 Heat])
+Green: assert(=56 MC, =1 Steel, =5 Titanium, =4 Plant, =3 Energy, =11 Heat, =34 TerraformRating)
+Green: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =2 Plant, =3 Energy, =1 Heat])
+Yellow: assert(=9 Generation, =22 TemperatureStep, =16 OxygenStep, =11 OceanTile, =11 VenusStep)
+
 // board-0909-18-03-31.jpg and all four app histories: Generation 9 before Research.
 // Rainbow's app entry 223 removes one TR immediately before Research. The original recording
 // does not explain the correction, but every later app balance retains it; entry 223 is both
@@ -2766,6 +2909,8 @@ Green: WorldGovernment {
 Rainbow: exMachina {
     -TerraformRating
 }
+
+Rainbow: assert(=36 TerraformRating)
 
 // Research.
 Yellow: Research {
@@ -2828,6 +2973,8 @@ Yellow: useStandardProject(CityProject) {
     Rainbow: 2 MC
 }
 
+Rainbow: assert(=0 Science<AppliedScience>)
+
 // 6:09:38 PM — Rainbow: "You need other fish. Okay. Exactly. Um okay, so I am going to take
 // my
 // applied science action. I have one more science resource."
@@ -2839,6 +2986,8 @@ Yellow: useStandardProject(CityProject) {
 Rainbow: exMachina {
     Science<AppliedScience>
 }
+
+Rainbow: assert(=1 Science<AppliedScience>)
 Rainbow: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Floater<FloatingRefinery>
@@ -3200,12 +3349,16 @@ Rainbow: useAction1(MoholeLake) {
     }
 }
 
+Rainbow: assert(=7 CardResource<StratosphericBirds>)
+
 // 9:33:01 PM — Green: "I will direct some heat usage, except I keep grabbing delegates which
 // is very useful. I will spend three heat to gain two planta. Yellow?"
 Green: useAction1(DirectedHeatUsage) {
     pay(3 Heat)
     2 Plant
 }
+
+Yellow: assert(=2 CardResource<CarbonNanosystems>)
 
 // 9:33:10 PM — Yellow: "Oh, right. I now spend um two carbon nanos and eight real on imported
 // hydrogen, um you may be thinking what's the point there's no um what's its face, uh ocean
@@ -3250,12 +3403,18 @@ Green: playCard(StratosphericExpedition) {
 // 9:35:59 PM — Yellow: "I pass."
 Yellow: pass
 
+Yellow: assert(=3 MC)
+
 // Yellow's app has no entries for CEO's Favorite or either late patent sale. Those three
 // recorded actions net +1 M€, but the next app balance remains 2 M€ before the
 // 44 M€ production credit. Reconcile that recorded one-M€ omission at Yellow's final action.
 Yellow: exMachina {
     -MC
 }
+
+Yellow: assert(=2 MC)
+Rainbow: assert(=41 MC, =2 Steel, =1 Titanium, =1 Plant, =2 Energy, =2 Heat, =36 TerraformRating)
+Rainbow: assert(=20 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =4 Plant, =0 Energy, =0 Heat])
 
 // Rainbow app entry 249 is 39 M€ immediately before the mistakenly logged second City
 // purchase. The replay is at 41 M€ because it retains the recorded Rover Construction income
@@ -3272,6 +3431,8 @@ Rainbow: useStandardProject(PowerPlantProject) {
         PROD[MC]
     }
 }
+
+Rainbow: assert(=16 MC)
 Rainbow: playCard(AsteroidDeflectionSystem) {
     pay(1 Titanium, 2 Steel, 2 MC)
     PROD[-Energy]
@@ -3281,6 +3442,8 @@ Rainbow: playCard(AsteroidDeflectionSystem) {
 Rainbow: exMachina {
     -11 MC
 }
+
+Rainbow: assert(=3 MC)
 
 // 9:37:30 PM — Green: "That changes things. I'm probably not going to bother playing it
 // because it's probably more important that I Yep, it's more important that I play Breathing
@@ -3374,10 +3537,22 @@ Green: Production {
     3 Heat FROM Energy
 }
 
+Green: assert(=47 MC)
+
 // Green's app credits 50 M€ at production despite 36 TR and 11 M€ production totaling 47.
 Green: exMachina {
     3 MC
 }
+
+Green: assert(=50 MC, =1 Steel, =6 Titanium, =8 Plant, =1 Energy, =12 Heat, =36 TerraformRating)
+Green: assert(=11 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =2 Titanium, =2 Plant, =1 Energy, =1 Heat])
+Yellow: assert(=46 MC, =4 Steel, =0 Titanium, =8 Plant, =3 Energy, =9 Heat, =34 TerraformRating)
+Yellow: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=4 Steel, =0 Titanium, =7 Plant, =3 Energy, =1 Heat])
+Rainbow: assert(=60 MC, =1 Steel, =1 Titanium, =5 Plant, =0 Energy, =4 Heat, =36 TerraformRating)
+Rainbow: assert(=21 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =4 Plant, =0 Energy, =0 Heat])
+Blue: assert(=49 MC, =0 Steel, =0 Titanium, =2 Plant, =13 Energy, =29 Heat, =41 TerraformRating)
+Blue: assert(=8 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =1 Plant, =13 Energy, =13 Heat])
+Yellow: assert(=9 Generation, =22 TemperatureStep, =18 OxygenStep, =11 OceanTile, =13 VenusStep)
 
 // Post-production states from all four histories, before final greenery. Rainbow's 60 M€
 // retains the physical Rover income missing from her displayed 58; Blue's history exposes only
@@ -3423,6 +3598,11 @@ Green {
     Ok
 }
 
+Yellow: assert(=46 MC, =4 Steel, =0 Titanium, =2 Plant, =3 Energy, =9 Heat)
+Rainbow: assert(=60 MC, =1 Steel, =1 Titanium, =5 Plant, =0 Energy, =4 Heat)
+Blue: assert(=49 MC, =0 Steel, =0 Titanium, =2 Plant, =13 Energy, =29 Heat)
+Green: assert(=54 MC, =1 Steel, =6 Titanium, =0 Plant, =3 Energy, =12 Heat)
+
 // _local/replays/Game20260904/board-0909-21-45-22.jpg; final Mars map.
 // Greenery owners: board-0909-18-03-31.jpg and transcript-finished-2.md placements;
 // the final photograph has the greenery ownership cubes removed for scoring.
@@ -3447,5 +3627,10 @@ Blue {
 Green {
     70 VictoryPoint
 }
+
+Yellow: assert(=70 VictoryPoint, =0 Victory)
+Rainbow: assert(=86 VictoryPoint, =1 Victory)
+Blue: assert(=73 VictoryPoint, =0 Victory)
+Green: assert(=70 VictoryPoint, =0 Victory)
 // The complete engine categories reproduce the spoken totals for Yellow, Blue, and Green.
 // Rainbow's categories total 86; her spoken 85 is the explicitly corrected, unreliable tally.

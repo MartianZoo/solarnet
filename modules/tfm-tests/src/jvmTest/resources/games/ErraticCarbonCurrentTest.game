@@ -371,6 +371,12 @@ Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
+Blue: assert(=32 MC, =0 Steel, =0 Titanium, =3 Plant, =0 Energy, =6 Heat)
+Blue: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =2 Plant, =0 Energy, =3 Heat])
+Pink: assert(=10 MC, =3 Steel, =1 Titanium, =8 Plant, =0 Energy, =0 Heat)
+Pink: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=1 Steel, =1 Titanium, =5 Plant, =0 Energy, =0 Heat])
+Blue: assert(=2 Generation, =1 TemperatureStep, =0 OxygenStep, =0 OceanTile, =0 VenusStep)
+
 // Database save 23 evidence: after both research purchases.
 Pink: action(ConvertPlantsAction) {
     pay(7 Plant)
@@ -450,6 +456,12 @@ Pink: Research {
     ProjectCard<Hand FROM Selecting>
 }
 
+Blue: assert(=21 MC, =0 Steel, =0 Titanium, =4 Plant, =0 Energy, =8 Heat)
+Blue: assert(=3 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =3 Plant, =0 Energy, =4 Heat])
+Pink: assert(=28 MC, =5 Steel, =2 Titanium, =5 Plant, =0 Energy, =0 Heat)
+Pink: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=1 Steel, =1 Titanium, =5 Plant, =0 Energy, =0 Heat])
+Blue: assert(=3 Generation, =3 TemperatureStep, =2 OxygenStep, =0 OceanTile, =0 VenusStep)
+
 // Database save 48 evidence: after both research purchases.
 Blue: playCard(ResearchCoordination) {
     pay(4 MC)
@@ -512,6 +524,12 @@ Pink: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Blue: assert(=29 MC, =0 Steel, =0 Titanium, =3 Plant, =0 Energy, =4 Heat)
+Blue: assert(=7 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =3 Plant, =0 Energy, =4 Heat])
+Pink: assert(=23 MC, =6 Steel, =5 Titanium, =10 Plant, =0 Energy, =1 Heat)
+Pink: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=1 Steel, =1 Titanium, =5 Plant, =0 Energy, =1 Heat])
+Blue: assert(=4 Generation, =6 TemperatureStep, =3 OxygenStep, =0 OceanTile, =0 VenusStep)
 
 // Database save 69 evidence: after both research purchases.
 Pink: playCard(EarthOffice) {
@@ -596,6 +614,12 @@ Pink: Research {
     pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
+
+Blue: assert(=29 MC, =0 Steel, =0 Titanium, =8 Plant, =0 Energy, =11 Heat)
+Blue: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =4 Plant, =0 Energy, =4 Heat])
+Pink: assert(=21 MC, =3 Steel, =1 Titanium, =13 Plant, =0 Energy, =2 Heat)
+Pink: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=1 Steel, =1 Titanium, =5 Plant, =0 Energy, =1 Heat])
+Blue: assert(=5 Generation, =6 TemperatureStep, =4 OxygenStep, =2 OceanTile, =0 VenusStep)
 
 // Database save 98 evidence: after both research purchases.
 Blue: useStandardProject(SellPatentsProject) {
@@ -714,6 +738,12 @@ Pink: Research {
     3 ProjectCard<Hand FROM Selecting>
 }
 
+Blue: assert(=32 MC, =0 Steel, =0 Titanium, =8 Plant, =1 Energy, =7 Heat)
+Blue: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =8 Plant, =1 Energy, =4 Heat])
+Pink: assert(=19 MC, =5 Steel, =2 Titanium, =5 Plant, =0 Energy, =6 Heat)
+Pink: assert(=1 (ProdOffset<Class<MC>> - PROD[MC]), PROD[=1 Steel, =1 Titanium, =5 Plant, =0 Energy, =1 Heat])
+Blue: assert(=6 Generation, =9 TemperatureStep, =8 OxygenStep, =4 OceanTile, =0 VenusStep)
+
 // Database save 133 evidence: after both research purchases.
 Pink: useStandardProject(PowerPlantProject) {
     pay(11 MC)
@@ -816,6 +846,12 @@ Pink: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Blue: assert(=34 MC, =1 Steel, =0 Titanium, =17 Plant, =1 Energy, =12 Heat)
+Blue: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =16 Plant, =1 Energy, =4 Heat])
+Pink: assert(=24 MC, =1 Steel, =2 Titanium, =10 Plant, =0 Energy, =13 Heat)
+Pink: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =6 Plant, =0 Energy, =2 Heat])
+Blue: assert(=7 Generation, =9 TemperatureStep, =9 OxygenStep, =5 OceanTile, =1 VenusStep)
 
 // Database save 173 evidence: after both research purchases.
 Blue: action(ConvertPlantsAction) {
@@ -962,6 +998,12 @@ Pink: Research {
     2 ProjectCard<Hand FROM Selecting>
 }
 
+Blue: assert(=30 MC, =2 Steel, =0 Titanium, =20 Plant, =3 Energy, =9 Heat)
+Blue: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =16 Plant, =3 Energy, =4 Heat])
+Pink: assert(=26 MC, =3 Steel, =1 Titanium, =10 Plant, =0 Energy, =9 Heat)
+Pink: assert(=0 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =8 Plant, =0 Energy, =4 Heat])
+Blue: assert(=8 Generation, =11 TemperatureStep, =13 OxygenStep, =6 OceanTile, =1 VenusStep)
+
 // _local/replays/Game20260827/game-gbf986ef543f0.sqlite; source save 214.
 // Database save 214 evidence: after both research purchases.
 Pink: action(ConvertPlantsAction) {
@@ -1096,6 +1138,12 @@ Pink: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Blue: assert(=38 MC, =2 Steel, =0 Titanium, =21 Plant, =2 Energy, =8 Heat)
+Blue: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =16 Plant, =2 Energy, =4 Heat])
+Pink: assert(=32 MC, =6 Steel, =2 Titanium, =16 Plant, =0 Energy, =7 Heat)
+Pink: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =11 Plant, =0 Energy, =4 Heat])
+Blue: assert(=9 Generation, =13 TemperatureStep, =14 OxygenStep, =7 OceanTile, =2 VenusStep)
 
 // Database save 257 evidence: after both research purchases.
 Blue: action(ConvertHeatAction) {
@@ -1260,6 +1308,12 @@ Pink: Research {
     pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
+
+Blue: assert(=42 MC, =4 Steel, =1 Titanium, =20 Plant, =2 Energy, =6 Heat)
+Blue: assert(=9 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =16 Plant, =2 Energy, =4 Heat])
+Pink: assert(=42 MC, =1 Steel, =1 Titanium, =15 Plant, =0 Energy, =5 Heat)
+Pink: assert(=2 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =11 Plant, =0 Energy, =4 Heat])
+Blue: assert(=10 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =3 VenusStep)
 
 // Database save 307 evidence: after both research purchases.
 Pink: useStandardProject(AirScrappingProject) {
@@ -1444,6 +1498,8 @@ Pink: Production {
     4 Heat
 }
 
+Blue: assert(=10 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =9 VenusStep)
+
 Pink: action(ConvertPlantsAction) {
     pay(7 Plant)
     GreeneryTile<Hellas_2_2>
@@ -1481,4 +1537,11 @@ Blue {
 Pink {
     85 VictoryPoint
 }
+
+Blue: assert(=45 TerraformRating, =63 MC, =2 Steel, =0 Titanium, =0 Plant, =2 Energy, =15 Heat)
+Blue: assert(=13 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =0 Titanium, =16 Plant, =2 Energy, =2 Heat])
+Blue: assert(=102 VictoryPoint, =1 Victory)
+Pink: assert(=41 TerraformRating, =48 MC, =1 Steel, =2 Titanium, =1 Plant, =0 Energy, =9 Heat)
+Pink: assert(=1 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =11 Plant, =0 Energy, =4 Heat])
+Pink: assert(=85 VictoryPoint, =0 Victory)
 // _local/replays/Game20260827/player-p6674c4a1893d.json; final Mars map.

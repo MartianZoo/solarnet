@@ -227,6 +227,14 @@ Keen: Research {
     4 ProjectCard<Hand FROM Selecting>
 }
 
+Keen: assert(=20 MC, =2 Steel, =4 Titanium, =2 Plant, =1 Energy, =3 Heat, =6 ProjectCard, =20 TerraformRating)
+Keen: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =1 Energy, =1 Heat])
+Keen: assert(=0 Colony)
+Been: assert(=41 MC, =0 Steel, =0 Titanium, =5 Plant, =0 Energy, =3 Heat, =5 ProjectCard, =23 TerraformRating)
+Been: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =0 Titanium, =2 Plant, =0 Energy, =0 Heat])
+Been: assert(=1 Colony)
+Keen: assert(=3 Generation, =0 TemperatureStep, =0 OxygenStep, =3 OceanTile, =2 VenusStep)
+
 Been: Research {
     4 ProjectCard<Selecting>
 
@@ -310,6 +318,14 @@ Been: Production {
 Keen: WorldGovernment {
     OxygenStep! BY Admin
 }
+
+Keen: assert(=27 MC, =1 Steel, =5 Titanium, =3 Plant, =1 Energy, =3 Heat, =6 ProjectCard, =20 TerraformRating)
+Keen: assert(=6 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =1 Titanium, =1 Plant, =1 Energy, =1 Heat])
+Keen: assert(=0 Colony)
+Been: assert(=34 MC, =0 Steel, =1 Titanium, =7 Plant, =0 Energy, =3 Heat, =5 ProjectCard, =23 TerraformRating)
+Been: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =1 Titanium, =2 Plant, =0 Energy, =0 Heat])
+Been: assert(=2 Colony)
+Keen: assert(=4 Generation, =0 TemperatureStep, =1 OxygenStep, =3 OceanTile, =2 VenusStep)
 
 // Generation 4
 Keen: Research {
@@ -872,6 +888,14 @@ Keen: WorldGovernment {
     VenusStep! BY Admin
 }
 
+Keen: assert(=42 MC, =2 Steel, =5 Titanium, =8 Plant, =4 Energy, =5 Heat, =7 ProjectCard, =31 TerraformRating)
+Keen: assert(=10 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =3 Titanium, =3 Plant, =4 Energy, =3 Heat])
+Keen: assert(=0 Colony)
+Been: assert(=57 MC, =0 Steel, =4 Titanium, =7 Plant, =1 Energy, =7 Heat, =6 ProjectCard, =33 TerraformRating)
+Been: assert(=20 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =2 Plant, =1 Energy, =5 Heat])
+Been: assert(=2 Colony)
+Keen: assert(=8 Generation, =6 TemperatureStep, =6 OxygenStep, =5 OceanTile, =11 VenusStep)
+
 // Generation 8
 Keen: Research {
     4 ProjectCard<Selecting>
@@ -1089,6 +1113,14 @@ Keen: useAction1(WaterSplittingPlant) {
     OxygenStep
     TerraformRating
 }
+
+Keen: assert(=48 MC, =5 Steel, =3 Titanium, =0 Plant, =0 Energy, =9 Heat, =8 ProjectCard, =37 TerraformRating)
+Keen: assert(=14 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =3 Titanium, =6 Plant, =3 Energy, =3 Heat])
+Keen: assert(=0 Colony)
+Been: assert(=50 MC, =0 Steel, =3 Titanium, =3 Plant, =2 Energy, =13 Heat, =7 ProjectCard, =41 TerraformRating)
+Been: assert(=18 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=0 Steel, =2 Titanium, =2 Plant, =2 Energy, =5 Heat])
+Been: assert(=2 Colony)
+Keen: assert(=9 Generation, =8 TemperatureStep, =12 OxygenStep, =8 OceanTile, =15 VenusStep)
 
 // Screenshot evidence: generation-9-actions.png, after Keen's opening turn and before Been's.
 Been: playCard(RimFreighters) {
@@ -1654,6 +1686,8 @@ Been: Production {
     2 Energy
 }
 
+Keen: assert(=11 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile, =15 VenusStep)
+
 Keen: action(ConvertPlantsAction) {
     pay(8 Plant)
     GreeneryTile<Hellas_7_4>
@@ -1679,6 +1713,9 @@ Been {
     Ok
 }
 
+Keen: assert(=1 ProjectCard)
+Been: assert(=0 ProjectCard)
+
 Keen {
     117 VictoryPoint
 }
@@ -1686,4 +1723,11 @@ Keen {
 Been {
     99 VictoryPoint
 }
+
+Keen: assert(=47 TerraformRating, =90 MC, =1 Steel, =4 Titanium, =1 Plant, =2 Energy, =3 Heat)
+Keen: assert(=20 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=1 Steel, =3 Titanium, =13 Plant, =2 Energy, =3 Heat])
+Keen: assert(=117 VictoryPoint, =1 Victory)
+Been: assert(=45 TerraformRating, =71 MC, =5 Steel, =4 Titanium, =0 Plant, =2 Energy, =8 Heat)
+Been: assert(=21 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =4 Plant, =2 Energy, =7 Heat])
+Been: assert(=99 VictoryPoint, =0 Victory)
 // _local/replays/Game20260824/player-keen.json; final Mars map.

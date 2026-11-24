@@ -45,6 +45,8 @@ EK: Setup {
     -5 ProjectCard<Selecting>
 }
 
+EK: assert(=1 Coming<ScienceSummit>, 1 PartyLeader<Scientists, Neutral>, =1 Distant<AiResearch>, 1 PartyFollower<Scientists, Neutral>)
+
 // Generation 1
 // The source selected PolderTECH Dutch, which Canon does not treat as a published promo.
 EK: playCard(FakePolderTechDutch) {
@@ -115,6 +117,8 @@ EK: Production {
     Steel
 }
 
+EK: assert(1 PartyFollower<Greens, Neutral>, =1 Distant<RedResistance>)
+
 // Generation 2
 EK: Research {
     4 ProjectCard<Selecting>
@@ -159,6 +163,8 @@ EK: GlobalEvent {
     EACH Card@ResourceHolder<Player>(HAS CardResource) { CardResource<Card@ResourceHolder>* BY Admin }
     ProjectCard
 }
+
+EK: assert(=1 PartyLeader<MarsFirst, Neutral>, =1 Distant<LocalTerraformingSupport>, 1 PartyFollower<MarsFirst, Neutral>)
 
 // Generation 3
 EK: Research {
@@ -222,6 +228,8 @@ EK: GlobalEvent {
     -0* MC
 }
 
+EK: assert(1 PartyFollower<Unity, Neutral>, =1 Distant<MinimalImpactPolicy>, 1 PartyLeader<Reds, Neutral>)
+
 // Generation 4
 EK: Research {
     4 ProjectCard<Selecting>
@@ -270,6 +278,8 @@ EK: Production {
 EK: GlobalEvent {
     12 MC
 }
+
+EK: assert(1 PartyFollower<Scientists, Neutral>, =1 Distant<DemocraticReform>, 1 PartyFollower<MarsFirst, Neutral>)
 
 // Generation 5
 EK: Research {
@@ -378,6 +388,8 @@ EK: GlobalEvent {
     5 Plant
 }
 
+EK: assert(1 PartyFollower<Unity, Neutral>, =1 Distant<MoholeLakeGlobalEvent>, 1 PartyLeader<Kelvinists, Neutral>)
+
 // Generation 6
 EK: Research {
     4 ProjectCard<Selecting>
@@ -463,6 +475,8 @@ EK: GlobalEvent {
     Titanium
     Heat
 }
+
+EK: assert(=1 PartyLeader<Greens, Neutral>, =1 Distant<TerraformingLobbying>, 1 PartyFollower<Kelvinists, Neutral>)
 
 // Generation 7
 EK: Research {
@@ -635,6 +649,8 @@ EK: WorldGovernment {
     2 MC
 }
 
+EK: assert(1 PartyFollower<Kelvinists, Neutral>, =1 Distant<ThawMining>)
+
 // Generation 8
 EK: Research {
     4 ProjectCard<Selecting>
@@ -744,6 +760,8 @@ EK: GlobalEvent {
     2 ProjectCard
 }
 
+EK: assert(1 PartyFollower<Unity, Neutral>, =1 Distant<PateraBoring>, 1 PartyLeader<Scientists, Neutral>)
+
 // Generation 9
 EK: Research {
     4 ProjectCard<Selecting>
@@ -848,6 +866,8 @@ EK: GlobalEvent {
 EK: WorldGovernment {
     2 MC
 }
+
+EK: assert(1 PartyFollower<Greens, Neutral>, =1 Distant<ExperimentalLifeforms>, 1 PartyLeader<Greens, Neutral>)
 
 // Generation 10
 EK: Research {
@@ -1062,6 +1082,8 @@ EK: GlobalEvent {
 EK: WorldGovernment {
     2 MC
 }
+
+EK: assert(1 PartyFollower<Kelvinists, Neutral>, =1 Distant<CorporateAlliance>, 1 PartyLeader<Unity, Neutral>)
 
 // Generation 11
 EK: Research {
@@ -1282,6 +1304,8 @@ EK: WorldGovernment {
     2 MC
 }
 
+EK: assert(1 PartyFollower<Reds, Neutral>, =1 Distant<HeatFirstPolicy>, 1 PartyLeader<Kelvinists, Neutral>)
+
 // Generation 12
 EK: Research {
     4 ProjectCard<Selecting>
@@ -1424,6 +1448,10 @@ EK: Production {
     Heat FROM Energy
 }
 
+EK: assert(=124 MC, =4 Steel, =2 Titanium, =19 Plant, =0 Energy, =27 Heat, =63 TerraformRating)
+EK: assert(=50 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =15 Plant, =0 Energy, =18 Heat])
+EK: assert(=12 Generation, =19 TemperatureStep, =14 OxygenStep, =9 OceanTile)
+
 // Player-record evidence: production completed and final greenery placement is pending.
 EK: action(ConvertPlantsAction) {
     pay(8 Plant)
@@ -1443,8 +1471,16 @@ EK {
     Ok
 }
 
+EK: assert(=0 ProjectCard)
+
 EK {
     171 VictoryPoint
 }
+
+EK: assert(=124 MC, =4 Steel, =2 Titanium, =5 Plant, =0 Energy, =27 Heat, =0 ProjectCard, =63 TerraformRating)
+EK: assert(=50 (PROD[MC] - ProdOffset<Class<MC>>), PROD[=2 Steel, =2 Titanium, =15 Plant, =0 Energy, =18 Heat])
+EK: assert(=5 CardResource<SaturnSurfing>, =1 Current<ExperimentalLifeforms>, =1 Coming<CorporateAlliance>, =1 Distant<HeatFirstPolicy>)
+EK: assert(=1 Ruling<Kelvinists>, =1 Dominant<Reds>, =1 Chairman<EK>, =1 PartyDelegate<MarsFirst>, =2 PartyDelegate<Scientists>, =0 PartyDelegate<Unity>)
+EK: assert(=1 PartyDelegate<Greens>, =2 PartyDelegate<Reds>, =0 PartyDelegate<Kelvinists>, =7 Delegate, =0 LobbyDelegate, =171 VictoryPoint, =1 Victory)
 // _local/replays/Game20260911/player-p662f1cec186f.json; final Mars map.
 // Player-record evidence: complete final dashboard and score table.
