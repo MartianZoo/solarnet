@@ -35,24 +35,24 @@ Me: Setup {
 }
 
 // Generation 1
-Me: PlayCard(TerraLabsResearch) {
+Me: playCard(TerraLabsResearch) {
     14 MC VIA TerraLabsResearch
     -TerraformRating
-    Pay(8 MC)
+    pay(8 MC)
     8 ProjectCard<Hand FROM Selecting>
 }
 
-Me: PlayCard(BusinessEmpire) {
+Me: playCard(BusinessEmpire) {
     PROD[6 MC]
     -6 MC
 }
-Me: PlayCard(MetalsCompany) {
+Me: playCard(MetalsCompany) {
     PROD[MC]
     PROD[Steel]
     PROD[Titanium]
 }
 
-Me: Pass
+Me: pass
 
 Me: Production {
     18 MC
@@ -68,11 +68,11 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(1 MC)
+    pay(1 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Me: Pass
+Me: pass
 
 Me: Production {
     18 MC
@@ -88,35 +88,35 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(2 MC)
+    pay(2 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // no steel paid
-Me: PlayCard(FueledGenerators) {
-    Pay(1 MC)
+Me: playCard(FueledGenerators) {
+    pay(1 MC)
     PROD[-MC]
     PROD[Energy]
 }
-Me: PlayCard(Research) {
-    Pay(11 MC)
+Me: playCard(Research) {
+    pay(11 MC)
     2 ProjectCard
 }
-Me: PlayCard(AiCentral) {
-    Pay(2 Steel, 17 MC)
+Me: playCard(AiCentral) {
+    pay(2 Steel, 17 MC)
     PROD[-Energy]
 }
-Me: UseAction1(AiCentral) {
+Me: useAction1(AiCentral) {
     2 ProjectCard
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     5 MC FROM ProjectCard
 }
-Me: PlayCard(VestaShipyard) {
-    Pay(2 Titanium, 9 MC)
+Me: playCard(VestaShipyard) {
+    pay(2 Titanium, 9 MC)
     PROD[Titanium]
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     17 MC
@@ -132,23 +132,23 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Me: UseAction1(AiCentral) {
+Me: useAction1(AiCentral) {
     2 ProjectCard
 }
-Me: PlayCard(SolarWindPower) {
-    Pay(2 Titanium, 5 MC)
+Me: playCard(SolarWindPower) {
+    pay(2 Titanium, 5 MC)
     PROD[Energy]
     2 Titanium
 }
-Me: PlayCard(GeothermalPower) {
-    Pay(1 Steel, 9 MC)
+Me: playCard(GeothermalPower) {
+    pay(1 Steel, 9 MC)
     PROD[2 Energy]
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     17 MC
@@ -165,71 +165,71 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Me: UseAction1(AiCentral) {
+Me: useAction1(AiCentral) {
     2 ProjectCard
 }
-Me: PlayCard(MediaGroup) {
-    Pay(6 MC)
+Me: playCard(MediaGroup) {
+    pay(6 MC)
 }
-Me: PlayCard(ProjectInspection) {
+Me: playCard(ProjectInspection) {
     3 MC
-    UseAction1(AiCentral)
+    useAction1(AiCentral)
     2 ProjectCard
 }
 // no MC remainder
-Me: PlayCard(RotatorImpacts) {
-    Pay(2 Titanium)
+Me: playCard(RotatorImpacts) {
+    pay(2 Titanium)
 }
 // no MC remainder
-Me: UseAction1(RotatorImpacts) {
-    Pay(2 Titanium)
+Me: useAction1(RotatorImpacts) {
+    pay(2 Titanium)
     Asteroid<RotatorImpacts>
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Luna>
     13 MC
 }
-Me: PlayCard(RestrictedArea) {
-    Pay(11 MC)
+Me: playCard(RestrictedArea) {
+    pay(11 MC)
     RestrictedArea_SpecialTile<Elysium_3_7>
     3 ProjectCard
 }
-Me: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Me: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     5 MC FROM ProjectCard
 }
-Me: PlayCard(Conscription) {
-    Pay(5 MC)
+Me: playCard(Conscription) {
+    pay(5 MC)
     Conscription_NextCardEffect
     3 MC
 }
-Me: PlayCard(LunarBeam) {
+Me: playCard(LunarBeam) {
     PROD[-2 MC]
     PROD[2 Heat]
     PROD[2 Energy]
 }
-Me: PlayCard(ArtificialPhotosynthesis) {
-    Pay(12 MC)
+Me: playCard(ArtificialPhotosynthesis) {
+    pay(12 MC)
     PROD[2 Energy]
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Me: PlayCard(Extremophiles) {
-    Pay(3 MC)
+Me: playCard(Extremophiles) {
+    pay(3 MC)
 }
-Me: UseAction1(Extremophiles) {
+Me: useAction1(Extremophiles) {
     Microbe<Extremophiles>
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     15 MC
@@ -249,68 +249,68 @@ Me: Research {
 
     // keep all offered cards
     -0 ProjectCard<Selecting>
-    Pay(4 MC)
+    pay(4 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Me: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Me: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-Me: UseAction1(AiCentral) {
+Me: useAction1(AiCentral) {
     2 ProjectCard
 }
-Me: UseAction2(RotatorImpacts) {
+Me: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
     ProjectCard
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Pluto>
     4 ProjectCard
 }
-Me: PlayCard(IndenturedWorkers) {
+Me: playCard(IndenturedWorkers) {
     IndenturedWorkers_NextCardEffect
     3 MC
 }
-Me: PlayCard(ForcedPrecipitation) {
+Me: playCard(ForcedPrecipitation) {
 }
-Me: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Me: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     5 MC FROM ProjectCard
 }
-Me: PlayCard(Steelworks) {
-    Pay(2 Steel, 11 MC)
+Me: playCard(Steelworks) {
+    pay(2 Steel, 11 MC)
 }
-Me: UseAction1(Steelworks) {
-    Pay(4 Energy)
+Me: useAction1(Steelworks) {
+    pay(4 Energy)
     2 Steel
     OxygenStep
     TerraformRating
 }
-Me: PlayCard(ImportOfAdvancedGhg) {
-    Pay(2 Titanium, 3 MC)
+Me: playCard(ImportOfAdvancedGhg) {
+    pay(2 Titanium, 3 MC)
     PROD[2 Heat]
     3 MC
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
-Me: PlayCard(SulphurEatingBacteria) {
-    Pay(6 MC)
+Me: playCard(SulphurEatingBacteria) {
+    pay(6 MC)
 }
-Me: UseAction1(SulphurEatingBacteria) {
+Me: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
-Me: UseAction1(Extremophiles) {
+Me: useAction1(Extremophiles) {
     Microbe<SulphurEatingBacteria>
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     17 MC
@@ -330,52 +330,52 @@ Me: Research {
 
     // keep all offered cards
     -0 ProjectCard<Selecting>
-    Pay(4 MC)
+    pay(4 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Me: UseAction1(AiCentral) {
+Me: useAction1(AiCentral) {
     2 ProjectCard
 }
-Me: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Me: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-Me: UseAction1(Steelworks) {
-    Pay(4 Energy)
+Me: useAction1(Steelworks) {
+    pay(4 Energy)
     2 Steel
     OxygenStep
     TerraformRating
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Ganymede>
     6 Plant
 }
-Me: UseAction1(Extremophiles) {
+Me: useAction1(Extremophiles) {
     Microbe<SulphurEatingBacteria>
 }
-Me: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Me: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
-Me: PlayCard(InvestmentLoan) {
-    Pay(3 MC)
+Me: playCard(InvestmentLoan) {
+    pay(3 MC)
     PROD[-MC]
     13 MC
 }
-Me: PlayCard(Solarnet) {
-    Pay(7 MC)
+Me: playCard(Solarnet) {
+    pay(7 MC)
     2 ProjectCard
 }
-Me: UseAction2(SulphurEatingBacteria) {
-    SelectTask(-3! Microbe<SulphurEatingBacteria> THEN 9! MC)
+Me: useAction2(SulphurEatingBacteria) {
+    selectTask(-3! Microbe<SulphurEatingBacteria> THEN 9! MC)
     -3 Microbe<SulphurEatingBacteria>
     9 MC
 }
 // decline removing an opponent's plants
-Me: PlayCard(BigAsteroid) {
-    Pay(2 Titanium, 21 MC)
+Me: playCard(BigAsteroid) {
+    pay(2 Titanium, 21 MC)
     TemperatureStep
     TemperatureStep
     4 Titanium
@@ -386,18 +386,18 @@ Me: PlayCard(BigAsteroid) {
     -0 Plant<Anyone>
 }
 // no MC remainder
-Me: UseAction1(RotatorImpacts) {
-    Pay(2 Titanium)
+Me: useAction1(RotatorImpacts) {
+    pay(2 Titanium)
     Asteroid<RotatorImpacts>
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
-Me: PlayCard(LunaGovernor) {
-    Pay(4 MC)
+Me: playCard(LunaGovernor) {
+    pay(4 MC)
     PROD[2 MC]
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     21 MC
@@ -415,102 +415,102 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(2 MC)
+    pay(2 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
-Me: UseAction1(AiCentral) {
+Me: useAction1(AiCentral) {
     2 ProjectCard
 }
-Me: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Me: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-Me: UseAction2(ForcedPrecipitation) {
+Me: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
-Me: UseAction2(RotatorImpacts) {
+Me: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
-Me: UseAction1(Steelworks) {
-    Pay(4 Energy)
+Me: useAction1(Steelworks) {
+    pay(4 Energy)
     2 Steel
     OxygenStep
     TerraformRating
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Luna>
     7 MC
 }
 // no MC remainder
-Me: PlayCard(OlympusConference) {
-    Pay(5 Steel)
+Me: playCard(OlympusConference) {
+    pay(5 Steel)
     Science<OlympusConference>
 }
-Me: PlayCard(StaticHarvesting) {
-    Pay(5 MC)
+Me: playCard(StaticHarvesting) {
+    pay(5 MC)
     PROD[Energy]
     5 MC
 }
-Me: PlayCard(ProtectedGrowth) {
-    Pay(2 MC)
+Me: playCard(ProtectedGrowth) {
+    pay(2 MC)
     5 Plant
     3 MC
 }
-Me: ConvertPlants {
-    Pay(8 Plant)
+Me: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_4_8>
     OxygenStep
     Plant
     Steel
     TerraformRating
 }
-Me: PlayCard(AtalantaPlanitiaLab) {
-    Pay(10 MC)
+Me: playCard(AtalantaPlanitiaLab) {
+    pay(10 MC)
     2 ProjectCard VIA AtalantaPlanitiaLab
     ProjectCard FROM Science<OlympusConference>
 }
-Me: PlayCard(ImportedGhg) {
-    Pay(2 Titanium, 1 MC)
+Me: playCard(ImportedGhg) {
+    pay(2 Titanium, 1 MC)
     PROD[Heat]
     3 Heat
     3 MC
 }
-Me: UseAction1(SulphurEatingBacteria) {
+Me: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
-Me: PlayCard(RegolithEaters) {
-    Pay(13 MC)
+Me: playCard(RegolithEaters) {
+    pay(13 MC)
     Science<OlympusConference>
 }
-Me: UseAction1(RegolithEaters) {
+Me: useAction1(RegolithEaters) {
     Microbe<RegolithEaters>
 }
-Me: UseAction1(Extremophiles) {
+Me: useAction1(Extremophiles) {
     Microbe<RegolithEaters>
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
-Me: PlayCard(Worms) {
-    Pay(8 MC)
+Me: playCard(Worms) {
+    pay(8 MC)
     PROD[2 Plant]
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     26 MC
@@ -529,93 +529,93 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: UseAction1(AiCentral) {
+Me: useAction1(AiCentral) {
     2 ProjectCard
 }
-Me: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Me: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-Me: UseAction1(Steelworks) {
-    Pay(4 Energy)
+Me: useAction1(Steelworks) {
+    pay(4 Energy)
     2 Steel
     OxygenStep
     TerraformRating
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
-Me: PlayCard(BusinessNetwork) {
-    Pay(4 MC)
+Me: playCard(BusinessNetwork) {
+    pay(4 MC)
     PROD[-MC]
 }
 // keep all offered cards
-Me: UseAction1(BusinessNetwork) {
+Me: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(1 MC)
+    pay(1 MC)
     ProjectCard<Hand FROM Selecting>
 }
 // no MC remainder
-Me: UseAction1(RotatorImpacts) {
-    Pay(2 Titanium)
+Me: useAction1(RotatorImpacts) {
+    pay(2 Titanium)
     Asteroid<RotatorImpacts>
 }
-Me: PlayCard(AirScrappingExpedition) {
-    Pay(13 MC)
+Me: playCard(AirScrappingExpedition) {
+    pay(13 MC)
     VenusStep
     3 MC
     TerraformRating
     3 Floater<ForcedPrecipitation>
 }
-Me: UseAction2(ForcedPrecipitation) {
+Me: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     2 TerraformRating
 }
-Me: UseAction2(RegolithEaters) {
+Me: useAction2(RegolithEaters) {
     -2 Microbe<RegolithEaters>
     OxygenStep
     TerraformRating
 }
-Me: UseAction1(Extremophiles) {
+Me: useAction1(Extremophiles) {
     Microbe<RegolithEaters>
 }
-Me: UseAction1(SulphurEatingBacteria) {
+Me: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
-Me: PlayCard(SoilEnrichment) {
-    Pay(6 MC)
+Me: playCard(SoilEnrichment) {
+    pay(6 MC)
     5 Plant
     3 MC
     -Microbe<Extremophiles>
 }
-Me: ConvertPlants {
-    Pay(8 Plant)
+Me: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_5_8>
     OxygenStep
     2 Plant
     TerraformRating
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Me: PlayCard(Thermophiles) {
-    Pay(9 MC)
+Me: playCard(Thermophiles) {
+    pay(9 MC)
 }
-Me: UseAction1(Thermophiles) {
+Me: useAction1(Thermophiles) {
     Microbe<Thermophiles>
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     32 MC
@@ -637,81 +637,81 @@ Me: Research {
 
     // keep all offered cards
     -0 ProjectCard<Selecting>
-    Pay(4 MC)
+    pay(4 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: UseAction1(AiCentral) {
+Me: useAction1(AiCentral) {
     2 ProjectCard
 }
-Me: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Me: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
 // keep all offered cards
-Me: UseAction1(BusinessNetwork) {
+Me: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(1 MC)
+    pay(1 MC)
     ProjectCard<Hand FROM Selecting>
 }
-Me: UseAction2(RotatorImpacts) {
+Me: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
-Me: UseAction1(Steelworks) {
-    Pay(4 Energy)
+Me: useAction1(Steelworks) {
+    pay(4 Energy)
     2 Steel
     OxygenStep
     TerraformRating
     TemperatureStep
     TerraformRating
 }
-Me: UseAction1(Extremophiles) {
+Me: useAction1(Extremophiles) {
     Microbe<RegolithEaters>
 }
-Me: UseAction2(RegolithEaters) {
+Me: useAction2(RegolithEaters) {
     -2 Microbe<RegolithEaters>
     OxygenStep
     TerraformRating
 }
-Me: UseAction1(SulphurEatingBacteria) {
+Me: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
-Me: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Me: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
-Me: UseAction1(Thermophiles) {
+Me: useAction1(Thermophiles) {
     Microbe<Thermophiles>
 }
 // no MC remainder
-Me: PlayCard(CarbonateProcessing) {
-    Pay(3 Steel)
+Me: playCard(CarbonateProcessing) {
+    pay(3 Steel)
     PROD[-Energy]
     PROD[3 Heat]
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Pluto>
     3 ProjectCard
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     6 MC FROM ProjectCard
 }
-Me: PlayCard(BlackPolarDust) {
-    Pay(15 MC)
+Me: playCard(BlackPolarDust) {
+    pay(15 MC)
     PROD[-2 MC]
     PROD[3 Heat]
     OceanTile<Elysium_1_3>
@@ -719,33 +719,33 @@ Me: PlayCard(BlackPolarDust) {
     ProjectCard
     2 MC
 }
-Me: PlayCard(BribedCommittee) {
-    Pay(7 MC)
+Me: playCard(BribedCommittee) {
+    pay(7 MC)
     2 TerraformRating
     3 MC
 }
-Me: PlayCard(BusinessContacts) {
-    Pay(7 MC)
+Me: playCard(BusinessContacts) {
+    pay(7 MC)
     4 ProjectCard<Selecting>
     2 ProjectCard<Hand FROM Selecting>
     3 MC
 }
 // no MC remainder
-Me: PlayCard(JovianEmbassy) {
-    Pay(7 Steel)
+Me: playCard(JovianEmbassy) {
+    pay(7 Steel)
     TerraformRating
 }
-Me: PlayCard(MineralDeposit) {
-    Pay(5 MC)
+Me: playCard(MineralDeposit) {
+    pay(5 MC)
     5 Steel
     3 MC
 }
 // no MC remainder
-Me: PlayCard(Windmills) {
-    Pay(3 Steel)
+Me: playCard(Windmills) {
+    pay(3 Steel)
     PROD[Energy]
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     40 MC
@@ -765,36 +765,36 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(1 MC)
+    pay(1 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Luna>
     7 MC
 }
-Me: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Me: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: UseAction1(AiCentral) {
+Me: useAction1(AiCentral) {
     2 ProjectCard
 }
-Me: PlayCard(InventionContest) {
-    Pay(2 MC)
+Me: playCard(InventionContest) {
+    pay(2 MC)
     3 ProjectCard<Selecting> VIA InventionContest
     ProjectCard<Hand FROM Selecting> VIA InventionContest
     3 MC
     ProjectCard FROM Science<OlympusConference>
 }
-Me: PlayCard(TowingAComet) {
-    Pay(6 Titanium, 5 MC)
+Me: playCard(TowingAComet) {
+    pay(6 Titanium, 5 MC)
     2 Plant
     OxygenStep
     3 MC
@@ -804,8 +804,8 @@ Me: PlayCard(TowingAComet) {
     Plant
     2 MC
 }
-Me: PlayCard(LavaFlows) {
-    Pay(18 MC)
+Me: playCard(LavaFlows) {
+    pay(18 MC)
     TemperatureStep
     TemperatureStep
     3 MC
@@ -813,8 +813,8 @@ Me: PlayCard(LavaFlows) {
     LavaFlows_SpecialTile<Elysium_3_1>
     2 Titanium
 }
-Me: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Me: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     OceanTile<Elysium_4_7>
@@ -822,8 +822,8 @@ Me: UseStandardProject(AsteroidProject) {
     Plant
     4 MC
 }
-Me: ConvertPlants {
-    Pay(8 Plant)
+Me: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_5_7>
     OxygenStep
     2 Plant
@@ -831,54 +831,54 @@ Me: ConvertPlants {
     TerraformRating
 }
 // keep all offered cards
-Me: UseAction1(BusinessNetwork) {
+Me: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(1 MC)
+    pay(1 MC)
     ProjectCard<Hand FROM Selecting>
 }
-Me: UseAction2(ForcedPrecipitation) {
+Me: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
-Me: UseAction1(RegolithEaters) {
+Me: useAction1(RegolithEaters) {
     Microbe<RegolithEaters>
 }
-Me: UseAction2(Thermophiles) {
+Me: useAction2(Thermophiles) {
     -2 Microbe<Thermophiles>
     VenusStep
     TerraformRating
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
 // no MC remainder
-Me: UseAction1(RotatorImpacts) {
-    Pay(2 Titanium)
+Me: useAction1(RotatorImpacts) {
+    pay(2 Titanium)
     Asteroid<RotatorImpacts>
 }
-Me: UseAction1(Extremophiles) {
+Me: useAction1(Extremophiles) {
     Microbe<Thermophiles>
 }
-Me: UseAction1(SulphurEatingBacteria) {
+Me: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
-Me: PlayCard(ExtractorBalloons) {
-    Pay(21 MC)
+Me: playCard(ExtractorBalloons) {
+    pay(21 MC)
     3 Floater<ExtractorBalloons>
 }
-Me: PlayCard(Airliners) {
-    Pay(11 MC)
+Me: playCard(Airliners) {
+    pay(11 MC)
     PROD[2 MC]
     2 Floater<ForcedPrecipitation>
 }
-Me: UseAction2(ExtractorBalloons) {
+Me: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     53 MC
@@ -898,182 +898,182 @@ Me: WorldGovernment {
 Me: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(1 MC)
+    pay(1 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: ConvertPlants {
-    Pay(8 Plant)
+Me: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_5_6>
     OxygenStep
     3 Plant
     2 MC
     TerraformRating
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: ConvertHeat {
-    Pay(8 Heat)
+Me: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Me: UseAction1(AiCentral) {
+Me: useAction1(AiCentral) {
     2 ProjectCard
 }
-Me: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+Me: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
 // keep all offered cards
-Me: UseAction1(BusinessNetwork) {
+Me: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(1 MC)
+    pay(1 MC)
     ProjectCard<Hand FROM Selecting>
 }
-Me: UseAction2(ForcedPrecipitation) {
+Me: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
-Me: UseAction2(RotatorImpacts) {
+Me: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
-Me: UseAction1(ExtractorBalloons) {
+Me: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
-Me: UseAction1(Steelworks) {
-    Pay(4 Energy)
+Me: useAction1(Steelworks) {
+    pay(4 Energy)
     2 Steel
     OxygenStep
     TerraformRating
 }
-Me: UseAction1(Extremophiles) {
+Me: useAction1(Extremophiles) {
     Microbe<RegolithEaters>
 }
-Me: UseAction2(RegolithEaters) {
+Me: useAction2(RegolithEaters) {
     -2 Microbe<RegolithEaters>
     OxygenStep
     TerraformRating
 }
-Me: UseAction1(Thermophiles) {
+Me: useAction1(Thermophiles) {
     Microbe<SulphurEatingBacteria>
 }
-Me: PlayCard(IoSulphurResearch) {
-    Pay(17 MC)
+Me: playCard(IoSulphurResearch) {
+    pay(17 MC)
     Science<OlympusConference>
     3 ProjectCard
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     5 MC FROM ProjectCard
 }
-Me: PlayCard(FusionPower) {
-    Pay(6 Steel, 2 MC)
+Me: playCard(FusionPower) {
+    pay(6 Steel, 2 MC)
     PROD[3 Energy]
     ProjectCard FROM Science<OlympusConference>
 }
-Me: PlayCard(InventorsGuild) {
-    Pay(9 MC)
+Me: playCard(InventorsGuild) {
+    pay(9 MC)
     Science<OlympusConference>
 }
 // keep all offered cards
-Me: UseAction1(InventorsGuild) {
+Me: useAction1(InventorsGuild) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(1 MC)
+    pay(1 MC)
     ProjectCard<Hand FROM Selecting>
 }
 // The app omitted Air Raid's 5 M€ transfer from the log.
-Me: PlayCard(AirRaid) {
+Me: playCard(AirRaid) {
     -Floater<ExtractorBalloons>
     3 MC VIA MediaGroup
     5 MC FROM MC<SoloOpponent>
 }
-Me: PlayCard(BactoviralResearch) {
-    Pay(10 MC)
+Me: playCard(BactoviralResearch) {
+    pay(10 MC)
     ProjectCard VIA BactoviralResearch
     ProjectCard FROM Science<OlympusConference>
     14 Microbe<SulphurEatingBacteria>
 }
-Me: UseStandardProject(SellPatentsProject) {
+Me: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
-Me: UseAction2(SulphurEatingBacteria) {
-    SelectTask(-19! Microbe<SulphurEatingBacteria> THEN 57! MC)
+Me: useAction2(SulphurEatingBacteria) {
+    selectTask(-19! Microbe<SulphurEatingBacteria> THEN 57! MC)
     -19 Microbe<SulphurEatingBacteria>
     57 MC
 }
-Me: PlayCard(ReleaseOfInertGases) {
-    Pay(14 MC)
+Me: playCard(ReleaseOfInertGases) {
+    pay(14 MC)
     2 TerraformRating
     3 MC
 }
-Me: UseStandardProject(AquiferProject) {
-    Pay(18 MC)
+Me: useStandardProject(AquiferProject) {
+    pay(18 MC)
     OceanTile<Elysium_2_5>
     TerraformRating
     4 MC
 }
-Me: PlayCard(Mangrove) {
-    Pay(12 MC)
+Me: playCard(Mangrove) {
+    pay(12 MC)
     GreeneryTile<Elysium_3_5>
     0 OxygenStep
     Plant
     8 MC
 }
-Me: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Me: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Elysium_4_5>
     Plant
     4 MC
 }
-Me: PlayCard(Algae) {
-    Pay(10 MC)
+Me: playCard(Algae) {
+    pay(10 MC)
     Plant
     PROD[2 Plant]
 }
-Me: Trade2 {
-    Pay(3 Energy)
+Me: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Ganymede>
     5 Plant
 }
-Me: UseStandardProject(AquiferProject) {
-    Pay(18 MC)
+Me: useStandardProject(AquiferProject) {
+    pay(18 MC)
     OceanTile<Elysium_5_4>
     TerraformRating
     2 Plant
     2 MC
 }
-Me: ConvertPlants {
-    Pay(8 Plant)
+Me: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_5_5>
     0 OxygenStep
     2 Plant
     4 MC
 }
-Me: ConvertPlants {
-    Pay(8 Plant)
+Me: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Elysium_3_4>
     0 OxygenStep
     4 MC
 }
-Me: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Me: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
 }
-Me: Pass
+Me: pass
 
 Me: Production {
     67 MC

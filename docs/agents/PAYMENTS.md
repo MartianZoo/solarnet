@@ -38,15 +38,15 @@ the external caller.
 The [model pieces](../../pets/docs/agents/PAYMENTS.md#current-pieces) own pricing and acceptance.
 Sandbox tests and migrated replays submit resource exchanges directly before the purchased result.
 
-The shared `TfmRoutines` Pay routine submits the stated standard or card-held resources in the
+The shared `TfmRoutines` `pay` routine submits the stated standard or card-held resources in the
 caller's order. It declines unused optional offers before paying the exact-denomination remainder
 and acknowledges an offered zero remainder after alternatives cover the bill. These choices use
 the offered instructions, not their causes.
 
-Pay temporarily pauses the participating Players' effective automatic-execution policies while
+`pay` temporarily pauses the participating Players' effective automatic-execution policies while
 submitting that complete allocation. Mandatory Admin processing remains active. It then restores
 the enclosing policies and runs configured work before returning. Failure restores the whole
-invocation, including automatic work; a previously returned PlayCard invocation remains pending.
+invocation, including automatic work; a previously returned `playCard` invocation remains pending.
 The importer and REPL both call this implementation. See [routines](ROUTINES.md).
 
 ## Allocation validation
@@ -56,7 +56,7 @@ sequence, but they do not give a task separately chosen quantities of cash, Stee
 card-held resources. A complete allocation task would require new task semantics or a domain
 instruction; it is not a spelling change.
 
-Engine tasks and the Pay routine do not check whether a selected resource unit could be returned
+Engine tasks and the `pay` routine do not check whether a selected resource unit could be returned
 while the remaining allocation still covers the debt. Card-held resources are submitted separately.
 
 ## Evidence

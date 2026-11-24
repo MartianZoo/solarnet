@@ -72,33 +72,33 @@ KB: Setup {
 }
 
 // Generation 1
-KB: PlayCard(BeginnerCorporation1) {
+KB: playCard(BeginnerCorporation1) {
     42 MC
     10 ProjectCard<Hand FROM Selecting>
 }
 
-ER: PlayCard(MiningGuild) {
+ER: playCard(MiningGuild) {
     30 MC VIA MiningGuild
     5 Steel
     PROD[Steel]
-    Pay(15 MC)
+    pay(15 MC)
     5 ProjectCard<Hand FROM Selecting>
 }
 
-KB: PlayCard(SpaceMirrors) {
-    Pay(3 MC)
+KB: playCard(SpaceMirrors) {
+    pay(3 MC)
 }
 
-ER: PlayCard(ArcticAlgae) {
-    Pay(12 MC)
+ER: playCard(ArcticAlgae) {
+    pay(12 MC)
     Plant
 }
 
-KB: PlayCard(OptimalAerobraking) {
-    Pay(7 MC)
+KB: playCard(OptimalAerobraking) {
+    pay(7 MC)
 }
-KB: PlayCard(ConvoyFromEuropa) {
-    Pay(15 MC)
+KB: playCard(ConvoyFromEuropa) {
+    pay(15 MC)
     ProjectCard
     3 MC
     3 Heat
@@ -109,23 +109,23 @@ KB: PlayCard(ConvoyFromEuropa) {
 }
 
 // no mc paid
-ER: PlayCard(PowerPlant) {
-    Pay(2 Steel)
+ER: playCard(PowerPlant) {
+    pay(2 Steel)
     PROD[Energy]
 }
 
-KB: PlayCard(GeothermalPower) {
-    Pay(11 MC)
+KB: playCard(GeothermalPower) {
+    pay(11 MC)
     PROD[2 Energy]
 }
 
-ER: Pass
+ER: pass
 
-KB: UseAction1(SpaceMirrors) {
-    Pay(7 MC)
+KB: useAction1(SpaceMirrors) {
+    pay(7 MC)
     PROD[Energy]
 }
-KB: Pass
+KB: pass
 
 // Generation 2
 KB: Production {
@@ -149,20 +149,20 @@ ER: Production {
 ER: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 KB: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 28: immediately after both generation 2 Research purchases.
-ER: PlayCard(BlackPolarDust) {
-    Pay(15 MC)
+ER: playCard(BlackPolarDust) {
+    pay(15 MC)
     OceanTile<Tharsis_9_9>
     TerraformRating
     2 Plant
@@ -172,14 +172,14 @@ ER: PlayCard(BlackPolarDust) {
     2 Titanium
 }
 
-KB: UseAction1(SpaceMirrors) {
-    Pay(7 MC)
+KB: useAction1(SpaceMirrors) {
+    pay(7 MC)
     PROD[Energy]
 }
 
-ER: Pass
+ER: pass
 
-KB: Pass
+KB: pass
 
 KB: Production {
     22 MC

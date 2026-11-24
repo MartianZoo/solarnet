@@ -98,7 +98,8 @@ public class ScriptSession(
       candidatePlayerCount: Int,
       purple: Boolean,
   ) {
-    val candidateAgents = Agents(candidateGame) { if (it == ADMIN || purple) EAGER else NONE }
+    val candidateAgents =
+        Agents(candidateGame, TfmRoutines.registered) { if (it == ADMIN || purple) EAGER else NONE }
     val candidateAgent = candidateAgents[ADMIN]
     candidateAgent.beginOperation("SetupPhase FROM BootstrapPhase")
     if (!purple) {

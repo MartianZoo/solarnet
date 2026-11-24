@@ -99,31 +99,31 @@ Purple: Setup {
 }
 
 // Generation 1
-Pink: PlayCard(MorningStarInc) {
+Pink: playCard(MorningStarInc) {
     50 MC VIA MorningStarInc
-    Pay(21 MC)
+    pay(21 MC)
     7 ProjectCard<Hand FROM Selecting>
 }
 
-Purple: PlayCard(Aridor) {
+Purple: playCard(Aridor) {
     40 MC VIA Aridor
-    Pay(30 MC)
+    pay(30 MC)
     10 ProjectCard<Hand FROM Selecting>
 }
 
-Pink: PlayCard(AtmosphericEnhancers) {
+Pink: playCard(AtmosphericEnhancers) {
     VenusStep*, VenusStep*
     2 TerraformRating
     2 SearchForCard<ReferenceFilter<Class<Floater>>>
 }
-Pink: PlayCard(PolarIndustries) {
+Pink: playCard(PolarIndustries) {
     OceanTile<Hellas_5_6>
     TerraformRating
     PROD[2 Heat]
     ProjectCard
 }
 
-Purple: PlayCard(ProjectEden) {
+Purple: playCard(ProjectEden) {
     -3 ProjectCard
     PROD[2 MC]
     OceanTile<Hellas_4_6>
@@ -139,66 +139,66 @@ Purple: PlayCard(ProjectEden) {
     2 Steel
 }
 // Database save 4: Project Eden introduced Purple's first city and plant tags.
-Purple: PlayCard(AlliedBank) {
+Purple: playCard(AlliedBank) {
     3 MC
     PROD[5 MC]
 }
 
 // Database save 5: Allied Bank introduced Purple's first Earth tag.
-Pink: DoRequiredActions {
+Pink: doRequiredActions {
     3 SearchForCard<TagFilter<Class<VenusTag>>>
 }
-Pink: PlayCard(TitanShuttles) {
-    Pay(23 MC)
+Pink: playCard(TitanShuttles) {
+    pay(23 MC)
 }
 
-Purple: DoRequiredActions {
+Purple: doRequiredActions {
     Luna
 }
 
-Pink: UseAction1(TitanShuttles) {
+Pink: useAction1(TitanShuttles) {
     2 Floater<TitanShuttles>
 }
 
-Purple: PlayCard(PeroxidePower) {
-    Pay(3 Steel, 1 MC)
+Purple: playCard(PeroxidePower) {
+    pay(3 Steel, 1 MC)
     PROD[-MC] VIA PeroxidePower
     PROD[2 Energy] VIA PeroxidePower
     PROD[2 MC]
 }
 
 // Database save 15: Peroxide Power introduced Purple's first power and building tags.
-Pink: PlayCard(SulphurEatingBacteria) {
-    Pay(6 MC)
+Pink: playCard(SulphurEatingBacteria) {
+    pay(6 MC)
 }
 
-Purple: PlayCard(Casinos) {
-    Pay(5 MC)
+Purple: playCard(Casinos) {
+    pay(5 MC)
     PROD[-Energy]
     PROD[4 MC]
 }
 
-Pink: UseAction1(SulphurEatingBacteria) {
+Pink: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
 
-Purple: PlayCard(Tardigrades) {
-    Pay(4 MC)
+Purple: playCard(Tardigrades) {
+    pay(4 MC)
     PROD[MC]
 }
 
 // Database save 27: Tardigrades introduced Purple's first microbe tag.
-Pink: Pass
+Pink: pass
 
-Purple: UseAction1(Tardigrades) {
+Purple: useAction1(Tardigrades) {
     Microbe<Tardigrades>
 }
-Purple: PlayCard(RotatorImpacts) {
-    Pay(6 MC)
+Purple: playCard(RotatorImpacts) {
+    pay(6 MC)
     PROD[MC]
 }
 // Database save 33: Rotator Impacts introduced Purple's first space tag.
-Purple: Pass
+Purple: pass
 
 Pink: Production {
     23 MC
@@ -218,80 +218,80 @@ Pink: WorldGovernment {
 Pink: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // _local/replays/Game20260905/game-g1ddd59fe5633.sqlite; source save 42.
 // Database save 42: immediately after both Research purchases.
-Purple: ClaimMilestone {
-    Pay(8 MC)
+Purple: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Fundraiser
 }
 
-Pink: UseAction2(TitanShuttles) {
-    SelectTask(-2! Floater<TitanShuttles> THEN 2! Titanium)
+Pink: useAction2(TitanShuttles) {
+    selectTask(-2! Floater<TitanShuttles> THEN 2! Titanium)
     -2 Floater<TitanShuttles>
     2 Titanium
 }
-Pink: PlayCard(LagrangeObservatory) {
-    Pay(2 Titanium, 3 MC)
+Pink: playCard(LagrangeObservatory) {
+    pay(2 Titanium, 3 MC)
     ProjectCard
 }
 
-Purple: PlayCard(BactoviralResearch) {
-    Pay(10 MC)
+Purple: playCard(BactoviralResearch) {
+    pay(10 MC)
     ProjectCard
     Microbe<Tardigrades>
     PROD[MC]
 }
 // Database save 49: Bactoviral Research introduced Purple's first science tag.
-Purple: ClaimMilestone {
-    Pay(8 MC)
+Purple: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Diversifier
 }
 
-Pink: PlayCard(HousePrinting) {
-    Pay(10 MC)
+Pink: playCard(HousePrinting) {
+    pay(10 MC)
     PROD[Steel]
 }
-Pink: PlayCard(StaticHarvesting) {
-    Pay(5 MC)
+Pink: playCard(StaticHarvesting) {
+    pay(5 MC)
     PROD[Energy]
     2 MC
 }
 
-Purple: UseAction1(Tardigrades) {
+Purple: useAction1(Tardigrades) {
     Microbe<Tardigrades>
 }
-Purple: PlayCard(LocalShading) {
-    Pay(4 MC)
+Purple: playCard(LocalShading) {
+    pay(4 MC)
     PROD[MC]
 }
 
 // Database save 56: Local Shading introduced Purple's first Venus tag.
-Pink: UseAction1(SulphurEatingBacteria) {
+Pink: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
-Pink: PlayCard(MicroMills) {
-    Pay(3 MC)
+Pink: playCard(MicroMills) {
+    pay(3 MC)
     PROD[Heat]
 }
 
-Purple: UseAction1(LocalShading) {
+Purple: useAction1(LocalShading) {
     Floater<LocalShading>
 }
 
-Pink: Pass
+Pink: pass
 
-Purple: Pass
+Purple: pass
 
 Purple: Production {
     38 MC
@@ -314,29 +314,29 @@ Purple: WorldGovernment {
 Pink: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 74: immediately after both Research purchases.
-Pink: UseAction1(TitanShuttles) {
+Pink: useAction1(TitanShuttles) {
     2 Floater<TitanShuttles>
 }
 
-Purple: PlayCard(InterplanetaryTrade) {
-    Pay(27 MC)
+Purple: playCard(InterplanetaryTrade) {
+    pay(27 MC)
     EACH @WildTagElection { Tag<@WildTagElection>? }
     PROD[9 MC]
 }
-Purple: ClaimMilestone {
-    Pay(8 MC)
+Purple: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Producer
 }
 // _local/replays/Game20260905/final-save-079.json; final Mars map.

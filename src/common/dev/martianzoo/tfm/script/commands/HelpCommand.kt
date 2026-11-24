@@ -71,11 +71,12 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
       METADATA
         desc <expression>   -> describes a type like `Microbe<Ants>` in great detail
       TERRAFORMING MARS
-        UseAction1(<card>)  -> starts the card's first action; use UseAction2 for its second
+        action(<name>[, N]) -> invokes a standard action; N defaults to 1
+        useAction1(<card>)  -> starts the card's first action; use useAction2 for its second
         tfm_board           -> displays an extremely bad looking player board
         tfm_map             -> displays an extremely bad looking Mars board
-        PlayCard(<card>)    -> starts a card play; its payment and effects may remain pending
-        Pay(2 Steel, 6 MC)  -> pays the complete bill using the stated allocation
+        playCard(<card>)    -> starts a card play; its payment and effects may remain pending
+        pay(2 Steel, 6 MC)  -> pays the complete bill using the stated allocation
       """
           .trimIndent()
 

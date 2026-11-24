@@ -43,34 +43,34 @@ Green: Setup {
 // Generation 1
 // Pink rejected CrediCor and Ecotec; Venus Contract and Focused Organization; and Windmills,
 // Open City, and Energy Saving.
-Pink: PlayCard(TharsisRepublic) {
+Pink: playCard(TharsisRepublic) {
     40 MC VIA TharsisRepublic
-    Pay(21 MC)
+    pay(21 MC)
     7 ProjectCard<Hand FROM Selecting>
 }
 
 // Green rejected Ecoline and Morning Star Inc.; Project Eden and Floating Trade Hub; and
 // Magnetic Field Dome, Heather, Insulation, Cartel, Caretaker Contract, and Protected
 // Habitats.
-Green: PlayCard(NirgalEnterprises) {
+Green: playCard(NirgalEnterprises) {
     30 MC VIA NirgalEnterprises
     PROD[Energy]
     PROD[Plant]
     PROD[Steel]
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Pink: PlayCard(Recession) {
+Pink: playCard(Recession) {
     10 MC
     EACH Other@Player(NOT Pink) { -5* MC<Other@Player>, -Production<Other@Player, Class<MC>>! }
     -5 MC<Green>
     PROD[-MC<Green>]
 }
 // You drew Interplanetary Cinematics,Inventrix,Sagitta Frontier Services,Teractor
-Pink: PlayCard(Merger) {
+Pink: playCard(Merger) {
     4 CorporationCard<Selecting>
-    PlayCard(SagittaFrontierServices, Selecting)
+    playCard(SagittaFrontierServices, Selecting)
     31 MC VIA SagittaFrontierServices
     -42 MC VIA Merger
     PROD[Energy]
@@ -80,17 +80,17 @@ Pink: PlayCard(Merger) {
     4 MC
 }
 
-Green: PlayCard(NobelPrize) {
+Green: playCard(NobelPrize) {
     5 MC
     // Green drew Insects,Stratopolis
     2 SearchForCard<RequirementFilter>
 }
-Green: PlayCard(SuitableInfrastructure) {
+Green: playCard(SuitableInfrastructure) {
     5 Steel
 }
 
 // You drew Industrial Center
-Pink: DoRequiredActions {
+Pink: doRequiredActions {
     NormalCityTile<Hellas_9_7>
     PROD[MC]
     -3 MC
@@ -98,50 +98,50 @@ Pink: DoRequiredActions {
     TerraformRating
     ProjectCard
 }
-Pink: PlayCard(MicroMills) {
-    Pay(3 MC)
+Pink: playCard(MicroMills) {
+    pay(3 MC)
     PROD[Heat]
     4 MC
 }
 
-Green: PlayCard(MineralDeposit) {
-    Pay(5 MC)
+Green: playCard(MineralDeposit) {
+    pay(5 MC)
     5 Steel
 }
 
-Pink: PlayCard(Mine) {
-    Pay(4 MC)
+Pink: playCard(Mine) {
+    pay(4 MC)
     PROD[Steel]
     MC
 }
-Pink: PlayCard(GreatEscarpmentConsortium) {
-    Pay(6 MC)
+Pink: playCard(GreatEscarpmentConsortium) {
+    pay(6 MC)
     PROD[Steel]
     4 MC
     PROD[-Steel<Green>]
 }
 
 // The later Aquifer Pumping action requires four of Green's ten steel to remain available.
-Green: PlayCard(AquiferPumping) {
-    Pay(6 Steel, 6 MC)
+Green: playCard(AquiferPumping) {
+    pay(6 Steel, 6 MC)
 }
 
-Pink: PlayCard(Sponsors) {
-    Pay(6 MC)
+Pink: playCard(Sponsors) {
+    pay(6 MC)
     PROD[2 MC]
     MC
 }
 // Copy Mine's production without creating another Mine.
-Pink: PlayCard(RoboticWorkforce) {
-    Pay(9 MC)
+Pink: playCard(RoboticWorkforce) {
+    pay(9 MC)
     MC
     CopyProductionBox<Mine>
     PROD[Steel]
 }
 
 // No MC remainder.
-Green: UseAction1(AquiferPumping) {
-    Pay(4 Steel)
+Green: useAction1(AquiferPumping) {
+    pay(4 Steel)
     OceanTile<Hellas_7_3>
     TerraformRating
     2 Titanium
@@ -149,9 +149,9 @@ Green: UseAction1(AquiferPumping) {
 
 // Green declared this pass early after one action; Solarnet executes both passes in turn
 // order.
-Pink: Pass
+Pink: pass
 
-Green: Pass
+Green: pass
 
 // Production.
 Pink: Production {
@@ -181,7 +181,7 @@ Pink: Research {
     // You bought Invention Contest,Decomposers,Colonizer Training Camp,Imported Hydrogen
     // Keep all four offered cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -191,50 +191,50 @@ Green: Research {
     // You bought Giant Ice Asteroid,Investment Loan,Earth Office,Power Supply Consortium
     // Keep all four offered cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Green: PlayCard(EarthOffice) {
-    Pay(1 MC)
+Green: playCard(EarthOffice) {
+    pay(1 MC)
 }
 
-Pink: PlayCard(DesignedMicroorganisms) {
-    Pay(16 MC)
+Pink: playCard(DesignedMicroorganisms) {
+    pay(16 MC)
     PROD[2 Plant]
 }
 
 // Power Supply Consortium requires Nobel Prize's wild icon to count as Green's second power
 // tag.
-Green: PlayCard(PowerSupplyConsortium) {
-    Pay(5 MC)
+Green: playCard(PowerSupplyConsortium) {
+    pay(5 MC)
     PROD[Energy]
     2 MC
     PROD[-Energy<Pink>]
 }
 
-Pink: Pass
+Pink: pass
 
-Green: PlayCard(InvestmentLoan) {
+Green: playCard(InvestmentLoan) {
     PROD[-MC]
     10 MC
 }
-Green: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Green: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Hellas_5_7>
     TerraformRating
     3 Heat
     2 MC
 }
 // No MC remainder.
-Green: PlayCard(RotatorImpacts) {
-    Pay(2 Titanium)
+Green: playCard(RotatorImpacts) {
+    pay(2 Titanium)
 }
-Green: UseAction1(RotatorImpacts) {
-    Pay(6 MC)
+Green: useAction1(RotatorImpacts) {
+    pay(6 MC)
     Asteroid<RotatorImpacts>
 }
-Green: Pass
+Green: pass
 
 // Production.
 Pink: Production {
@@ -263,7 +263,7 @@ Pink: Research {
 
     // You bought Hackers,ArchaeBacteria
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -272,50 +272,50 @@ Green: Research {
 
     // You bought Mars University,Neutralizer Factory,Great Dam
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Game20260820-dashboards-gen3.png was taken after generation 3 purchases and before
 // the first action.
 // You drew Ishtar Mining
-Pink: PlayCard(InventionContest) {
-    Pay(2 MC)
+Pink: playCard(InventionContest) {
+    pay(2 MC)
     3 ProjectCard<Selecting>
     ProjectCard<Hand FROM Selecting>
 }
 
 // Green discarded Stratopolis
 // You drew House Printing
-Green: PlayCard(MarsUniversity) {
-    Pay(8 MC)
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+Green: playCard(MarsUniversity) {
+    pay(8 MC)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Pink: PlayCard(Archaebacteria) {
-    Pay(6 MC)
+Pink: playCard(Archaebacteria) {
+    pay(6 MC)
     PROD[Plant]
     MC
 }
 
-Green: UseAction2(RotatorImpacts) {
+Green: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
 
-Pink: Pass
+Pink: pass
 
-Green: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Green: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Hellas_4_6>
     TerraformRating
     Plant
     4 MC
 }
-Green: Pass
+Green: pass
 
 // Production.
 Pink: Production {
@@ -343,7 +343,7 @@ Pink: Research {
 
     // You bought Titanium Mine,Ecological Zone
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -353,50 +353,50 @@ Green: Research {
     // You bought Media Group,Ironworks,Research,Miranda Resort
     // Keep all four offered cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Green: PlayCard(MediaGroup) {
-    Pay(3 MC)
+Green: playCard(MediaGroup) {
+    pay(3 MC)
 }
 
 // You drew Water Splitting Plant
-Pink: PlayCard(OrbitalReflectors) {
-    Pay(26 MC)
+Pink: playCard(OrbitalReflectors) {
+    pay(26 MC)
     VenusStep
     VenusStep
     PROD[2 Heat]
     2 TerraformRating
     ProjectCard
 }
-Pink: PlayCard(IshtarMining) {
-    Pay(5 MC)
+Pink: playCard(IshtarMining) {
+    pay(5 MC)
     PROD[Titanium]
     MC
 }
 
 // Miranda Resort counted Nobel Prize's wild icon as Green's third earth tag.
-Green: PlayCard(MirandaResort) {
-    Pay(12 MC)
+Green: playCard(MirandaResort) {
+    pay(12 MC)
     PROD[3 MC]
     2 MC
 }
 // Nobel Prize's wild icon counts as Green's eighth distinct tag.
 // Free with Nirgal Enterprises.
-Green: ClaimMilestone {
+Green: action(ClaimMilestoneAction) {
     Diversifier
 }
 
-Pink: PlayCard(TitaniumMine) {
-    Pay(3 Steel, 1 MC)
+Pink: playCard(TitaniumMine) {
+    pay(3 Steel, 1 MC)
     PROD[Titanium]
     MC
 }
 
-Green: Pass
+Green: pass
 
-Pink: Pass
+Pink: pass
 
 // Production.
 Pink: Production {
@@ -425,7 +425,7 @@ Pink: Research {
 
     // You bought Floating Habs,Nuclear Zone,Space Elevator
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -435,50 +435,50 @@ Green: Research {
     // Game20260820-dashboards-gen5.png was taken in generation 5 drafting, before purchases.
     // You bought Thermophiles,Rad-Chem Factory,GHG Factories
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Pink: ConvertPlants {
-    Pay(8 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_8_7>
     OxygenStep
     2 Heat
     TerraformRating
 }
 
-Green: PlayCard(GreatDam) {
-    Pay(12 MC)
+Green: playCard(GreatDam) {
+    pay(12 MC)
     PROD[2 Energy]
     2 MC
 }
 
 // The later Space Elevator action requires one of Pink's nine steel to remain available.
-Pink: PlayCard(SpaceElevator) {
-    Pay(2 Titanium, 8 Steel, 5 MC)
+Pink: playCard(SpaceElevator) {
+    pay(2 Titanium, 8 Steel, 5 MC)
     PROD[Titanium]
 }
 
-Green: UseAction1(RotatorImpacts) {
-    Pay(6 MC)
+Green: useAction1(RotatorImpacts) {
+    pay(6 MC)
     Asteroid<RotatorImpacts>
 }
 
-Pink: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+Pink: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
 
-Green: Pass
+Green: pass
 
-Pink: ConvertHeat {
-    Pay(8 Heat)
+Pink: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 // You drew Earth Catapult
-Pink: PlayCard(NuclearZone) {
-    Pay(10 MC)
+Pink: playCard(NuclearZone) {
+    pay(10 MC)
     TemperatureStep
     TemperatureStep
     MC
@@ -488,7 +488,7 @@ Pink: PlayCard(NuclearZone) {
     Plant
     ProjectCard
 }
-Pink: Pass
+Pink: pass
 
 // Production.
 Pink: Production {
@@ -517,7 +517,7 @@ Pink: Research {
 
     // You bought Solar Wind Power,Aerobraked Ammonia Asteroid
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -526,17 +526,17 @@ Green: Research {
 
     // You bought Asteroid,Nitrite Reducing Bacteria
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Green: PlayCard(AsteroidCard) {
-    Pay(14 MC)
+Green: playCard(AsteroidCard) {
+    pay(14 MC)
     TemperatureStep
     2 Titanium
     3 MC
@@ -546,59 +546,59 @@ Green: PlayCard(AsteroidCard) {
     -3 Plant<Pink>
 }
 
-Pink: PlayCard(EarthCatapult) {
-    Pay(23 MC)
+Pink: playCard(EarthCatapult) {
+    pay(23 MC)
     MC
 }
 
-Green: PlayCard(Ironworks) {
-    Pay(11 MC)
+Green: playCard(Ironworks) {
+    pay(11 MC)
 }
 
 // No MC remainder.
-Pink: PlayCard(SolarWindPower) {
-    Pay(3 Titanium)
+Pink: playCard(SolarWindPower) {
+    pay(3 Titanium)
     PROD[Energy]
     2 Titanium
 }
-Pink: ClaimMilestone {
-    Pay(8 MC)
+Pink: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Generalist
 }
 
-Green: UseAction1(Ironworks) {
-    Pay(4 Energy)
+Green: useAction1(Ironworks) {
+    pay(4 Energy)
     Steel
     OxygenStep
     TerraformRating
 }
 
-Pink: PlayCard(Hackers) {
-    Pay(1 MC)
+Pink: playCard(Hackers) {
+    pay(1 MC)
     PROD[-Energy]
     PROD[2 MC]
     4 MC
     PROD[-2 MC<Green>]
 }
-Pink: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+Pink: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
 
-Green: UseAction2(RotatorImpacts) {
+Green: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
 
-Pink: PlayCard(Decomposers) {
-    Pay(3 MC)
+Pink: playCard(Decomposers) {
+    pay(3 MC)
     MC
     Microbe<Decomposers>
 }
 // You drew Zeppelins
-Pink: PlayCard(EcologicalZone) {
-    Pay(10 MC)
+Pink: playCard(EcologicalZone) {
+    pay(10 MC)
     Animal<EcologicalZone>
     Microbe<Decomposers>
     Animal<EcologicalZone>
@@ -608,28 +608,28 @@ Pink: PlayCard(EcologicalZone) {
 }
 
 // Free with Nirgal Enterprises.
-Green: FundAward {
+Green: action(FundAwardAction) {
     Contractor
 }
 
-Pink: PlayCard(FloatingHabs) {
-    Pay(3 MC)
+Pink: playCard(FloatingHabs) {
+    pay(3 MC)
     MC
 }
-Pink: PlayCard(ColonizerTrainingCamp) {
-    Pay(2 Steel, 2 MC)
+Pink: playCard(ColonizerTrainingCamp) {
+    pay(2 Steel, 2 MC)
 }
 
-Green: Pass
+Green: pass
 
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Pink: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Pink: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<FloatingHabs>
 }
-Pink: Pass
+Pink: pass
 
 // Production.
 Pink: Production {
@@ -658,7 +658,7 @@ Pink: Research {
 
     // You bought Lagrange Observatory,Advanced Ecosystems,Deimos Down
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -667,13 +667,13 @@ Green: Research {
 
     // You bought Terraforming Contract,Sponsored Academies
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Game20260820-dashboards-gen7.png was taken after generation 7 purchases and before actions.
-Pink: PlayCard(DeimosDown) {
-    Pay(5 Titanium, 14 MC)
+Pink: playCard(DeimosDown) {
+    pay(5 Titanium, 14 MC)
     TemperatureStep
     TemperatureStep
     TemperatureStep
@@ -681,63 +681,63 @@ Pink: PlayCard(DeimosDown) {
     3 TerraformRating
     -7 Plant<Green>
 }
-Pink: ClaimMilestone {
-    Pay(8 MC)
+Pink: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Terraformer
 }
 
-Green: PlayCard(TerraformingContract) {
-    Pay(5 MC)
+Green: playCard(TerraformingContract) {
+    pay(5 MC)
     PROD[4 MC]
     2 MC
 }
 
-Pink: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+Pink: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
 
 // No MC remainder.
-Green: UseAction1(RotatorImpacts) {
-    Pay(2 Titanium)
+Green: useAction1(RotatorImpacts) {
+    pay(2 Titanium)
     Asteroid<RotatorImpacts>
 }
 
 // You drew Gyropolis
-Pink: PlayCard(LagrangeObservatory) {
-    Pay(7 MC)
+Pink: playCard(LagrangeObservatory) {
+    pay(7 MC)
     ProjectCard
 }
 
-Green: UseAction1(Ironworks) {
-    Pay(4 Energy)
+Green: useAction1(Ironworks) {
+    pay(4 Energy)
     Steel
     OxygenStep
     TerraformRating
 }
 
-Pink: ConvertHeat {
-    Pay(8 Heat)
+Pink: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Green: UseAction1(AquiferPumping) {
-    Pay(2 Steel, 4 MC)
+Green: useAction1(AquiferPumping) {
+    pay(2 Steel, 4 MC)
     OceanTile<Hellas_5_8>
     TerraformRating
     4 MC
 }
 
-Pink: Pass
+Pink: pass
 
 // Nobel Prize's wild icon counts as Green's second science tag.
-Green: PlayCard(TectonicStressPower) {
-    Pay(18 MC)
+Green: playCard(TectonicStressPower) {
+    pay(18 MC)
     PROD[3 Energy]
     2 MC
 }
-Green: Pass
+Green: pass
 
 // Production.
 Pink: Production {
@@ -766,7 +766,7 @@ Pink: Research {
 
     // You bought Rad-Suits,Geothermal Power,Gene Repair
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -776,19 +776,19 @@ Green: Research {
     // Game20260820-dashboards-gen8.png was taken during generation 8 drafting, before purchases.
     // You bought Ishtar Expedition,Lava Tube Settlement
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Green drew Stratospheric Birds,Floating Refinery
-Green: PlayCard(IshtarExpedition) {
-    Pay(6 MC)
+Green: playCard(IshtarExpedition) {
+    pay(6 MC)
     3 Titanium
     2 SearchForCard<TagFilter<Class<VenusTag>>>
     3 MC
 }
-Green: PlayCard(GiantIceAsteroid) {
-    Pay(3 Titanium, 27 MC)
+Green: playCard(GiantIceAsteroid) {
+    pay(3 Titanium, 27 MC)
     TemperatureStep
     TemperatureStep
     3 MC
@@ -803,13 +803,13 @@ Green: PlayCard(GiantIceAsteroid) {
     -6 Plant<Pink>
 }
 
-Pink: PlayCard(GeothermalPower) {
-    Pay(4 Steel, 1 MC)
+Pink: playCard(GeothermalPower) {
+    pay(4 Steel, 1 MC)
     PROD[2 Energy]
 }
 // The later Space Elevator action requires one of Pink's five steel to remain available.
-Pink: PlayCard(ImmigrantCity) {
-    Pay(4 Steel, 3 MC)
+Pink: playCard(ImmigrantCity) {
+    pay(4 Steel, 3 MC)
     PROD[-Energy]
     PROD[-2 MC]
     NormalCityTile<Hellas_2_5>
@@ -819,25 +819,25 @@ Pink: PlayCard(ImmigrantCity) {
     Plant
 }
 
-Green: UseAction1(Ironworks) {
-    Pay(4 Energy)
+Green: useAction1(Ironworks) {
+    pay(4 Energy)
     Steel
     OxygenStep
     TerraformRating
 }
 
-Pink: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+Pink: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
-Pink: PlayCard(RadSuits) {
-    Pay(4 MC)
+Pink: playCard(RadSuits) {
+    pay(4 MC)
     PROD[MC]
     4 MC
 }
 
-Green: PlayCard(SponsoredAcademies) {
-    Pay(6 MC)
+Green: playCard(SponsoredAcademies) {
+    pay(6 MC)
     // Both cards offer a discard; identify Sponsored Academies explicitly.
     -ProjectCard VIA SponsoredAcademies
     // The context also avoids matching EACH against Mars University's unrelated THEN task.
@@ -848,53 +848,53 @@ Green: PlayCard(SponsoredAcademies) {
     // Green drew Space Mirrors.
     3 ProjectCard VIA SponsoredAcademies
     ProjectCard<Pink> VIA SponsoredAcademies
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Pink: PlayCard(GeneRepair) {
-    Pay(10 MC)
+Pink: playCard(GeneRepair) {
+    pay(10 MC)
     PROD[2 MC]
     MC
 }
 
-Green: UseAction2(RotatorImpacts) {
+Green: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
 
-Pink: PlayCard(GhgProducingBacteria) {
-    Pay(6 MC)
+Pink: playCard(GhgProducingBacteria) {
+    pay(6 MC)
     Microbe<Decomposers>
 }
 
-Green: PlayCard(RadChemFactory) {
-    Pay(2 Steel, 4 MC)
+Green: playCard(RadChemFactory) {
+    pay(2 Steel, 4 MC)
     PROD[-Energy]
     2 TerraformRating
 }
 
-Pink: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Pink: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<FloatingHabs>
 }
 
-Green: Pass
+Green: pass
 
-Pink: PlayCard(AerobrakedAmmoniaAsteroid) {
-    Pay(3 Titanium, 15 MC)
+Pink: playCard(AerobrakedAmmoniaAsteroid) {
+    pay(3 Titanium, 15 MC)
     PROD[3 Heat]
     PROD[Plant]
     2 Microbe<GhgProducingBacteria>
 }
-Pink: UseAction2(GhgProducingBacteria) {
+Pink: useAction2(GhgProducingBacteria) {
     -2 Microbe<GhgProducingBacteria>
     TemperatureStep
     TerraformRating
 }
-Pink: Pass
+Pink: pass
 
 // Production.
 Pink: Production {
@@ -930,7 +930,7 @@ Pink: Research {
 
     // You bought Herbivores,Dawn City,Beam From A Thorium Asteroid
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -939,20 +939,20 @@ Green: Research {
 
     // You bought Land Claim,Bribed Committee
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Pink: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Pink: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Hellas_3_6>
     OxygenStep
     2 Plant
     4 MC
     TerraformRating
 }
-Pink: ConvertPlants {
-    Pay(8 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_8_6>
     OxygenStep
     2 Heat
@@ -961,56 +961,56 @@ Pink: ConvertPlants {
     TerraformRating
 }
 
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Pink: ConvertHeat {
-    Pay(8 Heat)
+Pink: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Pink: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+Pink: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
 
 // Game20260820-dashboards-gen9-early.png was taken after Space Elevator and before Ironworks.
-Green: UseAction1(Ironworks) {
-    Pay(4 Energy)
+Green: useAction1(Ironworks) {
+    pay(4 Energy)
     Steel
     OxygenStep
     TerraformRating
 }
 
 // No MC remainder.
-Pink: PlayCard(IndustrialCenter) {
-    Pay(1 Steel)
+Pink: playCard(IndustrialCenter) {
+    pay(1 Steel)
     MC
     IndustrialCenter_SpecialTile<Hellas_9_8>
     2 Heat
 }
-Pink: ConvertHeat {
-    Pay(8 Heat)
+Pink: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Green: UseStandardProject(AirScrappingProject) {
-    Pay(15 MC)
+Green: useStandardProject(AirScrappingProject) {
+    pay(15 MC)
     VenusStep
     TerraformRating
 }
-Green: PlayCard(NeutralizerFactory) {
-    Pay(7 MC)
+Green: playCard(NeutralizerFactory) {
+    pay(7 MC)
     VenusStep
     2 TerraformRating
 }
 
-Pink: PlayCard(DawnCity) {
-    Pay(3 Titanium, 4 MC)
+Pink: playCard(DawnCity) {
+    pay(3 Titanium, 4 MC)
     PROD[-Energy]
     PROD[Titanium]
     NormalCityTile<DawnCity_RemoteArea>
@@ -1018,57 +1018,57 @@ Pink: PlayCard(DawnCity) {
     PROD[MC]
 }
 
-Green: UseAction1(RotatorImpacts) {
-    Pay(6 MC)
+Green: useAction1(RotatorImpacts) {
+    pay(6 MC)
     Asteroid<RotatorImpacts>
 }
 
-Pink: UseAction1(GhgProducingBacteria) {
+Pink: useAction1(GhgProducingBacteria) {
     Microbe<GhgProducingBacteria>
 }
 
-Green: PlayCard(BribedCommittee) {
-    Pay(4 MC)
+Green: playCard(BribedCommittee) {
+    pay(4 MC)
     2 TerraformRating
     3 MC
 }
 
-Pink: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Pink: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<FloatingHabs>
 }
 
-Green: PlayCard(CloudSeeding) {
-    Pay(11 MC)
+Green: playCard(CloudSeeding) {
+    pay(11 MC)
     PROD[-MC]
     PROD[2 Plant]
     2 MC
     PROD[-Heat<Pink>]
 }
 
-Pink: PlayCard(Zeppelins) {
-    Pay(11 MC)
+Pink: playCard(Zeppelins) {
+    pay(11 MC)
     PROD[2 MC]
     4 MC
 }
 
-Green: PlayCard(LandClaim) {
-    Pay(1 MC)
+Green: playCard(LandClaim) {
+    pay(1 MC)
     3 MC
     Community<Hellas_2_4>
 }
 
-Pink: Pass
+Pink: pass
 
 // You drew Water to Venus,Noctis City
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
-Green: PlayCard(Solarnet) {
-    Pay(7 MC)
+Green: playCard(Solarnet) {
+    pay(7 MC)
     2 ProjectCard
 }
-Green: Pass
+Green: pass
 
 // Production.
 Pink: Production {
@@ -1100,7 +1100,7 @@ Pink: Research {
 
     // You bought CEO's Favorite Project,Fusion Power
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1109,19 +1109,19 @@ Green: Research {
 
     // You bought Business Network
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Green: UseAction1(Ironworks) {
-    Pay(4 Energy)
+Green: useAction1(Ironworks) {
+    pay(4 Energy)
     Steel
     OxygenStep
     TerraformRating
 }
 // You drew Venusian Insects
-Green: PlayCard(LavaTubeSettlement) {
-    Pay(2 Steel, 11 MC)
+Green: playCard(LavaTubeSettlement) {
+    pay(2 Steel, 11 MC)
     PROD[-Energy]
     PROD[2 MC]
     2 MC
@@ -1130,23 +1130,23 @@ Green: PlayCard(LavaTubeSettlement) {
     ProjectCard
 }
 
-Pink: PlayCard(FusionPower) {
-    Pay(4 Steel, 4 MC)
+Pink: playCard(FusionPower) {
+    pay(4 Steel, 4 MC)
     PROD[3 Energy]
 }
 
-Green: UseAction2(RotatorImpacts) {
+Green: useAction2(RotatorImpacts) {
     -Asteroid<RotatorImpacts>
     VenusStep
     TerraformRating
 }
-Green: PlayCard(BusinessNetwork) {
-    Pay(1 MC)
+Green: playCard(BusinessNetwork) {
+    pay(1 MC)
     PROD[-MC]
 }
 
-Pink: PlayCard(Herbivores) {
-    Pay(10 MC)
+Pink: playCard(Herbivores) {
+    pay(10 MC)
     Animal<Herbivores> VIA Herbivores
     MC
     Animal<EcologicalZone>
@@ -1154,8 +1154,8 @@ Pink: PlayCard(Herbivores) {
     PROD[-Plant<Green>]
 }
 // Three Earth tags and three Venus tags.
-Pink: PlayCard(Gyropolis) {
-    Pay(18 MC)
+Pink: playCard(Gyropolis) {
+    pay(18 MC)
     PROD[-2 Energy]
     PROD[6 MC]
     NormalCityTile<Hellas_1_3>
@@ -1166,7 +1166,7 @@ Pink: PlayCard(Gyropolis) {
 }
 
 // Decline the revealed Business Network card.
-Green: UseAction1(BusinessNetwork) {
+Green: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
@@ -1175,25 +1175,25 @@ Green: UseAction1(BusinessNetwork) {
 // Venus Shuttles.
 // Mars University: discard Venusian Insects.
 // Venus Soils.
-Green: PlayCard(Research) {
-    Pay(11 MC)
+Green: playCard(Research) {
+    pay(11 MC)
     2 ProjectCard VIA Research
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
 // All nine oceans are already placed.
-Pink: PlayCard(ImportedHydrogen) {
-    Pay(4 Titanium, 2 MC)
+Pink: playCard(ImportedHydrogen) {
+    pay(4 Titanium, 2 MC)
     OceanTile<WaterArea(HAS MAX 0 Tile)>*
     3 Plant
 }
-Pink: ConvertPlants {
-    Pay(8 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_1_4>
     OxygenStep
     Animal<Herbivores>
@@ -1202,48 +1202,48 @@ Pink: ConvertPlants {
     TerraformRating
 }
 
-Green: PlayCard(HousePrinting) {
-    Pay(10 MC)
+Green: playCard(HousePrinting) {
+    pay(10 MC)
     PROD[Steel]
     2 MC
 }
 // Nobel Prize's wild icon counts as Green's second plant tag.
-Green: PlayCard(Insects) {
-    Pay(9 MC)
+Green: playCard(Insects) {
+    pay(9 MC)
     PROD[2 Plant]
     2 MC
 }
 
-Pink: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+Pink: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Green: PlayCard(WaterToVenus) {
-    Pay(9 MC)
+Green: playCard(WaterToVenus) {
+    pay(9 MC)
     VenusStep
     3 MC
     TerraformRating
 }
 
-Pink: FundAward {
-    Pay(14 MC)
+Pink: action(FundAwardAction) {
+    pay(14 MC)
     Landscaper
 }
 
-Green: Pass
+Green: pass
 
-Pink: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Pink: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<FloatingHabs>
 }
-Pink: UseAction1(GhgProducingBacteria) {
+Pink: useAction1(GhgProducingBacteria) {
     Microbe<GhgProducingBacteria>
 }
-Pink: Pass
+Pink: pass
 
 // Production.
 Pink: Production {
@@ -1276,7 +1276,7 @@ Pink: Research {
 
     // You bought Technology Demonstration,Birds
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1285,20 +1285,20 @@ Green: Research {
 
     // You bought Giant Solar Shade,Algae
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Pink: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Pink: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Hellas_1_2>
     OxygenStep
     Animal<Herbivores>
     2 Plant
     TerraformRating
 }
-Pink: ConvertPlants {
-    Pay(8 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_2_6>
     OxygenStep
     Animal<Herbivores>
@@ -1306,37 +1306,37 @@ Pink: ConvertPlants {
     TerraformRating
 }
 
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_8_4>
     0 OxygenStep
     Steel
     2 MC
 }
 // Decline the revealed Business Network card.
-Green: UseAction1(BusinessNetwork) {
+Green: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
 // You drew Toll Station,Fueled Generators
 // No MC remainder.
-Pink: PlayCard(TechnologyDemonstration) {
-    Pay(1 Titanium)
+Pink: playCard(TechnologyDemonstration) {
+    pay(1 Titanium)
     2 ProjectCard
 }
-Pink: FundAward {
-    Pay(20 MC)
+Pink: action(FundAwardAction) {
+    pay(20 MC)
     Founder
 }
 
-Green: UseAction1(Ironworks) {
-    Pay(4 Energy)
+Green: useAction1(Ironworks) {
+    pay(4 Energy)
     Steel
     0 OxygenStep
 }
-Green: PlayCard(CommercialDistrict) {
-    Pay(3 Steel, 10 MC)
+Green: playCard(CommercialDistrict) {
+    pay(3 Steel, 10 MC)
     PROD[-Energy]
     PROD[4 MC]
     2 MC
@@ -1345,25 +1345,25 @@ Green: PlayCard(CommercialDistrict) {
     Steel
 }
 
-Pink: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+Pink: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Pink: UseAction1(GhgProducingBacteria) {
+Pink: useAction1(GhgProducingBacteria) {
     Microbe<GhgProducingBacteria>
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Pink: PlayCard(AdvancedEcosystems) {
-    Pay(9 MC)
+Pink: playCard(AdvancedEcosystems) {
+    pay(9 MC)
     Animal<EcologicalZone>
     Microbe<Decomposers>
     Microbe<Decomposers>
@@ -1371,30 +1371,30 @@ Pink: PlayCard(AdvancedEcosystems) {
     Microbe<Decomposers>
 }
 
-Green: PlayCard(GiantSolarShade) {
-    Pay(27 MC)
+Green: playCard(GiantSolarShade) {
+    pay(27 MC)
     VenusStep
     VenusStep
     VenusStep
     3 TerraformRating
 }
 
-Pink: UseStandardProject(AirScrappingProject) {
-    Pay(15 MC)
+Pink: useStandardProject(AirScrappingProject) {
+    pay(15 MC)
     VenusStep
     TerraformRating
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Green: PlayCard(NoctisCity) {
-    Pay(1 Steel, 16 MC)
+Green: playCard(NoctisCity) {
+    pay(1 Steel, 16 MC)
     PROD[-Energy]
     PROD[3 MC]
     2 MC
@@ -1404,36 +1404,36 @@ Green: PlayCard(NoctisCity) {
     2 MC
 }
 
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
 // Green declared this pass early after one action; Solarnet executes it on Green's next turn.
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
 
-Pink: PlayCard(Birds) {
-    Pay(8 MC)
+Pink: playCard(Birds) {
+    pay(8 MC)
     MC
     Animal<EcologicalZone>
     Microbe<Decomposers>
     PROD[-2 Plant<Green>]
 }
-Pink: UseAction1(Birds) {
+Pink: useAction1(Birds) {
     Animal<Birds>
 }
 
-Green: Pass
+Green: pass
 
-Pink: PlayCard(CeosFavoriteProject) {
+Pink: playCard(CeosFavoriteProject) {
     MC
     Animal<Birds>
 }
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Pink: Pass
+Pink: pass
 
 // Production.
 Pink: Production {

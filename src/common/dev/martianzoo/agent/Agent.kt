@@ -158,6 +158,24 @@ public interface Agent {
   public fun selectTask(task: Task): TaskResult
 
   /**
+   * Performs a routine registered with this Agent's session, using its complete [arguments]. Names
+   * are case-sensitive. Unknown names throw [IllegalArgumentException] before any game changes or
+   * task handling. The definition validates arguments and determines which Agent commands to
+   * submit; [releasedBy] supplies another Agent in this session when the routine supports released
+   * responses.
+   *
+   * Returns all retained changes and newly pending tasks from the invocation. Failure restores the
+   * whole invocation, including automatic work; earlier returned calls remain subject to any
+   * enclosing transaction. A routine may leave choices or effects pending. Its behavior is supplied
+   * outside the game model; see [Routine].
+   */
+  public fun doRoutine(
+      name: String,
+      vararg arguments: String,
+      releasedBy: Agent? = null,
+  ): TaskResult
+
+  /**
    * Carries out the task matched by the source-level [narrowing] instruction tree. A grouped tree
    * can select a grouped choice and replace the matched task with independent tasks; preprocessing
    * can produce the same replacement, for example when atomizing a multi-step global parameter

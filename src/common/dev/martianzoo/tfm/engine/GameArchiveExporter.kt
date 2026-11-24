@@ -164,7 +164,7 @@ public class GameArchiveExporter(
                 block.turn == 0
         )
             appendLine()
-        if (block.name == "Pass") {
+        if (block.name == "pass") {
           check(block.lines.isEmpty()) { "Unexpected effects following $block" }
           appendLine("${block.actor}: ${block.name}")
         } else {
@@ -524,7 +524,7 @@ public class GameArchiveExporter(
     val label =
         when {
           first.phase == "ResearchPhase" -> "Research"
-          first.correction != null -> "ExMachina"
+          first.correction != null -> "exMachina"
           first.scope != null -> ""
           first.phase == "SetupPhase" -> "Setup"
           first.phase == "ProductionPhase" -> "Production"
@@ -544,7 +544,7 @@ public class GameArchiveExporter(
     fun flushPayment() {
       if (payments.isNotEmpty()) {
         val prefix = if (paymentActor == block.actor) "" else "$paymentActor: "
-        line("${prefix}Pay(${payments.joinToString { (resource, count) -> "$count $resource" }})")
+        line("${prefix}pay(${payments.joinToString { (resource, count) -> "$count $resource" }})")
         payments.clear()
       } else zeroPayment?.let(::line)
       zeroPayment = null
@@ -555,15 +555,15 @@ public class GameArchiveExporter(
         line("}")
         nestedCorrection = null
       }
-      if (step.correction != null && block.name != "ExMachina") {
+      if (step.correction != null && block.name != "exMachina") {
         flushPayment()
         if (nestedCorrection == null)
-            line("${if (step.actor == block.actor) "" else "${step.actor}: "}ExMachina {")
+            line("${if (step.actor == block.actor) "" else "${step.actor}: "}exMachina {")
         nestedCorrection = step.correction
         line("    ${render(step.instruction, step.actor)}")
         continue
       }
-      if (block.name == "ExMachina") {
+      if (block.name == "exMachina") {
         line(render(step.instruction, step.actor))
         continue
       }
@@ -571,7 +571,7 @@ public class GameArchiveExporter(
       if (step.selection) {
         flushPayment()
         val prefix = if (step.actor == block.actor) "" else "${step.actor}: "
-        line("${prefix}SelectTask(${render(instruction, step.actor)})")
+        line("${prefix}selectTask(${render(instruction, step.actor)})")
         continue
       }
       val change = instruction as? Change
@@ -603,36 +603,35 @@ public class GameArchiveExporter(
           val provider = gain.arguments[1]
           val action = provider.className.toString()
           val slot = gain.arguments[2].className.toString()
-          when (action) {
-            "PlayCardAction",
-            "UseActionOnCardAction",
-            "UseStandardProjectAction" -> Unit
-            "LobbyAction" -> action("SendDelegate0")
-            "PaidLobbyAction" -> action("SendDelegate5")
-            "TradeAction" -> action("Trade${slot.last()}")
-            "UsePolicyAction" -> action("UsePolicy")
+          when {
+            action in
+                setOf("PlayCardAction", "UseActionOnCardAction", "UseStandardProjectAction") -> Unit
+            isSubtype(provider, "StandardAction") ->
+                action(
+                    "action($action" +
+                        (if (slot == "Action1") "" else ", " + slot.removePrefix("Action")) +
+                        ")"
+                )
+            isSubtype(provider, "StandardProject") -> action("useStandardProject($action)")
+            isSubtype(provider, "ActionCard") -> action("use" + slot + "($action)")
             else ->
                 action(
-                    when {
-                      isSubtype(provider, "UsePolicyAction") -> "UsePolicy"
-                      isSubtype(provider, "StandardProject") -> "UseStandardProject($action)"
-                      isSubtype(provider, "ActionCard") -> "Use${slot}($action)"
-                      action.endsWith("Action") -> action.removeSuffix("Action")
-                      else ->
-                          (if (step.actor == block.actor) "" else "${step.actor}: ") +
-                              render(instruction, step.actor)
-                    }
+                    (if (step.actor == block.actor) "" else "${step.actor}: ") +
+                        render(instruction, step.actor)
                 )
           }
         }
         "PlayCard" -> {
           val card = gain.arguments[2].arguments.single().className.toString()
           val location = gain.arguments[3].toString()
-          val name = "PlayCard($card${if (location == "Hand") "" else ", $location"})"
+          val name = "playCard($card${if (location == "Hand") "" else ", $location"})"
           action(name)
         }
         "Pass",
-        "DoRequiredActions" -> if (block.name.isEmpty()) block.name = target else line(target)
+        "DoRequiredActions" -> {
+          val name = target.replaceFirstChar { it.lowercase() }
+          if (block.name.isEmpty()) block.name = name else line(name)
+        }
         else -> {
           val text = render(instruction, step.actor) + (step.context?.let { " VIA $it" } ?: "")
           line(if (step.actor == block.actor) text else "${step.actor}: $text")

@@ -17,6 +17,7 @@ import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
+import dev.martianzoo.tfm.engine.TfmRoutines
 
 /**
  * Focused scenarios with explicit corrections and selected phase shortcuts. [newTestGame] sets up
@@ -29,7 +30,7 @@ internal abstract class TfmSandboxTest {
   protected var game: World
     get() = agents.world
     set(value) {
-      agents = Agents(value) { if (it == ADMIN) EAGER else NONE }
+      agents = Agents(value, TfmRoutines.registered) { if (it == ADMIN) EAGER else NONE }
     }
 
   protected lateinit var agents: Agents

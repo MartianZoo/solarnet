@@ -15,6 +15,7 @@ import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine
+import dev.martianzoo.tfm.engine.TfmRoutines
 
 /**
  * Scenarios following the game's own turns and phases. Focused phase tests may prepare their
@@ -137,7 +138,7 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
   /** Creates the supplied game before setup choices or card selection. */
   protected fun initializeGame(premise: GamePremise) {
     game = TfmEngine.newGame(premise)
-    agents = Agents(game) { if (it == ADMIN) EAGER else playerPolicy }
+    agents = Agents(game, TfmRoutines.registered) { if (it == ADMIN) EAGER else playerPolicy }
     players = game.actors.filterIsInstance<Player>().map { agents[it] }
   }
 

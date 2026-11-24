@@ -47,16 +47,16 @@ EK: Setup {
 
 // Generation 1
 // The source selected PolderTECH Dutch, which Canon does not treat as a published promo.
-EK: PlayCard(FakePolderTechDutch) {
+EK: playCard(FakePolderTechDutch) {
     35 MC VIA FakePolderTechDutch
-    Pay(15 MC)
+    pay(15 MC)
     5 ProjectCard<Hand FROM Selecting>
 }
 
-EK: PlayCard(BoardOfDirectors) {
+EK: playCard(BoardOfDirectors) {
     4 Director<BoardOfDirectors>
 }
-EK: PlayCard(ProjectEden) {
+EK: playCard(ProjectEden) {
     -3 ProjectCard
     OceanTile<Tharsis_2_6>
     TerraformRating
@@ -71,7 +71,7 @@ EK: PlayCard(ProjectEden) {
     TerraformRating
 }
 
-EK: DoRequiredActions {
+EK: doRequiredActions {
     OceanTile<Tharsis_4_8>
     TerraformRating
     Energy
@@ -84,30 +84,30 @@ EK: DoRequiredActions {
     2 MC
     TerraformRating
 }
-EK: UseAction1(BoardOfDirectors) {
+EK: useAction1(BoardOfDirectors) {
     PreludeCard
-    SelectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
+    selectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
     -12 MC
     -Director<BoardOfDirectors>
-    PlayCard(AppliedScience)
+    playCard(AppliedScience)
     6 Science<AppliedScience>
 }
-EK: PlayCard(BribedCommittee) {
-    Pay(7 MC)
+EK: playCard(BribedCommittee) {
+    pay(7 MC)
     2 TerraformRating
 }
-EK: UseAction1(AppliedScience) {
+EK: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Plant
 }
-EK: PlayCard(Mine) {
-    Pay(4 MC)
+EK: playCard(Mine) {
+    pay(4 MC)
     PROD[Steel]
 }
-EK: SendDelegate0 {
+EK: action(LobbyAction) {
     PartyLeader<Greens> FROM LobbyDelegate
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     20 MC
@@ -121,32 +121,32 @@ EK: Research {
     -4 ProjectCard<Selecting>
 }
 
-EK: UsePolicy {
-    Pay(10 MC)
+EK: action(UsePolicyAction) {
+    pay(10 MC)
     3 ProjectCard
 }
-EK: UseAction1(BoardOfDirectors) {
+EK: useAction1(BoardOfDirectors) {
     PreludeCard
-    SelectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
+    selectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
     -12 MC
     -Director<BoardOfDirectors>
-    PlayCard(CorporateArchives)
+    playCard(CorporateArchives)
     13 MC
     7 ProjectCard<Selecting>
     2 ProjectCard<Hand FROM Selecting>
 }
-EK: UseAction1(AppliedScience) {
+EK: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Steel
 }
-EK: PlayCard(TitaniumMine) {
-    Pay(2 Steel, 3 MC)
+EK: playCard(TitaniumMine) {
+    pay(2 Steel, 3 MC)
     PROD[Titanium]
 }
-EK: SendDelegate0 {
+EK: action(LobbyAction) {
     PartyFollower<Reds> FROM LobbyDelegate
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     19 MC
@@ -164,27 +164,27 @@ EK: GlobalEvent {
 EK: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-EK: UseAction1(BoardOfDirectors) {
+EK: useAction1(BoardOfDirectors) {
     PreludeCard
-    SelectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
+    selectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
     -12 MC
     -Director<BoardOfDirectors>
-    PlayCard(RiseToPower)
+    playCard(RiseToPower)
     PROD[3 MC]
     PartyLeader<Reds>
     PartyLeader<Unity>
     PartyLeader<Scientists>
 }
-EK: PlayCard(ArcticAlgae) {
-    Pay(12 MC)
+EK: playCard(ArcticAlgae) {
+    pay(12 MC)
     Plant
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_3_7>
     OxygenStep
     Plant
@@ -193,22 +193,22 @@ EK: ConvertPlants {
     4 MC
     TerraformRating
 }
-EK: UseAction1(AppliedScience) {
+EK: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Steel
 }
 // no MC remainder
-EK: PlayCard(UndergroundDetonations) {
-    Pay(3 Steel)
+EK: playCard(UndergroundDetonations) {
+    pay(3 Steel)
 }
-EK: UseAction1(UndergroundDetonations) {
-    Pay(10 MC)
+EK: useAction1(UndergroundDetonations) {
+    pay(10 MC)
     PROD[2 Heat]
 }
-EK: SendDelegate0 {
+EK: action(LobbyAction) {
     PartyFollower<Unity> FROM LobbyDelegate
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     23 MC
@@ -226,37 +226,37 @@ EK: GlobalEvent {
 EK: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-EK: PlayCard(MediaGroup) {
-    Pay(6 MC)
+EK: playCard(MediaGroup) {
+    pay(6 MC)
 }
-EK: PlayCard(InventionContest) {
-    Pay(2 MC)
+EK: playCard(InventionContest) {
+    pay(2 MC)
     3 ProjectCard<Selecting>
     ProjectCard<Hand FROM Selecting>
     3 MC
 }
-EK: UseAction1(BoardOfDirectors) {
+EK: useAction1(BoardOfDirectors) {
     PreludeCard
-    SelectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
+    selectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
     -12 MC
     -Director<BoardOfDirectors>
-    PlayCard(AntiDesertificationTechniques)
+    playCard(AntiDesertificationTechniques)
     3 MC
     PROD[Plant]
     PROD[Steel]
 }
-EK: SendDelegate0 {
+EK: action(LobbyAction) {
     PartyLeader<Greens> FROM LobbyDelegate
 }
-EK: UseAction1(AppliedScience) {
+EK: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Director<BoardOfDirectors>
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     24 MC
@@ -275,31 +275,31 @@ EK: GlobalEvent {
 EK: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-EK: UseAction1(AppliedScience) {
+EK: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Titanium
 }
 // The Applied Science wild tag supplies the second science tag required by Mercurian
 // Alloys.
 // no titanium paid
-EK: PlayCard(MercurianAlloys) {
-    Pay(3 MC)
+EK: playCard(MercurianAlloys) {
+    pay(3 MC)
 }
 // decline the optional plant removal
-EK: PlayCard(AsteroidCard) {
-    Pay(2 Titanium, 4 MC)
+EK: playCard(AsteroidCard) {
+    pay(2 Titanium, 4 MC)
     TemperatureStep
     2 Titanium
     3 MC
     TerraformRating
     -0 Plant<Anyone>
 }
-EK: PlayCard(IceAsteroid) {
-    Pay(4 Titanium, 3 MC)
+EK: playCard(IceAsteroid) {
+    pay(4 Titanium, 3 MC)
     3 MC
     OceanTile<Tharsis_5_6>
     TerraformRating
@@ -311,58 +311,58 @@ EK: PlayCard(IceAsteroid) {
     4 Plant
     2 MC
 }
-EK: PlayCard(PoliticalAlliance) {
-    Pay(4 MC)
+EK: playCard(PoliticalAlliance) {
+    pay(4 MC)
     TerraformRating
     3 MC
 }
-EK: PlayCard(SpecialDesign) {
-    Pay(4 MC)
+EK: playCard(SpecialDesign) {
+    pay(4 MC)
     SpecialDesign_NextCardEffect
     3 MC
 }
-EK: PlayCard(Algae) {
-    Pay(10 MC)
+EK: playCard(Algae) {
+    pay(10 MC)
     Plant
     PROD[2 Plant]
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_4_5>
     OxygenStep
     3 Plant
     4 MC
     TerraformRating
 }
-EK: UseAction1(BoardOfDirectors) {
+EK: useAction1(BoardOfDirectors) {
     PreludeCard
     -PreludeCard
 }
 // Applied Science's wild tag is the fifth Plant tag counted by Robot Pollinators.
-EK: PlayCard(RobotPollinators) {
-    Pay(9 MC)
+EK: playCard(RobotPollinators) {
+    pay(9 MC)
     PROD[Plant]
     5 Plant
 }
-EK: SendDelegate0 {
+EK: action(LobbyAction) {
     PartyLeader<Unity> FROM LobbyDelegate
 }
-EK: PlayCard(AstraMechanica) {
-    Pay(7 MC)
+EK: playCard(AstraMechanica) {
+    pay(7 MC)
     ProjectCard FROM PlayedEvent<Class<BribedCommittee>>
     ProjectCard FROM PlayedEvent<Class<PoliticalAlliance>>
 }
-EK: PlayCard(PoliticalAlliance) {
-    Pay(4 MC)
+EK: playCard(PoliticalAlliance) {
+    pay(4 MC)
     TerraformRating
     3 MC
 }
-EK: PlayCard(BribedCommittee) {
-    Pay(7 MC)
+EK: playCard(BribedCommittee) {
+    pay(7 MC)
     2 TerraformRating
     3 MC
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     32 MC
@@ -382,26 +382,26 @@ EK: GlobalEvent {
 EK: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-EK: UseAction1(BoardOfDirectors) {
+EK: useAction1(BoardOfDirectors) {
     PreludeCard
-    SelectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
+    selectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
     -12 MC
     -Director<BoardOfDirectors>
-    PlayCard(Merger)
+    playCard(Merger)
     4 CorporationCard<Selecting>
-    PlayCard(LakefrontResorts, Selecting)
+    playCard(LakefrontResorts, Selecting)
     12 MC
 }
-EK: UseAction1(AppliedScience) {
+EK: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Director<BoardOfDirectors>
 }
-EK: UseStandardProject(AquiferProject) {
-    Pay(18 MC)
+EK: useStandardProject(AquiferProject) {
+    pay(18 MC)
     OceanTile<Tharsis_6_7>
     TerraformRating
     Steel
@@ -411,37 +411,37 @@ EK: UseStandardProject(AquiferProject) {
     Plant
     3 MC
 }
-EK: PlayCard(RestrictedArea) {
-    Pay(11 MC)
+EK: playCard(RestrictedArea) {
+    pay(11 MC)
     RestrictedArea_SpecialTile<Tharsis_6_6>
     Steel
     Plant
     9 MC
 }
-EK: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+EK: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-EK: ConvertHeat {
-    Pay(8 Heat)
+EK: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-EK: SendDelegate0 {
+EK: action(LobbyAction) {
     PartyFollower<Greens> FROM LobbyDelegate
 }
-EK: SendDelegate5 {
-    Pay(5 MC)
+EK: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Greens>
 }
-EK: UseStandardProject(SellPatentsProject) {
+EK: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
-EK: UseAction1(UndergroundDetonations) {
-    Pay(10 MC)
+EK: useAction1(UndergroundDetonations) {
+    pay(10 MC)
     PROD[2 Heat]
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     34 MC
@@ -468,30 +468,30 @@ EK: GlobalEvent {
 EK: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-EK: ConvertHeat {
-    Pay(8 Heat)
+EK: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
-EK: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+EK: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-EK: UseAction1(BoardOfDirectors) {
+EK: useAction1(BoardOfDirectors) {
     PreludeCard
-    SelectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
+    selectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
     -12 MC
     -Director<BoardOfDirectors>
-    PlayCard(TerraformingDeal)
+    playCard(TerraformingDeal)
 }
 // Includes the zero ocean bonus.
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_3_5>
     OxygenStep
     Plant
@@ -499,8 +499,8 @@ EK: ConvertPlants {
     TerraformRating
     2 MC
 }
-EK: UseStandardProject(AquiferProject) {
-    Pay(18 MC)
+EK: useStandardProject(AquiferProject) {
+    pay(18 MC)
     OceanTile<Tharsis_5_4>
     TerraformRating
     Energy
@@ -509,8 +509,8 @@ EK: UseStandardProject(AquiferProject) {
     2 Plant
     5 MC
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_4_4>
     OxygenStep
     Plant VIA FakePolderTechDutch
@@ -522,28 +522,28 @@ EK: ConvertPlants {
 }
 // Payment reconstruction: database saves 74–75 preserve all 9 steel and spend 10 M€.
 // no steel paid
-EK: PlayCard(RegoPlastics) {
-    Pay(10 MC)
+EK: playCard(RegoPlastics) {
+    pay(10 MC)
 }
-EK: PlayCard(BiomassCombustors) {
-    Pay(1 Steel, 1 MC)
+EK: playCard(BiomassCombustors) {
+    pay(1 Steel, 1 MC)
     PROD[-Plant<SoloOpponent>]
     PROD[2 Energy]
 }
 // no MC remainder
-EK: PlayCard(GhgFactories) {
-    Pay(4 Steel)
+EK: playCard(GhgFactories) {
+    pay(4 Steel)
     PROD[-Energy]
     PROD[4 Heat]
 }
 // no MC remainder
-EK: PlayCard(HeatTrappers) {
-    Pay(2 Steel)
+EK: playCard(HeatTrappers) {
+    pay(2 Steel)
     PROD[-2 Heat<SoloOpponent>]
     PROD[Energy]
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_6_5>
     OxygenStep
     Plant VIA FakePolderTechDutch
@@ -553,26 +553,26 @@ EK: ConvertPlants {
     TerraformRating
     2 MC
 }
-EK: PlayCard(StJosephOfCupertinoMission) {
-    Pay(7 MC)
+EK: playCard(StJosephOfCupertinoMission) {
+    pay(7 MC)
 }
-EK: UseAction1(StJosephOfCupertinoMission) {
-    Pay(1 Steel, 2 MC)
+EK: useAction1(StJosephOfCupertinoMission) {
+    pay(1 Steel, 2 MC)
     Cathedral<NormalCityTile<Tharsis_4_6>>
     CathedralOffer
     UseAction<CathedralOption<StJosephOfCupertinoMission>, Action1>
-    Pay(2 MC)
+    pay(2 MC)
     ProjectCard
 }
-EK: UseAction1(UndergroundDetonations) {
-    Pay(10 MC)
+EK: useAction1(UndergroundDetonations) {
+    pay(10 MC)
     PROD[2 Heat]
 }
-EK: SendDelegate0 {
+EK: action(LobbyAction) {
     PartyFollower<Scientists> FROM LobbyDelegate
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_5_7>
     OxygenStep
     Plant VIA FakePolderTechDutch
@@ -585,8 +585,8 @@ EK: ConvertPlants {
     TerraformRating
     2 MC
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_6_4>
     OxygenStep
     Plant VIA FakePolderTechDutch
@@ -596,18 +596,18 @@ EK: ConvertPlants {
     TerraformRating
     2 MC
 }
-EK: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+EK: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     PROD[Heat]
     2 MC
 }
-EK: SendDelegate5 {
-    Pay(5 MC)
+EK: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Unity>
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     44 MC
@@ -639,85 +639,85 @@ EK: WorldGovernment {
 EK: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-EK: UsePolicy {
-    Pay(10 MC)
+EK: action(UsePolicyAction) {
+    pay(10 MC)
     3 ProjectCard
 }
-EK: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+EK: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-EK: PlayCard(MineralDeposit) {
-    Pay(5 MC)
+EK: playCard(MineralDeposit) {
+    pay(5 MC)
     5 Steel
     3 MC
 }
-EK: PlayCard(CulturalMetropolis) {
-    Pay(6 Steel, 2 MC)
+EK: playCard(CulturalMetropolis) {
+    pay(6 Steel, 2 MC)
     PROD[-Energy]
     PROD[3 MC]
     NormalCityTile<Tharsis_7_5>
     0 MC
-    SelectTask(PartyFollower<Greens>! THEN PartyDelegate<Greens>!)
+    selectTask(PartyFollower<Greens>! THEN PartyDelegate<Greens>!)
     PartyFollower<Greens>
     PartyLeader<Greens>
 }
-EK: UseAction1(StJosephOfCupertinoMission) {
-    Pay(1 Steel, 2 MC)
+EK: useAction1(StJosephOfCupertinoMission) {
+    pay(1 Steel, 2 MC)
     Cathedral<NormalCityTile<Tharsis_7_5>>
     CathedralOffer
     UseAction<CathedralOption<StJosephOfCupertinoMission>, Action1>
-    Pay(2 MC)
+    pay(2 MC)
     ProjectCard
 }
-EK: UseAction1(BoardOfDirectors) {
+EK: useAction1(BoardOfDirectors) {
     PreludeCard
-    SelectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
+    selectTask(-12! MC THEN -Director<BoardOfDirectors>! THEN PlayPrelude<Hand>!)
     -12 MC
     -Director<BoardOfDirectors>
-    PlayCard(FocusedOrganization)
+    playCard(FocusedOrganization)
     ProjectCard
     Titanium
 }
-EK: UseAction1(FocusedOrganization) {
+EK: useAction1(FocusedOrganization) {
     -ProjectCard
     -MC
     ProjectCard
     Titanium
 }
-EK: ConvertHeat {
-    Pay(8 Heat)
+EK: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     2 MC
 }
-EK: SendDelegate0 {
+EK: action(LobbyAction) {
     PartyFollower<Kelvinists> FROM LobbyDelegate
 }
-EK: UseAction1(AppliedScience) {
+EK: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Titanium
 }
 // Payment reconstruction: database saves 100–101 spend 18 M€ and 3 of 4 steel.
 // no titanium paid
-EK: PlayCard(SpaceElevator) {
-    Pay(3 Steel, 18 MC)
+EK: playCard(SpaceElevator) {
+    pay(3 Steel, 18 MC)
     PROD[Titanium]
 }
-EK: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+EK: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
-EK: PlayCard(Archaebacteria) {
-    Pay(6 MC)
+EK: playCard(Archaebacteria) {
+    pay(6 MC)
     PROD[Plant]
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_8_6>
     OxygenStep
     Plant
@@ -726,7 +726,7 @@ EK: ConvertPlants {
     TerraformRating
     2 MC
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     50 MC
@@ -748,86 +748,86 @@ EK: GlobalEvent {
 EK: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-EK: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+EK: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
-EK: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+EK: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-EK: PlayCard(HomeostasisBureau) {
-    Pay(1 Steel, 13 MC)
+EK: playCard(HomeostasisBureau) {
+    pay(1 Steel, 13 MC)
     PROD[2 Heat]
 }
-EK: ConvertHeat {
-    Pay(8 Heat)
+EK: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
     5 MC
 }
-EK: ConvertHeat {
-    Pay(8 Heat)
+EK: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     5 MC
 }
-EK: PlayCard(EarthOffice) {
-    Pay(1 MC)
+EK: playCard(EarthOffice) {
+    pay(1 MC)
 }
 // Payment reconstruction: database saves 113–114 spend 5 M€ and 3 titanium.
-EK: PlayCard(SolarLogistics) {
-    Pay(3 Titanium, 5 MC)
+EK: playCard(SolarLogistics) {
+    pay(3 Titanium, 5 MC)
     2 Titanium
 }
 // no titanium paid
-EK: PlayCard(GhgShipment) {
-    Pay(3 MC)
+EK: playCard(GhgShipment) {
+    pay(3 MC)
     PROD[Heat]
     0 Heat
     3 MC
     ProjectCard
 }
-EK: PlayCard(KelpFarming) {
-    Pay(17 MC)
+EK: playCard(KelpFarming) {
+    pay(17 MC)
     PROD[2 MC]
     PROD[3 Plant]
     2 Plant
 }
-EK: UseStandardProject(CityProject) {
-    Pay(25 MC)
+EK: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_4_3>
     Plant
     3 MC
 }
-EK: UseAction1(StJosephOfCupertinoMission) {
-    Pay(5 MC)
+EK: useAction1(StJosephOfCupertinoMission) {
+    pay(5 MC)
     Cathedral<NormalCityTile<Tharsis_4_3>>
     CathedralOffer
     UseAction<CathedralOption<StJosephOfCupertinoMission>, Action1>
-    Pay(2 MC)
+    pay(2 MC)
     ProjectCard
 }
-EK: UseAction1(FocusedOrganization) {
+EK: useAction1(FocusedOrganization) {
     -ProjectCard
     -MC
     ProjectCard
     Plant
 }
-EK: SendDelegate0 {
+EK: action(LobbyAction) {
     PartyLeader<Kelvinists> FROM LobbyDelegate
 }
-EK: SendDelegate5 {
-    Pay(5 MC)
+EK: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyLeader<MarsFirst>
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     54 MC
@@ -853,28 +853,28 @@ EK: WorldGovernment {
 EK: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // no MC remainder
-EK: PlayCard(TechnologyDemonstration) {
-    Pay(1 Titanium)
+EK: playCard(TechnologyDemonstration) {
+    pay(1 Titanium)
     2 ProjectCard VIA TechnologyDemonstration
     3 MC
     ProjectCard
 }
-EK: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+EK: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
-EK: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+EK: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
 // decline the optional plant removal
-EK: PlayCard(GiantIceAsteroid) {
-    Pay(7 Titanium, 1 MC)
+EK: playCard(GiantIceAsteroid) {
+    pay(7 Titanium, 1 MC)
     TemperatureStep
     TemperatureStep
     3 MC VIA MediaGroup
@@ -899,12 +899,12 @@ EK: PlayCard(GiantIceAsteroid) {
     5 MC
     -0 Plant<Anyone>
 }
-EK: PlayCard(SterlingVents) {
-    Pay(1 Steel, 2 MC)
+EK: playCard(SterlingVents) {
+    pay(1 Steel, 2 MC)
     PROD[-2 Heat]
     PROD[2 Energy]
 }
-EK: UseAction1(FocusedOrganization) {
+EK: useAction1(FocusedOrganization) {
     -ProjectCard
     -MC
     ProjectCard
@@ -912,8 +912,8 @@ EK: UseAction1(FocusedOrganization) {
 }
 // no MC remainder
 // decline the optional plant removal
-EK: PlayCard(SmallAsteroid) {
-    Pay(2 Titanium)
+EK: playCard(SmallAsteroid) {
+    pay(2 Titanium)
     TemperatureStep
     3 MC VIA MediaGroup
     ProjectCard
@@ -922,53 +922,53 @@ EK: PlayCard(SmallAsteroid) {
     -0 Plant<Anyone>
 }
 // Applied Science's wild tag is the eighth Earth tag counted by Saturn Surfing.
-EK: PlayCard(SaturnSurfing) {
-    Pay(8 MC)
+EK: playCard(SaturnSurfing) {
+    pay(8 MC)
     8 Floater<SaturnSurfing>
 }
-EK: UseAction1(SaturnSurfing) {
+EK: useAction1(SaturnSurfing) {
     -Floater<SaturnSurfing>
     5 MC
 }
-EK: ConvertHeat {
-    Pay(8 Heat)
+EK: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     5 MC
 }
-EK: ConvertHeat {
-    Pay(8 Heat)
+EK: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     5 MC
 }
-EK: PlayCard(Capital) {
-    Pay(26 MC)
+EK: playCard(Capital) {
+    pay(26 MC)
     PROD[-2 Energy]
     PROD[5 MC]
     CapitalTile<Tharsis_2_5, Capital>
     9 MC
 }
-EK: UseAction1(StJosephOfCupertinoMission) {
-    Pay(5 MC)
+EK: useAction1(StJosephOfCupertinoMission) {
+    pay(5 MC)
     Cathedral<CapitalTile<Tharsis_2_5, Capital>>
     CathedralOffer
     UseAction<CathedralOption<StJosephOfCupertinoMission>, Action1>
-    Pay(2 MC)
+    pay(2 MC)
     ProjectCard
 }
-EK: PlayCard(RedShips) {
-    Pay(2 MC)
+EK: playCard(RedShips) {
+    pay(2 MC)
 }
-EK: UseStandardProject(CityProject) {
-    Pay(25 MC)
+EK: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_6_3>
     2 Plant
     0 MC
 }
-EK: PlayCard(NoctisCity) {
-    Pay(18 MC)
+EK: playCard(NoctisCity) {
+    pay(18 MC)
     PROD[-Energy]
     PROD[3 MC]
     NormalCityTile<Tharsis_5_3>
@@ -976,52 +976,52 @@ EK: PlayCard(NoctisCity) {
     3 MC
 }
 // Applied Science's wild tag supplies the second Jovian tag for this play.
-EK: PlayCard(JovianEnvoys) {
-    Pay(2 MC)
+EK: playCard(JovianEnvoys) {
+    pay(2 MC)
     3 MC
-    SelectTask(PartyFollower<Greens>! THEN PartyDelegate<Greens>!)
+    selectTask(PartyFollower<Greens>! THEN PartyDelegate<Greens>!)
     PartyFollower<Greens>
     PartyLeader<Greens>
 }
-EK: UseStandardProject(SellPatentsProject) {
+EK: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
-EK: UseAction1(RedShips) {
+EK: useAction1(RedShips) {
     6 MC
 }
-EK: PlayCard(CuttingEdgeTechnology) {
-    Pay(12 MC)
+EK: playCard(CuttingEdgeTechnology) {
+    pay(12 MC)
 }
-EK: PlayCard(CloudSeeding) {
-    Pay(9 MC)
+EK: playCard(CloudSeeding) {
+    pay(9 MC)
     PROD[-MC]
     PROD[-Heat<SoloOpponent>]
     PROD[2 Plant]
 }
-EK: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+EK: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     5 MC
 }
-EK: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+EK: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     5 MC
 }
-EK: PlayCard(InvestmentLoan) {
+EK: playCard(InvestmentLoan) {
     PROD[-MC]
     13 MC
 }
-EK: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+EK: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     5 MC
 }
-EK: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+EK: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     5 MC
@@ -1033,8 +1033,8 @@ EK: UseStandardProject(AsteroidProject) {
     2 Titanium
     2 MC
 }
-EK: PlayCard(ImportedNitrogen) {
-    Pay(3 Titanium, 3 MC)
+EK: playCard(ImportedNitrogen) {
+    pay(3 Titanium, 3 MC)
     TerraformRating
     4 Plant
     3* Microbe
@@ -1043,7 +1043,7 @@ EK: PlayCard(ImportedNitrogen) {
     ProjectCard
     2 MC
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     77 MC
@@ -1069,78 +1069,78 @@ EK: Research {
 
     // keep all offered cards
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-EK: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+EK: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-EK: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+EK: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
-EK: UseAction1(SaturnSurfing) {
+EK: useAction1(SaturnSurfing) {
     -Floater<SaturnSurfing>
     5 MC
 }
-EK: UseAction1(StJosephOfCupertinoMission) {
-    Pay(1 Steel, 2 MC)
+EK: useAction1(StJosephOfCupertinoMission) {
+    pay(1 Steel, 2 MC)
     Cathedral<NormalCityTile<Tharsis_5_3>>
     CathedralOffer
     UseAction<CathedralOption<StJosephOfCupertinoMission>, Action1>
-    Pay(2 MC)
+    pay(2 MC)
     ProjectCard
 }
-EK: PlayCard(EarthCatapult) {
-    Pay(18 MC)
+EK: playCard(EarthCatapult) {
+    pay(18 MC)
 }
-EK: PlayCard(BusinessContacts) {
+EK: playCard(BusinessContacts) {
     4 ProjectCard<Selecting>
     2 ProjectCard<Hand FROM Selecting>
     3 MC
 }
-EK: UseAction1(FocusedOrganization) {
+EK: useAction1(FocusedOrganization) {
     -ProjectCard
     -Heat
     ProjectCard
     Steel
 }
-EK: ConvertHeat {
-    Pay(8 Heat)
+EK: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     5 MC
 }
-EK: ConvertHeat {
-    Pay(8 Heat)
+EK: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     5 MC
 }
 // no steel paid
-EK: PlayCard(Meltworks) {
-    Pay(2 MC)
+EK: playCard(Meltworks) {
+    pay(2 MC)
 }
-EK: UseAction1(Meltworks) {
-    Pay(5 Heat)
+EK: useAction1(Meltworks) {
+    pay(5 Heat)
     3 Steel
 }
-EK: PlayCard(TectonicStressPower) {
-    Pay(4 Steel, 2 MC)
+EK: playCard(TectonicStressPower) {
+    pay(4 Steel, 2 MC)
     PROD[3 Energy]
 }
-EK: PlayCard(LavaTubeSettlement) {
-    Pay(13 MC)
+EK: playCard(LavaTubeSettlement) {
+    pay(13 MC)
     PROD[-Energy]
     PROD[2 MC]
     NormalCityTile<Tharsis_3_1>
     ProjectCard
     0 MC
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_5_2>
     OxygenStep
     Plant VIA FakePolderTechDutch
@@ -1149,8 +1149,8 @@ EK: ConvertPlants {
     TerraformRating
     2 MC
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_4_2>
     OxygenStep
     Plant VIA FakePolderTechDutch
@@ -1159,8 +1159,8 @@ EK: ConvertPlants {
     TerraformRating
     2 MC
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_3_2>
     OxygenStep
     Plant
@@ -1168,8 +1168,8 @@ EK: ConvertPlants {
     TerraformRating
     2 MC
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_4_1>
     OxygenStep
     Plant VIA FakePolderTechDutch
@@ -1179,30 +1179,30 @@ EK: ConvertPlants {
     TerraformRating
     2 MC
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_6_2>
     0 OxygenStep
     Plant VIA FakePolderTechDutch
     4 MC
     Plant
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_7_4>
     0 OxygenStep
     Plant
     4 MC
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_2_4>
     0 OxygenStep
     Plant
     7 MC
 }
-EK: PlayCard(OpenCity) {
-    Pay(19 MC)
+EK: playCard(OpenCity) {
+    pay(19 MC)
     PROD[-Energy]
     PROD[4 MC]
     2 Plant
@@ -1210,20 +1210,20 @@ EK: PlayCard(OpenCity) {
     2 Plant
     0 MC
 }
-EK: PlayCard(ViralEnhancers) {
-    Pay(7 MC)
+EK: playCard(ViralEnhancers) {
+    pay(7 MC)
     Plant
 }
 // choose Viral Enhancers' plant
-EK: PlayCard(Farming) {
-    Pay(12 MC)
+EK: playCard(Farming) {
+    pay(12 MC)
     PROD[2 MC]
     PROD[2 Plant]
     2 Plant VIA Farming
     Plant
 }
-EK: PlayCard(TundraFarming) {
-    Pay(12 MC)
+EK: playCard(TundraFarming) {
+    pay(12 MC)
     PROD[Plant]
     PROD[2 MC]
     // Tundra Farming
@@ -1231,38 +1231,38 @@ EK: PlayCard(TundraFarming) {
     // Viral Enhancers
     Plant
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_7_3>
     0 OxygenStep
     Plant
     4 MC
 }
-EK: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+EK: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     5 MC
 }
-EK: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+EK: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     5 MC
 }
-EK: UseAction1(RedShips) {
+EK: useAction1(RedShips) {
     6 MC
 }
-EK: SendDelegate0 {
+EK: action(LobbyAction) {
     PartyLeader<Greens> FROM LobbyDelegate
 }
-EK: UseStandardProject(CityProject) {
-    Pay(25 MC)
+EK: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_3_4>
     0 MC
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     96 MC
@@ -1286,79 +1286,79 @@ EK: WorldGovernment {
 EK: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-EK: UseAction1(RestrictedArea) {
-    Pay(2 MC)
+EK: useAction1(RestrictedArea) {
+    pay(2 MC)
     ProjectCard
 }
-EK: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+EK: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
-EK: UseAction1(Meltworks) {
-    Pay(5 Heat)
+EK: useAction1(Meltworks) {
+    pay(5 Heat)
     3 Steel
 }
-EK: UseAction1(SaturnSurfing) {
+EK: useAction1(SaturnSurfing) {
     -Floater<SaturnSurfing>
     5 MC
 }
-EK: UseAction1(StJosephOfCupertinoMission) {
-    Pay(1 Steel, 2 MC)
+EK: useAction1(StJosephOfCupertinoMission) {
+    pay(1 Steel, 2 MC)
     Cathedral<NormalCityTile<Tharsis_6_3>>
     CathedralOffer
     UseAction<CathedralOption<StJosephOfCupertinoMission>, Action1>
-    Pay(2 MC)
+    pay(2 MC)
     ProjectCard
 }
-EK: PlayCard(Recruitment) {
+EK: playCard(Recruitment) {
     3 MC
     PartyFollower<Reds> FROM PartyFollower<Neutral, Reds>
 }
-EK: SendDelegate0 {
+EK: action(LobbyAction) {
     PartyLeader<Reds> FROM LobbyDelegate
 }
-EK: SendDelegate5 {
-    Pay(5 MC)
+EK: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyFollower<Scientists>
 }
-EK: SendDelegate5 {
-    Pay(5 MC)
+EK: action(PaidLobbyAction) {
+    pay(5 MC)
     PartyLeader<Scientists>
 }
-EK: PlayCard(EventAnalysts) {
-    Pay(1 MC)
+EK: playCard(EventAnalysts) {
+    pay(1 MC)
 }
 // Applied Science's wild tag supplies the seventh science tag.
-EK: PlayCard(AntiGravityTechnology) {
-    Pay(10 MC)
+EK: playCard(AntiGravityTechnology) {
+    pay(10 MC)
 }
-EK: UseAction1(FocusedOrganization) {
+EK: useAction1(FocusedOrganization) {
     -ProjectCard
     -Heat
     ProjectCard
     Steel
 }
 // no MC remainder
-EK: PlayCard(CommercialDistrict) {
-    Pay(4 Steel)
+EK: playCard(CommercialDistrict) {
+    pay(4 Steel)
     PROD[-Energy]
     PROD[4 MC]
     CommercialDistrict_SpecialTile<Tharsis_2_1>
     0 MC
 }
-EK: UseStandardProject(CityProject) {
-    Pay(25 MC)
+EK: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_8_4>
     2 Steel
     0 MC
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_9_5>
     0 OxygenStep
     Plant
@@ -1366,54 +1366,54 @@ EK: ConvertPlants {
     0 MC
 }
 // no MC remainder
-EK: PlayCard(MedicalLab) {
-    Pay(3 Steel)
+EK: playCard(MedicalLab) {
+    pay(3 Steel)
     PROD[10 MC]
 }
-EK: PlayCard(MethaneFromTitan) {
-    Pay(5 Titanium, 2 MC)
+EK: playCard(MethaneFromTitan) {
+    pay(5 Titanium, 2 MC)
     PROD[2 Heat]
     PROD[2 Plant]
 }
-EK: UseStandardProject(CityProject) {
-    Pay(25 MC)
+EK: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_8_7>
     ProjectCard
     0 MC
 }
-EK: UseStandardProject(SellPatentsProject) {
+EK: useStandardProject(SellPatentsProject) {
     7 MC FROM ProjectCard
 }
-EK: UseAction1(RedShips) {
+EK: useAction1(RedShips) {
     6 MC
 }
-EK: PlayCard(StanfordTorus) {
-    Pay(8 MC)
+EK: playCard(StanfordTorus) {
+    pay(8 MC)
     NormalCityTile<StanfordTorus_RemoteArea>
 }
-EK: UseStandardProject(CityProject) {
-    Pay(25 MC)
+EK: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_9_6>
     2 Steel
     0 MC
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_8_5>
     0 OxygenStep
     Plant
     0 MC
 }
-EK: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+EK: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Tharsis_7_6>
     0 OxygenStep
     Plant
     0 MC
 }
-EK: Pass
+EK: pass
 
 EK: Production {
     113 MC
@@ -1425,14 +1425,14 @@ EK: Production {
 }
 
 // Player-record evidence: production completed and final greenery placement is pending.
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_9_7>
     Plant
     0 MC
 }
-EK: ConvertPlants {
-    Pay(8 Plant)
+EK: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_2_3>
     Plant
     0 MC

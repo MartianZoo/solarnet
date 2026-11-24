@@ -41,104 +41,104 @@ Yellow: Setup {
 // board-11-00-18.jpg: initial global state, before either corporation is played.
 // "I'm Point Luna... I get a titanium production." "I'm keeping seven cards."
 // "So I pay 21. I have 17 money remaining."
-Green: PlayCard(PointLuna) {
+Green: playCard(PointLuna) {
     38 MC VIA PointLuna
     PROD[Titanium]
     ProjectCard
-    Pay(21 MC)
+    pay(21 MC)
     7 ProjectCard<Hand FROM Selecting>
 }
 
 // "I have Valley Trust. I'm keeping five cards... I have 22 money."
-Yellow: PlayCard(ValleyTrust) {
+Yellow: playCard(ValleyTrust) {
     37 MC VIA ValleyTrust
-    Pay(15 MC)
+    pay(15 MC)
     5 ProjectCard<Hand FROM Selecting>
 }
 
 // "I play Biofuels... two plants, a plant production, and an energy production."
-Green: PlayCard(Biofuels) {
+Green: playCard(Biofuels) {
     PROD[Plant]
     PROD[Energy]
     2 Plant
 }
 // "And then I play Donation and get 21 money."
-Green: PlayCard(Donation) {
+Green: playCard(Donation) {
     21 MC
 }
 
 // "Supplier... four steel, and two energy production."
-Yellow: PlayCard(Supplier) {
+Yellow: playCard(Supplier) {
     PROD[2 Energy]
     4 Steel
 }
 // "Martian Industries... six money, one steel production, and one energy production."
-Yellow: PlayCard(MartianIndustries) {
+Yellow: playCard(MartianIndustries) {
     PROD[Energy]
     PROD[Steel]
     6 MC
 }
 
 // "[Green] pays 10 to play Pets... Miranda comes into play, and I get an animal on Pets."
-Green: PlayCard(Pets) {
-    Pay(10 MC)
+Green: playCard(Pets) {
+    pay(10 MC)
     Animal<Pets>
     ProjectCard
 }
 
 // "I use Valley Trust and I get Double Down, which I play... copy Martian Industries."
-Yellow: DoRequiredActions {
+Yellow: doRequiredActions {
     3 PreludeCard<Selecting> VIA ValleyTrust_RequiredAction
-    PlayCard(DoubleDown, Selecting)
+    playCard(DoubleDown, Selecting)
     CopyPrelude<MartianIndustries>
     PROD[Energy]
     PROD[Steel]
     6 MC
 }
 // "I spend two money to play Psychrophiles."
-Yellow: PlayCard(Psychrophiles) {
-    Pay(2 MC)
+Yellow: playCard(Psychrophiles) {
+    pay(2 MC)
 }
 
 // "I pay eleven for Aerial Mappers."
-Green: PlayCard(AerialMappers) {
-    Pay(11 MC)
+Green: playCard(AerialMappers) {
+    pay(11 MC)
 }
 
 // "I pay eight for Forced Precipitation."
-Yellow: PlayCard(ForcedPrecipitation) {
-    Pay(8 MC)
+Yellow: playCard(ForcedPrecipitation) {
+    pay(8 MC)
 }
 
 // "I'm going to add a floater to Aerial Mappers."
-Green: UseAction1(AerialMappers) {
+Green: useAction1(AerialMappers) {
     Floater<AerialMappers>
 }
 
 // "I spend 21 to play Extractor Balloons. It gets three floaters."
-Yellow: PlayCard(ExtractorBalloons) {
-    Pay(21 MC)
+Yellow: playCard(ExtractorBalloons) {
+    pay(21 MC)
     3 Floater<ExtractorBalloons>
 }
 
-Green: Pass
+Green: pass
 
 // "I'm going to add a microbe to Psychrophiles."
-Yellow: UseAction1(Psychrophiles) {
+Yellow: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 // "Remove two floaters from Extractor Balloons and raise Venus."
-Yellow: UseAction2(ExtractorBalloons) {
+Yellow: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
 // "Then pay two money to add a floater to Forced Precipitation."
-Yellow: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Yellow: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
-Yellow: Pass
+Yellow: pass
 
 // Production.
 Green: Production {
@@ -168,7 +168,7 @@ Green: Research {
     // Green first said two, then physically corrected the purchase to three before the action
     // phase.
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -178,68 +178,68 @@ Yellow: Research {
     // "I will buy four cards."
     // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
 // "I'm going to play Mining Rights... row three, column six. I get two cards and a
 // titanium... and increase titanium production."
-Yellow: PlayCard(MiningRights) {
-    Pay(4 Steel, 1 MC)
+Yellow: playCard(MiningRights) {
+    pay(4 Steel, 1 MC)
     MiningRights_SpecialTile<Utopia_3_6>
     PROD[Titanium]
     2 ProjectCard
     Titanium
 }
 // "I play Energy Tapping... [Green] loses an energy production."
-Yellow: PlayCard(EnergyTapping) {
-    Pay(3 MC)
+Yellow: playCard(EnergyTapping) {
+    pay(3 MC)
     PROD[Energy]
     PROD[-Energy<Green>]
 }
 
 // "I play CEO's Favorite Project... put a floater on Aerial Mappers."
-Green: PlayCard(CeosFavoriteProject) {
-    Pay(1 MC)
+Green: playCard(CeosFavoriteProject) {
+    pay(1 MC)
     Floater<AerialMappers>
 }
 
 // "I'm going to add a floater to Extractor Balloons."
-Yellow: UseAction1(ExtractorBalloons) {
+Yellow: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
 // "I remove a floater from Aerial Mappers and draw a card."
-Green: UseAction2(AerialMappers) {
+Green: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
 
 // "I'm adding a microbe to Psychrophiles."
-Yellow: UseAction1(Psychrophiles) {
+Yellow: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
 // "I pay two and add a floater to Forced Precipitation."
-Yellow: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Yellow: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
 
 // "I pay all 28 money and one titanium to play 16 Psyche."
-Green: PlayCard(SixteenPsyche) {
-    Pay(1 Titanium, 28 MC)
+Green: playCard(SixteenPsyche) {
+    pay(1 Titanium, 28 MC)
     PROD[2 Titanium]
     3 Titanium
 }
 
-Yellow: Pass
+Yellow: pass
 
-Green: Pass
+Green: pass
 
 // Production.
 Green: Production {
@@ -270,7 +270,7 @@ Green: Research {
 
     // "I'm going to buy one."
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
@@ -283,8 +283,8 @@ Yellow: Research {
 
 // "I play Imported Hydrogen... five titanium and one money. Put two animals on Pets."
 // "The ocean goes row four, column one... I get a plant and a card."
-Green: PlayCard(ImportedHydrogen) {
-    Pay(5 Titanium, 1 MC)
+Green: playCard(ImportedHydrogen) {
+    pay(5 Titanium, 1 MC)
     ProjectCard
     2 Animal<Pets>
     OceanTile<Utopia_4_1>
@@ -294,13 +294,13 @@ Green: PlayCard(ImportedHydrogen) {
 }
 
 // "I remove two floaters from Forced Precipitation and increase Venus."
-Yellow: UseAction2(ForcedPrecipitation) {
+Yellow: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
 // "I remove two floaters from Extractor Balloons and increase Venus."
-Yellow: UseAction2(ExtractorBalloons) {
+Yellow: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
@@ -308,55 +308,55 @@ Yellow: UseAction2(ExtractorBalloons) {
 }
 
 // "I pay eight for Cartel... three money production."
-Green: PlayCard(Cartel) {
-    Pay(8 MC)
+Green: playCard(Cartel) {
+    pay(8 MC)
     PROD[3 MC]
     ProjectCard
 }
 
 // "I play Colonizer Training Camp, paying four steel."
 // No M€ needed after paying with steel.
-Yellow: PlayCard(ColonizerTrainingCamp) {
-    Pay(4 Steel)
+Yellow: playCard(ColonizerTrainingCamp) {
+    pay(4 Steel)
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Yellow: UseStandardProject(SellPatentsProject) {
+Yellow: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 // "I play Beam from a Thorium Asteroid... two titanium and 26 money."
-Yellow: PlayCard(BeamFromAThoriumAsteroid) {
-    Pay(2 Titanium, 26 MC)
+Yellow: playCard(BeamFromAThoriumAsteroid) {
+    pay(2 Titanium, 26 MC)
     PROD[3 Heat]
     PROD[3 Energy]
 }
 
 // "I pay four for Research Coordination."
-Green: PlayCard(ResearchCoordination) {
-    Pay(4 MC)
+Green: playCard(ResearchCoordination) {
+    pay(4 MC)
 }
 
 // "I'm going to add to Psychrophiles."
-Yellow: UseAction1(Psychrophiles) {
+Yellow: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 
 // "I pay four for Venus Governor... two money production."
-Green: PlayCard(VenusGovernor) {
-    Pay(4 MC)
+Green: playCard(VenusGovernor) {
+    pay(4 MC)
     PROD[2 MC]
 }
 
-Yellow: Pass
+Yellow: pass
 
-Green: UseAction2(AerialMappers) {
+Green: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
-Green: Pass
+Green: pass
 
 // Production.
 Green: Production {
@@ -385,35 +385,35 @@ Green: WorldGovernment {
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // "I'm trading with Pluto... paying three energy, and I get three cards."
-Yellow: Trade2 {
-    Pay(3 Energy)
+Yellow: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Pluto>
     3 ProjectCard
 }
 
 // "Then I play Mars University for eight... discard one and draw one."
-Green: PlayCard(MarsUniversity) {
-    Pay(8 MC)
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+Green: playCard(MarsUniversity) {
+    pay(8 MC)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
 // "I pay seven for Flooding... row three, column one."
-Yellow: PlayCard(Flooding) {
-    Pay(7 MC)
+Yellow: playCard(Flooding) {
+    pay(7 MC)
     OceanTile<Utopia_3_1>
     TerraformRating
     3 Plant
@@ -422,85 +422,85 @@ Yellow: PlayCard(Flooding) {
 // "I use one Psychrophiles microbe to play Potatoes... lose two plants and get two money
 // production."
 // No M€ needed after paying with Psychrophiles microbes.
-Yellow: PlayCard(Potatoes) {
-    Pay(1 Microbe<Psychrophiles>)
+Yellow: playCard(Potatoes) {
+    pay(1 Microbe<Psychrophiles>)
     -2 Plant
     PROD[2 MC]
 }
 
 // "I pay three for Mercurian Alloys."
 // No titanium paid.
-Green: PlayCard(MercurianAlloys) {
-    Pay(3 MC)
+Green: playCard(MercurianAlloys) {
+    pay(3 MC)
 }
 
 // "I'm just going to take my turn, and that is add to Psychrophiles."
-Yellow: UseAction1(Psychrophiles) {
+Yellow: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 
 // "I pay two money and two titanium for Asteroid Rights... it gets two asteroids."
-Green: PlayCard(AsteroidRights) {
-    Pay(2 Titanium, 2 MC)
+Green: playCard(AsteroidRights) {
+    pay(2 Titanium, 2 MC)
     2 Asteroid<AsteroidRights>
     ProjectCard
 }
 
 // "I play Mine, paying two steel."
 // No M€ needed after paying with steel.
-Yellow: PlayCard(Mine) {
-    Pay(2 Steel)
+Yellow: playCard(Mine) {
+    pay(2 Steel)
     PROD[Steel]
 }
 
 // "I remove an asteroid and get two titanium."
-Green: UseAction2(AsteroidRights) {
+Green: useAction2(AsteroidRights) {
     -Asteroid<AsteroidRights>
     2 Titanium
 }
 
-Yellow: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Yellow: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
-Yellow: UseAction1(ExtractorBalloons) {
+Yellow: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
 // "I pay five for Floating Habs."
-Green: PlayCard(FloatingHabs) {
-    Pay(5 MC)
+Green: playCard(FloatingHabs) {
+    pay(5 MC)
 }
 
-Yellow: UseStandardProject(SellPatentsProject) {
+Yellow: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 // "I spend 11 on Nitrate [sic] Reducing Bacteria."
-Yellow: PlayCard(NitriteReducingBacteria) {
-    Pay(11 MC)
+Yellow: playCard(NitriteReducingBacteria) {
+    pay(11 MC)
     3 Microbe<NitriteReducingBacteria>
 }
 
 // "I pay two with Floating Habs and put a floater on Aerial Mappers."
-Green: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Green: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<AerialMappers>
 }
 
 // "I take three microbes off Nitrate Reducing Bacteria and gain a TR."
-Yellow: UseAction2(NitriteReducingBacteria) {
+Yellow: useAction2(NitriteReducingBacteria) {
     -3 Microbe<NitriteReducingBacteria>
     TerraformRating
 }
 
-Green: UseAction2(AerialMappers) {
+Green: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
 
-Yellow: Pass
+Yellow: pass
 
-Green: Pass
+Green: pass
 
 // Production.
 Green: Production {
@@ -529,60 +529,60 @@ Yellow: WorldGovernment {
 Green: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 // Point Luna tableau in board-13-46-12.jpg: "Energy Market. Cost me three."
-Green: PlayCard(EnergyMarket) {
-    Pay(3 MC)
+Green: playCard(EnergyMarket) {
+    pay(3 MC)
 }
 
 // Valley Trust tableau in board-13-46-12.jpg: "Hydrogen to Venus. I spend two titanium and
 // five real... add two to Forced Precipitation."
-Yellow: PlayCard(HydrogenToVenus) {
-    Pay(2 Titanium, 5 MC)
+Yellow: playCard(HydrogenToVenus) {
+    pay(2 Titanium, 5 MC)
     VenusStep
     TerraformRating
     2 Floater<ForcedPrecipitation>
 }
 // User clarification: Yellow played Hermetic Order of Mars. Her ledger combines its six-M€
 // gain with the following twelve-M€ Stratospheric Birds payment.
-Yellow: PlayCard(HermeticOrderOfMars) {
-    Pay(10 MC)
+Yellow: playCard(HermeticOrderOfMars) {
+    pay(10 MC)
     PROD[2 MC]
     6 MC
 }
 
 // "Use my Energy Market to pay six, which gives me three energy, and then use that three
 // energy to send my little boat to Io and take ten heat."
-Green: UseAction1(EnergyMarket) {
-    SelectTask(-6! MC THEN 3! Energy)
+Green: useAction1(EnergyMarket) {
+    selectTask(-6! MC THEN 3! Energy)
     -6 MC
     3 Energy
 }
-Green: Trade2 {
-    Pay(3 Energy)
+Green: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Io>
     10 Heat
 }
 
 // Valley Trust tableau in board-13-46-12.jpg: Stratospheric Birds. The played card consumes
 // one Forced Precipitation floater.
-Yellow: PlayCard(StratosphericBirds) {
-    Pay(12 MC)
+Yellow: playCard(StratosphericBirds) {
+    pay(12 MC)
     -Floater<ForcedPrecipitation>
 }
 // "I spend three energy to trade with Miranda. Three animals on Stratospheric Birds."
-Yellow: Trade2 {
-    Pay(3 Energy)
+Yellow: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Miranda>
     3 Animal<StratosphericBirds>
 }
@@ -590,8 +590,8 @@ Yellow: Trade2 {
 // "Big Asteroid... all titanium... overspending one... four titanium back, two temperature
 // boops... remove one plant."
 // No M€ needed after paying with titanium.
-Green: PlayCard(BigAsteroid) {
-    Pay(7 Titanium)
+Green: playCard(BigAsteroid) {
+    pay(7 Titanium)
     TemperatureStep
     TemperatureStep
     4 Titanium
@@ -601,75 +601,75 @@ Green: PlayCard(BigAsteroid) {
 }
 
 // Yellow's ledger records two eight-heat conversions after Big Asteroid.
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
 
 // "Lunar Mining. It costs me 11... six Earth tags... six titanium production."
-Green: PlayCard(LunarMining) {
-    Pay(11 MC)
+Green: playCard(LunarMining) {
+    pay(11 MC)
     PROD[3 Titanium]
     ProjectCard
 }
 
-Yellow: UseAction1(StratosphericBirds) {
+Yellow: useAction1(StratosphericBirds) {
     Animal<StratosphericBirds>
 }
 
-Green: UseAction2(AsteroidRights) {
+Green: useAction2(AsteroidRights) {
     -Asteroid<AsteroidRights>
     2 Titanium
 }
 
-Yellow: UseAction1(ForcedPrecipitation) {
-    Pay(2 MC)
+Yellow: useAction1(ForcedPrecipitation) {
+    pay(2 MC)
     Floater<ForcedPrecipitation>
 }
-Yellow: UseAction1(ExtractorBalloons) {
+Yellow: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
 // "Luna Metropolis... five titanium and one real money... seven money production."
-Green: PlayCard(LunaMetropolis) {
-    Pay(5 Titanium, 1 MC)
+Green: playCard(LunaMetropolis) {
+    pay(5 Titanium, 1 MC)
     PROD[7 MC]
     NormalCityTile<LunaMetropolis_RemoteArea>
     ProjectCard
     Animal<Pets>
 }
 
-Yellow: UseAction1(Psychrophiles) {
+Yellow: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
-Yellow: UseAction1(NitriteReducingBacteria) {
+Yellow: useAction1(NitriteReducingBacteria) {
     Microbe<NitriteReducingBacteria>
 }
 
-Green: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Green: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<AerialMappers>
 }
-Green: UseAction2(AerialMappers) {
+Green: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
 
-Yellow: Pass
+Yellow: pass
 
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Green: Pass
+Green: pass
 
 // Production.
 Green: Production {
@@ -699,129 +699,129 @@ Green: WorldGovernment {
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 // "I will spend three energy to trade with Enceladus. That is five microbes going to
 // Nitrate Reducing Bacteria."
-Yellow: Trade2 {
-    Pay(3 Energy)
+Yellow: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Enceladus>
     5 Microbe<NitriteReducingBacteria>
 }
 
 // "I'm going to play Industrial Microbes for full price. And now I'm going to pay eight to
 // become the Ecologist."
-Green: PlayCard(IndustrialMicrobes) {
-    Pay(12 MC)
+Green: playCard(IndustrialMicrobes) {
+    pay(12 MC)
     PROD[Energy]
     PROD[Steel]
 }
-Green: ClaimMilestone {
-    Pay(8 MC)
+Green: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Ecologist
 }
 
 // Green never narrated or logged Industrial Microbes' steel and energy production; both remain
 // absent from the generation-seven photograph and ledger.
-Green: ExMachina {
+Green: exMachina {
     PROD[-Steel]
     PROD[-Energy]
 }
 
 // "Forced Precipitation and Extractor Balloons. Remove two off both of them to raise Venus
 // by two. Oh, it is at 16, which means I get an extra TR."
-Yellow: UseAction2(ForcedPrecipitation) {
+Yellow: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
-Yellow: UseAction2(ExtractorBalloons) {
+Yellow: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     2 TerraformRating
 }
 
 // "Import some GHG for two titanium, one real money, draw a card, get two heat production."
-Green: PlayCard(ImportOfAdvancedGhg) {
-    Pay(2 Titanium, 1 MC)
+Green: playCard(ImportOfAdvancedGhg) {
+    pay(2 Titanium, 1 MC)
     PROD[2 Heat]
     ProjectCard
 }
 // "For my second, let's just get this other milestone taken care of. Eight to be the
 // Metallurgist."
-Green: ClaimMilestone {
-    Pay(8 MC)
+Green: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Metallurgist
 }
 
-Yellow: ClaimMilestone {
-    Pay(8 MC)
+Yellow: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Tactician
 }
 
 // "Use Floating Habs to spend two money to put a floater on Aerial Mappers, and use that to
 // draw a card."
-Green: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Green: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<AerialMappers>
 }
-Green: UseAction2(AerialMappers) {
+Green: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
 
-Yellow: UseAction1(Psychrophiles) {
+Yellow: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 // "Hired Raiders, pay one... I'm going to take three money."
-Green: PlayCard(HiredRaiders) {
-    Pay(1 MC)
+Green: playCard(HiredRaiders) {
+    pay(1 MC)
     3 MC FROM MC<Yellow>
 }
 
 // "Nitrate Reducing Bacteria. I will reduce the nitrates. Spend three of them to gain a TR."
 // The transcript places this immediately after Hired Raiders; move it to the preceding legal
 // Yellow turn rather than assigning any of Green's photographed cards to her.
-Yellow: UseAction2(NitriteReducingBacteria) {
+Yellow: useAction2(NitriteReducingBacteria) {
     -3 Microbe<NitriteReducingBacteria>
     TerraformRating
 }
 
 // "Use Asteroid Rights to spend one of my three money to put an asteroid on Asteroid Rights."
-Green: UseAction1(AsteroidRights) {
-    Pay(1 MC)
+Green: useAction1(AsteroidRights) {
+    pay(1 MC)
     Asteroid<AsteroidRights>
 }
 
 // "Before I forget, I will heat boop."
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
 // "Use Energy Market to spend my last two money to get one energy resource."
-Green: UseAction1(EnergyMarket) {
-    SelectTask(-2! MC THEN Energy!)
+Green: useAction1(EnergyMarket) {
+    selectTask(-2! MC THEN Energy!)
     -2 MC
     Energy
 }
 // "I'm going to convert plants and get in this spot where I get a plant and four money."
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_4_2>
     OxygenStep
     Plant
@@ -830,13 +830,13 @@ Green: ConvertPlants {
 }
 
 // Green accidentally took another TR, not realizing the app gave it to him already
-Green: ExMachina {
+Green: exMachina {
     TerraformRating
 }
 
 // "Noctis City... six steel and six real... place a city tile... on three-two."
-Yellow: PlayCard(NoctisCity) {
-    Pay(6 Steel, 6 MC)
+Yellow: playCard(NoctisCity) {
+    pay(6 Steel, 6 MC)
     PROD[-Energy]
     PROD[3 MC]
     NormalCityTile<Utopia_3_2>
@@ -844,13 +844,13 @@ Yellow: PlayCard(NoctisCity) {
     2 MC
 }
 
-Green: Pass
+Green: pass
 
 // "I stratobird. Five. I get silver stratobirds."
-Yellow: UseAction1(StratosphericBirds) {
+Yellow: useAction1(StratosphericBirds) {
     Animal<StratosphericBirds>
 }
-Yellow: Pass
+Yellow: pass
 
 // Production.
 Green: Production {
@@ -880,7 +880,7 @@ Yellow: WorldGovernment {
 // board-13-46-12.jpg and both player ledgers: after Generation 6 transition.
 // When we resumed the physical game, we knew about the errors found above, so we made this
 // manual correction to put things right again.
-Green: ExMachina {
+Green: exMachina {
     -TerraformRating
     -MC
     PROD[Steel]
@@ -893,11 +893,11 @@ Green: ExMachina {
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 
     // And then I immediately screwed up and forgot to pay for my cards!
-    ExMachina {
+    exMachina {
         6 MC
     }
 }
@@ -905,26 +905,26 @@ Green: Research {
 Yellow: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Green: "Sure. Let's pay eight to fund Traveller. I have funded the Traveller award."
-Green: FundAward {
-    Pay(8 MC)
+Green: action(FundAwardAction) {
+    pay(8 MC)
     Traveller
 }
 
 // Yellow: "I pay one for Market Manipulation. Increase the colony track one step."
 // Green: "So she's increasing Pluto." Yellow: "Yes. Decrease Io."
-Yellow: PlayCard(MarketManipulation) {
-    Pay(1 MC)
+Yellow: playCard(MarketManipulation) {
+    pay(1 MC)
     ColonyProduction<Pluto> FROM ColonyProduction<Io>
 }
 // Yellow: "Then I will spend three energy to trade with Pluto, which now gives me three
 // cards." Green: "Nice. Three cards free and clear."
-Yellow: Trade2 {
-    Pay(3 Energy)
+Yellow: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Pluto>
     3 ProjectCard
 }
@@ -932,17 +932,17 @@ Yellow: Trade2 {
 // Green: "I guess I'll play a Martian Zoo. I believe that cost me full price. I want to pay
 // 12."
 // No steel paid.
-Green: PlayCard(MartianZoo) {
-    Pay(12 MC)
+Green: playCard(MartianZoo) {
+    pay(12 MC)
 }
 
 // Yellow: "Io Sulphur Research for 17. I have three Venus tags from the two floater cards and
 // Strata Birds, so three cards."
-Yellow: PlayCard(IoSulphurResearch) {
-    Pay(15 MC)
+Yellow: playCard(IoSulphurResearch) {
+    pay(15 MC)
     3 ProjectCard
     // She forgot her Valley Trust discount
-    ExMachina {
+    exMachina {
         -2 MC
     }
 }
@@ -950,16 +950,16 @@ Yellow: PlayCard(IoSulphurResearch) {
 // Green: "I'm going to play Nuclear Power. That cost me ten. I lose two money production. I
 // gain three energy production."
 // No steel paid.
-Green: PlayCard(NuclearPower) {
-    Pay(10 MC)
+Green: playCard(NuclearPower) {
+    pay(10 MC)
     PROD[-2 MC]
     PROD[3 Energy]
 }
 
 // Yellow: "Air-Scrapping Expedition for 13. Raise Venus one step, and I get a TR. Add three
 // floaters to a Venus card. That'll be Forced Precipitation."
-Yellow: PlayCard(AirScrappingExpedition) {
-    Pay(13 MC)
+Yellow: playCard(AirScrappingExpedition) {
+    pay(13 MC)
     VenusStep
     TerraformRating
     3 Floater<ForcedPrecipitation>
@@ -969,33 +969,33 @@ Yellow: PlayCard(AirScrappingExpedition) {
 // I
 // get one, two, three, four, five, six, seven money production."
 // No M€ needed after paying with titanium.
-Green: PlayCard(MirandaResort) {
-    Pay(3 Titanium)
+Green: playCard(MirandaResort) {
+    pay(3 Titanium)
     PROD[7 MC]
 }
 
 // Yellow: "I used Forced Precipitation. Remove two floaters to increase Venus."
-Yellow: UseAction2(ForcedPrecipitation) {
+Yellow: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
 
-Green: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Green: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<AerialMappers>
 }
 
-Yellow: UseAction1(ExtractorBalloons) {
+Yellow: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
-Green: UseAction2(AerialMappers) {
+Green: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
 
-Yellow: UseAction1(StratosphericBirds) {
+Yellow: useAction1(StratosphericBirds) {
     Animal<StratosphericBirds>
 }
 
@@ -1003,15 +1003,15 @@ Yellow: UseAction1(StratosphericBirds) {
 // at
 // the top four cards and I pick two of them. Then, because I played an Earth tag, I draw a
 // card and I get a little aminal on Martian Zoo."
-Green: PlayCard(BusinessContacts) {
-    Pay(7 MC)
+Green: playCard(BusinessContacts) {
+    pay(7 MC)
     4 ProjectCard<Selecting> VIA BusinessContacts
     2 ProjectCard<Hand FROM Selecting> VIA BusinessContacts
     ProjectCard
     Animal<MartianZoo>
 }
 
-Yellow: UseAction1(Psychrophiles) {
+Yellow: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 
@@ -1019,8 +1019,8 @@ Yellow: UseAction1(Psychrophiles) {
 // titanium. I will draw the card for the Earth tag. I'll get a TR. I'll get four plants. I
 // don't have a microbe card. And I think I'm going to take two animals on Martian Zoo."
 // No M€ needed after paying with titanium.
-Green: PlayCard(ImportedNitrogen) {
-    Pay(6 Titanium)
+Green: playCard(ImportedNitrogen) {
+    pay(6 Titanium)
     TerraformRating
     4 Plant
     3* Microbe
@@ -1033,12 +1033,12 @@ Green {
 }
 
 // I forgot the extra animal from MZ's effect
-Green: ExMachina {
+Green: exMachina {
     -Animal<MartianZoo>
 }
 
 // Yellow: "Nitrite Reducing Bacteria. I remove three and get a TR."
-Yellow: UseAction2(NitriteReducingBacteria) {
+Yellow: useAction2(NitriteReducingBacteria) {
     -3 Microbe<NitriteReducingBacteria>
     TerraformRating
 }
@@ -1047,64 +1047,64 @@ Yellow {
 }
 
 // It looks like she forgot to take her TR
-Yellow: ExMachina {
+Yellow: exMachina {
     -TerraformRating
 }
 
 // Green: "Now I'm going to use Asteroid Rights to remove an asteroid from Asteroid Rights.
 // And
 // honestly, I think I'll take the money production."
-Green: UseAction2(AsteroidRights) {
+Green: useAction2(AsteroidRights) {
     -Asteroid<AsteroidRights>
     PROD[MC]
 }
 
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
 // Green: "I'll take the Martian Zoo action to take three money."
-Green: UseAction1(MartianZoo) {
+Green: useAction1(MartianZoo) {
     3 MC
 }
 
 // Yellow: "Neutralizer Factory. Pay seven. We've definitely met the ten percent Venus
 // requirement. Increase Venus one step."
-Yellow: PlayCard(NeutralizerFactory) {
-    Pay(7 MC)
+Yellow: playCard(NeutralizerFactory) {
+    pay(7 MC)
     VenusStep
     TerraformRating
 }
 
 // Green: "Venusian Insects is the card that I played and spent five on."
-Green: PlayCard(VenusianInsects) {
-    Pay(5 MC)
+Green: playCard(VenusianInsects) {
+    pay(5 MC)
 }
 
-Yellow: Pass
+Yellow: pass
 
 // Green: "Now I'm taking its action, putting a microbe on it. On it like a bonnet."
-Green: UseAction1(VenusianInsects) {
+Green: useAction1(VenusianInsects) {
     Microbe<VenusianInsects>
 }
 // Green: "I think I will use Energy Market to reduce my energy production by one and get
 // eight
 // money."
-Green: UseAction2(EnergyMarket) {
+Green: useAction2(EnergyMarket) {
     PROD[-Energy]
     8 MC
 }
 // Green: "Then I have enough money for Nitrophilic Moss. We do have the three-ocean
 // requirement. And I will lose two plants and gain two plant production. And that costs the
 // eight money."
-Green: PlayCard(NitrophilicMoss) {
-    Pay(8 MC)
+Green: playCard(NitrophilicMoss) {
+    pay(8 MC)
     PROD[2 Plant]
     -2 Plant
 }
-Green: Pass
+Green: pass
 
 // Production.
 Green: Production {
@@ -1137,14 +1137,14 @@ Green: WorldGovernment {
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 
     // I suddenly realized my mistake last turn when I forgot to pay for my cards!
     // So I pay for them now, and realize I wouldn't have afforded VI last round.
     // I let it stay, but reason that it should lose a microbe that I wouldn't have had the
     // chance to play.
-    ExMachina {
+    exMachina {
         -6 MC
         -Microbe<VenusianInsects>
     }
@@ -1153,15 +1153,15 @@ Green: Research {
 Yellow: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 // Yellow: "Ice Moon Colony. I will pay two of my three titanium for six money, and then 17
 // real. I will place on Miranda. And it gives me an animal to my Strata Birds. I place an
 // ocean tile." Green: "It's row eight." Yellow: "Four. Eight-four."
-Yellow: PlayCard(IceMoonColony) {
-    Pay(2 Titanium, 17 MC)
+Yellow: playCard(IceMoonColony) {
+    pay(2 Titanium, 17 MC)
     Colony<Miranda>
     Animal<StratosphericBirds>
     OceanTile<Utopia_8_7>
@@ -1172,23 +1172,23 @@ Yellow: PlayCard(IceMoonColony) {
 // Yellow: "And for my second action, three energy to trade with Miranda. I get two aminals
 // and
 // a card."
-Yellow: Trade2 {
-    Pay(3 Energy)
+Yellow: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Miranda>
     ProjectCard
     2 Animal<StratosphericBirds>
 }
 
-Green: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Green: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<AerialMappers>
 }
 
 // Yellow: "I remembered why I left a titanium, and that is so I can play Diversity Support.
 // I've got all six standard resources and microbes, animals, floaters. So pay one money, get
 // one TR."
-Yellow: PlayCard(DiversitySupport) {
-    Pay(1 MC)
+Yellow: playCard(DiversitySupport) {
+    pay(1 MC)
     TerraformRating
 }
 
@@ -1196,8 +1196,8 @@ Yellow: PlayCard(DiversitySupport) {
 // tag
 // and a wild tag. I've gotten so much use out of this wild tag. So that costs me 15 entire
 // money. And then I place a greenery tile, which I'm going to place at five-three."
-Green: PlayCard(Plantation) {
-    Pay(15 MC)
+Green: playCard(Plantation) {
+    pay(15 MC)
     GreeneryTile<Utopia_5_3>
     OxygenStep
     2 MC
@@ -1205,8 +1205,8 @@ Green: PlayCard(Plantation) {
 }
 // Green: "Then I'm going to Kaguya its ass. I'm playing Kaguya Tech for ten full money. I get
 // two money production. I get a card. I swap this greenery tile. I flip it, basically."
-Green: PlayCard(KaguyaTech) {
-    Pay(10 MC)
+Green: playCard(KaguyaTech) {
+    pay(10 MC)
     PROD[2 MC]
     ProjectCard
     NormalCityTile<Utopia_5_3> FROM GreeneryTile<Utopia_5_3>
@@ -1216,14 +1216,14 @@ Green: PlayCard(KaguyaTech) {
 
 // The Generation 9 photograph still has five animals on Pets, so Green missed the animal caused
 // by Kaguya Tech's city placement.
-Green: ExMachina {
+Green: exMachina {
     -Animal<Pets>
 }
 
 // Yellow: "Right. Venusian Animals." Green: "Oh my god." Yellow: "Yep. It immediately adds an
 // animal to itself."
-Yellow: PlayCard(VenusianAnimals) {
-    Pay(13 MC)
+Yellow: playCard(VenusianAnimals) {
+    pay(13 MC)
     Animal<VenusianAnimals>
 }
 Yellow {
@@ -1231,55 +1231,55 @@ Yellow {
 }
 
 // Again forgot her Valley Trust discount.
-Yellow: ExMachina {
+Yellow: exMachina {
     -2 MC
 }
 
 // Green: "I'm gonna go ahead and use three real and seven titanium. And I'm going to get four
 // plant production, two TR plus another TR for raising temp to minus 12."
-Green: PlayCard(NitrogenRichAsteroid) {
-    Pay(7 Titanium, 3 MC)
+Green: playCard(NitrogenRichAsteroid) {
+    pay(7 Titanium, 3 MC)
     2 TerraformRating
     TemperatureStep
     TerraformRating
     PROD[4 Plant]
 }
 
-Yellow: UseAction2(ForcedPrecipitation) {
+Yellow: useAction2(ForcedPrecipitation) {
     -2 Floater<ForcedPrecipitation>
     VenusStep
     TerraformRating
 }
 
-Green: UseAction2(AerialMappers) {
+Green: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
 
-Yellow: UseAction1(ExtractorBalloons) {
+Yellow: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
 // Green: "Business Network. Cost me four. I lose a money production. Aw, I only have 19 money
 // production now. And I get an animal on Martian Zoo and a card."
-Green: PlayCard(BusinessNetwork) {
-    Pay(4 MC)
+Green: playCard(BusinessNetwork) {
+    pay(4 MC)
     PROD[-MC]
     ProjectCard
     Animal<MartianZoo>
 }
 
-Yellow: UseAction1(Psychrophiles) {
+Yellow: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 
-Green: UseAction2(EnergyMarket) {
+Green: useAction2(EnergyMarket) {
     PROD[-Energy]
     8 MC
 }
 
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
@@ -1288,29 +1288,29 @@ Yellow: ConvertHeat {
 // is
 // I paid two steel and two real. I gain an energy production and you lose two heat
 // production."
-Green: PlayCard(HeatTrappers) {
-    Pay(2 Steel, 2 MC)
+Green: playCard(HeatTrappers) {
+    pay(2 Steel, 2 MC)
     PROD[Energy]
     PROD[-2 Heat<Yellow>]
 }
 
 // Yellow: "Luckily I have this power tag so I can play Power Supply Consortium."
 // Green: "I lose an energy production." Yellow: "I pay five and I gain an energy production."
-Yellow: PlayCard(PowerSupplyConsortium) {
-    Pay(5 MC)
+Yellow: playCard(PowerSupplyConsortium) {
+    pay(5 MC)
     PROD[Energy]
     PROD[-Energy<Green>]
 }
 
 // Green: "I guess that means if I want to trade, I better do it now. I'll trade for three
 // energy and I'll do Europa. So I get a plant production."
-Green: Trade2 {
-    Pay(3 Energy)
+Green: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Europa>
     PROD[Plant]
 }
 
-Yellow: UseAction1(StratosphericBirds) {
+Yellow: useAction1(StratosphericBirds) {
     Animal<StratosphericBirds>
 }
 
@@ -1318,8 +1318,8 @@ Yellow: UseAction1(StratosphericBirds) {
 // going to pay seven real for it. I get one heat production, three heat. I get a silver
 // animal on Martian Zoo. I get a card."
 // No titanium paid.
-Green: PlayCard(ImportedGhg) {
-    Pay(7 MC)
+Green: playCard(ImportedGhg) {
+    pay(7 MC)
     PROD[Heat]
     3 Heat
     ProjectCard
@@ -1328,42 +1328,42 @@ Green: PlayCard(ImportedGhg) {
 
 // Yellow: "Imported Nutrients. I pay a titanium and 11 real, gain four plants, and add four
 // microbes to Nitrite-Reducing Bacteria." Green: "Man, you're just churning that thing."
-Yellow: PlayCard(ImportedNutrients) {
-    Pay(1 Titanium, 11 MC)
+Yellow: playCard(ImportedNutrients) {
+    pay(1 Titanium, 11 MC)
     4 Plant
     4 Microbe<NitriteReducingBacteria>
 }
 
-Green: UseAction1(VenusianInsects) {
+Green: useAction1(VenusianInsects) {
     Microbe<VenusianInsects>
 }
 
-Yellow: UseAction2(NitriteReducingBacteria) {
+Yellow: useAction2(NitriteReducingBacteria) {
     -3 Microbe<NitriteReducingBacteria>
     TerraformRating
 }
 
-Green: UseAction1(AsteroidRights) {
-    Pay(1 MC)
+Green: useAction1(AsteroidRights) {
+    pay(1 MC)
     Asteroid<AsteroidRights>
 }
 
-Yellow: Pass
+Yellow: pass
 
 // Green: "I will use Martian Zoo to take five money."
-Green: UseAction1(MartianZoo) {
+Green: useAction1(MartianZoo) {
     5 MC
 }
 // Green: "It appears I never used Business Network. So I'm going to use Business Network to
 // look at a card. I think that makes me want to take it more, so I will pay three for it."
 // Buy the Business Network card.
-Green: UseAction1(BusinessNetwork) {
+Green: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
-Green: Pass
+Green: pass
 
 // Production.
 Green: Production {
@@ -1395,13 +1395,13 @@ Yellow: WorldGovernment {
 // Before Generation 9 Research, both players reconciled the physical table against their
 // resource logs. Green took three M€ and an animal on Martian Zoo and discarded a card; Yellow
 // took six M€ and one TR.
-Green: ExMachina {
+Green: exMachina {
     3 MC
     Animal<MartianZoo>
     -ProjectCard
 }
 
-Yellow: ExMachina {
+Yellow: exMachina {
     6 MC
     TerraformRating
 }
@@ -1413,7 +1413,7 @@ Green: Research {
     // "You kept all your cards?" "Bada-bing. Yeah. I just hated to give them up."
     // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1422,14 +1422,14 @@ Yellow: Research {
 
     // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
 // "I'm planting a forest. I'm eternally hopeful. I'm going to place on six, four to get two
 // steel and two money."
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_6_3>
     OxygenStep
     2 Steel
@@ -1437,35 +1437,35 @@ Green: ConvertPlants {
     TerraformRating
 }
 // "Well, let us just go ahead and use floating hubs to put a cube on aerial mappers."
-Green: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Green: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<AerialMappers>
 }
 
 // "I'm going to use my extractor balloons, spend the two floaters, increase Venus. To 28."
-Yellow: UseAction2(ExtractorBalloons) {
+Yellow: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
 // "Then I'm going to spend three floaters, trade with Aran. This might not be the right call,
 // but enchiladas, actually." "Yeah, gain three microbes."
-Yellow: Trade2 {
-    Pay(3 Energy)
+Yellow: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Enceladus>
     3 Microbe<NitriteReducingBacteria>
 }
 
 // "I will use aerial mappers to remove a floater from aerial mappers and get a card."
-Green: UseAction2(AerialMappers) {
+Green: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
 
 // "Nine for sponsored academies." "I pitch a card." "And then you get three cards and I also
 // get a card."
-Yellow: PlayCard(SponsoredAcademies) {
-    Pay(7 MC)
+Yellow: playCard(SponsoredAcademies) {
+    pay(7 MC)
     -ProjectCard
     EACH Other@Player(NOT Yellow) { ProjectCard<Other@Player>! } VIA SponsoredAcademies
     Animal<VenusianAnimals>
@@ -1473,36 +1473,36 @@ Yellow: PlayCard(SponsoredAcademies) {
     ProjectCard<Green>
 }
 // "La Grange Observatoire." "One titanium and four money." "I believe I get a card."
-Yellow: PlayCard(LagrangeObservatory) {
-    Pay(1 Titanium, 4 MC)
+Yellow: playCard(LagrangeObservatory) {
+    pay(1 Titanium, 4 MC)
     ProjectCard
     Animal<VenusianAnimals>
 }
 
 // "I am going to use my business network to look at this card." "I will not buy this card."
-Green: UseAction1(BusinessNetwork) {
+Green: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
 // "May as well. Spend all nine of my steel on aquifer pumping."
 // No M€ needed after paying with steel.
-Yellow: PlayCard(AquiferPumping) {
-    Pay(9 Steel)
+Yellow: playCard(AquiferPumping) {
+    pay(9 Steel)
 }
 
 // "I'm gonna play advanced alloys." "It costs me nine." "No discounts."
-Green: PlayCard(AdvancedAlloys) {
-    Pay(9 MC)
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+Green: playCard(AdvancedAlloys) {
+    pay(9 MC)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 // "I am gonna go ahead and play Solar Logistics." "But I spend four titanium on that." "I get
 // two titanium from it. I get a minimal on Martian Zoo. I get a card."
 // No M€ needed after paying with titanium.
-Green: PlayCard(SolarLogistics) {
-    Pay(4 Titanium)
+Green: playCard(SolarLogistics) {
+    pay(4 Titanium)
     2 Titanium
     ProjectCard
     Animal<MartianZoo>
@@ -1511,8 +1511,8 @@ Green: PlayCard(SolarLogistics) {
 // "I spend eight on aquifer pumping. The action, that is." "Row seven, column six, I
 // believe."
 // "Yes, two plants, two money."
-Yellow: UseAction1(AquiferPumping) {
-    Pay(8 MC)
+Yellow: useAction1(AquiferPumping) {
+    pay(8 MC)
     OceanTile<Utopia_7_6>
     TerraformRating
     2 Plant
@@ -1522,8 +1522,8 @@ Yellow: UseAction1(AquiferPumping) {
 // "I'm gonna play Ice Asteroid. For four titanium and three wheel. It's a space event. So I
 // draw a card from solar logistics. I place two ocean tiles." "So that gets me two TR and 10
 // money."
-Green: PlayCard(IceAsteroid) {
-    Pay(4 Titanium, 3 MC)
+Green: playCard(IceAsteroid) {
+    pay(4 Titanium, 3 MC)
     ProjectCard
     OceanTile<Utopia_7_5>
     TerraformRating
@@ -1534,8 +1534,8 @@ Green: PlayCard(IceAsteroid) {
 }
 // "Yeah, what the hell, let's buy a standard project, shall we?" "Aquifer." "I'm just gonna
 // take two plants by placing on four, five."
-Green: UseStandardProject(AquiferProject) {
-    Pay(18 MC)
+Green: useStandardProject(AquiferProject) {
+    pay(18 MC)
     OceanTile<Utopia_4_5>
     TerraformRating
     2 Plant
@@ -1544,12 +1544,12 @@ Green: UseStandardProject(AquiferProject) {
 // "I spend 26 money. Lose two energy productions. Gain five money productions." "Place." "It'll
 // go right here. That would be row six, column five. Yeah. For six money and two plants."
 // "Actually, any chance I can undo and play conscription first?" "Yeah, sure."
-Yellow: PlayCard(Conscription) {
-    Pay(5 MC)
+Yellow: playCard(Conscription) {
+    pay(5 MC)
     Conscription_NextCardEffect
 }
-Yellow: PlayCard(Capital) {
-    Pay(10 MC)
+Yellow: playCard(Capital) {
+    pay(10 MC)
     PROD[-2 Energy]
     PROD[5 MC]
     CapitalTile<Utopia_6_5, Capital>
@@ -1560,34 +1560,34 @@ Yellow: PlayCard(Capital) {
 
 // "Three steel, nine MC. That gets me tectonic stress power." "And so I get my
 // three energy production."
-Green: PlayCard(TectonicStressPower) {
-    Pay(3 Steel, 9 MC)
+Green: playCard(TectonicStressPower) {
+    pay(3 Steel, 9 MC)
     PROD[3 Energy]
 }
 
 // "I'm just gonna heat boop." "A heat boop has been done. That means converting heat to
 // temperature."
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 // "I will use nitrate-reducing bacteria, remove three microbes, gain a TR."
-Yellow: UseAction2(NitriteReducingBacteria) {
+Yellow: useAction2(NitriteReducingBacteria) {
     -3 Microbe<NitriteReducingBacteria>
     TerraformRating
 }
 
 // "I will use asteroid rights to take one asteroid off of asteroid rights and give myself
 // two titanium."
-Green: UseAction2(AsteroidRights) {
+Green: useAction2(AsteroidRights) {
     -Asteroid<AsteroidRights>
     2 Titanium
 }
 // "I will plant a greenery or plant a forest, as they like to call it on this app." "I'll
 // put it next to my city for two money."
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_5_2>
     OxygenStep
     2 MC
@@ -1595,75 +1595,75 @@ Green: ConvertPlants {
 }
 
 // "You know, it occurred to me I can probably spend 15 on a final Venus boop."
-Yellow: UseStandardProject(AirScrappingProject) {
-    Pay(15 MC)
+Yellow: useStandardProject(AirScrappingProject) {
+    pay(15 MC)
     VenusStep
     TerraformRating
 }
 // "I'm going to psychrophile."
-Yellow: UseAction1(Psychrophiles) {
+Yellow: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 
 // "Well, I'm going to heat boop." "I'm going to heat boop. I didn't move it either time."
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
 // "Anyways, I stratoburb."
-Yellow: UseAction1(StratosphericBirds) {
+Yellow: useAction1(StratosphericBirds) {
     Animal<StratosphericBirds>
 }
 
 // "Energy market. Reduce energy production to four, gain eight money."
-Green: UseAction2(EnergyMarket) {
+Green: useAction2(EnergyMarket) {
     PROD[-Energy]
     8 MC
 }
 
-Yellow: Pass
+Yellow: pass
 
 // "I'm going to play Lunar Exports, which costs me three titanium and four money." "And I
 // get a card from Point Luna." "I'm actually going to take the money production."
-Green: PlayCard(LunarExports) {
-    Pay(3 Titanium, 2 MC)
+Green: playCard(LunarExports) {
+    pay(3 Titanium, 2 MC)
     ProjectCard
     Animal<MartianZoo>
     PROD[5 MC]
 }
 // "Let's play Solar Net for seven real money. I draw two cards."
-Green: PlayCard(Solarnet) {
-    Pay(7 MC)
+Green: playCard(Solarnet) {
+    pay(7 MC)
     2 ProjectCard
 }
 // "Let's play Algae for ten money." "I get two plant production and one plant."
-Green: PlayCard(Algae) {
-    Pay(10 MC)
+Green: playCard(Algae) {
+    pay(10 MC)
     Plant
     PROD[2 Plant]
 }
 // "I will go ahead and use my Martian Zoo now to take eight money."
-Green: UseAction1(MartianZoo) {
+Green: useAction1(MartianZoo) {
     8 MC
 }
 // "I will use my Venusian Insects to take a Venusian insect, which is apparently a kind of
 // microbe now."
-Green: UseAction1(VenusianInsects) {
+Green: useAction1(VenusianInsects) {
     Microbe<VenusianInsects>
 }
 // "Okay, here goes insects." "And I get one, two, three, four, five, five plant production."
-Green: PlayCard(Insects) {
-    Pay(9 MC)
+Green: playCard(Insects) {
+    pay(9 MC)
     PROD[5 Plant]
 }
-Green: Pass
+Green: pass
 
 // Production.
 Green: Production {
@@ -1701,21 +1701,21 @@ Green: Research {
     // stupidly
     // buy two cards. You know what? I'm going to buy three cards. Talk about stupid. Three cards."
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // "I will plant forest, put my greenery on... Looks like 5-5, right?" "Okay. Two money and a
 // plant."
-Yellow: ConvertPlants {
-    Pay(8 Plant)
+Yellow: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_5_5>
     OxygenStep
     Plant
@@ -1725,8 +1725,8 @@ Yellow: ConvertPlants {
 // "And I will greenery standard project." "But you've got two TR from one move." "Yeah, and
 // an extra for being the one to get it." "Anyways, the second one goes... 2-1."
 // All nine oceans are already placed.
-Yellow: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Yellow: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Utopia_2_1>
     OxygenStep
     2 MC
@@ -1738,8 +1738,8 @@ Yellow: UseStandardProject(GreeneryProject) {
 
 // "I am feeling like I had better put a cute little city down while I can. So I paid for
 // standard project." "4-4 for two money and two plants."
-Green: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Green: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Utopia_4_4>
     Animal<Pets>
@@ -1748,8 +1748,8 @@ Green: UseStandardProject(CityProject) {
 }
 // "Ecological zone. Cost me 12 entire." "Well, for these two, I get two animals right away."
 // "Putting it on 2-2?" "Yes. For two steel."
-Green: PlayCard(EcologicalZone) {
-    Pay(12 MC)
+Green: playCard(EcologicalZone) {
+    pay(12 MC)
     Animal<EcologicalZone>
     Animal<EcologicalZone>
     EcologicalZone_SpecialTile<Utopia_2_2>
@@ -1758,34 +1758,34 @@ Green: PlayCard(EcologicalZone) {
 
 // "Eight for cryosleep because I have science tag discount. Pay eight. And I get a new
 // animal."
-Yellow: PlayCard(CryoSleep) {
-    Pay(8 MC)
+Yellow: playCard(CryoSleep) {
+    pay(8 MC)
     Animal<VenusianAnimals>
 }
 // "And I spend two energy to trade with Miranda for two animals and a card."
-Yellow: Trade2 {
-    Pay(2 Energy)
+Yellow: action(TradeAction, 2) {
+    pay(2 Energy)
     Trade<Miranda>
     ProjectCard
     2 Animal<StratosphericBirds>
 }
 
 // "I will use my business network to look at a card. Absolutely not."
-Green: UseAction1(BusinessNetwork) {
+Green: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 // "Heat boob." "Now your turn."
-Green: ConvertHeat {
-    Pay(8 Heat)
+Green: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
 // "Back to viral research, baby. Cost you eight?" "Yes. Almost forgot. Draw one card."
 // "I will choose Nitrate Reducing Bacteria." "Six microbes."
-Yellow: PlayCard(BactoviralResearch) {
-    Pay(8 MC)
+Yellow: playCard(BactoviralResearch) {
+    pay(8 MC)
     ProjectCard
     Animal<VenusianAnimals>
     6 Microbe<NitriteReducingBacteria>
@@ -1794,8 +1794,8 @@ Yellow: PlayCard(BactoviralResearch) {
 // "Herbivores, again with the full price." "I do add an animal to this card and an animal to
 // Ecozone. And you lose a plant production." "Oh, shit, I don't have any plant production."
 // Yellow has none to lose; Green's ledger records his own decrease to 14 (entry 272).
-Green: PlayCard(Herbivores) {
-    Pay(12 MC)
+Green: playCard(Herbivores) {
+    pay(12 MC)
     Animal<Herbivores> VIA Herbivores
     PROD[-Plant]
     Animal<EcologicalZone>
@@ -1804,24 +1804,24 @@ Green: PlayCard(Herbivores) {
 // "Jovian lanterns for 20." "Increase your TR one step." "Add two floaters to any card. I
 // will
 // add it to itself."
-Yellow: PlayCard(JovianLanterns) {
-    Pay(20 MC)
+Yellow: playCard(JovianLanterns) {
+    pay(20 MC)
     TerraformRating
     2 Floater<JovianLanterns>
 }
 
 // "Plant boop, plant boop." "So two money and two plants." "And played greenery. So I add a
 // minimal to herbivores. I add two of them."
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_4_3>
     OxygenStep
     Animal<Herbivores>
     Plant
     TerraformRating
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_5_4>
     OxygenStep
     Animal<Herbivores>
@@ -1831,22 +1831,22 @@ Green: ConvertPlants {
 }
 
 // "I use Jovian Lantern, spend a titanium to add two floaters here."
-Yellow: UseAction1(JovianLanterns) {
-    Pay(1 Titanium)
+Yellow: useAction1(JovianLanterns) {
+    pay(1 Titanium)
     2 Floater<JovianLanterns>
 }
 // "Actually, I'm just going to go like add a thing to extractor balloons."
-Yellow: UseAction1(ExtractorBalloons) {
+Yellow: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
 // "I think I'm going to use Martian Zoo to take eight money and then spend eighteen money on
 // lava flows." "Two cards and four money."
-Green: UseAction1(MartianZoo) {
+Green: useAction1(MartianZoo) {
     8 MC
 }
-Green: PlayCard(LavaFlows) {
-    Pay(18 MC)
+Green: playCard(LavaFlows) {
+    pay(18 MC)
     TemperatureStep
     TemperatureStep
     2 TerraformRating
@@ -1856,34 +1856,34 @@ Green: PlayCard(LavaFlows) {
 }
 
 // Green's ledger omitted the two TR from Lava Flows' temperature steps.
-Green: ExMachina {
+Green: exMachina {
     -2 TerraformRating
 }
 
 // "Oh, I add a Strato Bird."
-Yellow: UseAction1(StratosphericBirds) {
+Yellow: useAction1(StratosphericBirds) {
     Animal<StratosphericBirds>
 }
 // "Oh, probably be smart for me to do my own heat boob."
-Yellow: ConvertHeat {
-    Pay(8 Heat)
+Yellow: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
 // "It's weird, but I'm gonna play a card I've never played before in my life. Food Factory."
 // "And three real gives me four money production. Takes away one of my plant production."
-Green: PlayCard(FoodFactory) {
-    Pay(3 Steel, 3 MC)
+Green: playCard(FoodFactory) {
+    pay(3 Steel, 3 MC)
     PROD[-Plant]
     PROD[4 MC]
 }
 
 // "I will add Psychrophile and I will remove three nitrites for a TR."
-Yellow: UseAction1(Psychrophiles) {
+Yellow: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
-Yellow: UseAction2(NitriteReducingBacteria) {
+Yellow: useAction2(NitriteReducingBacteria) {
     -3 Microbe<NitriteReducingBacteria>
     TerraformRating
 }
@@ -1891,11 +1891,11 @@ Yellow: UseAction2(NitriteReducingBacteria) {
 // "I'm going to sell a patent to get a money and then spend two money on floating habs. To
 // use
 // floating habs to put a floater onto aerial mappers."
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Green: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Green: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<AerialMappers>
 }
 
@@ -1903,14 +1903,14 @@ Green: UseAction1(FloatingHabs) {
 // play. That's one, two, three, four, five."
 // No steel paid.
 // No M€ needed after paying with Psychrophiles microbes.
-Yellow: PlayCard(Greenhouses) {
-    Pay(3 Microbe<Psychrophiles>)
+Yellow: playCard(Greenhouses) {
+    pay(3 Microbe<Psychrophiles>)
     5 Plant
 }
 // "And I will greenery boop." "It's six, six, sorry." "It's the last possible spot next to my
 // capital for two money."
-Yellow: ConvertPlants {
-    Pay(8 Plant)
+Yellow: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_6_6>
     OxygenStep
     2 MC
@@ -1918,16 +1918,16 @@ Yellow: ConvertPlants {
 }
 
 // "I'm going to use aerial mappers to take a floater off of aerial mappers and draw a card."
-Green: UseAction2(AerialMappers) {
+Green: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
 
-Yellow: Pass
+Yellow: pass
 
 // "And then I'm going to use energy market to reduce energy production and give myself eight
 // money."
-Green: UseAction2(EnergyMarket) {
+Green: useAction2(EnergyMarket) {
     PROD[-Energy]
     8 MC
 }
@@ -1937,15 +1937,15 @@ Green: UseAction2(EnergyMarket) {
 // patent to get one money, spend nine money on robotic workforce just to make an honest card
 // out of it." "I'll copy industrial microbes." "Robotic workforce in Dawn City, we pretended
 // they were in that order."
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Green: PlayCard(RoboticWorkforce) {
-    Pay(9 MC)
+Green: playCard(RoboticWorkforce) {
+    pay(9 MC)
     // Name the context because matching EACH against Mars University's pending THEN task
     // otherwise throws a syntax error; see the task-matching TODO.
     EACH @WildTagElection(HAS MAX 0 Tag) { Tag<@WildTagElection>? } VIA RoboticWorkforce
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
     0 BuildingTag<WildTagElection<WildTag<ResearchCoordination>, ActionScope>>
@@ -1954,33 +1954,33 @@ Green: PlayCard(RoboticWorkforce) {
     PROD[Steel]
 }
 // No M€ needed after paying with titanium.
-Green: PlayCard(DawnCity) {
-    Pay(3 Titanium)
+Green: playCard(DawnCity) {
+    pay(3 Titanium)
     PROD[-Energy]
     PROD[Titanium]
     NormalCityTile<DawnCity_RemoteArea>
     Animal<Pets>
 }
 // "I'm gonna add a Venusian insect."
-Green: UseAction1(VenusianInsects) {
+Green: useAction1(VenusianInsects) {
     Microbe<VenusianInsects>
 }
 // "I'm going to yet again, sell a patent for one money and spend that one money on asteroid
 // rights to put an asteroid onto that."
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Green: UseAction1(AsteroidRights) {
-    Pay(1 MC)
+Green: useAction1(AsteroidRights) {
+    pay(1 MC)
     Asteroid<AsteroidRights>
 }
 // "But I'll take the cards using three energy for the Pluto, take two cards."
-Green: Trade2 {
-    Pay(3 Energy)
+Green: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Pluto>
     2 ProjectCard
 }
-Green: Pass
+Green: pass
 
 // Production.
 Green: Production {
@@ -2016,22 +2016,22 @@ Green: Research {
 
     // "Man. Yeah. I'm buying two. I'll buy one. I'm gonna actually buy it."
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Yellow: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // "Yep. Boop, boop. Indeed. And the game will officially end this round."
 // "One goes here for just two money. That is three, four." "I think I'll just take the four
 // money down here."
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_3_4>
     OxygenStep
     Animal<Herbivores>
@@ -2040,8 +2040,8 @@ Green: ConvertPlants {
 }
 // The second placement is gesture-only in the transcript; its four-M€ ocean income locates
 // it at the open land area between the row-six and row-seven oceans.
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_7_4>
     OxygenStep
     Animal<Herbivores>
@@ -2052,34 +2052,34 @@ Green: ConvertPlants {
 // "I will... pay two energy to trade with Miranda... for one aminal and a card. This time
 // I'll
 // put the aminal on Venusian."
-Yellow: Trade2 {
-    Pay(2 Energy)
+Yellow: action(TradeAction, 2) {
+    pay(2 Energy)
     Trade<Miranda>
     ProjectCard
     Animal<VenusianAnimals>
 }
 // "Productive outpost for zero... Gain all my colony bonuses, which is literally just draw a
 // card."
-Yellow: PlayCard(ProductiveOutpost) {
+Yellow: playCard(ProductiveOutpost) {
     ProjectCard
 }
 
 // "I pay fourteen... Mogul." "Yeah. I think I got that one."
-Green: FundAward {
-    Pay(14 MC)
+Green: action(FundAwardAction) {
+    pay(14 MC)
     Mogul
 }
 // "Listen, all of y'all. It's sabotage. So... You lose... Seven money, and that's it."
-Green: PlayCard(Sabotage) {
-    Pay(1 MC)
+Green: playCard(Sabotage) {
+    pay(1 MC)
     -7 MC<Yellow>
 }
 
 // "I'm going to spend thirteen money, no titanus." "Lose two money production." "Place a
 // colony on Pluto. To get two cards."
 // No titanium paid.
-Yellow: PlayCard(PioneerSettlement) {
-    Pay(13 MC)
+Yellow: playCard(PioneerSettlement) {
+    pay(13 MC)
     PROD[-2 MC]
     Colony<Pluto>
     2 ProjectCard
@@ -2087,25 +2087,25 @@ Yellow: PlayCard(PioneerSettlement) {
 
 // "I'm going to spend two on floating habs. To put a dingus on aerial mappers." "Use aerial
 // mappers to draw a card."
-Green: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Green: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<AerialMappers>
 }
-Green: UseAction2(AerialMappers) {
+Green: useAction2(AerialMappers) {
     -Floater<AerialMappers>
     ProjectCard
 }
 
-Yellow: UseAction1(JovianLanterns) {
-    Pay(1 Titanium)
+Yellow: useAction1(JovianLanterns) {
+    pay(1 Titanium)
     2 Floater<JovianLanterns>
 }
 
 // "Immigrant City, spending six worth of steel and seven rail." "I better decrease my energy
 // production, decrease my money production by two and then back up one." "Five, six, on five,
 // six."
-Green: PlayCard(ImmigrantCity) {
-    Pay(2 Steel, 7 MC)
+Green: playCard(ImmigrantCity) {
+    pay(2 Steel, 7 MC)
     PROD[-Energy]
     PROD[-2 MC]
     NormalCityTile<Utopia_5_6>
@@ -2115,7 +2115,7 @@ Green: PlayCard(ImmigrantCity) {
     2 MC
 }
 
-Yellow: UseAction2(NitriteReducingBacteria) {
+Yellow: useAction2(NitriteReducingBacteria) {
     -3 Microbe<NitriteReducingBacteria>
     TerraformRating
 }
@@ -2123,8 +2123,8 @@ Yellow: UseAction2(NitriteReducingBacteria) {
 // "I'm gonna put it right here, two energy."
 // The City standard project and Immigrant City each increase M€ production for this
 // placement.
-Green: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Green: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Utopia_2_3>
     Animal<Pets>
@@ -2133,8 +2133,8 @@ Green: UseStandardProject(CityProject) {
 }
 // "And for my second trick, commercial district, from sixteen, lose an energy production,
 // gain four money production, place a shitty tile, not a shitty tile."
-Green: PlayCard(CommercialDistrict) {
-    Pay(16 MC)
+Green: playCard(CommercialDistrict) {
+    pay(16 MC)
     PROD[-Energy]
     PROD[4 MC]
     CommercialDistrict_SpecialTile<Utopia_3_3>
@@ -2143,25 +2143,25 @@ Green: PlayCard(CommercialDistrict) {
 
 // Green confirms he forgot Immigrant City's trigger. His ledger records only the standard
 // project's one M€ production step, so remove the omitted Immigrant City step here.
-Green: ExMachina {
+Green: exMachina {
     PROD[-MC]
 }
 
-Yellow: UseAction1(Psychrophiles) {
+Yellow: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 
 // "I'm gonna play robot pollinators for all of my money. It gives me a plant production and
 // one plant per plant tag. One, two, three, four, five. Five plants."
-Green: PlayCard(RobotPollinators) {
-    Pay(9 MC)
+Green: playCard(RobotPollinators) {
+    pay(9 MC)
     PROD[Plant]
     6 Plant
 }
 // "I'm just gonna do the plant boop now." "Did not give me TR good." "This plant boop will go
 // here for two energy and a card. That is two, four."
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_2_4>
     0 OxygenStep
     Animal<Herbivores>
@@ -2170,38 +2170,38 @@ Green: ConvertPlants {
 }
 
 // 16:55:51: Green counted five plants, overlooking Research Coordination's wild tag.
-Green: ExMachina {
+Green: exMachina {
     -Plant
 }
 
 // "I'm gonna add a strato bird." "I'm at 15 strato birds."
-Yellow: UseAction1(StratosphericBirds) {
+Yellow: useAction1(StratosphericBirds) {
     Animal<StratosphericBirds>
 }
 
 // "Methane from Titan." "I'm gonna spend six titanium." "I mostly played it for the two
 // points."
 // No M€ needed after paying with titanium.
-Green: PlayCard(MethaneFromTitan) {
-    Pay(6 Titanium)
+Green: playCard(MethaneFromTitan) {
+    pay(6 Titanium)
     PROD[2 Heat]
     PROD[2 Plant]
 }
 
 // "I add an extractor balloon."
-Yellow: UseAction1(ExtractorBalloons) {
+Yellow: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
 // "I'll go ahead and use Martian Zoo to take eight money."
-Green: UseAction1(MartianZoo) {
+Green: useAction1(MartianZoo) {
     8 MC
 }
 
 // "I'll use local heat trapping. One money. Spend five heat. And I will add two Venusian
 // animals."
-Yellow: PlayCard(LocalHeatTrapping) {
-    Pay(1 MC)
+Yellow: playCard(LocalHeatTrapping) {
+    pay(1 MC)
     -5 Heat
     2 Animal<VenusianAnimals>
 }
@@ -2209,24 +2209,24 @@ Yellow: PlayCard(LocalHeatTrapping) {
 // "Trading colony for my four titanium." "No, no, no. I'm gonna get three microbes." "Three
 // microbes which go on to Venusian insects."
 // No M€ needed after paying with titanium.
-Green: PlayCard(TradingColony) {
-    Pay(4 Titanium)
+Green: playCard(TradingColony) {
+    pay(4 Titanium)
     Colony<Enceladus>
     3 Microbe<VenusianInsects>
 }
 
 // "Airliners for 11 requires that you have three floaters." "Gain two money production, add
 // two floaters to another card, which will be Jovian lanterns."
-Yellow: PlayCard(Airliners) {
-    Pay(11 MC)
+Yellow: playCard(Airliners) {
+    pay(11 MC)
     PROD[2 MC]
     2 Floater<JovianLanterns>
 }
 
 // "Now, I'm going to fly my little boat to Angelatus." "I get three and one." "They all four
 // go on to the New Zealand insects."
-Green: Trade2 {
-    Pay(3 Energy)
+Green: action(TradeAction, 2) {
+    pay(3 Energy)
     Trade<Enceladus>
     ColonyProduction<Enceladus>
     3 Microbe<VenusianInsects>
@@ -2235,8 +2235,8 @@ Green: Trade2 {
 
 // "My seven psychrophiles and three real." "Increase money production two steps. Increase
 // plant production three steps. Increase... No, gain two plants."
-Yellow: PlayCard(KelpFarming) {
-    Pay(7 Microbe<Psychrophiles>, 3 MC)
+Yellow: playCard(KelpFarming) {
+    pay(7 Microbe<Psychrophiles>, 3 MC)
     PROD[2 MC]
     PROD[3 Plant]
     2 Plant
@@ -2244,31 +2244,31 @@ Yellow: PlayCard(KelpFarming) {
 
 // "Just to be funny, I'm going to play one for land claim, just so you can go there."
 // The source does not identify the claimed area; Utopia_1_1 is a neutral test inference.
-Green: PlayCard(LandClaim) {
-    Pay(1 MC)
+Green: playCard(LandClaim) {
+    pay(1 MC)
     Community<Utopia_1_1>
 }
 
 // "I sell a card for a money."
-Yellow: UseStandardProject(SellPatentsProject) {
+Yellow: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
 // "I'll go ahead and sell five cards for five money. None of them have victory points on
 // them."
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     5 MC FROM ProjectCard
 }
 
 // "Wait. I sell a card for a money."
-Yellow: UseStandardProject(SellPatentsProject) {
+Yellow: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
 // "I'll spend eight on lightning harvest. One energy product, one money product, and a
 // point."
-Green: PlayCard(LightningHarvest) {
-    Pay(8 MC)
+Green: playCard(LightningHarvest) {
+    pay(8 MC)
     PROD[Energy]
     PROD[MC]
 }
@@ -2277,24 +2277,24 @@ Green: PlayCard(LightningHarvest) {
 // Import from Europa payment below as one twelve-M€ debit at entry 325.
 // "Sell three cards for three money. Wait, actually. Hold on. Just in case that can be useful
 // somehow. I'll sell two for two."
-Yellow: UseStandardProject(SellPatentsProject) {
+Yellow: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
 // "I'm going to play Media Archives." "I have eight. I have 13, so that's 21 money for you."
-Yellow: PlayCard(MediaArchives) {
-    Pay(8 MC)
+Yellow: playCard(MediaArchives) {
+    pay(8 MC)
     21 MC
 }
 
 // "Oh my god, I forgot to use my business network. Fine, I'll use that then."
-Green: UseAction1(BusinessNetwork) {
+Green: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
 // "Finally playing. Water Import from Europa."
-Yellow: PlayCard(WaterImportFromEuropa) {
-    Pay(25 MC)
+Yellow: playCard(WaterImportFromEuropa) {
+    pay(25 MC)
 }
 Yellow {
     Ok
@@ -2302,53 +2302,53 @@ Yellow {
 
 // The transcript identifies Sub-Zero Salt Fish in Green's hand, while the generic reconstructed
 // hand is one card short after the sourced plays and patent sales.
-Green: ExMachina {
+Green: exMachina {
     ProjectCard
 }
 // "Okay, now I can use Energy Market. Get all up to 12 money."
-Green: UseAction2(EnergyMarket) {
+Green: useAction2(EnergyMarket) {
     PROD[-Energy]
     8 MC
 }
 // "Play Sub-Zero Salt Fish." "Now you lose plant production. I spend five on that." "It's an
 // animal tag." "So I get an Ecomole."
-Green: PlayCard(SubZeroSaltFish) {
-    Pay(5 MC)
+Green: playCard(SubZeroSaltFish) {
+    pay(5 MC)
     Animal<EcologicalZone>
     PROD[-Plant<Yellow>]
 }
 
 // Green took Energy Market's eight M€ but did not record its energy-production decrease.
-Green: ExMachina {
+Green: exMachina {
     PROD[Energy]
 }
 
 // "But, well, still, for the means, I can play Predators."
 // "Well, I guess you're going to take my Ecomal, then."
-Yellow: PlayCard(Predators) {
-    Pay(14 MC)
+Yellow: playCard(Predators) {
+    pay(14 MC)
 }
-Yellow: UseAction1(Predators) {
+Yellow: useAction1(Predators) {
     -Animal<EcologicalZone<Green>>
     Animal<Predators>
 }
 
 // "And then, you know, for all the good it'll do, I'll just use the action to add another
 // animal."
-Green: UseAction1(SubZeroSaltFish) {
+Green: useAction1(SubZeroSaltFish) {
     Animal<SubZeroSaltFish>
 }
 
 // "Thanks to my steel, I can spend all six and three real for a point from Artificial Lake."
 // All nine oceans are already placed.
-Yellow: PlayCard(ArtificialLake) {
-    Pay(6 Steel, 3 MC)
+Yellow: playCard(ArtificialLake) {
+    pay(6 Steel, 3 MC)
     0 OceanTile<LandArea>
 }
 
-Green: Pass
+Green: pass
 
-Yellow: Pass
+Yellow: pass
 
 // Production.
 Green: Production {
@@ -2378,7 +2378,7 @@ Yellow: Production {
 // the ordinary-rules state. This net delta is characterized by the separate exMachina-free
 // replay, not by the ledgers: retain Lava Flows' two TR and Kaguya Tech's Pets animal, retain
 // Immigrant City's M€-production trigger, and retain Energy Market's production decrease.
-Green: ExMachina {
+Green: exMachina {
     4 MC
     2 TerraformRating
     PROD[MC]
@@ -2387,13 +2387,13 @@ Green: ExMachina {
     Animal<Pets>
 }
 // "So I'm going to 1-2 and 1-3."
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_1_2>
     Animal<Herbivores>
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Utopia_1_3>
     Animal<Herbivores>
     2 Energy

@@ -63,23 +63,23 @@ Green: Setup {
 }
 
 // Generation 1
-Blue: PlayCard(AstroDrill) {
+Blue: playCard(AstroDrill) {
     35 MC VIA AstroDrill
     3 Asteroid<AstroDrill>
-    Pay(15 MC)
+    pay(15 MC)
     5 ProjectCard<Hand FROM Selecting>
 }
 
-Pink: PlayCard(Vitor) {
+Pink: playCard(Vitor) {
     48 MC
-    Pay(18 MC)
+    pay(18 MC)
     6 ProjectCard<Hand FROM Selecting>
 }
 
-Green: PlayCard(PharmacyUnion) {
+Green: playCard(PharmacyUnion) {
     SearchForCard<TagFilter<Class<ScienceTag>>>
     54 MC VIA PharmacyUnion
-    Pay(21 MC)
+    pay(21 MC)
     7 ProjectCard<Hand FROM Selecting>
     Disease<PharmacyUnion>
     Disease<PharmacyUnion>
@@ -87,19 +87,19 @@ Green: PlayCard(PharmacyUnion) {
     -4 MC
 }
 
-Purple: PlayCard(Inventrix) {
+Purple: playCard(Inventrix) {
     45 MC VIA Inventrix
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: PlayCard(VenusL1Shade) {
+Blue: playCard(VenusL1Shade) {
     VenusStep
     VenusStep
     VenusStep
     3 TerraformRating
 }
-Blue: PlayCard(AntiDesertificationTechniques) {
+Blue: playCard(AntiDesertificationTechniques) {
     3 MC VIA AntiDesertificationTechniques
     PROD[Plant]
     PROD[Steel]
@@ -107,108 +107,108 @@ Blue: PlayCard(AntiDesertificationTechniques) {
     Green: -4 MC
 }
 
-Pink: PlayCard(BusinessEmpire) {
+Pink: playCard(BusinessEmpire) {
     PROD[6 MC]
     -6 MC
 }
-Pink: PlayCard(ExcentricSponsor) {
-    PlayCard(ImmigrationShuttles)
+Pink: playCard(ExcentricSponsor) {
+    playCard(ImmigrationShuttles)
     -25 Owed<Class<MC>>
-    Pay(6 MC)
+    pay(6 MC)
     PROD[5 MC]
     3 MC
 }
 
-Green: PlayCard(IoResearchOutpost) {
+Green: playCard(IoResearchOutpost) {
     PROD[Titanium]
     ProjectCard
     TerraformRating FROM Disease<PharmacyUnion>
 }
-Green: PlayCard(AppliedScience) {
+Green: playCard(AppliedScience) {
     6 Science<AppliedScience>
 }
 
-Purple: PlayCard(MetalsCompany) {
+Purple: playCard(MetalsCompany) {
     PROD[MC]
     PROD[Steel]
     PROD[Titanium]
 }
-Purple: PlayCard(GiantSolarCollector) {
+Purple: playCard(GiantSolarCollector) {
     PROD[2 Energy]
     VenusStep
     TerraformRating
     ProjectCard
 }
 
-Blue: UseAction2(AstroDrill) {
+Blue: useAction2(AstroDrill) {
     -Asteroid<AstroDrill>
     3 Titanium
 }
-Blue: PlayCard(CometAiming) {
-    Pay(1 Titanium, 14 MC)
+Blue: playCard(CometAiming) {
+    pay(1 Titanium, 14 MC)
 }
 
-Pink: DoRequiredActions {
+Pink: doRequiredActions {
     Investor
 }
-Pink: PlayCard(IndustrialMicrobes) {
-    Pay(12 MC)
+Pink: playCard(IndustrialMicrobes) {
+    pay(12 MC)
     PROD[Energy]
     PROD[Steel]
     Green: Disease<PharmacyUnion>
     Green: -4 MC
 }
 
-Green: UseAction1(AppliedScience) {
+Green: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Titanium
 }
 
-Purple: DoRequiredActions {
+Purple: doRequiredActions {
     3 ProjectCard
 }
-Purple: PlayCard(BribedCommittee) {
-    Pay(7 MC)
+Purple: playCard(BribedCommittee) {
+    pay(7 MC)
     2 TerraformRating
 }
 
-Blue: UseAction1(CometAiming) {
-    Pay(1 Titanium)
+Blue: useAction1(CometAiming) {
+    pay(1 Titanium)
     Asteroid<AstroDrill>
 }
 
-Pink: Pass
+Pink: pass
 
-Green: PlayCard(CuttingEdgeTechnology) {
-    Pay(12 MC)
+Green: playCard(CuttingEdgeTechnology) {
+    pay(12 MC)
     TerraformRating FROM Disease<PharmacyUnion>
 }
 
-Purple: PlayCard(WaterToVenus) {
-    Pay(9 MC)
+Purple: playCard(WaterToVenus) {
+    pay(9 MC)
     VenusStep
     TerraformRating
 }
-Purple: PlayCard(NeutralizerFactory) {
-    Pay(7 MC)
+Purple: playCard(NeutralizerFactory) {
+    pay(7 MC)
     VenusStep
     TerraformRating
 }
 
-Blue: Pass
+Blue: pass
 
-Green: PlayCard(SulphurEatingBacteria) {
-    Pay(4 MC)
+Green: playCard(SulphurEatingBacteria) {
+    pay(4 MC)
     Disease<PharmacyUnion>
     -MC
 }
 
-Purple: Pass
+Purple: pass
 
-Green: UseAction1(SulphurEatingBacteria) {
+Green: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
-Green: Pass
+Green: pass
 
 // Production.
 Blue: Production {
@@ -245,74 +245,74 @@ Blue: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 59: public player boards after generation 2 Research purchases.
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Pink: PlayCard(Soletta) {
-    Pay(35 MC)
+Pink: playCard(Soletta) {
+    pay(35 MC)
     PROD[7 Heat]
 }
 
-Green: PlayCard(Omnicourt) {
-    Pay(9 MC)
+Green: playCard(Omnicourt) {
+    pay(9 MC)
     2 TerraformRating
 }
 
-Purple: PlayCard(SolarPower) {
-    Pay(1 Steel, 9 MC)
+Purple: playCard(SolarPower) {
+    pay(1 Steel, 9 MC)
     PROD[Energy]
 }
 
-Blue: UseAction2(AstroDrill) {
+Blue: useAction2(AstroDrill) {
     -Asteroid<AstroDrill>
     3 Titanium
 }
-Blue: UseAction1(CometAiming) {
-    Pay(1 Titanium)
+Blue: useAction1(CometAiming) {
+    pay(1 Titanium)
     Asteroid<CometAiming>
 }
 
-Pink: Pass
+Pink: pass
 
-Green: UseAction1(SulphurEatingBacteria) {
+Green: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
 
-Purple: PlayCard(MagneticFieldDome) {
-    Pay(5 MC)
+Purple: playCard(MagneticFieldDome) {
+    pay(5 MC)
     PROD[-2 Energy]
     PROD[Plant]
     TerraformRating
 }
 
-Blue: PlayCard(IceAsteroid) {
-    Pay(2 Titanium, 17 MC)
+Blue: playCard(IceAsteroid) {
+    pay(2 Titanium, 17 MC)
     OceanTile<Tharsis_5_4>
     TerraformRating
     2 Plant
@@ -322,34 +322,34 @@ Blue: PlayCard(IceAsteroid) {
     2 MC
 }
 
-Green: UseAction1(AppliedScience) {
+Green: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Microbe<SulphurEatingBacteria>
 }
 
-Purple: UseStandardProject(PowerPlantProject) {
-    Pay(11 MC)
+Purple: useStandardProject(PowerPlantProject) {
+    pay(11 MC)
     PROD[Energy]
 }
 
-Blue: PlayCard(ArcticAlgae) {
-    Pay(12 MC)
+Blue: playCard(ArcticAlgae) {
+    pay(12 MC)
     Plant
 }
-Blue: PlayCard(Psychrophiles) {
-    Pay(2 MC)
+Blue: playCard(Psychrophiles) {
+    pay(2 MC)
     Green: Disease<PharmacyUnion>
     Green: -4 MC
 }
 
-Green: Pass
+Green: pass
 
-Purple: Pass
+Purple: pass
 
-Blue: UseAction1(Psychrophiles) {
+Blue: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
-Blue: Pass
+Blue: pass
 
 // Production.
 Blue: Production {
@@ -390,40 +390,40 @@ Pink: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 111: public player boards after generation 3 Research purchases.
-Green: PlayCard(LightningHarvest) {
-    Pay(6 MC)
+Green: playCard(LightningHarvest) {
+    pay(6 MC)
     PROD[Energy]
     PROD[MC]
 }
 
-Purple: PlayCard(DeimosDownPromo) {
-    Pay(2 Titanium, 25 MC)
+Purple: playCard(DeimosDownPromo) {
+    pay(2 Titanium, 25 MC)
     TemperatureStep
     TemperatureStep
     TemperatureStep
@@ -436,7 +436,7 @@ Purple: PlayCard(DeimosDownPromo) {
     -6 Plant<Blue>
 }
 
-Blue: UseAction2(CometAiming) {
+Blue: useAction2(CometAiming) {
     -Asteroid<CometAiming>
     OceanTile<Tharsis_5_6>
     TerraformRating
@@ -444,81 +444,81 @@ Blue: UseAction2(CometAiming) {
     2 MC
 }
 
-Pink: PlayCard(DirectedImpactors) {
-    Pay(8 MC)
+Pink: playCard(DirectedImpactors) {
+    pay(8 MC)
 }
 
-Green: UseAction1(AppliedScience) {
+Green: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Plant
 }
-Green: PlayCard(Moss) {
-    Pay(2 MC)
+Green: playCard(Moss) {
+    pay(2 MC)
     PROD[Plant]
     -Plant
 }
 
-Purple: PlayCard(PowerSupplyConsortium) {
-    Pay(5 MC)
+Purple: playCard(PowerSupplyConsortium) {
+    pay(5 MC)
     PROD[Energy]
     PROD[-Energy<Pink>]
 }
 
-Blue: UseAction2(AstroDrill) {
+Blue: useAction2(AstroDrill) {
     -Asteroid<AstroDrill>
     3 Titanium
 }
-Blue: UseAction1(Psychrophiles) {
+Blue: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 
-Pink: UseAction1(DirectedImpactors) {
-    Pay(6 MC)
+Pink: useAction1(DirectedImpactors) {
+    pay(6 MC)
     Asteroid<DirectedImpactors>
 }
 
-Green: ClaimMilestone {
-    Pay(8 MC)
+Green: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Diversifier
 }
 
-Purple: PlayCard(Teslaract) {
-    Pay(5 Steel, 4 MC)
+Purple: playCard(Teslaract) {
+    pay(5 Steel, 4 MC)
     TerraformRating
 }
 
-Blue: PlayCard(MiningExpedition) {
-    Pay(12 MC)
+Blue: playCard(MiningExpedition) {
+    pay(12 MC)
     OxygenStep
     2 Steel
     TerraformRating
     -2 Plant<Purple>
 }
 
-Pink: Pass
+Pink: pass
 
-Green: UseAction1(SulphurEatingBacteria) {
+Green: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
 
-Purple: UseAction1(Teslaract) {
+Purple: useAction1(Teslaract) {
     PROD[-Energy]
     PROD[Plant]
 }
 
-Blue: PlayCard(WeatherBalloons) {
-    Pay(11 MC)
+Blue: playCard(WeatherBalloons) {
+    pay(11 MC)
     ProjectCard
 }
 
-Green: Pass
+Green: pass
 
-Purple: Pass
+Purple: pass
 
-Blue: UseAction1(WeatherBalloons) {
+Blue: useAction1(WeatherBalloons) {
     Floater<WeatherBalloons>
 }
-Blue: Pass
+Blue: pass
 
 // Production.
 Blue: Production {
@@ -562,74 +562,74 @@ Green: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Purple: PlayCard(DeepWellHeating) {
-    Pay(1 Steel, 11 MC)
+Purple: playCard(DeepWellHeating) {
+    pay(1 Steel, 11 MC)
     PROD[Energy]
     TemperatureStep
     TerraformRating
 }
-Purple: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Purple: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     PROD[Heat]
 }
 
-Blue: UseAction1(Psychrophiles) {
+Blue: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
-Blue: UseAction1(WeatherBalloons) {
+Blue: useAction1(WeatherBalloons) {
     Floater<WeatherBalloons>
 }
 
-Pink: PlayCard(EarthCatapult) {
-    Pay(23 MC)
+Pink: playCard(EarthCatapult) {
+    pay(23 MC)
     3 MC
 }
 
-Green: UseAction1(AppliedScience) {
+Green: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Microbe<SulphurEatingBacteria>
 }
 
-Purple: Pass
+Purple: pass
 
-Blue: UseAction1(AstroDrill) {
+Blue: useAction1(AstroDrill) {
     Asteroid<CometAiming>
 }
 
-Pink: PlayCard(HomeostasisBureau) {
-    Pay(3 Steel, 8 MC)
+Pink: playCard(HomeostasisBureau) {
+    pay(3 Steel, 8 MC)
     PROD[2 Heat]
 }
 
-Green: PlayCard(VenusianPlants) {
-    Pay(11 MC)
+Green: playCard(VenusianPlants) {
+    pay(11 MC)
     VenusStep
     TerraformRating
     Microbe<SulphurEatingBacteria>
@@ -637,13 +637,13 @@ Green: PlayCard(VenusianPlants) {
 
 // No Psychrophiles microbes paid.
 // No M€ needed after paying with steel.
-Blue: PlayCard(NoctisFarming) {
-    Pay(5 Steel)
+Blue: playCard(NoctisFarming) {
+    pay(5 Steel)
     PROD[MC]
     2 Plant
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_6_4>
     OxygenStep
     Plant
@@ -651,56 +651,56 @@ Blue: ConvertPlants {
     TerraformRating
 }
 
-Pink: ConvertHeat {
-    Pay(8 Heat)
+Pink: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     3 MC
 }
 
 // No M€ needed after paying with titanium.
-Green: PlayCard(TransNeptuneProbe) {
-    Pay(2 Titanium)
+Green: playCard(TransNeptuneProbe) {
+    pay(2 Titanium)
     TerraformRating FROM Disease<PharmacyUnion>
 }
 
-Blue: PlayCard(MethaneFromTitan) {
-    Pay(4 Titanium, 16 MC)
+Blue: playCard(MethaneFromTitan) {
+    pay(4 Titanium, 16 MC)
     PROD[2 Heat]
     PROD[2 Plant]
 }
 
-Pink: ConvertHeat {
-    Pay(8 Heat)
+Pink: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     3 MC
 }
 
-Green: UseAction2(SulphurEatingBacteria) {
-    SelectTask(-6! Microbe<SulphurEatingBacteria> THEN 18! MC)
+Green: useAction2(SulphurEatingBacteria) {
+    selectTask(-6! Microbe<SulphurEatingBacteria> THEN 18! MC)
     -6 Microbe<SulphurEatingBacteria>
     18 MC
 }
 
-Blue: PlayCard(TerraformingContract) {
-    Pay(8 MC)
+Blue: playCard(TerraformingContract) {
+    pay(8 MC)
     PROD[4 MC]
 }
 
-Pink: UseAction2(DirectedImpactors) {
+Pink: useAction2(DirectedImpactors) {
     -Asteroid<DirectedImpactors>
     TemperatureStep
     TerraformRating
     3 MC
 }
 
-Green: PlayCard(Solarnet) {
-    Pay(5 MC)
+Green: playCard(Solarnet) {
+    pay(5 MC)
     2 ProjectCard
 }
 
-Blue: UseAction2(CometAiming) {
+Blue: useAction2(CometAiming) {
     -Asteroid<CometAiming>
     OceanTile<Tharsis_6_7>
     TerraformRating
@@ -708,17 +708,17 @@ Blue: UseAction2(CometAiming) {
     2 MC
 }
 
-Pink: Pass
+Pink: pass
 
-Green: PlayCard(SnowAlgae) {
-    Pay(10 MC)
+Green: playCard(SnowAlgae) {
+    pay(10 MC)
     PROD[Plant]
     PROD[Heat]
 }
 
-Blue: Pass
+Blue: pass
 
-Green: Pass
+Green: pass
 
 // Production.
 Blue: Production {
@@ -764,7 +764,7 @@ Purple: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
@@ -773,39 +773,39 @@ Pink: Research {
 
     // Keep all four Research cards.
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: UseAction1(Psychrophiles) {
+Blue: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
-Blue: UseAction1(WeatherBalloons) {
+Blue: useAction1(WeatherBalloons) {
     Floater<WeatherBalloons>
 }
 
-Pink: PlayCard(SterlingVents) {
-    Pay(1 Steel, 1 MC)
+Pink: playCard(SterlingVents) {
+    pay(1 Steel, 1 MC)
     PROD[-2 Heat]
     PROD[2 Energy]
     3 MC
 }
-Pink: PlayCard(ImmigrantCity) {
-    Pay(11 MC)
+Pink: playCard(ImmigrantCity) {
+    pay(11 MC)
     PROD[-Energy]
     PROD[-2 MC]
     NormalCityTile<Tharsis_6_5>
@@ -814,41 +814,41 @@ Pink: PlayCard(ImmigrantCity) {
     4 MC
 }
 
-Green: PlayCard(MiningRights) {
-    Pay(9 MC)
+Green: playCard(MiningRights) {
+    pay(9 MC)
     MiningRights_SpecialTile<Tharsis_8_4>
     PROD[Steel]
     2 Steel
 }
 
-Purple: ConvertHeat {
-    Pay(8 Heat)
+Purple: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Blue: UseAction2(AstroDrill) {
+Blue: useAction2(AstroDrill) {
     -Asteroid<AstroDrill>
     3 Titanium
 }
-Blue: UseAction1(CometAiming) {
-    Pay(1 Titanium)
+Blue: useAction1(CometAiming) {
+    pay(1 Titanium)
     Asteroid<CometAiming>
 }
 
-Pink: ConvertHeat {
-    Pay(8 Heat)
+Pink: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     3 MC
 }
 
-Green: UseAction1(SulphurEatingBacteria) {
+Green: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
 
-Purple: PlayCard(Comet) {
-    Pay(2 Titanium, 15 MC)
+Purple: playCard(Comet) {
+    pay(2 Titanium, 15 MC)
     TemperatureStep
     TerraformRating
     OceanTile<Tharsis_2_6>
@@ -858,38 +858,38 @@ Purple: PlayCard(Comet) {
     -3 Plant<Blue>
 }
 
-Blue: PlayCard(ResearchCoordination) {
-    Pay(4 MC)
+Blue: playCard(ResearchCoordination) {
+    pay(4 MC)
 }
-Blue: PlayCard(Satellites) {
-    Pay(2 Titanium, 4 MC)
+Blue: playCard(Satellites) {
+    pay(2 Titanium, 4 MC)
     PROD[6 MC]
 }
 
-Pink: UseAction1(DirectedImpactors) {
-    Pay(6 MC)
+Pink: useAction1(DirectedImpactors) {
+    pay(6 MC)
     Asteroid<DirectedImpactors>
 }
 
-Green: UseAction1(AppliedScience) {
+Green: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Titanium
 }
 
 // Database save 282: complete public state after Green's Applied Science action. Private hands
 // are represented only by their public aggregate counts.
-Purple: PlayCard(PowerGrid) {
-    Pay(18 MC)
+Purple: playCard(PowerGrid) {
+    pay(18 MC)
     PROD[6 Energy]
 }
 
-Blue: PlayCard(WavePower) {
-    Pay(8 MC)
+Blue: playCard(WavePower) {
+    pay(8 MC)
     PROD[Energy]
 }
 
-Pink: PlayCard(FieldCappedCity) {
-    Pay(27 MC)
+Pink: playCard(FieldCappedCity) {
+    pay(27 MC)
     PROD[2 MC]
     PROD[Energy]
     3 Plant
@@ -897,34 +897,34 @@ Pink: PlayCard(FieldCappedCity) {
     PROD[MC]
 }
 
-Green: PlayCard(NitrogenRichAsteroid) {
-    Pay(4 Titanium, 19 MC)
+Green: playCard(NitrogenRichAsteroid) {
+    pay(4 Titanium, 19 MC)
     2 TerraformRating
     TemperatureStep
     TerraformRating
     PROD[4 Plant]
 }
 
-Purple: UseAction1(Teslaract) {
+Purple: useAction1(Teslaract) {
     PROD[-Energy]
     PROD[Plant]
 }
 
-Blue: Pass
+Blue: pass
 
-Pink: Pass
+Pink: pass
 
 // No M€ needed after paying with steel.
-Green: PlayCard(MiningArea) {
-    Pay(2 Steel)
+Green: playCard(MiningArea) {
+    pay(2 Steel)
     MiningArea_SpecialTile<Tharsis_9_5>
     PROD[Steel]
     Steel
 }
 
-Purple: Pass
+Purple: pass
 
-Green: Pass
+Green: pass
 
 // Production.
 Blue: Production {
@@ -975,109 +975,109 @@ Blue: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Pink: PlayCard(VenusianAnimals) {
-    Pay(13 MC)
+Pink: playCard(VenusianAnimals) {
+    pay(13 MC)
     3 MC
     Animal<VenusianAnimals>
 }
 
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_9_6>
     OxygenStep
     2 Steel
     TerraformRating
 }
 
-Purple: PlayCard(BusinessContacts) {
-    Pay(7 MC)
+Purple: playCard(BusinessContacts) {
+    pay(7 MC)
     4 ProjectCard<Selecting>
     2 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: PlayCard(SpaceElevator) {
-    Pay(1 Steel, 25 MC)
+Blue: playCard(SpaceElevator) {
+    pay(1 Steel, 25 MC)
     PROD[Titanium]
 }
-Blue: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+Blue: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
 
-Pink: PlayCard(CeosFavoriteProject) {
+Pink: playCard(CeosFavoriteProject) {
     Asteroid<DirectedImpactors>
 }
 
-Green: PlayCard(RegoPlastics) {
-    Pay(1 Steel, 8 MC)
+Green: playCard(RegoPlastics) {
+    pay(1 Steel, 8 MC)
 }
 
-Purple: PlayCard(FuelFactory) {
-    Pay(2 Steel, 2 MC)
+Purple: playCard(FuelFactory) {
+    pay(2 Steel, 2 MC)
     PROD[-Energy]
     PROD[Titanium]
     PROD[MC]
 }
 
-Blue: UseAction1(Psychrophiles) {
+Blue: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 
-Pink: ConvertHeat {
-    Pay(8 Heat)
+Pink: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
     3 MC
 }
 
-Green: PlayCard(CarbonNanosystems) {
-    Pay(4 Steel, 2 MC)
+Green: playCard(CarbonNanosystems) {
+    pay(4 Steel, 2 MC)
     TerraformRating FROM Disease<PharmacyUnion>
     Graphene<CarbonNanosystems>
 }
 
-Purple: PlayCard(GiantSpaceMirror) {
-    Pay(1 Titanium, 14 MC)
+Purple: playCard(GiantSpaceMirror) {
+    pay(1 Titanium, 14 MC)
     PROD[3 Energy]
 }
 
-Blue: UseAction1(AstroDrill) {
+Blue: useAction1(AstroDrill) {
     Titanium
 }
 
-Pink: UseAction2(DirectedImpactors) {
+Pink: useAction2(DirectedImpactors) {
     -Asteroid<DirectedImpactors>
     TemperatureStep
     TerraformRating
     3 MC
 }
-Pink: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Pink: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     3 MC
@@ -1087,21 +1087,21 @@ Pink: UseStandardProject(AsteroidProject) {
     2 Steel
 }
 
-Green: PlayCard(ArtificialPhotosynthesis) {
-    Pay(12 MC)
+Green: playCard(ArtificialPhotosynthesis) {
+    pay(12 MC)
     TerraformRating FROM Disease<PharmacyUnion>
     Graphene<CarbonNanosystems>
     PROD[2 Energy]
 }
 
-Purple: PlayCard(SmallAsteroid) {
-    Pay(10 MC)
+Purple: playCard(SmallAsteroid) {
+    pay(10 MC)
     TemperatureStep
     TerraformRating
     -2 Plant<Blue>
 }
 
-Blue: UseAction2(CometAiming) {
+Blue: useAction2(CometAiming) {
     -Asteroid<CometAiming>
     OceanTile<Tharsis_6_8>
     TerraformRating
@@ -1109,58 +1109,58 @@ Blue: UseAction2(CometAiming) {
     2 MC
 }
 
-Pink: PlayCard(DevelopmentCenter) {
-    Pay(3 Steel, 3 MC)
+Pink: playCard(DevelopmentCenter) {
+    pay(3 Steel, 3 MC)
     Animal<VenusianAnimals>
 }
-Pink: UseAction1(DevelopmentCenter) {
-    Pay(1 Energy)
+Pink: useAction1(DevelopmentCenter) {
+    pay(1 Energy)
     ProjectCard
 }
 
-Green: UseAction1(AppliedScience) {
+Green: useAction1(AppliedScience) {
     -Science<AppliedScience>
     Titanium
 }
 
-Purple: UseAction1(Teslaract) {
+Purple: useAction1(Teslaract) {
     PROD[-Energy]
     PROD[Plant]
 }
 
-Blue: UseAction2(WeatherBalloons) {
+Blue: useAction2(WeatherBalloons) {
     -Floater<WeatherBalloons>
     2 MC
 }
 
-Pink: PlayCard(JovianEmbassy) {
-    Pay(12 MC)
+Pink: playCard(JovianEmbassy) {
+    pay(12 MC)
     TerraformRating
     3 MC
 }
-Pink: ClaimMilestone {
-    Pay(8 MC)
+Pink: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Builder
 }
 
 // No M€ needed after paying with graphene and titanium.
-Green: PlayCard(OrbitalCleanup) {
-    Pay(2 Graphene<CarbonNanosystems>, 2 Titanium)
+Green: playCard(OrbitalCleanup) {
+    pay(2 Graphene<CarbonNanosystems>, 2 Titanium)
     PROD[-2 MC]
 }
 
-Purple: Pass
+Purple: pass
 
-Blue: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Blue: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_5_7>
     Pink: PROD[MC]
     2 Plant
     6 MC
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_4_6>
     OxygenStep
     Plant
@@ -1168,36 +1168,36 @@ Blue: ConvertPlants {
     TerraformRating
 }
 
-Pink: Pass
+Pink: pass
 
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     6 MC
 }
 
-Blue: ClaimMilestone {
-    Pay(8 MC)
+Blue: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Coastguard
 }
 
-Green: UseAction1(SulphurEatingBacteria) {
+Green: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
 }
 
-Blue: PlayCard(SecurityFleet) {
-    Pay(1 Titanium, 9 MC)
+Blue: playCard(SecurityFleet) {
+    pay(1 Titanium, 9 MC)
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Blue: Pass
+Blue: pass
 
-Green: PlayCard(AdaptedLichen) {
-    Pay(9 MC)
+Green: playCard(AdaptedLichen) {
+    pay(9 MC)
     PROD[Plant]
 }
-Green: Pass
+Green: pass
 
 // Production.
 Blue: Production {
@@ -1253,60 +1253,60 @@ Blue: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Purple: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Green: PlayCard(SubterraneanReservoir) {
-    Pay(11 MC)
+Green: playCard(SubterraneanReservoir) {
+    pay(11 MC)
     OceanTile<Tharsis_9_9>
     TerraformRating
     Blue: 2 Plant
     2 Titanium
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_8_6>
     OxygenStep
     ProjectCard
     TerraformRating
 }
 
-Purple: ConvertHeat {
-    Pay(8 Heat)
+Purple: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Purple: ConvertHeat {
-    Pay(8 Heat)
+Purple: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
 // No M€ needed after paying with Psychrophiles microbes.
-Blue: PlayCard(KaguyaTech) {
-    Pay(5 Microbe<Psychrophiles>)
+Blue: playCard(KaguyaTech) {
+    pay(5 Microbe<Psychrophiles>)
     PROD[2 MC]
     ProjectCard
     NormalCityTile<Tharsis_6_4> FROM GreeneryTile<Tharsis_6_4>
@@ -1315,76 +1315,76 @@ Blue: PlayCard(KaguyaTech) {
     2 MC
 }
 
-Pink: UseAction2(DirectedImpactors) {
+Pink: useAction2(DirectedImpactors) {
     -Asteroid<DirectedImpactors>
     TemperatureStep
     TerraformRating
     3 MC
 }
-Pink: FundAward {
-    Pay(14 MC)
+Pink: action(FundAwardAction) {
+    pay(14 MC)
     Traveller
 }
 
-Green: PlayCard(SolarWindPower) {
-    Pay(3 Titanium, 2 MC)
+Green: playCard(SolarWindPower) {
+    pay(3 Titanium, 2 MC)
     PROD[Energy]
     2 Titanium
     TerraformRating FROM Disease<PharmacyUnion>
     Graphene<CarbonNanosystems>
 }
 
-Purple: PlayCard(PhysicsComplex) {
-    Pay(1 Steel, 10 MC)
+Purple: playCard(PhysicsComplex) {
+    pay(1 Steel, 10 MC)
 }
-Purple: UseAction1(PhysicsComplex) {
-    Pay(6 Energy)
+Purple: useAction1(PhysicsComplex) {
+    pay(6 Energy)
     Science<PhysicsComplex>
 }
 
-Blue: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+Blue: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
 
-Pink: PlayCard(Trees) {
-    Pay(11 MC)
+Pink: playCard(Trees) {
+    pay(11 MC)
     PROD[3 Plant]
     Plant
     3 MC
 }
-Pink: PlayCard(AdvancedEcosystems) {
-    Pay(9 MC)
+Pink: playCard(AdvancedEcosystems) {
+    pay(9 MC)
     3 MC VIA Vitor
     Green: Disease<PharmacyUnion>
     Green: -4 MC
 }
 
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     7 MC
 }
 
-Purple: ConvertPlants {
-    Pay(8 Plant)
+Purple: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_4_5>
     OxygenStep
     2 Plant
     4 MC
     TerraformRating
 }
-Purple: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Purple: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_3_5>
     Pink: PROD[MC]
 }
 
 // No titanium paid.
-Blue: PlayCard(MercurianAlloys) {
-    Pay(3 MC)
+Blue: playCard(MercurianAlloys) {
+    pay(3 MC)
 }
-Blue: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Blue: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_3_7>
     Pink: PROD[MC]
@@ -1392,36 +1392,36 @@ Blue: UseStandardProject(CityProject) {
     2 MC
 }
 
-Pink: UseAction1(DevelopmentCenter) {
-    Pay(1 Energy)
+Pink: useAction1(DevelopmentCenter) {
+    pay(1 Energy)
     ProjectCard
 }
-Pink: PlayCard(HiredRaiders) {
+Pink: playCard(HiredRaiders) {
     3 MC FROM MC<Blue>
 }
 
-Green: PlayCard(SisterPlanetSupport) {
-    Pay(5 MC)
+Green: playCard(SisterPlanetSupport) {
+    pay(5 MC)
     PROD[3 MC]
 }
-Green: PlayCard(Insects) {
-    Pay(7 MC)
+Green: playCard(Insects) {
+    pay(7 MC)
     PROD[5 Plant]
     Disease<PharmacyUnion>
     -0 MC
 }
 
-Purple: UseAction1(Teslaract) {
+Purple: useAction1(Teslaract) {
     PROD[-Energy]
     PROD[Plant]
 }
 
-Blue: UseAction1(CometAiming) {
-    Pay(1 Titanium)
+Blue: useAction1(CometAiming) {
+    pay(1 Titanium)
     Asteroid<AstroDrill>
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_4_7>
     OxygenStep
     Plant
@@ -1429,8 +1429,8 @@ Blue: ConvertPlants {
     0 TemperatureStep
 }
 
-Pink: PlayCard(SponsoredAcademies) {
-    Pay(7 MC)
+Pink: playCard(SponsoredAcademies) {
+    pay(7 MC)
     -ProjectCard
     EACH Other@Player(NOT Pink) { ProjectCard<Other@Player>! } VIA SponsoredAcademies
     3 MC
@@ -1441,80 +1441,80 @@ Pink: PlayCard(SponsoredAcademies) {
     ProjectCard<Purple>
 }
 
-Green: UseAction2(SulphurEatingBacteria) {
-    SelectTask(-2! Microbe<SulphurEatingBacteria> THEN 6! MC)
+Green: useAction2(SulphurEatingBacteria) {
+    selectTask(-2! Microbe<SulphurEatingBacteria> THEN 6! MC)
     -2 Microbe<SulphurEatingBacteria>
     6 MC
 }
-Green: PlayCard(Worms) {
-    Pay(6 MC)
+Green: playCard(Worms) {
+    pay(6 MC)
     PROD[3 Plant]
     Disease<PharmacyUnion>
     -0 MC
 }
 
-Purple: PlayCard(ProtectedGrowth) {
-    Pay(2 MC)
+Purple: playCard(ProtectedGrowth) {
+    pay(2 MC)
     7 Plant
 }
-Purple: ConvertPlants {
-    Pay(8 Plant)
+Purple: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_2_5>
     OxygenStep
     4 MC
     TerraformRating
 }
 
-Blue: UseAction1(Psychrophiles) {
+Blue: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
 
-Pink: PlayCard(SoilFactory) {
-    Pay(1 Steel, 5 MC)
+Pink: playCard(SoilFactory) {
+    pay(1 Steel, 5 MC)
     PROD[-Energy]
     PROD[Plant]
     3 MC
 }
 
-Green: Pass
+Green: pass
 
-Purple: PlayCard(Lichen) {
-    Pay(7 MC)
+Purple: playCard(Lichen) {
+    pay(7 MC)
     PROD[Plant]
 }
 
-Blue: UseAction2(WeatherBalloons) {
+Blue: useAction2(WeatherBalloons) {
     -Floater<WeatherBalloons>
     6 MC
 }
 
-Pink: PlayCard(CorroderSuits) {
-    Pay(6 MC)
+Pink: playCard(CorroderSuits) {
+    pay(6 MC)
     PROD[2 MC]
     Animal<VenusianAnimals>
 }
 
-Purple: Pass
+Purple: pass
 
-Blue: UseAction2(AstroDrill) {
+Blue: useAction2(AstroDrill) {
     -Asteroid<AstroDrill>
     3 Titanium
 }
-Blue: UseAction1(SecurityFleet) {
-    Pay(1 Titanium)
+Blue: useAction1(SecurityFleet) {
+    pay(1 Titanium)
     Fighter<SecurityFleet>
 }
 
-Pink: Pass
+Pink: pass
 
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     4 MC FROM ProjectCard
 }
-Blue: PlayCard(NoctisCity) {
-    Pay(1 Steel, 16 MC)
+Blue: playCard(NoctisCity) {
+    pay(1 Steel, 16 MC)
     PROD[-Energy]
     PROD[3 MC]
     NormalCityTile<Tharsis_5_3>
@@ -1522,22 +1522,22 @@ Blue: PlayCard(NoctisCity) {
     2 Plant
     2 MC
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_4_3>
     OxygenStep
     Plant
     2 MC
     TerraformRating
 }
-Blue: PlayCard(Mangrove) {
-    Pay(1 Microbe<Psychrophiles>, 10 MC)
+Blue: playCard(Mangrove) {
+    pay(1 Microbe<Psychrophiles>, 10 MC)
     GreeneryTile<Tharsis_4_8>
     OxygenStep
     2 Plant
     TerraformRating
 }
-Blue: Pass
+Blue: pass
 
 // Production.
 Blue: Production {
@@ -1588,21 +1588,21 @@ Green: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Green: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
@@ -1611,42 +1611,42 @@ Purple: Research {
     -4 ProjectCard<Selecting>
 }
 
-Purple: ConvertPlants {
-    Pay(8 Plant)
+Purple: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_2_4>
     OxygenStep
     2 MC
     TerraformRating
 }
-Purple: UseAction1(PhysicsComplex) {
-    Pay(6 Energy)
+Purple: useAction1(PhysicsComplex) {
+    pay(6 Energy)
     Science<PhysicsComplex>
 }
 
-Blue: UseAction1(SpaceElevator) {
-    Pay(1 Steel)
+Blue: useAction1(SpaceElevator) {
+    pay(1 Steel)
     5 MC
 }
-Blue: UseAction1(SecurityFleet) {
-    Pay(1 Titanium)
+Blue: useAction1(SecurityFleet) {
+    pay(1 Titanium)
     Fighter<SecurityFleet>
 }
 
-Pink: ConvertPlants {
-    Pay(8 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_6_6>
     OxygenStep
     Plant
     6 MC
     TerraformRating
 }
-Pink: FundAward {
-    Pay(20 MC)
+Pink: action(FundAwardAction) {
+    pay(20 MC)
     Celebrity
 }
 
-Green: PlayCard(UndergroundCity) {
-    Pay(1 Graphene<CarbonNanosystems>, 4 Steel, 2 MC)
+Green: playCard(UndergroundCity) {
+    pay(1 Graphene<CarbonNanosystems>, 4 Steel, 2 MC)
     PROD[-2 Energy]
     PROD[2 Steel]
     NormalCityTile<Tharsis_4_1>
@@ -1654,222 +1654,222 @@ Green: PlayCard(UndergroundCity) {
     Plant
     Titanium
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_5_1>
     0 OxygenStep
     2 Plant
 }
 
-Purple: UseAction1(Teslaract) {
+Purple: useAction1(Teslaract) {
     PROD[-Energy]
     PROD[Plant]
 }
-Purple: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Purple: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Tharsis_2_3>
     Pink: PROD[MC]
     2 MC
 }
 
-Blue: UseAction1(CometAiming) {
-    Pay(1 Titanium)
+Blue: useAction1(CometAiming) {
+    pay(1 Titanium)
     Asteroid<AstroDrill>
 }
-Blue: UseAction2(AstroDrill) {
+Blue: useAction2(AstroDrill) {
     -Asteroid<AstroDrill>
     3 Titanium
 }
 
-Pink: PlayCard(StratosphericExpedition) {
-    Pay(10 MC)
+Pink: playCard(StratosphericExpedition) {
+    pay(10 MC)
     2* Floater
     // Pink has no card that can hold floaters, so this placement adds none.
     2 SearchForCard<TagFilter<Class<VenusTag>>>
     3 MC
 }
-Pink: UseAction1(DevelopmentCenter) {
-    Pay(1 Energy)
+Pink: useAction1(DevelopmentCenter) {
+    pay(1 Energy)
     ProjectCard
 }
 
 // Generation 8 (continued)
 // Database save 546: after Pink plays Stratospheric Expedition and uses Development Center.
-Green: PlayCard(CallistoPenalMines) {
-    Pay(4 Titanium, 12 MC)
+Green: playCard(CallistoPenalMines) {
+    pay(4 Titanium, 12 MC)
     PROD[3 MC]
 }
 
-Purple: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Purple: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Tharsis_3_4>
     0 OxygenStep
 }
 
-Blue: UseAction1(Psychrophiles) {
+Blue: useAction1(Psychrophiles) {
     Microbe<Psychrophiles>
 }
-Blue: UseAction2(WeatherBalloons) {
+Blue: useAction2(WeatherBalloons) {
     -Floater<WeatherBalloons>
     9 MC
 }
 
-Pink: PlayCard(Research) {
-    Pay(9 MC)
+Pink: playCard(Research) {
+    pay(9 MC)
     2 ProjectCard
     3 MC
     Animal<VenusianAnimals>
     Animal<VenusianAnimals>
 }
-Pink: PlayCard(Sabotage) {
+Pink: playCard(Sabotage) {
     -3 Titanium<Blue>
 }
 
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_3_1>
     0 OxygenStep
     ProjectCard
 }
 
-Purple: UseStandardProject(SellPatentsProject) {
+Purple: useStandardProject(SellPatentsProject) {
     5 MC FROM ProjectCard
 }
 
-Blue: PlayCard(Grass) {
-    Pay(1 Microbe<Psychrophiles>, 9 MC)
+Blue: playCard(Grass) {
+    pay(1 Microbe<Psychrophiles>, 9 MC)
     PROD[Plant]
     3 Plant
 }
-Blue: PlayCard(CityParks) {
-    Pay(7 MC)
+Blue: playCard(CityParks) {
+    pay(7 MC)
     2 Plant
 }
 
-Pink: PlayCard(FreyjaBiodomes) {
-    Pay(12 MC)
+Pink: playCard(FreyjaBiodomes) {
+    pay(12 MC)
     PROD[-Energy]
     PROD[2 MC]
     3 MC
     2 Animal<VenusianAnimals>
 }
 
-Green: PlayCard(SaturnSurfing) {
-    Pay(13 MC)
+Green: playCard(SaturnSurfing) {
+    pay(13 MC)
     4 Floater<SaturnSurfing>
 }
 
-Purple: Pass
+Purple: pass
 
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_5_8>
     0 OxygenStep
     2 Plant
     2 MC
 }
 
-Pink: PlayCard(AstraMechanica) {
-    Pay(5 MC)
+Pink: playCard(AstraMechanica) {
+    pay(5 MC)
     Animal<VenusianAnimals>
     ProjectCard FROM PlayedEvent<Class<CeosFavoriteProject>>
     ProjectCard FROM PlayedEvent<Class<Sabotage>>
 }
-Pink: PlayCard(Sabotage) {
+Pink: playCard(Sabotage) {
     -7 MC<Blue>
 }
 
-Green: UseAction1(SaturnSurfing) {
+Green: useAction1(SaturnSurfing) {
     -Floater<SaturnSurfing>
     4 MC
 }
-Green: PlayCard(TopsoilContract) {
-    Pay(8 MC)
+Green: playCard(TopsoilContract) {
+    pay(8 MC)
     3 Plant
     Disease<PharmacyUnion>
     -0 MC
 }
 
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Blue: PlayCard(AsteroidMining) {
-    Pay(1 Titanium, 26 MC)
+Blue: playCard(AsteroidMining) {
+    pay(1 Titanium, 26 MC)
     PROD[2 Titanium]
 }
 
-Pink: PlayCard(CeosFavoriteProject) {
+Pink: playCard(CeosFavoriteProject) {
     Animal<VenusianAnimals>
 }
 
-Green: UseAction1(SulphurEatingBacteria) {
+Green: useAction1(SulphurEatingBacteria) {
     Microbe<SulphurEatingBacteria>
     MC
 }
 
-Blue: UseStandardProject(GreeneryProject) {
-    Pay(23 MC)
+Blue: useStandardProject(GreeneryProject) {
+    pay(23 MC)
     GreeneryTile<Tharsis_5_2>
     0 OxygenStep
     2 Plant
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_3_6>
     0 OxygenStep
     2 MC
 }
 
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Green: UseAction1(OrbitalCleanup) {
+Green: useAction1(OrbitalCleanup) {
     7 MC
 }
-Green: PlayCard(SoilEnrichment) {
-    Pay(6 MC)
+Green: playCard(SoilEnrichment) {
+    pay(6 MC)
     -Microbe<SulphurEatingBacteria>
     5 Plant
     Disease<PharmacyUnion>
     -2 MC
 }
 
-Blue: Pass
+Blue: pass
 
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_8_7>
     0 OxygenStep
     ProjectCard
 }
 
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Green: UseStandardProject(SellPatentsProject) {
+Green: useStandardProject(SellPatentsProject) {
     5 MC FROM ProjectCard
 }
 
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
-Pink: PlayCard(CometForVenus) {
-    Pay(9 MC)
+Pink: playCard(CometForVenus) {
+    pay(9 MC)
     VenusStep
     TerraformRating
     -4 MC<Purple>
 }
 
-Green: Pass
+Green: pass
 
-Pink: Pass
+Pink: pass
 
 // Production.
 Blue: Production {
@@ -1908,8 +1908,8 @@ Purple: Production {
 }
 
 // Database save 622: final production, before the remaining greenery placements.
-Purple: ConvertPlants {
-    Pay(8 Plant)
+Purple: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_1_3>
     4 MC
 }
@@ -1928,13 +1928,13 @@ Pink {
     Ok
 }
 
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_4_2>
     Plant
 }
-Green: ConvertPlants {
-    Pay(8 Plant)
+Green: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Tharsis_8_8>
     2 MC
 }

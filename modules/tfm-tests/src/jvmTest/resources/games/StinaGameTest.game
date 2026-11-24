@@ -86,111 +86,111 @@ Me: Setup {
     -0 ProjectCard<Selecting>
 }
 
-Me: PlayCard(SaturnSystems) {
+Me: playCard(SaturnSystems) {
     42 MC VIA SaturnSystems
     PROD[Titanium]
     PROD[MC]
-    Pay(30 MC)
+    pay(30 MC)
     10 ProjectCard<Hand FROM Selecting>
 }
 
-Me: PlayCard(Biolab) {
+Me: playCard(Biolab) {
     PROD[Plant]
     3 ProjectCard
 }
-Me: PlayCard(AcquiredSpaceAgency) {
+Me: playCard(AcquiredSpaceAgency) {
     6 Titanium
     2 SearchForCard<TagFilter<Class<SpaceTag>>>
 }
 
-Me: PlayCard(EarthOffice) {
-    Pay(1 MC)
+Me: playCard(EarthOffice) {
+    pay(1 MC)
 }
-Me: PlayCard(MediaGroup) {
-    Pay(3 MC)
+Me: playCard(MediaGroup) {
+    pay(3 MC)
 }
-Me: PlayCard(InvestmentLoan) {
+Me: playCard(InvestmentLoan) {
     PROD[-MC]
     13 MC
 }
-Me: PlayCard(IndenturedWorkers) {
+Me: playCard(IndenturedWorkers) {
     3 MC
     IndenturedWorkers_NextCardEffect
 }
-Me: PlayCard(EarthCatapult) {
-    Pay(12 MC)
+Me: playCard(EarthCatapult) {
+    pay(12 MC)
 }
-Me: PlayCard(HiredRaiders) {
+Me: playCard(HiredRaiders) {
     2 Steel FROM Steel<SoloOpponent>
     3 MC
 }
-Me: PlayCard(OlympusConference) {
-    Pay(2 Steel, 1 MC)
+Me: playCard(OlympusConference) {
+    pay(2 Steel, 1 MC)
     Science<OlympusConference>
 }
-Me: PlayCard(AdvancedAlloys) {
-    Pay(7 MC)
+Me: playCard(AdvancedAlloys) {
+    pay(7 MC)
     ProjectCard FROM Science<OlympusConference>
 }
-Me: PlayCard(MineralDeposit) {
-    Pay(3 MC)
+Me: playCard(MineralDeposit) {
+    pay(3 MC)
     5 Steel
     3 MC
 }
-Me: PlayCard(ResearchOutpost) {
-    Pay(5 Steel, 1 MC)
+Me: playCard(ResearchOutpost) {
+    pay(5 Steel, 1 MC)
     NormalCityTile<Elysium_9_7>
     Science<OlympusConference>
     ProjectCard
 }
-Me: PlayCard(InventionContest) {
+Me: playCard(InventionContest) {
     ProjectCard FROM Science<OlympusConference> VIA OlympusConference
     3 ProjectCard<Selecting>
     ProjectCard<Hand FROM Selecting>
     3 MC
 }
-Me: PlayCard(BusinessContacts) {
-    Pay(1 MC)
+Me: playCard(BusinessContacts) {
+    pay(1 MC)
     4 ProjectCard<Selecting>
     2 ProjectCard<Hand FROM Selecting>
     3 MC
 }
-Me: PlayCard(QuantumExtractor) {
-    Pay(10 MC)
+Me: playCard(QuantumExtractor) {
+    pay(10 MC)
     Science<OlympusConference>
     PROD[4 Energy]
 }
-Me: PlayCard(SpaceStation) {
-    Pay(1 Titanium, 1 MC)
+Me: playCard(SpaceStation) {
+    pay(1 Titanium, 1 MC)
 }
-Me: PlayCard(OptimalAerobraking) {
+Me: playCard(OptimalAerobraking) {
 }
 // Test inference: Lagrange Observatory is free after the accumulated space discounts and
 // draws twice with Olympus Conference. Convoy from Europa costs 3 M€, rebates 6 M€, draws a
 // replacement card, and places an ocean.
-Me: PlayCard(TechnologyDemonstration) {
+Me: playCard(TechnologyDemonstration) {
     2 ProjectCard VIA TechnologyDemonstration
     ProjectCard FROM Science<OlympusConference>
     6 MC
     3 Heat
 }
-Me: PlayCard(ImportOfAdvancedGhg) {
+Me: playCard(ImportOfAdvancedGhg) {
     PROD[2 Heat]
     6 MC
     3 Heat
 }
-Me: PlayCard(ImportedGhg) {
+Me: playCard(ImportedGhg) {
     PROD[Heat]
     6 Heat
     6 MC
 }
-Me: PlayCard(MassConverter) {
-    Pay(5 MC)
+Me: playCard(MassConverter) {
+    pay(5 MC)
     Science<OlympusConference>
     PROD[6 Energy]
 }
-Me: PlayCard(TowingAComet) {
-    Pay(3 Titanium, 2 MC)
+Me: playCard(TowingAComet) {
+    pay(3 Titanium, 2 MC)
     2 Plant
     OxygenStep
     TerraformRating
@@ -200,19 +200,19 @@ Me: PlayCard(TowingAComet) {
     6 MC
     3 Heat
 }
-Me: PlayCard(AdaptationTechnology) {
-    Pay(9 MC)
+Me: playCard(AdaptationTechnology) {
+    pay(9 MC)
     Science<OlympusConference>
 }
-Me: PlayCard(SpecialDesign) {
-    Pay(1 MC)
+Me: playCard(SpecialDesign) {
+    pay(1 MC)
     ProjectCard FROM Science<OlympusConference>
     3 MC
     SpecialDesign_NextCardEffect
 }
 // no titanium paid
-Me: PlayCard(Shuttles) {
-    Pay(1 MC)
+Me: playCard(Shuttles) {
+    pay(1 MC)
     PROD[-Energy]
     PROD[2 MC]
 }

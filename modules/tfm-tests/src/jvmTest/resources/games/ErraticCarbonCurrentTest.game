@@ -283,61 +283,61 @@ Pink: Setup {
 }
 
 // Generation 1
-Blue: PlayCard(CrediCor) {
+Blue: playCard(CrediCor) {
     57 MC VIA CrediCor
-    Pay(18 MC)
+    pay(18 MC)
     6 ProjectCard<Hand FROM Selecting>
 }
 
-Pink: PlayCard(Ecoline) {
+Pink: playCard(Ecoline) {
     36 MC VIA Ecoline
     3 Plant
     PROD[2 Plant]
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
-Blue: PlayCard(AlbedoPlants) {
+Blue: playCard(AlbedoPlants) {
     PROD[Plant]
     Plant
     3 Heat
 }
-Blue: PlayCard(ResearchNetwork) {
+Blue: playCard(ResearchNetwork) {
     PROD[MC]
     3 ProjectCard
 }
 
-Pink: PlayCard(BiosphereSupport) {
+Pink: playCard(BiosphereSupport) {
     PROD[-MC]
     PROD[2 Plant]
 }
-Pink: PlayCard(Biolab) {
+Pink: playCard(Biolab) {
     PROD[Plant]
     3 ProjectCard
 }
 
-Blue: PlayCard(AerobrakedAmmoniaAsteroid) {
-    Pay(26 MC)
+Blue: playCard(AerobrakedAmmoniaAsteroid) {
+    pay(26 MC)
     2* Microbe
     PROD[3 Heat]
     PROD[Plant]
     4 MC
 }
 
-Pink: PlayCard(MiningRights) {
-    Pay(9 MC)
+Pink: playCard(MiningRights) {
+    pay(9 MC)
     MiningRights_SpecialTile<Hellas_4_4>
     PROD[Steel]
     2 Steel
 }
 
-Blue: Pass
+Blue: pass
 
-Pink: PlayCard(VestaShipyard) {
-    Pay(15 MC)
+Pink: playCard(VestaShipyard) {
+    pay(15 MC)
     PROD[Titanium]
 }
-Pink: Pass
+Pink: pass
 
 Blue: Production {
     21 MC
@@ -360,63 +360,63 @@ Blue: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 23 evidence: after both research purchases.
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_3_4>
     OxygenStep
     Steel
     TerraformRating
 }
 
-Blue: PlayCard(Potatoes) {
-    Pay(2 MC)
+Blue: playCard(Potatoes) {
+    pay(2 MC)
     -2 Plant
     PROD[2 MC]
     3 Heat
 }
 
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Blue: ConvertHeat {
-    Pay(8 Heat)
+Blue: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Blue: PlayCard(SmallAsteroid) {
-    Pay(10 MC)
+Blue: playCard(SmallAsteroid) {
+    pay(10 MC)
     TemperatureStep
     TerraformRating
     PROD[Heat]
     -Plant<Pink>
 }
 
-Pink: Pass
+Pink: pass
 
-Blue: PlayCard(Lichen) {
-    Pay(7 MC)
+Blue: playCard(Lichen) {
+    pay(7 MC)
     PROD[Plant]
     3 Heat
 }
 // Test inference: Research Network's wild tag supplies the fourth bio tag.
-Blue: ClaimMilestone {
-    Pay(8 MC)
+Blue: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Ecologist
 }
-Blue: Pass
+Blue: pass
 
 Blue: Production {
     25 MC
@@ -439,24 +439,24 @@ Pink: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 48 evidence: after both research purchases.
-Blue: PlayCard(ResearchCoordination) {
-    Pay(4 MC)
+Blue: playCard(ResearchCoordination) {
+    pay(4 MC)
 }
 
-Pink: PlayCard(BigAsteroid) {
-    Pay(2 Titanium, 21 MC)
+Pink: playCard(BigAsteroid) {
+    pay(2 Titanium, 21 MC)
     TemperatureStep
     TemperatureStep
     4 Titanium
@@ -466,19 +466,19 @@ Pink: PlayCard(BigAsteroid) {
 }
 
 // Blue has no printed Earth tags yet, so Space Hotels needs both wild tags.
-Blue: PlayCard(SpaceHotels) {
-    Pay(12 MC)
+Blue: playCard(SpaceHotels) {
+    pay(12 MC)
     PROD[4 MC]
 }
 
-Pink: Pass
+Pink: pass
 
-Blue: ConvertHeat {
-    Pay(8 Heat)
+Blue: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Blue: Pass
+Blue: pass
 
 Blue: Production {
     30 MC
@@ -502,67 +502,67 @@ Blue: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 69 evidence: after both research purchases.
-Pink: PlayCard(EarthOffice) {
-    Pay(1 MC)
+Pink: playCard(EarthOffice) {
+    pay(1 MC)
 }
 
-Blue: PlayCard(ResearchOutpost) {
-    Pay(18 MC)
+Blue: playCard(ResearchOutpost) {
+    pay(18 MC)
     NormalCityTile<Hellas_2_5>
     Plant
 }
 
-Pink: PlayCard(LargeConvoy) {
-    Pay(5 Titanium, 18 MC)
+Pink: playCard(LargeConvoy) {
+    pay(5 Titanium, 18 MC)
     5 Plant
     2 ProjectCard
     OceanTile<Hellas_5_6>
     TerraformRating
     ProjectCard
 }
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_5_5>
     OxygenStep
     2 MC
     TerraformRating
 }
 
-Blue: PlayCard(HermeticOrderOfMars) {
-    Pay(9 MC)
+Blue: playCard(HermeticOrderOfMars) {
+    pay(9 MC)
     PROD[2 MC]
     6 MC
 }
 
 // no MC remainder
-Pink: PlayCard(MarsUniversity) {
-    Pay(4 Steel)
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+Pink: playCard(MarsUniversity) {
+    pay(4 Steel)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Blue: PlayCard(AdaptedLichen) {
-    Pay(8 MC)
+Blue: playCard(AdaptedLichen) {
+    pay(8 MC)
     PROD[Plant]
     3 Heat
 }
 
-Pink: Pass
+Pink: pass
 
-Blue: Pass
+Blue: pass
 
 Pink: Production {
     24 MC
@@ -586,23 +586,23 @@ Pink: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -3 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 98 evidence: after both research purchases.
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Blue: PlayCard(NitrogenRichAsteroid) {
-    Pay(30 MC)
+Blue: playCard(NitrogenRichAsteroid) {
+    pay(30 MC)
     2 TerraformRating
     TemperatureStep
     4 MC
@@ -610,15 +610,15 @@ Blue: PlayCard(NitrogenRichAsteroid) {
     PROD[4 Plant]
 }
 
-Pink: UseStandardProject(AquiferProject) {
-    Pay(18 MC)
+Pink: useStandardProject(AquiferProject) {
+    pay(18 MC)
     OceanTile<Hellas_4_6>
     TerraformRating
     Plant
     2 MC
 }
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_4_5>
     OxygenStep
     Steel
@@ -626,38 +626,38 @@ Pink: ConvertPlants {
     TerraformRating
 }
 
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_3_5>
     OxygenStep
     2 MC
     TerraformRating
 }
 
-Pink: PlayCard(Harvest) {
-    Pay(4 MC)
+Pink: playCard(Harvest) {
+    pay(4 MC)
     12 MC
 }
-Pink: PlayCard(MarsNomads) {
-    Pay(13 MC)
+Pink: playCard(MarsNomads) {
+    pay(13 MC)
     NomadsMarker<Hellas_8_7>
 }
 
-Blue: ConvertHeat {
-    Pay(8 Heat)
+Blue: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_6_6>
     OxygenStep
     4 MC
     TerraformRating
 }
-Pink: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Hellas_9_7> FROM NomadsMarker<Hellas_8_7>! THEN Placement<Hellas_9_7>!)
+Pink: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Hellas_9_7> FROM NomadsMarker<Hellas_8_7>! THEN Placement<Hellas_9_7>!)
     NomadsMarker<Hellas_9_7> FROM NomadsMarker<Hellas_8_7>
     -6 MC
     OceanTile<Hellas_5_7>
@@ -666,19 +666,19 @@ Pink: UseAction1(MarsNomads) {
     6 MC
 }
 
-Blue: PlayCard(Windmills) {
-    Pay(5 MC)
+Blue: playCard(Windmills) {
+    pay(5 MC)
     PROD[Energy]
 }
 
-Pink: ClaimMilestone {
-    Pay(8 MC)
+Pink: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Terraformer
 }
 
-Blue: Pass
+Blue: pass
 
-Pink: Pass
+Pink: pass
 
 Blue: Production {
     37 MC
@@ -703,31 +703,31 @@ Blue: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -ProjectCard<Selecting>
-    Pay(9 MC)
+    pay(9 MC)
     3 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 133 evidence: after both research purchases.
-Pink: UseStandardProject(PowerPlantProject) {
-    Pay(11 MC)
+Pink: useStandardProject(PowerPlantProject) {
+    pay(11 MC)
     PROD[Energy]
 }
-Pink: PlayCard(LavaTubeSettlement) {
-    Pay(5 Steel, 5 MC)
+Pink: playCard(LavaTubeSettlement) {
+    pay(5 Steel, 5 MC)
     PROD[-Energy]
     PROD[2 MC]
     NormalCityTile<Hellas_6_5>
 }
 
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_2_4>
     OxygenStep
     Plant
@@ -735,52 +735,52 @@ Blue: ConvertPlants {
     TerraformRating
 }
 
-Pink: PlayCard(ImportedGhg) {
-    Pay(1 Titanium, 1 MC)
+Pink: playCard(ImportedGhg) {
+    pay(1 Titanium, 1 MC)
     PROD[Heat]
     3 Heat
 }
 
-Blue: PlayCard(ExtractorBalloons) {
-    Pay(20 MC)
+Blue: playCard(ExtractorBalloons) {
+    pay(20 MC)
     3 Floater<ExtractorBalloons>
     4 MC
 }
 
-Pink: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Hellas_8_6> FROM NomadsMarker<Hellas_9_7>! THEN Placement<Hellas_8_6>!)
+Pink: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Hellas_8_6> FROM NomadsMarker<Hellas_9_7>! THEN Placement<Hellas_8_6>!)
     NomadsMarker<Hellas_8_6> FROM NomadsMarker<Hellas_9_7>
     2 Heat
 }
 
-Blue: PlayCard(Insects) {
-    Pay(8 MC)
+Blue: playCard(Insects) {
+    pay(8 MC)
     PROD[6 Plant]
 }
-Blue: PlayCard(Worms) {
-    Pay(7 MC)
+Blue: playCard(Worms) {
+    pay(7 MC)
     PROD[2 Plant]
 }
 
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
 
-Blue: UseAction2(ExtractorBalloons) {
+Blue: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
 
-Pink: PlayCard(Moss) {
-    Pay(4 MC)
+Pink: playCard(Moss) {
+    pay(4 MC)
     PROD[Plant]
     -Plant
 }
 
-Blue: Pass
+Blue: pass
 
-Pink: Pass
+Pink: pass
 
 Blue: Production {
     39 MC
@@ -806,28 +806,28 @@ Pink: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 173 evidence: after both research purchases.
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_3_6>
     OxygenStep
     2 Plant
     2 MC
     TerraformRating
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_1_4>
     OxygenStep
     Plant
@@ -835,35 +835,35 @@ Blue: ConvertPlants {
     TerraformRating
 }
 
-Pink: PlayCard(EcologicalZone) {
-    Pay(12 MC)
+Pink: playCard(EcologicalZone) {
+    pay(12 MC)
     Animal<EcologicalZone>
     Animal<EcologicalZone>
     EcologicalZone_SpecialTile<Hellas_2_3>
     Plant
 }
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_7_6>
     OxygenStep
     ProjectCard
     TerraformRating
 }
 
-Blue: PlayCard(PowerGrid) {
-    Pay(17 MC)
+Blue: playCard(PowerGrid) {
+    pay(17 MC)
     PROD[4 Energy]
 }
-Blue: PlayCard(UndergroundCity) {
-    Pay(2 Steel, 13 MC)
+Blue: playCard(UndergroundCity) {
+    pay(2 Steel, 13 MC)
     PROD[-2 Energy]
     PROD[2 Steel]
     NormalCityTile<Hellas_7_7>
     2 MC
 }
 
-Pink: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Hellas_9_7> FROM NomadsMarker<Hellas_8_6>! THEN Placement<Hellas_9_7>!)
+Pink: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Hellas_9_7> FROM NomadsMarker<Hellas_8_6>! THEN Placement<Hellas_9_7>!)
     NomadsMarker<Hellas_9_7> FROM NomadsMarker<Hellas_8_6>
     -6 MC
     OceanTile<Hellas_6_8>
@@ -871,58 +871,58 @@ Pink: UseAction1(MarsNomads) {
     Steel
     4 MC
 }
-Pink: ConvertHeat {
-    Pay(8 Heat)
+Pink: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Blue: ClaimMilestone {
-    Pay(8 MC)
+Blue: action(ClaimMilestoneAction) {
+    pay(8 MC)
     Producer
 }
 
-Pink: PlayCard(BusinessNetwork) {
-    Pay(1 MC)
+Pink: playCard(BusinessNetwork) {
+    pay(1 MC)
     PROD[-MC]
 }
 // keep the offered Business Network card
-Pink: UseAction1(BusinessNetwork) {
+Pink: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -0 ProjectCard<Selecting>
-    Pay(3 MC)
+    pay(3 MC)
     ProjectCard<Hand FROM Selecting>
 }
 
-Blue: ConvertHeat {
-    Pay(8 Heat)
+Blue: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
 // no MC remainder
-Pink: PlayCard(ImportOfAdvancedGhg) {
-    Pay(2 Titanium)
+Pink: playCard(ImportOfAdvancedGhg) {
+    pay(2 Titanium)
     PROD[2 Heat]
 }
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     2 MC FROM ProjectCard
 }
 
-Blue: UseAction1(ExtractorBalloons) {
+Blue: useAction1(ExtractorBalloons) {
     Floater<ExtractorBalloons>
 }
 
-Pink: PlayCard(NitrophilicMoss) {
-    Pay(8 MC)
+Pink: playCard(NitrophilicMoss) {
+    pay(8 MC)
     PROD[2 Plant]
     -2 Plant
     Animal<EcologicalZone>
 }
 
-Blue: Pass
+Blue: pass
 
-Pink: Pass
+Pink: pass
 
 Blue: Production {
     42 MC
@@ -951,115 +951,115 @@ Blue: Research {
 
     // discard no research cards
     -0 ProjectCard<Selecting>
-    Pay(12 MC)
+    pay(12 MC)
     4 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // _local/replays/Game20260827/game-gbf986ef543f0.sqlite; source save 214.
 // Database save 214 evidence: after both research purchases.
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_5_4>
     OxygenStep
     2 Steel
     TerraformRating
 }
-Pink: PlayCard(Pets) {
-    Pay(7 MC)
+Pink: playCard(Pets) {
+    pay(7 MC)
     Animal<Pets> VIA Pets
     Animal<EcologicalZone>
 }
 
-Blue: PlayCard(OlympusConference) {
-    Pay(2 Steel, 5 MC)
+Blue: playCard(OlympusConference) {
+    pay(2 Steel, 5 MC)
     Science<OlympusConference>
 }
 // Research Outpost and Olympus Conference supply the other two science tags.
-Blue: PlayCard(AiCentral) {
-    Pay(20 MC)
+Blue: playCard(AiCentral) {
+    pay(20 MC)
     PROD[-Energy]
     4 MC
     ProjectCard FROM Science<OlympusConference>
 }
 
-Pink: UseAction1(BusinessNetwork) {
+Pink: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
-Blue: PlayCard(AqueductSystems) {
-    Pay(8 MC)
+Blue: playCard(AqueductSystems) {
+    pay(8 MC)
     3 SearchForCard<TagFilter<Class<BuildingTag>>>
 }
-Blue: UseAction1(AiCentral) {
+Blue: useAction1(AiCentral) {
     2 ProjectCard
 }
 
-Pink: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Hellas_8_7> FROM NomadsMarker<Hellas_9_7>! THEN Placement<Hellas_8_7>!)
+Pink: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Hellas_8_7> FROM NomadsMarker<Hellas_9_7>! THEN Placement<Hellas_8_7>!)
     NomadsMarker<Hellas_8_7> FROM NomadsMarker<Hellas_9_7>
     2 Heat
 }
 
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_7_8>
     0 OxygenStep
     4 MC
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_1_5>
     0 OxygenStep
     Plant
 }
 
-Pink: ConvertHeat {
-    Pay(8 Heat)
+Pink: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Blue: PlayCard(FloatingHabs) {
-    Pay(4 MC)
+Blue: playCard(FloatingHabs) {
+    pay(4 MC)
 }
 
-Pink: PlayCard(KelpFarming) {
-    Pay(17 MC)
+Pink: playCard(KelpFarming) {
+    pay(17 MC)
     PROD[2 MC]
     PROD[3 Plant]
     2 Plant
     Animal<EcologicalZone>
 }
 
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Blue: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Blue: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<ExtractorBalloons>
 }
 
-Pink: Pass
+Pink: pass
 
-Blue: UseAction2(ExtractorBalloons) {
+Blue: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
-Blue: ConvertHeat {
-    Pay(8 Heat)
+Blue: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Blue: Pass
+Blue: pass
 
 Blue: Production {
     44 MC
@@ -1086,25 +1086,25 @@ Pink: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 257 evidence: after both research purchases.
-Blue: ConvertHeat {
-    Pay(8 Heat)
+Blue: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
-Blue: UseStandardProject(AsteroidProject) {
-    Pay(14 MC)
+Blue: useStandardProject(AsteroidProject) {
+    pay(14 MC)
     TemperatureStep
     TerraformRating
     OceanTile<Hellas_2_1>
@@ -1113,15 +1113,15 @@ Blue: UseStandardProject(AsteroidProject) {
     2 MC
 }
 
-Pink: PlayCard(AsteroidCard) {
-    Pay(2 Titanium, 8 MC)
+Pink: playCard(AsteroidCard) {
+    pay(2 Titanium, 8 MC)
     TemperatureStep
     2 Titanium
     TerraformRating
     -3 Plant<Blue>
 }
-Pink: PlayCard(Comet) {
-    Pay(2 Titanium, 15 MC)
+Pink: playCard(Comet) {
+    pay(2 Titanium, 15 MC)
     TemperatureStep
     TerraformRating
     OceanTile<Hellas_1_1>
@@ -1131,99 +1131,99 @@ Pink: PlayCard(Comet) {
     -3 Plant<Blue>
 }
 
-Blue: UseAction1(AiCentral) {
+Blue: useAction1(AiCentral) {
     2 ProjectCard
 }
-Blue: PlayCard(InventionContest) {
-    Pay(1 MC)
+Blue: playCard(InventionContest) {
+    pay(1 MC)
     3 ProjectCard<Selecting> VIA InventionContest
     Science<OlympusConference>
     ProjectCard<Hand FROM Selecting>
 }
 
-Pink: PlayCard(Virus) {
-    Pay(1 MC)
+Pink: playCard(Virus) {
+    pay(1 MC)
     -5 Plant<Blue>
 }
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_6_4>
     0 OxygenStep
     Steel
 }
 
 // Three printed science tags remain in play; Invention Contest is already an event.
-Blue: PlayCard(InterstellarColonyShip) {
-    Pay(23 MC)
+Blue: playCard(InterstellarColonyShip) {
+    pay(23 MC)
     4 MC
 }
 
-Pink: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Hellas_8_6> FROM NomadsMarker<Hellas_8_7>! THEN Placement<Hellas_8_6>!)
+Pink: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Hellas_8_6> FROM NomadsMarker<Hellas_8_7>! THEN Placement<Hellas_8_6>!)
     NomadsMarker<Hellas_8_6> FROM NomadsMarker<Hellas_8_7>
     2 Heat
 }
-Pink: ConvertHeat {
-    Pay(8 Heat)
+Pink: action(ConvertHeatAction) {
+    pay(8 Heat)
     TemperatureStep
     TerraformRating
 }
 
-Blue: PlayCard(HiredRaiders) {
+Blue: playCard(HiredRaiders) {
     3 MC FROM MC<Pink>
 }
 
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_7_5>
     0 OxygenStep
 }
 
-Blue: FundAward {
-    Pay(8 MC)
+Blue: action(FundAwardAction) {
+    pay(8 MC)
     Magnate
 }
 
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_8_8>
     0 OxygenStep
     Titanium
 }
 
-Pink: UseAction1(BusinessNetwork) {
+Pink: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 // no MC remainder
-Pink: PlayCard(CarbonNanosystems) {
-    Pay(7 Steel)
+Pink: playCard(CarbonNanosystems) {
+    pay(7 Steel)
     Graphene<CarbonNanosystems>
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
 
-Pink: Pass
+Pink: pass
 
-Blue: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Blue: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<ExtractorBalloons>
 }
-Blue: UseAction2(ExtractorBalloons) {
+Blue: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     TerraformRating
 }
-Blue: Pass
+Blue: pass
 
 Pink: Production {
     40 MC
@@ -1250,182 +1250,182 @@ Blue: WorldGovernment {
 Blue: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 Pink: Research {
     4 ProjectCard<Selecting>
     -2 ProjectCard<Selecting>
-    Pay(6 MC)
+    pay(6 MC)
     2 ProjectCard<Hand FROM Selecting>
 }
 
 // Database save 307 evidence: after both research purchases.
-Pink: UseStandardProject(AirScrappingProject) {
-    Pay(15 MC)
+Pink: useStandardProject(AirScrappingProject) {
+    pay(15 MC)
     VenusStep
     TerraformRating
     ProjectCard
 }
-Pink: UseAction1(BusinessNetwork) {
+Pink: useAction1(BusinessNetwork) {
     ProjectCard<Selecting>
     -ProjectCard<Selecting>
 }
 
-Blue: UseAction1(AiCentral) {
+Blue: useAction1(AiCentral) {
     2 ProjectCard
 }
 
 // The source records an explicit unused second action.
-Pink: UseStandardProject(CityProject) {
-    Pay(25 MC)
+Pink: useStandardProject(CityProject) {
+    pay(25 MC)
     PROD[MC]
     NormalCityTile<Hellas_5_3>
     Animal<Pets>
 }
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_4_2>
     0 OxygenStep
     Plant
     4 MC
 }
 
-Blue: PlayCard(AirScrappingExpedition) {
-    Pay(12 MC)
+Blue: playCard(AirScrappingExpedition) {
+    pay(12 MC)
     VenusStep
     TerraformRating
     3 Floater<FloatingHabs>
 }
 
-Pink: PlayCard(InvestmentLoan) {
+Pink: playCard(InvestmentLoan) {
     PROD[-MC]
     10 MC
 }
-Pink: PlayCard(AstraMechanica) {
-    Pay(7 MC)
+Pink: playCard(AstraMechanica) {
+    pay(7 MC)
     Graphene<CarbonNanosystems>
     ProjectCard FROM PlayedEvent<Class<InvestmentLoan>> VIA TakeEventCard
     ProjectCard FROM PlayedEvent<Class<Harvest>> VIA TakeEventCard
-    SelectTask(-ProjectCard! THEN ProjectCard!)
+    selectTask(-ProjectCard! THEN ProjectCard!)
     -ProjectCard
     ProjectCard
 }
 
-Blue: FundAward {
-    Pay(14 MC)
+Blue: action(FundAwardAction) {
+    pay(14 MC)
     Suburbian
 }
 
-Pink: PlayCard(Harvest) {
-    Pay(4 MC)
+Pink: playCard(Harvest) {
+    pay(4 MC)
     12 MC
     Animal<EcologicalZone>
 }
-Pink: UseAction1(MarsNomads) {
-    SelectTask(NomadsMarker<Hellas_8_5> FROM NomadsMarker<Hellas_8_6>! THEN Placement<Hellas_8_5>!)
+Pink: useAction1(MarsNomads) {
+    selectTask(NomadsMarker<Hellas_8_5> FROM NomadsMarker<Hellas_8_6>! THEN Placement<Hellas_8_5>!)
     NomadsMarker<Hellas_8_5> FROM NomadsMarker<Hellas_8_6>
     ProjectCard
 }
 
-Blue: PlayCard(NoctisFarming) {
-    Pay(4 Steel, 1 MC)
+Blue: playCard(NoctisFarming) {
+    pay(4 Steel, 1 MC)
     PROD[MC]
     2 Plant
     3 Heat
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_2_6>
     0 OxygenStep
     Plant
 }
 
-Pink: PlayCard(InvestmentLoan) {
+Pink: playCard(InvestmentLoan) {
     PROD[-MC]
     10 MC
 }
-Pink: FundAward {
-    Pay(20 MC)
+Pink: action(FundAwardAction) {
+    pay(20 MC)
     Excentric
 }
 
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_3_7>
     0 OxygenStep
     Plant
     ProjectCard
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_7_9>
     0 OxygenStep
     Titanium
     2 MC
 }
 
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_4_3>
     0 OxygenStep
     Steel
 }
-Pink: PlayCard(PublicBaths) {
-    Pay(2 Steel, 2 MC)
+Pink: playCard(PublicBaths) {
+    pay(2 Steel, 2 MC)
     6 MC
 }
 
-Blue: PlayCard(Atmoscoop) {
-    Pay(2 Titanium, 15 MC)
+Blue: playCard(Atmoscoop) {
+    pay(2 Titanium, 15 MC)
     4 MC
     VenusStep*, VenusStep*
     2 TerraformRating
     2 Floater<ExtractorBalloons>
 }
-Blue: UseAction2(ExtractorBalloons) {
+Blue: useAction2(ExtractorBalloons) {
     -2 Floater<ExtractorBalloons>
     VenusStep
     2 TerraformRating
 }
 
-Pink: UseStandardProject(SellPatentsProject) {
+Pink: useStandardProject(SellPatentsProject) {
     3 MC FROM ProjectCard
 }
-Pink: PlayCard(ReleaseOfInertGases) {
-    Pay(14 MC)
+Pink: playCard(ReleaseOfInertGases) {
+    pay(14 MC)
     2 TerraformRating
 }
 
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     MC FROM ProjectCard
 }
-Blue: PlayCard(MediaArchives) {
-    Pay(7 MC)
+Blue: playCard(MediaArchives) {
+    pay(7 MC)
     17 MC
 }
 
-Pink: Pass
+Pink: pass
 
-Blue: PlayCard(TropicalResort) {
-    Pay(12 MC)
+Blue: playCard(TropicalResort) {
+    pay(12 MC)
     PROD[-2 Heat]
     PROD[3 MC]
 }
-Blue: UseStandardProject(SellPatentsProject) {
+Blue: useStandardProject(SellPatentsProject) {
     8 MC FROM ProjectCard
 }
-Blue: UseAction1(FloatingHabs) {
-    Pay(2 MC)
+Blue: useAction1(FloatingHabs) {
+    pay(2 MC)
     Floater<FloatingHabs>
 }
-Blue: PlayCard(NeutralizerFactory) {
-    Pay(6 MC)
+Blue: playCard(NeutralizerFactory) {
+    pay(6 MC)
     VenusStep
     TerraformRating
 }
-Blue: Pass
+Blue: pass
 
 Blue: Production {
     58 MC
@@ -1444,14 +1444,14 @@ Pink: Production {
     4 Heat
 }
 
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_2_2>
     2 Plant
     4 MC
 }
-Pink: ConvertPlants {
-    Pay(7 Plant)
+Pink: action(ConvertPlantsAction) {
+    pay(7 Plant)
     GreeneryTile<Hellas_5_2>
     2 MC
 }
@@ -1460,13 +1460,13 @@ Pink {
     Ok
 }
 
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_8_7>
     2 Heat
 }
-Blue: ConvertPlants {
-    Pay(8 Plant)
+Blue: action(ConvertPlantsAction) {
+    pay(8 Plant)
     GreeneryTile<Hellas_9_9>
 }
 // decline final greenery
